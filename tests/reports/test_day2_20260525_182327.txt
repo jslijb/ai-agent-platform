@@ -1,0 +1,35 @@
+Day2 测试报告
+时间: 20260525_182327
+耗时: 579.6s
+============================================================
+
+✅ [PASS] 百炼模型调用（通过Agent API）
+❌ [FAIL] 数据服务健康检查 - HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=10)
+⏭️ [SKIP] Baostock 历史行情 - SKIP（Baostock 服务器超时）
+⏭️ [SKIP] Baostock 财务数据 - SKIP（Baostock 服务器超时）
+⏭️ [SKIP] Baostock 指数数据 - SKIP（Baostock 服务器超时）
+⏭️ [SKIP] Baostock 股票列表 - SKIP（Baostock 服务器超时）
+⏭️ [SKIP] mootdx 实时行情 - SKIP（mootdx 服务器连接超时，非交易时段正常）
+⏭️ [SKIP] mootdx 分钟K线 - SKIP（mootdx 服务器连接超时，非交易时段正常）
+⏭️ [SKIP] Baostock 交易日历 - SKIP（Baostock 服务器超时）
+✅ [PASS] MA 移动平均线
+✅ [PASS] MACD 指标
+✅ [PASS] RSI 指标
+✅ [PASS] 模拟交易-创建账户
+✅ [PASS] 交易合规检查
+✅ [PASS] 受限股票检查
+✅ [PASS] 持仓限制检查
+✅ [PASS] VaR 计算
+✅ [PASS] 压力测试
+✅ [PASS] 财务数据提取
+✅ [PASS] 文本摘要
+✅ [PASS] 研报生成
+✅ [PASS] Agent API - 缺少query参数
+✅ [PASS] Agent API - 正常调用
+✅ [PASS] YAML 配置加载
+✅ [PASS] YAML 配置值读取
+✅ [PASS] .env.local 加载
+
+============================================================
+汇总: ✅ 通过=18, ❌ 失败=1, ⏭️ 跳过=7
+总计: 26

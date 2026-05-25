@@ -1,0 +1,30 @@
+============================================================
+Day7-Day8 测试报告
+时间: 20260525_182433
+============================================================
+
+✅ [PASS] CDC 监听模块 - 文件存在
+✅ [PASS] CDC 监听模块 - 导出函数正确
+✅ [PASS] 增量嵌入模块 - 文件存在
+✅ [PASS] 增量嵌入模块 - 导出函数正确
+✅ [PASS] 反思节点 - 文件存在
+✅ [PASS] 反思节点 - 导出函数正确
+✅ [PASS] Agentic RAG - POST /api/agent/run
+✅ [PASS] Agent - iterations 字段
+✅ [PASS] 黄金测试集 - qa-golden.json 存在且格式正确
+✅ [PASS] RAG 评估器 - 文件存在
+✅ [PASS] RAG 评估器 - 导出函数正确
+✅ [PASS] DeepWiki 工具 - 文件存在
+✅ [PASS] DeepWiki 工具 - 导出函数正确
+✅ [PASS] 评估面板 - GET /api/evaluation/results
+✅ [PASS] 评估面板 - page.tsx 文件存在
+✅ [PASS] 反思评估逻辑 - shouldRetrieveAgain 判断
+✅ [PASS] 增量索引逻辑 - INSERT/UPDATE/DELETE 处理
+✅ [PASS] 评估指标计算 - Hits@K
+✅ [PASS] 评估指标计算 - Faithfulness
+✅ [PASS] 综合评分计算 - overallScore
+
+============================================================
+汇总: ✅ 通过=20, ❌ 失败=0, ⏭️ 跳过=0
+总计: 20
+============================================================

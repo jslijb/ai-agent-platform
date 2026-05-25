@@ -1,0 +1,137 @@
+{
+  "day": 2,
+  "timestamp": "20260525_172017",
+  "duration_seconds": 81.756557,
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 20,
+    "total": 26
+  },
+  "results": [
+    {
+      "name": "百炼模型调用（通过Agent API）",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "数据服务健康检查",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "Baostock 历史行情",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "Baostock 财务数据",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "Baostock 指数数据",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "Baostock 股票列表",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "mootdx 实时行情",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "mootdx 分钟K线",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "Baostock 交易日历",
+      "status": "SKIP",
+      "reason": "SKIP（数据服务未启动）"
+    },
+    {
+      "name": "MA 移动平均线",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "MACD 指标",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "RSI 指标",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "模拟交易-创建账户",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "交易合规检查",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "受限股票检查",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "持仓限制检查",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "VaR 计算",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "压力测试",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "财务数据提取",
+      "status": "PASS"
+    },
+    {
+      "name": "文本摘要",
+      "status": "PASS"
+    },
+    {
+      "name": "研报生成",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent API - 缺少query参数",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "Agent API - 正常调用",
+      "status": "SKIP",
+      "reason": "SKIP（Next.js 未启动）"
+    },
+    {
+      "name": "YAML 配置加载",
+      "status": "PASS"
+    },
+    {
+      "name": "YAML 配置值读取",
+      "status": "PASS"
+    },
+    {
+      "name": ".env.local 加载",
+      "status": "PASS"
+    }
+  ]
+}

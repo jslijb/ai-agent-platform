@@ -1,0 +1,128 @@
+======================================================================
+  AI Agent Platform — P0/P1 改造测试报告
+  时间: 2026-05-25 20:33:12
+======================================================================
+
+总测试项: 85  |  通过: 85  |  失败: 0  |  通过率: 100.0%
+
+
+──────────────────────────────────────────────────
+  P0-知识过期  (12/12 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  Document.validUntil 字段
+  ✅ PASS  Document.documentType 字段
+  ✅ PASS  Document.contentHash 字段
+  ✅ PASS  Document.version 字段
+  ✅ PASS  Document.updatedAt 字段
+  ✅ PASS  knowledge-cleanup.ts 存在
+  ✅ PASS  cleanExpiredDocuments 函数
+  ✅ PASS  setDefaultExpiry 函数
+  ✅ PASS  research_report 90天
+  ✅ PASS  financial_report 365天
+  ✅ PASS  regulation 永不过期
+  ✅ PASS  检索过滤过期文档
+
+──────────────────────────────────────────────────
+  P0-确定性  (7/7 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  temperature=0
+  ✅ PASS  seed=42
+  ✅ PASS  指数退避重试
+  ✅ PASS  callBailian temperature 参数
+  ✅ PASS  Agent 整体超时
+  ✅ PASS  超时检查逻辑
+  ✅ PASS  反思节点 temperature=0
+
+──────────────────────────────────────────────────
+  P0-限流健康检查  (10/10 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  rate-limiter.ts 存在
+  ✅ PASS  checkRateLimit 函数
+  ✅ PASS  每分钟20次限制
+  ✅ PASS  Agent路由集成限流
+  ✅ PASS  429 状态码
+  ✅ PASS  health 路由存在
+  ✅ PASS  数据库检查
+  ✅ PASS  Embedding 服务检查
+  ✅ PASS  LLM 服务检查
+  ✅ PASS  503 状态码
+
+──────────────────────────────────────────────────
+  P1-短期记忆  (12/12 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  Conversation 模型
+  ✅ PASS  Message 模型
+  ✅ PASS  Conversation-Message 关联
+  ✅ PASS  memory.ts 存在
+  ✅ PASS  createConversation
+  ✅ PASS  addMessage
+  ✅ PASS  getRecentMessages
+  ✅ PASS  token 截断策略
+  ✅ PASS  Agent 集成记忆
+  ✅ PASS  conversationId 参数
+  ✅ PASS  历史消息加载
+  ✅ PASS  对话记录保存
+
+──────────────────────────────────────────────────
+  P1-编排器  (9/9 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  base.ts 非空壳
+  ✅ PASS  AgentConfig 接口
+  ✅ PASS  callLLM 方法
+  ✅ PASS  orchestrator.ts 非空壳
+  ✅ PASS  查询路由
+  ✅ PASS  quant 路由
+  ✅ PASS  compliance 路由
+  ✅ PASS  research 路由
+  ✅ PASS  超时控制
+
+──────────────────────────────────────────────────
+  P1-MCP  (9/9 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  server.ts 非空壳
+  ✅ PASS  listTools 函数
+  ✅ PASS  callTool 函数
+  ✅ PASS  registerAllTools 函数
+  ✅ PASS  hybrid_search 工具
+  ✅ PASS  calculate_ma 工具
+  ✅ PASS  check_trade_compliance 工具
+  ✅ PASS  SSE GET 端点
+  ✅ PASS  SSE POST 端点
+
+──────────────────────────────────────────────────
+  P1-熔断降级  (12/12 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  circuit-breaker.ts 存在
+  ✅ PASS  三状态管理
+  ✅ PASS  withCircuitBreaker 函数
+  ✅ PASS  失败阈值3次
+  ✅ PASS  router.ts 非空壳
+  ✅ PASS  模型降级链
+  ✅ PASS  熔断器集成
+  ✅ PASS  cache.ts 非空壳
+  ✅ PASS  缓存 TTL
+  ✅ PASS  temperature=0 时启用缓存
+  ✅ PASS  redis.ts 非空壳
+  ✅ PASS  动态导入降级
+
+──────────────────────────────────────────────────
+  P1-CDC  (5/5 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  insert/update 分离
+  ✅ PASS  update 图谱同步
+  ✅ PASS  update BM25 重建
+  ✅ PASS  contentHash 检查
+  ✅ PASS  rebuildBM25Index 导出
+
+──────────────────────────────────────────────────
+  文档  (9/9 通过)
+──────────────────────────────────────────────────
+  ✅ PASS  README.md 存在
+  ✅ PASS  P2 未来升级方向章节
+  ✅ PASS  健康检查 API 文档
+  ✅ PASS  MCP SSE API 文档
+  ✅ PASS  Agent 记忆系统章节
+  ✅ PASS  知识生命周期管理章节
+  ✅ PASS  稳定性保障章节
+  ✅ PASS  npm install redis 说明
+  ✅ PASS  docs/upgrade_p0_p1.md 存在

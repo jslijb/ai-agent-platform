@@ -1,0 +1,35 @@
+Day2 测试报告
+时间: 20260525_172834
+耗时: 172.3s
+============================================================
+
+❌ [FAIL] 百炼模型调用（通过Agent API） - HTTP 404: <!DOCTYPE html><html lang="zh-CN"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/css/app/layout.css?v=1779
+✅ [PASS] 数据服务健康检查
+✅ [PASS] Baostock 历史行情
+✅ [PASS] Baostock 财务数据
+✅ [PASS] Baostock 指数数据
+❌ [FAIL] Baostock 股票列表 - HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)
+⏭️ [SKIP] mootdx 实时行情 - SKIP（mootdx 服务器连接超时，非交易时段正常）
+✅ [PASS] mootdx 分钟K线
+❌ [FAIL] Baostock 交易日历 - 请求失败: 查询交易日历失败: 开始日期格式不正确
+❌ [FAIL] MA 移动平均线 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] MACD 指标 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] RSI 指标 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] 模拟交易-创建账户 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] 交易合规检查 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] 受限股票检查 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] 持仓限制检查 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] VaR 计算 - Expecting value: line 1 column 1 (char 0)
+❌ [FAIL] 压力测试 - Expecting value: line 1 column 1 (char 0)
+✅ [PASS] 财务数据提取
+✅ [PASS] 文本摘要
+✅ [PASS] 研报生成
+❌ [FAIL] Agent API - 缺少query参数 - 期望 400，实际 404
+❌ [FAIL] Agent API - 正常调用 - HTTP 404: <!DOCTYPE html><html lang="zh-CN"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="/_next/static/css/app/layout.css?v=1779
+✅ [PASS] YAML 配置加载
+✅ [PASS] YAML 配置值读取
+✅ [PASS] .env.local 加载
+
+============================================================
+汇总: ✅ 通过=11, ❌ 失败=14, ⏭️ 跳过=1
+总计: 26

@@ -1,0 +1,131 @@
+{
+  "timestamp": "20260525_172129",
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 18,
+    "total": 24
+  },
+  "results": [
+    {
+      "name": "Next.js 服务可达性",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "文档上传 API",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "RAG 搜索 API（混合检索）",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "向量检索（稠密检索）",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "BM25 稀疏检索",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "RRF 混合检索融合",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "RAG 搜索 - 缺少query参数",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "RAG 搜索 - 无效检索模式",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "Neo4j 连接",
+      "status": "SKIP",
+      "detail": "SKIP（neo4j 库未安装）"
+    },
+    {
+      "name": "图谱检索（实体抽取+图搜索）",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "图谱构建（通过文档上传）",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "多跳检索",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "BGE-Reranker 服务健康检查",
+      "status": "SKIP",
+      "detail": "SKIP（Reranker 服务未启动）"
+    },
+    {
+      "name": "Rerank 功能",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "HyDE 查询改写",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "父子文档合并",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "带引用答案 API",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "答案溯源（citations 字段）",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "PDF 解析（通过文档上传间接测试）",
+      "status": "SKIP",
+      "detail": "SKIP"
+    },
+    {
+      "name": "RRF 融合算法正确性",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BM25 评分算法正确性",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "父子文档映射正确性",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "实体关系三元组解析正确性",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "引用格式正确性",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

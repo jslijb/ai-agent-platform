@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pyyaml
+baostock
+tushare
+requests
+pandas
+python-dateutil

@@ -1,0 +1,41 @@
+============================================================
+Day2 测试报告
+时间: 20260525_134146
+============================================================
+
+✅ [PASS] 百炼模型调用（通过Agent API）
+✅ [PASS] 数据服务健康检查
+✅ [PASS] Baostock 历史行情
+✅ [PASS] Baostock 财务数据
+✅ [PASS] Baostock 指数数据
+✅ [PASS] Baostock 股票列表
+❌ [FAIL] mootdx 实时行情 - mootdx 客户端初始化失败: not enough values to unpack (expected 2, got 0)
+❌ [FAIL] mootdx 分钟K线 - mootdx 客户端初始化失败: not enough values to unpack (expected 2, got 0)
+❌ [FAIL] Tushare 交易日历 - TUSHARE_TOKEN 未配置
+✅ [PASS] MA 移动平均线
+✅ [PASS] MACD 指标
+✅ [PASS] RSI 指标
+✅ [PASS] 模拟交易-创建账户
+✅ [PASS] 交易合规检查
+✅ [PASS] 受限股票检查
+✅ [PASS] 持仓限制检查
+✅ [PASS] VaR 计算
+✅ [PASS] 压力测试
+✅ [PASS] 财务数据提取
+✅ [PASS] 文本摘要
+✅ [PASS] 研报生成
+✅ [PASS] Agent API - 缺少query参数
+✅ [PASS] Agent API - 正常调用
+✅ [PASS] YAML 配置加载
+✅ [PASS] YAML 配置值读取
+✅ [PASS] .env.local 加载
+
+============================================================
+汇总: ✅ 通过=23, ❌ 失败=3, ⏭️ 跳过=0
+总计: 26
+============================================================
+
+失败项分析：
+1. mootdx: bestip=True 模式下服务器列表为空，需要重启数据服务使新代码（降级重试逻辑）生效
+2. Tushare: TUSHARE_TOKEN 环境变量在 PowerShell 会话中设置了，但 Python 子进程未继承
+   解决方案：在 .env.local 中添加 TUSHARE_TOKEN=adea57a0ed0c9a6d5229a917bfb5af4b20ee8c52c035c40dfb099791

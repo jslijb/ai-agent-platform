@@ -1,0 +1,106 @@
+======================================================================
+  AI Agent Platform — 全量测试报告
+  时间: 2026-05-25 20:45:21
+  耗时: 7.4s
+======================================================================
+
+总测试项: 91  |  ✅ 通过: 88  |  ❌ 失败: 2  |  ⏭️ 跳过: 1  |  通过率: 96.7%
+
+  ✅ [PASS] Next.js 配置文件
+  ✅ [PASS] package.json 核心依赖
+  ✅ [PASS] TypeScript 配置
+  ✅ [PASS] Tailwind CSS 配置
+  ✅ [PASS] Prisma Schema（User/Document/Embedding）
+  ✅ [PASS] Docker Compose
+  ✅ [PASS] .env.example
+  ✅ [PASS] NextAuth 认证配置
+  ✅ [PASS] tRPC 设置
+  ✅ [PASS] Prisma 客户端
+  ✅ [PASS] App Layout
+  ✅ [PASS] 认证页面
+  ✅ [PASS] Dashboard 页面
+  ✅ [PASS] 百炼 LLM 调用
+  ✅ [PASS] SimpleAgent（ReAct 循环）
+  ✅ [PASS] Agent API 路由
+  ✅ [PASS] 量化分析工具
+  ✅ [PASS] 合规检查工具
+  ✅ [PASS] 风控工具
+  ✅ [PASS] 模拟交易工具
+  ✅ [PASS] 行情数据工具
+  ✅ [PASS] Python 数据服务
+  ✅ [PASS] YAML 配置管理
+  ✅ [PASS] 稠密检索器（pgvector）
+  ✅ [PASS] 稀疏检索器（BM25）
+  ✅ [PASS] 混合检索器（RRF 融合）
+  ✅ [PASS] 语义切片器
+  ✅ [PASS] 文档上传 API
+  ✅ [PASS] RAG 搜索 API
+  ✅ [PASS] 实体抽取器
+  ✅ [PASS] 图谱构建器
+  ✅ [PASS] 图谱检索器
+  ✅ [PASS] 图谱构建 API
+  ✅ [PASS] Neo4j Docker 配置
+  ✅ [PASS] BGE-Reranker 重排序
+  ✅ [PASS] Reranker Docker 配置
+  ✅ [PASS] HyDE 查询改写
+  ✅ [PASS] 父子文档
+  ✅ [PASS] PDF 解析器
+  ✅ [PASS] 表格提取器
+  ✅ [PASS] 图片描述（VLM）
+  ✅ [PASS] 来源追踪器
+  ✅ [PASS] 引用注入器
+  ✅ [PASS] 带引用答案 API
+  ✅ [PASS] CDC 监听器
+  ✅ [PASS] 增量嵌入器
+  ✅ [PASS] 反思节点
+  ✅ [PASS] RAG 评估器
+  ✅ [PASS] 黄金测试集
+  ✅ [PASS] DeepWiki 工具
+  ✅ [PASS] 评估结果 API
+  ✅ [PASS] 评估面板页面
+  ✅ [PASS] 评估脚本
+  ✅ [PASS] Document 知识过期字段
+  ✅ [PASS] 检索过滤过期文档
+  ✅ [PASS] 知识清理服务
+  ✅ [PASS] temperature=0 确定性输出
+  ✅ [PASS] seed=42 确定性输出
+  ✅ [PASS] 指数退避重试
+  ✅ [PASS] Agent 整体超时 120s
+  ✅ [PASS] 限流中间件
+  ✅ [PASS] Agent 路由集成限流
+  ✅ [PASS] 健康检查端点
+  ✅ [PASS] 反思节点 temperature=0
+  ✅ [PASS] Conversation/Message 模型
+  ✅ [PASS] 记忆服务
+  ✅ [PASS] Agent 集成记忆
+  ✅ [PASS] BaseAgent 抽象基类
+  ✅ [PASS] 多 Agent 编排器
+  ✅ [PASS] MCP Server
+  ✅ [PASS] MCP SSE 端点
+  ✅ [PASS] 熔断器
+  ✅ [PASS] LLM 模型降级链
+  ✅ [PASS] LLM 语义缓存
+  ✅ [PASS] Redis 客户端
+  ✅ [PASS] CDC insert/update 分离
+  ✅ [PASS] CDC 图谱同步
+  ✅ [PASS] CDC BM25 同步
+  ✅ [PASS] CDC contentHash 检查
+  ✅ [PASS] BM25 索引重建
+  ✅ [PASS] RRF 融合算法
+  ✅ [PASS] BM25 评分算法
+  ✅ [PASS] 熔断器状态转换
+  ✅ [PASS] 模型降级链
+  ✅ [PASS] 知识过期过滤
+  ✅ [PASS] 记忆滑动窗口
+  ✅ [PASS] GET /api/health
+  ❌ [FAIL] GET /data-service/health — HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=5)
+  ❌ [FAIL] POST /api/agent/run — HTTP 500
+  ⏭️ [SKIP] POST /api/rag/search — SKIP（需认证）
+  ✅ [PASS] GET /api/mcp/sse
+
+
+======================================================================
+  失败项汇总
+======================================================================
+  ❌ GET /data-service/health — HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=5)
+  ❌ POST /api/agent/run — HTTP 500

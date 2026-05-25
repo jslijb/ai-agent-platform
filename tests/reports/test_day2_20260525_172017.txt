@@ -1,0 +1,35 @@
+Day2 测试报告
+时间: 20260525_172017
+耗时: 81.8s
+============================================================
+
+⏭️ [SKIP] 百炼模型调用（通过Agent API） - SKIP（Next.js 未启动）
+⏭️ [SKIP] 数据服务健康检查 - SKIP（数据服务未启动）
+⏭️ [SKIP] Baostock 历史行情 - SKIP（数据服务未启动）
+⏭️ [SKIP] Baostock 财务数据 - SKIP（数据服务未启动）
+⏭️ [SKIP] Baostock 指数数据 - SKIP（数据服务未启动）
+⏭️ [SKIP] Baostock 股票列表 - SKIP（数据服务未启动）
+⏭️ [SKIP] mootdx 实时行情 - SKIP（数据服务未启动）
+⏭️ [SKIP] mootdx 分钟K线 - SKIP（数据服务未启动）
+⏭️ [SKIP] Baostock 交易日历 - SKIP（数据服务未启动）
+⏭️ [SKIP] MA 移动平均线 - SKIP（Next.js 未启动）
+⏭️ [SKIP] MACD 指标 - SKIP（Next.js 未启动）
+⏭️ [SKIP] RSI 指标 - SKIP（Next.js 未启动）
+⏭️ [SKIP] 模拟交易-创建账户 - SKIP（Next.js 未启动）
+⏭️ [SKIP] 交易合规检查 - SKIP（Next.js 未启动）
+⏭️ [SKIP] 受限股票检查 - SKIP（Next.js 未启动）
+⏭️ [SKIP] 持仓限制检查 - SKIP（Next.js 未启动）
+⏭️ [SKIP] VaR 计算 - SKIP（Next.js 未启动）
+⏭️ [SKIP] 压力测试 - SKIP（Next.js 未启动）
+✅ [PASS] 财务数据提取
+✅ [PASS] 文本摘要
+✅ [PASS] 研报生成
+⏭️ [SKIP] Agent API - 缺少query参数 - SKIP（Next.js 未启动）
+⏭️ [SKIP] Agent API - 正常调用 - SKIP（Next.js 未启动）
+✅ [PASS] YAML 配置加载
+✅ [PASS] YAML 配置值读取
+✅ [PASS] .env.local 加载
+
+============================================================
+汇总: ✅ 通过=6, ❌ 失败=0, ⏭️ 跳过=20
+总计: 26

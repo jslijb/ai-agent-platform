@@ -1,0 +1,74 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  password     String
+  createdAt    DateTime      @default(now())
+  documents    Document[]
+  conversations Conversation[]
+}
+
+model Document {
+  id           String      @id @default(cuid())
+  userId       String
+  fileName     String
+  fileKey      String
+  status       String      @default("pending")
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  contentHash  String?
+  version      Int         @default(1)
+  validUntil   DateTime?
+  documentType String      @default("general")
+  embeddings   Embedding[]
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Embedding {
+  id         String   @id @default(cuid())
+  documentId String
+  chunkIndex Int
+  chunkText  String
+  tokenCount Int?
+  metadata   Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  userId    String
+  title     String    @default("")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  messages  Message[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  role           String
+  content        String
+  createdAt      DateTime     @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+}

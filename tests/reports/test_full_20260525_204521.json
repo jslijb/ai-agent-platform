@@ -1,0 +1,468 @@
+{
+  "timestamp": "20260525_204521",
+  "duration_seconds": 7.371171,
+  "summary": {
+    "total": 91,
+    "passed": 88,
+    "failed": 2,
+    "skipped": 1,
+    "passRate": "96.7%"
+  },
+  "results": [
+    {
+      "name": "Next.js 配置文件",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "package.json 核心依赖",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "TypeScript 配置",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Tailwind CSS 配置",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Prisma Schema（User/Document/Embedding）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Docker Compose",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": ".env.example",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "NextAuth 认证配置",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "tRPC 设置",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Prisma 客户端",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "App Layout",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "认证页面",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Dashboard 页面",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "百炼 LLM 调用",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "SimpleAgent（ReAct 循环）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Agent API 路由",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "量化分析工具",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "合规检查工具",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "风控工具",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "模拟交易工具",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "行情数据工具",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Python 数据服务",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML 配置管理",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "稠密检索器（pgvector）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "稀疏检索器（BM25）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "混合检索器（RRF 融合）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "语义切片器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "文档上传 API",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "RAG 搜索 API",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "实体抽取器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "图谱构建器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "图谱检索器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "图谱构建 API",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Neo4j Docker 配置",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BGE-Reranker 重排序",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Reranker Docker 配置",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "HyDE 查询改写",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "父子文档",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "PDF 解析器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "表格提取器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "图片描述（VLM）",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "来源追踪器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "引用注入器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "带引用答案 API",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CDC 监听器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "增量嵌入器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "反思节点",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "RAG 评估器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "黄金测试集",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "DeepWiki 工具",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估结果 API",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估面板页面",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估脚本",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Document 知识过期字段",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "检索过滤过期文档",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "知识清理服务",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "temperature=0 确定性输出",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "seed=42 确定性输出",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "指数退避重试",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Agent 整体超时 120s",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "限流中间件",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Agent 路由集成限流",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "健康检查端点",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "反思节点 temperature=0",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Conversation/Message 模型",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "记忆服务",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Agent 集成记忆",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BaseAgent 抽象基类",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "多 Agent 编排器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "MCP Server",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "MCP SSE 端点",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "熔断器",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "LLM 模型降级链",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "LLM 语义缓存",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Redis 客户端",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CDC insert/update 分离",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CDC 图谱同步",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CDC BM25 同步",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CDC contentHash 检查",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BM25 索引重建",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "RRF 融合算法",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "BM25 评分算法",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "熔断器状态转换",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "模型降级链",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "知识过期过滤",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "记忆滑动窗口",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /api/health",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "GET /data-service/health",
+      "status": "FAIL",
+      "detail": "HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=5)"
+    },
+    {
+      "name": "POST /api/agent/run",
+      "status": "FAIL",
+      "detail": "HTTP 500"
+    },
+    {
+      "name": "POST /api/rag/search",
+      "status": "SKIP",
+      "detail": "SKIP（需认证）"
+    },
+    {
+      "name": "GET /api/mcp/sse",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

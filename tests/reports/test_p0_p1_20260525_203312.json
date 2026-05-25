@@ -1,0 +1,566 @@
+{
+  "timestamp": "20260525_203312",
+  "total": 85,
+  "passed": 85,
+  "failed": 0,
+  "passRate": "100.0%",
+  "byModule": {
+    "P0-知识过期": {
+      "total": 12,
+      "passed": 12,
+      "failed": 0
+    },
+    "P0-确定性": {
+      "total": 7,
+      "passed": 7,
+      "failed": 0
+    },
+    "P0-限流健康检查": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0
+    },
+    "P1-短期记忆": {
+      "total": 12,
+      "passed": 12,
+      "failed": 0
+    },
+    "P1-编排器": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    "P1-MCP": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    },
+    "P1-熔断降级": {
+      "total": 12,
+      "passed": 12,
+      "failed": 0
+    },
+    "P1-CDC": {
+      "total": 5,
+      "passed": 5,
+      "failed": 0
+    },
+    "文档": {
+      "total": 9,
+      "passed": 9,
+      "failed": 0
+    }
+  },
+  "results": [
+    {
+      "module": "P0-知识过期",
+      "test": "Document.validUntil 字段",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "Document.documentType 字段",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "Document.contentHash 字段",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "Document.version 字段",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "Document.updatedAt 字段",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "knowledge-cleanup.ts 存在",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "cleanExpiredDocuments 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "setDefaultExpiry 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "research_report 90天",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "financial_report 365天",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "regulation 永不过期",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-知识过期",
+      "test": "检索过滤过期文档",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "temperature=0",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "seed=42",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "指数退避重试",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "callBailian temperature 参数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "Agent 整体超时",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "超时检查逻辑",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-确定性",
+      "test": "反思节点 temperature=0",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "rate-limiter.ts 存在",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "checkRateLimit 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "每分钟20次限制",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "Agent路由集成限流",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "429 状态码",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "health 路由存在",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "数据库检查",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "Embedding 服务检查",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "LLM 服务检查",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P0-限流健康检查",
+      "test": "503 状态码",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "Conversation 模型",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "Message 模型",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "Conversation-Message 关联",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "memory.ts 存在",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "createConversation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "addMessage",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "getRecentMessages",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "token 截断策略",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "Agent 集成记忆",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "conversationId 参数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "历史消息加载",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-短期记忆",
+      "test": "对话记录保存",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "base.ts 非空壳",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "AgentConfig 接口",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "callLLM 方法",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "orchestrator.ts 非空壳",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "查询路由",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "quant 路由",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "compliance 路由",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "research 路由",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-编排器",
+      "test": "超时控制",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "server.ts 非空壳",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "listTools 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "callTool 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "registerAllTools 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "hybrid_search 工具",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "calculate_ma 工具",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "check_trade_compliance 工具",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "SSE GET 端点",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-MCP",
+      "test": "SSE POST 端点",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "circuit-breaker.ts 存在",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "三状态管理",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "withCircuitBreaker 函数",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "失败阈值3次",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "router.ts 非空壳",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "模型降级链",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "熔断器集成",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "cache.ts 非空壳",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "缓存 TTL",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "temperature=0 时启用缓存",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "redis.ts 非空壳",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-熔断降级",
+      "test": "动态导入降级",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-CDC",
+      "test": "insert/update 分离",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-CDC",
+      "test": "update 图谱同步",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-CDC",
+      "test": "update BM25 重建",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-CDC",
+      "test": "contentHash 检查",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "P1-CDC",
+      "test": "rebuildBM25Index 导出",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "README.md 存在",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "P2 未来升级方向章节",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "健康检查 API 文档",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "MCP SSE API 文档",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "Agent 记忆系统章节",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "知识生命周期管理章节",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "稳定性保障章节",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "npm install redis 说明",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "module": "文档",
+      "test": "docs/upgrade_p0_p1.md 存在",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

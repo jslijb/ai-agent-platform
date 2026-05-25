@@ -1,0 +1,46 @@
+services:
+  neo4j:
+    image: neo4j:5
+    container_name: aiagent_neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/test1234
+      NEO4J_PLUGINS: '["apoc"]'
+      NEO4J_server_memory_pagecache_size: 256M
+      NEO4J_server_memory_heap_initial__size: 512M
+      NEO4J_server_memory_heap_max__size: 512M
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+    networks:
+      - docker_default
+    restart: unless-stopped
+
+  embedding:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: aiagent_embedding
+    ports:
+      - "8011:8011"
+    volumes:
+      - D:\models\modelscope\BAAI\bge-m3:/models:ro
+    command: >
+      --model /models/bge-m3-Q4_K_M.gguf
+      --port 8011
+      --host 0.0.0.0
+      --embedding
+      --pooling cls
+      -c 8192
+      -t 4
+    networks:
+      - docker_default
+    restart: unless-stopped
+
+volumes:
+  neo4j_data:
+  neo4j_logs:
+
+networks:
+  docker_default:
+    external: true
