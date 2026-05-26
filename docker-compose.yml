@@ -24,9 +24,9 @@ services:
     ports:
       - "8011:8011"
     volumes:
-      - D:\models\modelscope\BAAI\bge-m3:/models:ro
+      - D:\models\modelscope\models\OllmOne\bge-m3-GGUF:/models:ro
     command: >
-      --model /models/bge-m3-Q4_K_M.gguf
+      --model /models/bge-m3-q8_0.gguf
       --port 8011
       --host 0.0.0.0
       --embedding
