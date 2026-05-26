@@ -37,6 +37,24 @@ services:
       - docker_default
     restart: unless-stopped
 
+  reranker:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: aiagent_reranker
+    ports:
+      - "8010:8010"
+    volumes:
+      - D:\models\modelscope\bge-reranker-base:/models:ro
+    command: >
+      --model /models/bge-reranker-base-f16.gguf
+      --port 8010
+      --host 0.0.0.0
+      --pooling rank
+      -c 512
+      -t 4
+    networks:
+      - docker_default
+    restart: unless-stopped
+
 volumes:
   neo4j_data:
   neo4j_logs:
