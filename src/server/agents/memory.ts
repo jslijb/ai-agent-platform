@@ -1,4 +1,6 @@
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { conversations, messages } from "@/server/db/schema";
+import { eq, desc, asc } from "drizzle-orm";
 
 const MAX_CONTEXT_MESSAGES = 20;
 const MAX_CONTEXT_TOKENS = 6000;
@@ -20,9 +22,7 @@ function estimateTokens(text: string): number {
 
 export async function createConversation(userId: string, title: string = "新对话"): Promise<string> {
   console.log(`[memory] 创建新会话, userId: ${userId}`);
-  const conversation = await prisma.conversation.create({
-    data: { userId, title },
-  });
+  const [conversation] = await db.insert(conversations).values({ userId, title }).returning();
   console.log(`[memory] 会话创建成功, id: ${conversation.id}`);
   return conversation.id;
 }
@@ -33,9 +33,7 @@ export async function addMessage(
   content: string
 ): Promise<void> {
   console.log(`[memory] 添加消息, conversationId: ${conversationId}, role: ${role}, 内容长度: ${content.length}`);
-  await prisma.message.create({
-    data: { conversationId, role, content },
-  });
+  await db.insert(messages).values({ conversationId, role, content });
 }
 
 export async function getConversationHistory(
@@ -44,12 +42,12 @@ export async function getConversationHistory(
 ): Promise<ConversationWithMessages | null> {
   console.log(`[memory] 获取会话历史, conversationId: ${conversationId}`);
 
-  const conversation = await prisma.conversation.findUnique({
-    where: { id: conversationId },
-    include: {
+  const conversation = await db.query.conversations.findFirst({
+    where: eq(conversations.id, conversationId),
+    with: {
       messages: {
-        orderBy: { createdAt: "asc" },
-        take: maxMessages,
+        orderBy: asc(messages.createdAt),
+        limit: maxMessages,
       },
     },
   });
@@ -96,18 +94,16 @@ export async function getRecentMessages(
 
 export async function listConversations(userId: string): Promise<Array<{ id: string; title: string; createdAt: Date }>> {
   console.log(`[memory] 列出用户会话, userId: ${userId}`);
-  const conversations = await prisma.conversation.findMany({
-    where: { userId },
-    orderBy: { updatedAt: "desc" },
-    select: { id: true, title: true, createdAt: true },
+  const result = await db.query.conversations.findMany({
+    where: eq(conversations.userId, userId),
+    orderBy: desc(conversations.updatedAt),
+    columns: { id: true, title: true, createdAt: true },
   });
-  return conversations;
+  return result;
 }
 
 export async function deleteConversation(conversationId: string): Promise<void> {
   console.log(`[memory] 删除会话: ${conversationId}`);
-  await prisma.conversation.delete({
-    where: { id: conversationId },
-  });
+  await db.delete(conversations).where(eq(conversations.id, conversationId));
   console.log(`[memory] 会话已删除: ${conversationId}`);
 }

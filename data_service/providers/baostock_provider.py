@@ -1,9 +1,71 @@
 import logging
+import threading
 import baostock as bs
 import pandas as pd
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+# 全局登录锁，保证线程安全
+_login_lock = threading.Lock()
+_is_logged_in = False
+
+
+def _ensure_login():
+    """确保 baostock 已登录，使用全局连接复用避免反复 login/logout 开销"""
+    global _is_logged_in
+    with _login_lock:
+        if _is_logged_in:
+            return
+        lg = bs.login()
+        if lg.error_code != "0":
+            logger.error(f"baostock 登录失败: {lg.error_msg}")
+            raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
+        _is_logged_in = True
+        logger.info("baostock 全局登录成功（连接复用模式）")
+
+
+def _relogin():
+    """强制重新登录（连接异常时使用）"""
+    global _is_logged_in
+    with _login_lock:
+        try:
+            bs.logout()
+        except Exception:
+            pass
+        _is_logged_in = False
+    _ensure_login()
+
+
+def _safe_query(query_func, *args, max_retries=2, **kwargs):
+    """带重试的 baostock 查询：登录失败时自动重新登录"""
+    for attempt in range(max_retries + 1):
+        try:
+            _ensure_login()
+            rs = query_func(*args, **kwargs)
+            if rs.error_code != "0":
+                error_msg = rs.error_msg
+                # 登录过期类错误，重试
+                if "login" in error_msg.lower() or "connect" in error_msg.lower():
+                    logger.warning(f"baostock 查询失败(尝试 {attempt + 1}/{max_retries + 1}): {error_msg}，尝试重新登录")
+                    _relogin()
+                    continue
+                raise RuntimeError(f"查询失败: {error_msg}")
+            return rs
+        except ConnectionError:
+            if attempt < max_retries:
+                logger.warning(f"baostock 连接失败(尝试 {attempt + 1}/{max_retries + 1})，重新登录")
+                _relogin()
+                continue
+            raise
+        except RuntimeError:
+            raise
+        except Exception as e:
+            if attempt < max_retries:
+                logger.warning(f"baostock 查询异常(尝试 {attempt + 1}/{max_retries + 1}): {e}，重新登录")
+                _relogin()
+                continue
+            raise
 
 
 def _df_to_dict(df: pd.DataFrame) -> list[dict]:
@@ -31,44 +93,29 @@ def get_stock_history(
         K线数据字典列表
     """
     logger.info(f"获取历史K线: code={code}, start={start_date}, end={end_date}, freq={frequency}")
-    lg = bs.login()
-    if lg.error_code != "0":
-        logger.error(f"baostock 登录失败: {lg.error_msg}")
-        raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
 
-    try:
-        rs = bs.query_history_k_data_plus(
-            code,
-            "date,code,open,high,low,close,preclose,volume,amount,turn,pctChg",
-            start_date=start_date,
-            end_date=end_date,
-            frequency=frequency,
-            adjustflag="3",
-        )
+    rs = _safe_query(
+        bs.query_history_k_data_plus,
+        code,
+        "date,code,open,high,low,close,preclose,volume,amount,turn,pctChg",
+        start_date=start_date,
+        end_date=end_date,
+        frequency=frequency,
+        adjustflag="3",
+    )
 
-        if rs.error_code != "0":
-            logger.error(f"查询历史K线失败: {rs.error_msg}")
-            raise RuntimeError(f"查询历史K线失败: {rs.error_msg}")
+    data_list = []
+    while rs.error_code == "0" and rs.next():
+        data_list.append(rs.get_row_data())
 
-        data_list = []
-        while rs.error_code == "0" and rs.next():
-            data_list.append(rs.get_row_data())
+    if not data_list:
+        logger.warning(f"未查询到K线数据: code={code}")
+        return []
 
-        if not data_list:
-            logger.warning(f"未查询到K线数据: code={code}")
-            return []
-
-        df = pd.DataFrame(data_list, columns=rs.fields)
-        result = _df_to_dict(df)
-        logger.info(f"获取历史K线成功，共 {len(result)} 条记录")
-        return result
-
-    except Exception as e:
-        logger.error(f"获取历史K线异常: {e}", exc_info=True)
-        raise
-    finally:
-        bs.logout()
-        logger.debug("baostock 已登出")
+    df = pd.DataFrame(data_list, columns=rs.fields)
+    result = _df_to_dict(df)
+    logger.info(f"获取历史K线成功，共 {len(result)} 条记录")
+    return result
 
 
 def get_stock_realtime(code: str) -> list[dict]:
@@ -81,45 +128,30 @@ def get_stock_realtime(code: str) -> list[dict]:
         最新日K数据字典列表
     """
     logger.info(f"获取实时行情(日K模拟): code={code}")
-    lg = bs.login()
-    if lg.error_code != "0":
-        logger.error(f"baostock 登录失败: {lg.error_msg}")
-        raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
 
-    try:
-        rs = bs.query_history_k_data_plus(
-            code,
-            "date,code,open,high,low,close,preclose,volume,amount,turn,pctChg",
-            start_date="2024-01-01",
-            end_date="2099-12-31",
-            frequency="d",
-            adjustflag="3",
-        )
+    rs = _safe_query(
+        bs.query_history_k_data_plus,
+        code,
+        "date,code,open,high,low,close,preclose,volume,amount,turn,pctChg",
+        start_date="2024-01-01",
+        end_date="2099-12-31",
+        frequency="d",
+        adjustflag="3",
+    )
 
-        if rs.error_code != "0":
-            logger.error(f"查询实时行情失败: {rs.error_msg}")
-            raise RuntimeError(f"查询实时行情失败: {rs.error_msg}")
+    data_list = []
+    while rs.error_code == "0" and rs.next():
+        data_list.append(rs.get_row_data())
 
-        data_list = []
-        while rs.error_code == "0" and rs.next():
-            data_list.append(rs.get_row_data())
+    if not data_list:
+        logger.warning(f"未查询到实时行情数据: code={code}")
+        return []
 
-        if not data_list:
-            logger.warning(f"未查询到实时行情数据: code={code}")
-            return []
-
-        df = pd.DataFrame(data_list, columns=rs.fields)
-        latest = df.iloc[[-1]]
-        result = _df_to_dict(latest)
-        logger.info(f"获取实时行情成功: code={code}, date={result[0].get('date') if result else 'N/A'}")
-        return result
-
-    except Exception as e:
-        logger.error(f"获取实时行情异常: {e}", exc_info=True)
-        raise
-    finally:
-        bs.logout()
-        logger.debug("baostock 已登出")
+    df = pd.DataFrame(data_list, columns=rs.fields)
+    latest = df.iloc[[-1]]
+    result = _df_to_dict(latest)
+    logger.info(f"获取实时行情成功: code={code}, date={result[0].get('date') if result else 'N/A'}")
+    return result
 
 
 def get_financial_data(code: str, year: int, quarter: int) -> list[dict]:
@@ -134,41 +166,26 @@ def get_financial_data(code: str, year: int, quarter: int) -> list[dict]:
         财务数据字典列表
     """
     logger.info(f"获取财务数据: code={code}, year={year}, quarter={quarter}")
-    lg = bs.login()
-    if lg.error_code != "0":
-        logger.error(f"baostock 登录失败: {lg.error_msg}")
-        raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
 
-    try:
-        rs = bs.query_profit_data(
-            code=code,
-            year=year,
-            quarter=quarter,
-        )
+    rs = _safe_query(
+        bs.query_profit_data,
+        code=code,
+        year=year,
+        quarter=quarter,
+    )
 
-        if rs.error_code != "0":
-            logger.error(f"查询财务数据失败: {rs.error_msg}")
-            raise RuntimeError(f"查询财务数据失败: {rs.error_msg}")
+    data_list = []
+    while rs.error_code == "0" and rs.next():
+        data_list.append(rs.get_row_data())
 
-        data_list = []
-        while rs.error_code == "0" and rs.next():
-            data_list.append(rs.get_row_data())
+    if not data_list:
+        logger.warning(f"未查询到财务数据: code={code}, year={year}, quarter={quarter}")
+        return []
 
-        if not data_list:
-            logger.warning(f"未查询到财务数据: code={code}, year={year}, quarter={quarter}")
-            return []
-
-        df = pd.DataFrame(data_list, columns=rs.fields)
-        result = _df_to_dict(df)
-        logger.info(f"获取财务数据成功，共 {len(result)} 条记录")
-        return result
-
-    except Exception as e:
-        logger.error(f"获取财务数据异常: {e}", exc_info=True)
-        raise
-    finally:
-        bs.logout()
-        logger.debug("baostock 已登出")
+    df = pd.DataFrame(data_list, columns=rs.fields)
+    result = _df_to_dict(df)
+    logger.info(f"获取财务数据成功，共 {len(result)} 条记录")
+    return result
 
 
 def get_index_history(code: str, start_date: str, end_date: str) -> list[dict]:
@@ -183,43 +200,28 @@ def get_index_history(code: str, start_date: str, end_date: str) -> list[dict]:
         指数数据字典列表
     """
     logger.info(f"获取指数历史: code={code}, start={start_date}, end={end_date}")
-    lg = bs.login()
-    if lg.error_code != "0":
-        logger.error(f"baostock 登录失败: {lg.error_msg}")
-        raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
 
-    try:
-        rs = bs.query_history_k_data_plus(
-            code,
-            "date,code,open,high,low,close,preclose,volume,amount",
-            start_date=start_date,
-            end_date=end_date,
-            frequency="d",
-        )
+    rs = _safe_query(
+        bs.query_history_k_data_plus,
+        code,
+        "date,code,open,high,low,close,preclose,volume,amount",
+        start_date=start_date,
+        end_date=end_date,
+        frequency="d",
+    )
 
-        if rs.error_code != "0":
-            logger.error(f"查询指数历史失败: {rs.error_msg}")
-            raise RuntimeError(f"查询指数历史失败: {rs.error_msg}")
+    data_list = []
+    while rs.error_code == "0" and rs.next():
+        data_list.append(rs.get_row_data())
 
-        data_list = []
-        while rs.error_code == "0" and rs.next():
-            data_list.append(rs.get_row_data())
+    if not data_list:
+        logger.warning(f"未查询到指数数据: code={code}")
+        return []
 
-        if not data_list:
-            logger.warning(f"未查询到指数数据: code={code}")
-            return []
-
-        df = pd.DataFrame(data_list, columns=rs.fields)
-        result = _df_to_dict(df)
-        logger.info(f"获取指数历史成功，共 {len(result)} 条记录")
-        return result
-
-    except Exception as e:
-        logger.error(f"获取指数历史异常: {e}", exc_info=True)
-        raise
-    finally:
-        bs.logout()
-        logger.debug("baostock 已登出")
+    df = pd.DataFrame(data_list, columns=rs.fields)
+    result = _df_to_dict(df)
+    logger.info(f"获取指数历史成功，共 {len(result)} 条记录")
+    return result
 
 
 def get_trade_calendar(
@@ -236,44 +238,29 @@ def get_trade_calendar(
         交易日历字典列表，包含 calendar_date 和 is_trading_day 字段
     """
     logger.info(f"获取交易日历: start={start_date}, end={end_date}")
-    lg = bs.login()
-    if lg.error_code != "0":
-        logger.error(f"baostock 登录失败: {lg.error_msg}")
-        raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
 
-    try:
-        rs = bs.query_trade_dates(
-            start_date=start_date.replace("-", "") if start_date else "1990-01-01".replace("-", ""),
-            end_date=end_date.replace("-", "") if end_date else "2099-12-31".replace("-", ""),
-        )
+    rs = _safe_query(
+        bs.query_trade_dates,
+        start_date=start_date if start_date else "1990-01-01",
+        end_date=end_date if end_date else "2099-12-31",
+    )
 
-        if rs.error_code != "0":
-            logger.error(f"查询交易日历失败: {rs.error_msg}")
-            raise RuntimeError(f"查询交易日历失败: {rs.error_msg}")
+    data_list = []
+    while rs.error_code == "0" and rs.next():
+        data_list.append(rs.get_row_data())
 
-        data_list = []
-        while rs.error_code == "0" and rs.next():
-            data_list.append(rs.get_row_data())
+    if not data_list:
+        logger.warning("未查询到交易日历数据")
+        return []
 
-        if not data_list:
-            logger.warning("未查询到交易日历数据")
-            return []
+    df = pd.DataFrame(data_list, columns=rs.fields)
 
-        df = pd.DataFrame(data_list, columns=rs.fields)
+    if "is_trading_day" in df.columns:
+        df = df[df["is_trading_day"] == "1"]
 
-        if "is_trading_day" in df.columns:
-            df = df[df["is_trading_day"] == "1"]
-
-        result = _df_to_dict(df)
-        logger.info(f"获取交易日历成功，共 {len(result)} 条记录")
-        return result
-
-    except Exception as e:
-        logger.error(f"获取交易日历异常: {e}", exc_info=True)
-        raise
-    finally:
-        bs.logout()
-        logger.debug("baostock 已登出")
+    result = _df_to_dict(df)
+    logger.info(f"获取交易日历成功，共 {len(result)} 条记录")
+    return result
 
 
 def get_stock_basic() -> list[dict]:
@@ -283,34 +270,18 @@ def get_stock_basic() -> list[dict]:
         股票基本信息字典列表
     """
     logger.info("获取股票基本信息列表")
-    lg = bs.login()
-    if lg.error_code != "0":
-        logger.error(f"baostock 登录失败: {lg.error_msg}")
-        raise ConnectionError(f"baostock 登录失败: {lg.error_msg}")
 
-    try:
-        rs = bs.query_stock_basic()
+    rs = _safe_query(bs.query_stock_basic)
 
-        if rs.error_code != "0":
-            logger.error(f"查询股票基本信息失败: {rs.error_msg}")
-            raise RuntimeError(f"查询股票基本信息失败: {rs.error_msg}")
+    data_list = []
+    while rs.error_code == "0" and rs.next():
+        data_list.append(rs.get_row_data())
 
-        data_list = []
-        while rs.error_code == "0" and rs.next():
-            data_list.append(rs.get_row_data())
+    if not data_list:
+        logger.warning("未查询到股票基本信息")
+        return []
 
-        if not data_list:
-            logger.warning("未查询到股票基本信息")
-            return []
-
-        df = pd.DataFrame(data_list, columns=rs.fields)
-        result = _df_to_dict(df)
-        logger.info(f"获取股票基本信息成功，共 {len(result)} 条记录")
-        return result
-
-    except Exception as e:
-        logger.error(f"获取股票基本信息异常: {e}", exc_info=True)
-        raise
-    finally:
-        bs.logout()
-        logger.debug("baostock 已登出")
+    df = pd.DataFrame(data_list, columns=rs.fields)
+    result = _df_to_dict(df)
+    logger.info(f"获取股票基本信息成功，共 {len(result)} 条记录")
+    return result

@@ -177,14 +177,10 @@ def get_stock_history(
 def get_stock_realtime(code: str) -> list[dict]:
     logger.info(f"mootdx 获取实时行情: code={code}")
 
-    if not _is_trading_time():
-        logger.warning("当前非交易时段，通达信实时行情可能不可用，返回空数据")
-        return []
-
     client = _get_client()
 
     try:
-        df = _safe_request(client.quote, symbol=code)
+        df = _safe_request(client.quotes, symbol=code)
 
         if df is None or df.empty:
             logger.warning(f"mootdx 未查询到实时行情: code={code}")

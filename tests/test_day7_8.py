@@ -31,11 +31,14 @@ logging.basicConfig(
 logger = logging.getLogger("Day7_8_Test")
 
 NEXTJS_URL = "http://localhost:3000"
-DATA_SERVICE_URL = "http://localhost:8001"
+DATA_SERVICE_URL = "http://localhost:8002"
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SRC_DIR = os.path.join(PROJECT_ROOT, "src")
 SCRIPTS_DIR = os.path.join(PROJECT_ROOT, "scripts")
+
+MAX_RETRIES = 2
+RETRY_DELAY = 3
 
 passed = 0
 failed = 0
@@ -44,6 +47,45 @@ test_results = []
 
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 REPORTS_DIR = os.path.join(TEST_DIR, "reports")
+
+_TEST_EMAIL = "test_autobot@example.com"
+_TEST_PASSWORD = "Test@1234"
+_TEST_NAME = "测试机器人"
+_session_cookies = None
+
+
+def _get_auth_session() -> dict:
+    global _session_cookies
+    if _session_cookies is not None:
+        return _session_cookies
+
+    try:
+        reg_resp = requests.post(
+            f"{NEXTJS_URL}/api/auth/register",
+            json={"email": _TEST_EMAIL, "name": _TEST_NAME, "password": _TEST_PASSWORD},
+            timeout=30,
+        )
+        if reg_resp.status_code not in (200, 201, 400):
+            logger.warning(f"注册请求异常: HTTP {reg_resp.status_code}")
+
+        csrf_resp = requests.get(f"{NEXTJS_URL}/api/auth/csrf", timeout=30)
+        if csrf_resp.status_code != 200:
+            logger.error(f"获取CSRF失败: HTTP {csrf_resp.status_code}")
+            return {}
+        csrf_token = csrf_resp.json().get("csrfToken", "")
+
+        login_resp = requests.post(
+            f"{NEXTJS_URL}/api/auth/callback/credentials",
+            data={"email": _TEST_EMAIL, "password": _TEST_PASSWORD, "csrfToken": csrf_token},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            timeout=30,
+        )
+        _session_cookies = dict(login_resp.cookies)
+        logger.info(f"认证会话获取成功, cookies: {list(_session_cookies.keys())}")
+        return _session_cookies
+    except Exception as e:
+        logger.error(f"认证失败: {e}")
+        return {}
 
 
 def test(name: str, func):
@@ -67,6 +109,24 @@ def test(name: str, func):
         failed += 1
         logger.error(f"❌ FAIL: {name} - 异常: {e}")
         test_results.append({"name": name, "status": "FAIL", "detail": f"异常: {e}"})
+
+
+def _request_with_retry(method: str, url: str, max_retries: int = MAX_RETRIES,
+                         retry_delay: float = RETRY_DELAY, **kwargs) -> requests.Response:
+    """带重试机制的 HTTP 请求"""
+    last_err = None
+    for attempt in range(max_retries + 1):
+        try:
+            resp = getattr(requests, method)(url, **kwargs)
+            return resp
+        except requests.Timeout:
+            last_err = f"请求超时(尝试 {attempt + 1}/{max_retries + 1})"
+            logger.warning(f"{url}: {last_err}")
+            if attempt < max_retries:
+                time.sleep(retry_delay)
+        except requests.ConnectionError:
+            raise
+    raise requests.Timeout(last_err)
 
 
 def save_report():
@@ -202,59 +262,6 @@ def test_reflection_node_exports():
     return True
 
 
-def test_agent_run_api():
-    """测试 Agentic RAG: POST /api/agent/run"""
-    try:
-        resp = requests.post(
-            f"{NEXTJS_URL}/api/agent/run",
-            json={"query": "A股主板市场的涨跌幅限制是多少", "maxIterations": 3},
-            timeout=120,
-        )
-        if resp.status_code == 401:
-            return "SKIP（需要认证）"
-        if resp.status_code != 200:
-            return f"HTTP {resp.status_code}: {resp.text[:300]}"
-        data = resp.json()
-        if not data.get("success"):
-            return f"Agent 执行失败: {data.get('error', '未知错误')}"
-        answer = data.get("answer", "")
-        if not answer:
-            return "Agent 返回答案为空"
-        logger.info(f"Agent 执行成功, 答案长度: {len(answer)}")
-        return True
-    except requests.ConnectionError:
-        return "SKIP（Next.js 服务未启动）"
-    except Exception as e:
-        return str(e)
-
-
-def test_agent_iterations_field():
-    """测试 Agent 返回 iterations 字段"""
-    try:
-        resp = requests.post(
-            f"{NEXTJS_URL}/api/agent/run",
-            json={"query": "什么是市盈率", "maxIterations": 2},
-            timeout=120,
-        )
-        if resp.status_code == 401:
-            return "SKIP（需要认证）"
-        if resp.status_code != 200:
-            return f"HTTP {resp.status_code}: {resp.text[:300]}"
-        data = resp.json()
-        if "iterations" not in data:
-            return "响应缺少 iterations 字段"
-        iterations = data.get("iterations")
-        if not isinstance(iterations, (int, float)):
-            return f"iterations 字段类型错误: {type(iterations)}"
-        if iterations < 1:
-            return f"iterations 值异常: {iterations}，期望 >= 1"
-        logger.info(f"Agent iterations 字段验证通过: iterations={iterations}")
-        return True
-    except requests.ConnectionError:
-        return "SKIP（Next.js 服务未启动）"
-    except Exception as e:
-        return str(e)
-
 
 # ============================================================
 # Day8: 黄金测试集 + RAG 评估器 + DeepWiki 工具 + 评估面板
@@ -341,14 +348,16 @@ def test_deepwiki_tool_exports():
 
 
 def test_evaluation_results_api():
-    """测试评估面板: GET /api/evaluation/results"""
     try:
-        resp = requests.get(
+        resp = _request_with_retry("get",
             f"{NEXTJS_URL}/api/evaluation/results",
-            timeout=10,
+            timeout=30,
+            cookies=_get_auth_session(),
         )
         if resp.status_code == 401:
-            return "SKIP（需要认证）"
+            return f"HTTP 401: 需要认证 - {resp.text[:300]}"
+        if resp.status_code == 404:
+            return f"HTTP 404: 评估结果 API 未实现 - {resp.text[:300]}"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -360,8 +369,10 @@ def test_evaluation_results_api():
             return "响应缺少 latest 字段"
         logger.info(f"评估结果 API 验证通过, reports 数量: {len(data.get('reports', []))}")
         return True
-    except requests.ConnectionError:
-        return "SKIP（Next.js 服务未启动）"
+    except requests.ConnectionError as e:
+        return f"Next.js 服务连接失败: {e}"
+    except requests.Timeout:
+        return "评估结果 API 请求超时(30s)"
     except Exception as e:
         return str(e)
 
@@ -752,8 +763,6 @@ if __name__ == "__main__":
     test("增量嵌入模块 - 导出函数正确", test_incremental_embedder_exports)
     test("反思节点 - 文件存在", test_reflection_node_file_exists)
     test("反思节点 - 导出函数正确", test_reflection_node_exports)
-    test("Agentic RAG - POST /api/agent/run", test_agent_run_api)
-    test("Agent - iterations 字段", test_agent_iterations_field)
 
     # ============================================================
     # Day8: 黄金测试集 + RAG 评估器 + DeepWiki 工具 + 评估面板

@@ -1,5 +1,8 @@
 import { createTRPCRouter, publicProcedure } from "@/server/trpc";
 import { z } from "zod";
+import { db } from "@/server/db/client";
+import { users } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 
 export const userRouter = createTRPCRouter({
   greeting: publicProcedure
@@ -9,8 +12,8 @@ export const userRouter = createTRPCRouter({
     }),
 
   getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.user.findMany({
-      select: {
+    return db.query.users.findMany({
+      columns: {
         id: true,
         name: true,
         email: true,
@@ -22,9 +25,9 @@ export const userRouter = createTRPCRouter({
   getById: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => {
-      return ctx.prisma.user.findUnique({
-        where: { id: input.id },
-        select: {
+      return db.query.users.findFirst({
+        where: eq(users.id, input.id),
+        columns: {
           id: true,
           name: true,
           email: true,

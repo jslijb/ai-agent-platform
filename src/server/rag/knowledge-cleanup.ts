@@ -1,4 +1,6 @@
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { documents, embeddings } from "@/server/db/schema";
+import { eq, lt, inArray } from "drizzle-orm";
 
 const EXPIRY_DAYS: Record<string, number | null> = {
   research_report: 90,
@@ -11,13 +13,9 @@ export async function cleanExpiredDocuments(): Promise<number> {
   console.log("[knowledge-cleanup] 开始清理过期文档");
 
   try {
-    const expiredDocs = await prisma.document.findMany({
-      where: {
-        validUntil: {
-          lt: new Date(),
-        },
-      },
-      select: {
+    const expiredDocs = await db.query.documents.findMany({
+      where: lt(documents.validUntil, new Date()),
+      columns: {
         id: true,
       },
     });
@@ -30,25 +28,13 @@ export async function cleanExpiredDocuments(): Promise<number> {
     const expiredIds = expiredDocs.map((doc) => doc.id);
     console.log(`[knowledge-cleanup] 发现 ${expiredIds.length} 个过期文档，开始删除`);
 
-    const deleteEmbeddingsResult = await prisma.embedding.deleteMany({
-      where: {
-        documentId: {
-          in: expiredIds,
-        },
-      },
-    });
-    console.log(`[knowledge-cleanup] 删除了 ${deleteEmbeddingsResult.count} 条 embedding 记录`);
+    const deleteEmbeddingsResult = await db.delete(embeddings).where(inArray(embeddings.documentId, expiredIds)).returning();
+    console.log(`[knowledge-cleanup] 删除了 ${deleteEmbeddingsResult.length} 条 embedding 记录`);
 
-    const deleteDocsResult = await prisma.document.deleteMany({
-      where: {
-        id: {
-          in: expiredIds,
-        },
-      },
-    });
-    console.log(`[knowledge-cleanup] 删除了 ${deleteDocsResult.count} 个过期文档`);
+    const deleteDocsResult = await db.delete(documents).where(inArray(documents.id, expiredIds)).returning();
+    console.log(`[knowledge-cleanup] 删除了 ${deleteDocsResult.length} 个过期文档`);
 
-    return deleteDocsResult.count;
+    return deleteDocsResult.length;
   } catch (error) {
     console.error("[knowledge-cleanup] 清理过期文档失败:", error);
     throw error;
@@ -70,13 +56,10 @@ export async function setDefaultExpiry(
       validUntil.setDate(validUntil.getDate() + days);
     }
 
-    await prisma.document.update({
-      where: { id: docId },
-      data: {
-        validUntil,
-        documentType,
-      },
-    });
+    await db.update(documents).set({
+      validUntil,
+      documentType,
+    }).where(eq(documents.id, docId));
 
     if (validUntil) {
       console.log(`[knowledge-cleanup] 文档 ${docId} 过期时间设置为 ${validUntil.toISOString()}`);

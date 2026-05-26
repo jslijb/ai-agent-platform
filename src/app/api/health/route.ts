@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/server/db/client";
+import { db, sql } from "@/server/db/client";
 
 export async function GET() {
   const checks: Record<string, { status: string; latency?: number; error?: string }> = {};
@@ -7,7 +7,7 @@ export async function GET() {
 
   try {
     const start = Date.now();
-    await prisma.$queryRaw`SELECT 1`;
+    await db.execute(sql`SELECT 1`);
     checks.database = { status: "up", latency: Date.now() - start };
   } catch (error) {
     checks.database = { status: "down", error: error instanceof Error ? error.message : String(error) };
@@ -27,6 +27,23 @@ export async function GET() {
     }
   } catch (error) {
     checks.embedding = { status: "down", error: error instanceof Error ? error.message : String(error) };
+    overallStatus = "degraded";
+  }
+
+  try {
+    const start = Date.now();
+    const rerankerUrl = process.env.RERANKER_URL || "http://localhost:8010";
+    const response = await fetch(`${rerankerUrl}/health`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (response.ok) {
+      checks.reranker = { status: "up", latency: Date.now() - start };
+    } else {
+      checks.reranker = { status: "down", error: `HTTP ${response.status}` };
+      overallStatus = "degraded";
+    }
+  } catch (error) {
+    checks.reranker = { status: "down", error: error instanceof Error ? error.message : String(error) };
     overallStatus = "degraded";
   }
 

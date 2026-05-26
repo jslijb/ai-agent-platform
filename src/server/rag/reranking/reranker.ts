@@ -26,9 +26,8 @@ export async function rerank(
       },
       body: JSON.stringify({
         query,
-        passages: documents,
+        documents,
         top_k: Math.min(topK, documents.length),
-        return_documents: true,
       }),
     });
 
@@ -42,7 +41,7 @@ export async function rerank(
 
     const results: RerankResult[] = (data.results || []).map(
       (item: any, i: number) => ({
-        text: item.document?.text || documents[item.index] || "",
+        text: documents[item.index] || "",
         score: item.relevance_score ?? 0,
         index: item.index ?? i,
       })

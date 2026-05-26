@@ -1,4 +1,4 @@
-import { prisma } from "@/server/db/client";
+import { db, sql } from "@/server/db/client";
 
 const EMBEDDING_DIMENSIONS = 1024;
 const MAX_RETRIES = 3;
@@ -118,21 +118,21 @@ export async function denseSearch(
     const queryEmbedding = await generateEmbedding(query);
     const vectorStr = `[${queryEmbedding.join(",")}]`;
 
-    const results = await prisma.$queryRaw<
-      Array<{
-        id: string;
-        chunkText: string;
-        documentId: string;
-        score: number;
-      }>
-    >`
-      SELECT e.id, e."chunkText", e."documentId", 1 - (e.embedding <=> ${vectorStr}::vector) as score
+    const result = await db.execute(sql`
+      SELECT e.id, e."chunkText", e."documentId", 1 - (e.embedding <=> ${sql.raw(vectorStr)}::vector) as score
       FROM "Embedding" e
       JOIN "Document" d ON e."documentId" = d.id
       WHERE d."validUntil" IS NULL OR d."validUntil" > NOW()
-      ORDER BY e.embedding <=> ${vectorStr}::vector
+      ORDER BY e.embedding <=> ${sql.raw(vectorStr)}::vector
       LIMIT ${topK}
-    `;
+    `);
+
+    const results = result as unknown as Array<{
+      id: string;
+      chunkText: string;
+      documentId: string;
+      score: number;
+    }>;
 
     console.log(`[dense-retriever] 向量检索完成, 返回 ${results.length} 条结果`);
 
@@ -162,10 +162,10 @@ export async function storeEmbedding(
   try {
     const vectorStr = `[${embedding.join(",")}]`;
 
-    await prisma.$executeRaw`
+    await db.execute(sql`
       INSERT INTO "Embedding" ("documentId", "chunkIndex", "chunkText", embedding, "tokenCount", "createdAt")
-      VALUES (${documentId}, ${chunkIndex}, ${chunkText}, ${vectorStr}::vector, ${tokenCount ?? null}, NOW())
-    `;
+      VALUES (${documentId}, ${chunkIndex}, ${chunkText}, ${sql.raw(vectorStr)}::vector, ${tokenCount ?? null}, NOW())
+    `);
 
     console.log(`[dense-retriever] Embedding 存储成功, documentId: ${documentId}, chunkIndex: ${chunkIndex}`);
   } catch (error) {

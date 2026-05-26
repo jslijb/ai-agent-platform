@@ -1,4 +1,4 @@
-import { prisma } from "@/server/db/client";
+import { db, sql } from "@/server/db/client";
 
 export interface SourceMetadata {
   fileName?: string;
@@ -56,13 +56,13 @@ export async function enrichMetadata(
   );
 
   try {
-    const documentRows = await prisma.$queryRaw<
-      Array<{ fileName: string }>
-    >`
+    const result = await db.execute(sql`
       SELECT "fileName" FROM "Document"
       WHERE id = ${documentId}
       LIMIT 1
-    `;
+    `);
+
+    const documentRows = result as unknown as Array<{ fileName: string }>;
 
     if (!documentRows || documentRows.length === 0) {
       console.error(

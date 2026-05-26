@@ -1,0 +1,73 @@
+{
+  "day": 2,
+  "timestamp": "20260526_152222",
+  "duration_seconds": 131.817219,
+  "summary": {
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "total": 15
+  },
+  "results": [
+    {
+      "name": "数据服务健康检查",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 历史行情",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 财务数据",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 指数数据",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 股票列表",
+      "status": "PASS"
+    },
+    {
+      "name": "mootdx 实时行情",
+      "status": "PASS"
+    },
+    {
+      "name": "mootdx 分钟K线",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 交易日历",
+      "status": "PASS"
+    },
+    {
+      "name": "财务数据提取",
+      "status": "PASS"
+    },
+    {
+      "name": "文本摘要",
+      "status": "PASS"
+    },
+    {
+      "name": "研报生成",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent API - 缺少query参数",
+      "status": "PASS"
+    },
+    {
+      "name": "YAML 配置加载",
+      "status": "PASS"
+    },
+    {
+      "name": "YAML 配置值读取",
+      "status": "PASS"
+    },
+    {
+      "name": ".env.local 加载",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+Day2 测试报告
+时间: 20260526_125317
+耗时: 134.5s
+============================================================
+
+❌ [FAIL] 百炼模型调用（通过Agent API） - HTTP 500: {"success":false,"answer":"","error":"\nInvalid `prisma.conversation.create()` invocation:\n\n\nThe table `public.Conversation` does not exist in the current database.","iterations":0}
+✅ [PASS] 数据服务健康检查
+✅ [PASS] Baostock 历史行情
+✅ [PASS] Baostock 财务数据
+✅ [PASS] Baostock 指数数据
+✅ [PASS] Baostock 股票列表
+✅ [PASS] mootdx 实时行情
+⏭️ [SKIP] mootdx 分钟K线 - SKIP（mootdx 服务器连接超时，非交易时段正常）
+❌ [FAIL] Baostock 交易日历 - 请求失败: 查询交易日历失败: 开始日期格式不正确
+❌ [FAIL] MA 移动平均线 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] MACD 指标 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] RSI 指标 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] 模拟交易-创建账户 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] 交易合规检查 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] 受限股票检查 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] 持仓限制检查 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] VaR 计算 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+❌ [FAIL] 压力测试 - Agent 失败: 
+Invalid `prisma.conversation.create()` invocation:
+
+
+The table `public.Conversation` does not exist in the current database.
+✅ [PASS] 财务数据提取
+✅ [PASS] 文本摘要
+✅ [PASS] 研报生成
+✅ [PASS] Agent API - 缺少query参数
+❌ [FAIL] Agent API - 正常调用 - HTTP 500: {"success":false,"answer":"","error":"\nInvalid `prisma.conversation.create()` invocation:\n\n\nThe table `public.Conversation` does not exist in the current database.","iterations":0}
+✅ [PASS] YAML 配置加载
+✅ [PASS] YAML 配置值读取
+✅ [PASS] .env.local 加载
+
+============================================================
+汇总: ✅ 通过=13, ❌ 失败=12, ⏭️ 跳过=1
+总计: 26

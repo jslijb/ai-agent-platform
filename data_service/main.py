@@ -1,5 +1,6 @@
 import logging
 import time
+import asyncio
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -7,7 +8,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from data_service.providers import baostock_provider, mootdx_provider, efinance_provider, tushare_provider, tickflow_provider
+from data_service.providers import baostock_provider, efinance_provider, mootdx_provider, tushare_provider, tickflow_provider
 
 logger = logging.getLogger(__name__)
 
@@ -17,16 +18,16 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
-_HISTORY_SOURCES = ["baostock", "mootdx", "efinance", "tushare"]
-_REALTIME_SOURCES = ["mootdx", "efinance"]
-_FINANCIAL_SOURCES = ["baostock", "mootdx", "tushare"]
-_INDEX_SOURCES = ["baostock", "mootdx"]
-_BASIC_SOURCES = ["baostock", "mootdx", "efinance", "tushare"]
+_HISTORY_SOURCES = ["baostock", "efinance", "mootdx", "tushare"]
+_REALTIME_SOURCES = ["efinance", "mootdx"]
+_FINANCIAL_SOURCES = ["baostock", "efinance", "mootdx", "tushare"]
+_INDEX_SOURCES = ["baostock", "efinance", "mootdx"]
+_BASIC_SOURCES = ["baostock", "efinance", "mootdx", "tushare"]
 _TRADE_CAL_SOURCES = ["baostock"]
-_INDUSTRY_SOURCES = ["mootdx"]
-_CONCEPT_SOURCES = ["mootdx"]
+_INDUSTRY_SOURCES = ["efinance", "mootdx"]
+_CONCEPT_SOURCES = ["efinance", "mootdx"]
 _TICK_SOURCES = ["tickflow"]
-_MINUTE_SOURCES = ["mootdx", "efinance"]
+_MINUTE_SOURCES = ["efinance", "mootdx"]
 
 
 @asynccontextmanager
@@ -122,12 +123,10 @@ class MinuteRequest(BaseModel):
 
 
 def _make_response(success: bool, data=None, error: Optional[str] = None) -> dict:
-    """构造统一响应格式"""
     return {"success": success, "data": data, "error": error}
 
 
 def _validate_source(source: str, allowed_sources: list[str]):
-    """验证数据源是否支持"""
     if source not in allowed_sources:
         raise HTTPException(
             status_code=400,
@@ -137,13 +136,11 @@ def _validate_source(source: str, allowed_sources: list[str]):
 
 @app.get("/health")
 async def health_check():
-    """健康检查接口"""
     return _make_response(True, data={"status": "ok", "service": "a股数据服务"})
 
 
 @app.post("/api/market/history")
 async def market_history(req: HistoryRequest):
-    """历史行情接口"""
     logger.info(f"请求历史行情: source={req.source}, code={req.code}, start={req.start_date}, end={req.end_date}, freq={req.frequency}")
     start_time = time.time()
 
@@ -151,15 +148,16 @@ async def market_history(req: HistoryRequest):
         _validate_source(req.source, _HISTORY_SOURCES)
 
         if req.source == "baostock":
-            data = baostock_provider.get_stock_history(
-                req.code, req.start_date, req.end_date, req.frequency
-            )
-        elif req.source == "mootdx":
-            data = mootdx_provider.get_stock_history(
+            data = await asyncio.to_thread(
+                baostock_provider.get_stock_history,
                 req.code, req.start_date, req.end_date, req.frequency
             )
         elif req.source == "efinance":
             data = efinance_provider.get_stock_history(
+                req.code, req.start_date, req.end_date, req.frequency
+            )
+        elif req.source == "mootdx":
+            data = mootdx_provider.get_stock_history(
                 req.code, req.start_date, req.end_date, req.frequency
             )
         elif req.source == "tushare":
@@ -180,17 +178,16 @@ async def market_history(req: HistoryRequest):
 
 @app.post("/api/market/realtime")
 async def market_realtime(req: RealtimeRequest):
-    """实时行情接口"""
     logger.info(f"请求实时行情: source={req.source}, code={req.code}")
     start_time = time.time()
 
     try:
         _validate_source(req.source, _REALTIME_SOURCES)
 
-        if req.source == "mootdx":
-            data = mootdx_provider.get_stock_realtime(req.code)
-        elif req.source == "efinance":
+        if req.source == "efinance":
             data = efinance_provider.get_stock_realtime(req.code)
+        elif req.source == "mootdx":
+            data = mootdx_provider.get_stock_realtime(req.code)
 
         elapsed = time.time() - start_time
         logger.info(f"实时行情请求完成: source={req.source}, 耗时={elapsed:.2f}s")
@@ -205,7 +202,6 @@ async def market_realtime(req: RealtimeRequest):
 
 @app.post("/api/market/financial")
 async def market_financial(req: FinancialRequest):
-    """财务数据接口"""
     logger.info(f"请求财务数据: source={req.source}, code={req.code}, year={req.year}, quarter={req.quarter}, period={req.period}, count={req.count}")
     start_time = time.time()
 
@@ -215,7 +211,11 @@ async def market_financial(req: FinancialRequest):
         if req.source == "baostock":
             if req.year is None or req.quarter is None:
                 return _make_response(False, error="baostock 数据源需要 year 和 quarter 参数")
-            data = baostock_provider.get_financial_data(req.code, req.year, req.quarter)
+            data = await asyncio.to_thread(
+                baostock_provider.get_financial_data, req.code, req.year, req.quarter
+            )
+        elif req.source == "efinance":
+            data = efinance_provider.get_financial_data(req.code, req.count or 1)
         elif req.source == "mootdx":
             data = mootdx_provider.get_financial_data(req.code, req.count or 1)
         elif req.source == "tushare":
@@ -236,7 +236,6 @@ async def market_financial(req: FinancialRequest):
 
 @app.post("/api/market/index")
 async def market_index(req: IndexRequest):
-    """指数数据接口"""
     logger.info(f"请求指数数据: source={req.source}, code={req.code}, start={req.start_date}, end={req.end_date}")
     start_time = time.time()
 
@@ -244,7 +243,11 @@ async def market_index(req: IndexRequest):
         _validate_source(req.source, _INDEX_SOURCES)
 
         if req.source == "baostock":
-            data = baostock_provider.get_index_history(req.code, req.start_date, req.end_date)
+            data = await asyncio.to_thread(
+                baostock_provider.get_index_history, req.code, req.start_date, req.end_date
+            )
+        elif req.source == "efinance":
+            data = efinance_provider.get_index_history(req.code, req.start_date, req.end_date)
         elif req.source == "mootdx":
             data = mootdx_provider.get_index_history(req.code, req.start_date, req.end_date)
 
@@ -261,7 +264,6 @@ async def market_index(req: IndexRequest):
 
 @app.post("/api/market/basic")
 async def market_basic(req: BasicRequest):
-    """股票列表接口"""
     logger.info(f"请求股票列表: source={req.source}")
     start_time = time.time()
 
@@ -269,11 +271,11 @@ async def market_basic(req: BasicRequest):
         _validate_source(req.source, _BASIC_SOURCES)
 
         if req.source == "baostock":
-            data = baostock_provider.get_stock_basic()
-        elif req.source == "mootdx":
-            data = mootdx_provider.get_stock_basic()
+            data = await asyncio.to_thread(baostock_provider.get_stock_basic)
         elif req.source == "efinance":
             data = efinance_provider.get_stock_basic()
+        elif req.source == "mootdx":
+            data = mootdx_provider.get_stock_basic()
         elif req.source == "tushare":
             data = tushare_provider.get_stock_basic()
 
@@ -290,14 +292,15 @@ async def market_basic(req: BasicRequest):
 
 @app.post("/api/market/trade_cal")
 async def market_trade_cal(req: TradeCalRequest):
-    """交易日历接口"""
     logger.info(f"请求交易日历: source={req.source}, exchange={req.exchange}, start={req.start_date}, end={req.end_date}")
     start_time = time.time()
 
     try:
         _validate_source(req.source, _TRADE_CAL_SOURCES)
 
-        data = baostock_provider.get_trade_calendar(req.start_date, req.end_date)
+        data = await asyncio.to_thread(
+            baostock_provider.get_trade_calendar, req.start_date, req.end_date
+        )
 
         elapsed = time.time() - start_time
         logger.info(f"交易日历请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")
@@ -312,14 +315,16 @@ async def market_trade_cal(req: TradeCalRequest):
 
 @app.post("/api/market/industry")
 async def market_industry(req: IndustryRequest):
-    """行业分类接口"""
     logger.info(f"请求行业分类: source={req.source}, code={req.code}")
     start_time = time.time()
 
     try:
         _validate_source(req.source, _INDUSTRY_SOURCES)
 
-        data = mootdx_provider.get_concept(req.code)
+        if req.source == "efinance":
+            data = efinance_provider.get_industry(req.code)
+        elif req.source == "mootdx":
+            data = mootdx_provider.get_concept(req.code)
 
         elapsed = time.time() - start_time
         logger.info(f"行业分类请求完成: source={req.source}, 耗时={elapsed:.2f}s")
@@ -334,14 +339,16 @@ async def market_industry(req: IndustryRequest):
 
 @app.post("/api/market/concept")
 async def market_concept(req: ConceptRequest):
-    """概念板块接口"""
     logger.info(f"请求概念板块: source={req.source}, code={req.code}")
     start_time = time.time()
 
     try:
         _validate_source(req.source, _CONCEPT_SOURCES)
 
-        data = mootdx_provider.get_concept(req.code)
+        if req.source == "efinance":
+            data = efinance_provider.get_concept(req.code)
+        elif req.source == "mootdx":
+            data = mootdx_provider.get_concept(req.code)
 
         elapsed = time.time() - start_time
         logger.info(f"概念板块请求完成: source={req.source}, 耗时={elapsed:.2f}s")
@@ -356,7 +363,6 @@ async def market_concept(req: ConceptRequest):
 
 @app.post("/api/market/tick")
 async def market_tick(req: TickRequest):
-    """逐笔数据接口"""
     logger.info(f"请求逐笔数据: source={req.source}, code={req.code}, date={req.date}")
     start_time = time.time()
 
@@ -378,17 +384,16 @@ async def market_tick(req: TickRequest):
 
 @app.post("/api/market/minute")
 async def market_minute(req: MinuteRequest):
-    """分钟K线数据接口"""
     logger.info(f"请求分钟K线: source={req.source}, code={req.code}, freq={req.frequency}")
     start_time = time.time()
 
     try:
         _validate_source(req.source, _MINUTE_SOURCES)
 
-        if req.source == "mootdx":
-            data = mootdx_provider.get_minute_data(req.code, req.frequency)
-        elif req.source == "efinance":
+        if req.source == "efinance":
             data = efinance_provider.get_minute_data(req.code, req.frequency)
+        elif req.source == "mootdx":
+            data = mootdx_provider.get_minute_data(req.code, req.frequency)
 
         elapsed = time.time() - start_time
         logger.info(f"分钟K线请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")

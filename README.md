@@ -11,7 +11,7 @@
 | 前端框架 | Next.js 14 + TypeScript + Tailwind CSS + App Router |
 | API 层 | tRPC（类型安全 RPC）+ Next.js Route Handlers |
 | 认证 | NextAuth v5 |
-| 数据库 | PostgreSQL（pgvector 向量扩展）+ Prisma ORM |
+| 数据库 | PostgreSQL（pgvector 向量扩展）+ Drizzle ORM |
 | 图数据库 | Neo4j |
 | 缓存 | Redis + 内存缓存（降级方案） |
 | LLM | 阿里百炼（DashScope）+ 本地模型（BGE-M3） |

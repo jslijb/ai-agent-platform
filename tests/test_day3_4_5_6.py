@@ -31,9 +31,12 @@ logging.basicConfig(
 logger = logging.getLogger("Day3_4_5_6_Test")
 
 NEXTJS_URL = "http://localhost:3000"
-DATA_SERVICE_URL = "http://localhost:8001"
+DATA_SERVICE_URL = "http://localhost:8002"
 RERANKER_URL = "http://localhost:8010"
 NEO4J_BOLT = "bolt://localhost:7687"
+
+MAX_RETRIES = 2
+RETRY_DELAY = 3
 
 passed = 0
 failed = 0
@@ -43,6 +46,45 @@ test_results = []
 TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 REPORTS_DIR = os.path.join(TEST_DIR, "reports")
 TEST_FILE_PATH = os.path.join(TEST_DIR, "test_sample_day3_6.txt")
+
+_TEST_EMAIL = "test_autobot@example.com"
+_TEST_PASSWORD = "Test@1234"
+_TEST_NAME = "测试机器人"
+_session_cookies = None
+
+
+def _get_auth_session() -> dict:
+    global _session_cookies
+    if _session_cookies is not None:
+        return _session_cookies
+
+    try:
+        reg_resp = requests.post(
+            f"{NEXTJS_URL}/api/auth/register",
+            json={"email": _TEST_EMAIL, "name": _TEST_NAME, "password": _TEST_PASSWORD},
+            timeout=30,
+        )
+        if reg_resp.status_code not in (200, 201, 400):
+            logger.warning(f"注册请求异常: HTTP {reg_resp.status_code}")
+
+        csrf_resp = requests.get(f"{NEXTJS_URL}/api/auth/csrf", timeout=30)
+        if csrf_resp.status_code != 200:
+            logger.error(f"获取CSRF失败: HTTP {csrf_resp.status_code}")
+            return {}
+        csrf_token = csrf_resp.json().get("csrfToken", "")
+
+        login_resp = requests.post(
+            f"{NEXTJS_URL}/api/auth/callback/credentials",
+            data={"email": _TEST_EMAIL, "password": _TEST_PASSWORD, "csrfToken": csrf_token},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            timeout=30,
+        )
+        _session_cookies = dict(login_resp.cookies)
+        logger.info(f"认证会话获取成功, cookies: {list(_session_cookies.keys())}")
+        return _session_cookies
+    except Exception as e:
+        logger.error(f"认证失败: {e}")
+        return {}
 
 
 def test(name: str, func):
@@ -66,6 +108,24 @@ def test(name: str, func):
         failed += 1
         logger.error(f"❌ FAIL: {name} - 异常: {e}")
         test_results.append({"name": name, "status": "FAIL", "detail": f"异常: {e}"})
+
+
+def _request_with_retry(method: str, url: str, max_retries: int = MAX_RETRIES,
+                         retry_delay: float = RETRY_DELAY, **kwargs) -> requests.Response:
+    """带重试机制的 HTTP 请求"""
+    last_err = None
+    for attempt in range(max_retries + 1):
+        try:
+            resp = getattr(requests, method)(url, **kwargs)
+            return resp
+        except requests.Timeout:
+            last_err = f"请求超时(尝试 {attempt + 1}/{max_retries + 1})"
+            logger.warning(f"{url}: {last_err}")
+            if attempt < max_retries:
+                time.sleep(retry_delay)
+        except requests.ConnectionError:
+            raise
+    raise requests.Timeout(last_err)
 
 
 def create_test_file():
@@ -115,7 +175,6 @@ def save_report():
 
     logger.info(f"测试报告已保存: {report_path}")
 
-    # 同时保存一份纯文本报告
     txt_report_path = os.path.join(REPORTS_DIR, f"test_day3_4_5_6_{timestamp}.txt")
     with open(txt_report_path, "w", encoding="utf-8") as f:
         f.write("=" * 60 + "\n")
@@ -143,12 +202,14 @@ def save_report():
 def test_nextjs_health():
     """测试 Next.js 服务是否可达"""
     try:
-        resp = requests.get(f"{NEXTJS_URL}/", timeout=5)
+        resp = _request_with_retry("get", f"{NEXTJS_URL}/", timeout=30)
         if resp.status_code in [200, 301, 302, 307, 308]:
             return True
         return f"HTTP {resp.status_code}"
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "Next.js 服务响应超时"
     except Exception as e:
         return str(e)
 
@@ -159,13 +220,12 @@ def test_document_upload():
         if not os.path.exists(TEST_FILE_PATH):
             return "测试文件不存在"
         with open(TEST_FILE_PATH, "rb") as f:
-            resp = requests.post(
+            resp = _request_with_retry("post",
                 f"{NEXTJS_URL}/api/document/upload",
                 files={"file": ("test_sample.txt", f, "text/plain")},
-                timeout=120,
+                cookies=_get_auth_session(),
+                timeout=180,
             )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -175,8 +235,10 @@ def test_document_upload():
             return "响应缺少 documentId"
         logger.info(f"文档上传成功, documentId: {data.get('documentId')}, 分块数: {data.get('chunkCount')}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "文档上传超时"
     except Exception as e:
         return str(e)
 
@@ -184,13 +246,12 @@ def test_document_upload():
 def test_rag_search_hybrid():
     """测试 RAG 搜索 API（混合检索）: POST /api/rag/search, mode=hybrid"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达的竞争对手生产什么芯片", "mode": "hybrid", "topK": 5},
-            timeout=30,
+            cookies=_get_auth_session(),
+            timeout=60,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -201,8 +262,10 @@ def test_rag_search_hybrid():
             return "搜索结果为空（可能未上传文档）"
         logger.info(f"混合检索返回 {len(results)} 条结果")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "RAG 搜索超时"
     except Exception as e:
         return str(e)
 
@@ -210,13 +273,12 @@ def test_rag_search_hybrid():
 def test_rag_search_dense():
     """测试向量检索（稠密检索）: POST /api/rag/search, mode=dense"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达营收增长", "mode": "dense", "topK": 5, "useGraph": False, "useRerank": False, "useParentDoc": False},
-            timeout=30,
+            cookies=_get_auth_session(),
+            timeout=60,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -225,8 +287,10 @@ def test_rag_search_dense():
         results = data.get("results", [])
         logger.info(f"向量检索返回 {len(results)} 条结果, mode={data.get('mode')}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "向量检索超时"
     except Exception as e:
         return str(e)
 
@@ -234,13 +298,12 @@ def test_rag_search_dense():
 def test_rag_search_sparse():
     """测试 BM25 稀疏检索: POST /api/rag/search, mode=sparse"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达 H100 芯片", "mode": "sparse", "topK": 5, "useGraph": False, "useRerank": False, "useParentDoc": False},
-            timeout=30,
+            cookies=_get_auth_session(),
+            timeout=60,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -249,8 +312,10 @@ def test_rag_search_sparse():
         results = data.get("results", [])
         logger.info(f"BM25检索返回 {len(results)} 条结果, mode={data.get('mode')}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "BM25 检索超时"
     except Exception as e:
         return str(e)
 
@@ -258,13 +323,12 @@ def test_rag_search_sparse():
 def test_rag_search_rrf():
     """测试 RRF 混合检索: 验证返回结果包含 denseScore 和 sparseScore"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达代工厂", "mode": "hybrid", "topK": 5, "useGraph": False, "useRerank": False, "useParentDoc": False},
-            timeout=30,
+            cookies=_get_auth_session(),
+            timeout=60,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -273,7 +337,6 @@ def test_rag_search_rrf():
         results = data.get("results", [])
         if len(results) == 0:
             return "搜索结果为空（可能未上传文档）"
-        # 验证 RRF 融合结果是否包含双路分数
         has_dense = any(r.get("denseScore") is not None for r in results)
         has_sparse = any(r.get("sparseScore") is not None for r in results)
         source_info = results[0].get("source", "")
@@ -281,8 +344,10 @@ def test_rag_search_rrf():
         if source_info == "vector+bm25" or has_dense or has_sparse:
             return True
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "RRF 检索超时"
     except Exception as e:
         return str(e)
 
@@ -290,18 +355,17 @@ def test_rag_search_rrf():
 def test_rag_search_no_query():
     """测试 RAG 搜索 API 缺少 query 参数"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={},
-            timeout=10,
+            cookies=_get_auth_session(),
+            timeout=30,
         )
         if resp.status_code == 400:
             return True
-        if resp.status_code == 401:
-            return "SKIP"
         return f"期望 400，实际 {resp.status_code}"
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
     except Exception as e:
         return str(e)
 
@@ -309,18 +373,17 @@ def test_rag_search_no_query():
 def test_rag_search_invalid_mode():
     """测试 RAG 搜索 API 无效的检索模式"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "测试", "mode": "invalid_mode"},
-            timeout=10,
+            cookies=_get_auth_session(),
+            timeout=30,
         )
         if resp.status_code == 400:
             return True
-        if resp.status_code == 401:
-            return "SKIP"
         return f"期望 400，实际 {resp.status_code}"
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
     except Exception as e:
         return str(e)
 
@@ -335,8 +398,8 @@ def test_neo4j_connection():
         from neo4j import GraphDatabase
         uri = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
         user = os.environ.get("NEO4J_USER", "neo4j")
-        password = os.environ.get("NEO4J_PASSWORD", "testpassword")
-        driver = GraphDatabase.driver(uri, auth=(user, password))
+        password = os.environ.get("NEO4J_PASSWORD", "test1234")
+        driver = GraphDatabase.driver(uri, auth=(user, password), connection_timeout=30)
         with driver.session() as session:
             result = session.run("RETURN 1 AS test")
             record = result.single()
@@ -346,24 +409,23 @@ def test_neo4j_connection():
             driver.close()
             return "Neo4j 查询返回异常"
     except ImportError:
-        return "SKIP（neo4j 库未安装）"
+        return "neo4j 库未安装，无法测试 Neo4j 连接"
     except Exception as e:
         error_msg = str(e)
-        if "ConnectionRefusedError" in error_msg or "Failed to establish connection" in error_msg or "connect" in error_msg.lower():
-            return "SKIP（Neo4j 服务未启动）"
+        if "ConnectionRefusedError" in error_msg or "Failed to establish connection" in error_msg or "connect" in error_msg.lower() or "timed out" in error_msg.lower():
+            return f"Neo4j 服务连接失败: {error_msg}"
         return f"连接失败: {error_msg}"
 
 
 def test_graph_search():
     """测试实体抽取 + 图谱检索: POST /api/rag/search, useGraph=true"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达的竞争对手生产什么芯片", "mode": "hybrid", "topK": 5, "useGraph": True, "useRerank": False, "useParentDoc": False},
-            timeout=60,
+            cookies=_get_auth_session(),
+            timeout=90,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -377,8 +439,10 @@ def test_graph_search():
             paths = graph_results[0].get("paths", [])
             logger.info(f"图谱结果实体: {entities}, 路径: {paths}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "图谱检索超时"
     except Exception as e:
         return str(e)
 
@@ -389,37 +453,35 @@ def test_graph_build_via_upload():
         if not os.path.exists(TEST_FILE_PATH):
             return "测试文件不存在"
         with open(TEST_FILE_PATH, "rb") as f:
-            resp = requests.post(
+            resp = _request_with_retry("post",
                 f"{NEXTJS_URL}/api/document/upload",
                 files={"file": ("graph_test.txt", f, "text/plain")},
-                timeout=120,
+                cookies=_get_auth_session(),
+                timeout=180,
             )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"上传失败 HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
         if not data.get("success"):
             return f"上传失败: {data.get('message', '未知错误')}"
         logger.info(f"文档上传成功, documentId: {data.get('documentId')}")
-        # 等待图谱构建完成
         time.sleep(3)
-        # 通过搜索 API 验证图谱是否可用
-        search_resp = requests.post(
+        search_resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达和AMD的关系", "mode": "hybrid", "topK": 5, "useGraph": True, "useRerank": False, "useParentDoc": False},
-            timeout=60,
+            cookies=_get_auth_session(),
+            timeout=90,
         )
-        if search_resp.status_code == 401:
-            return "SKIP"
         if search_resp.status_code != 200:
             return f"搜索失败 HTTP {search_resp.status_code}"
         search_data = search_resp.json()
         if search_data.get("success"):
             logger.info(f"图谱构建后搜索成功, graphEnabled={search_data.get('graphEnabled')}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "图谱构建超时"
     except Exception as e:
         return str(e)
 
@@ -427,13 +489,12 @@ def test_graph_build_via_upload():
 def test_multi_hop_search():
     """测试多跳检索: 查询需要跨越多个实体关系才能回答的问题"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "为英伟达代工的公司还和谁有合作", "mode": "hybrid", "topK": 5, "useGraph": True, "useRerank": False, "useParentDoc": False},
-            timeout=60,
+            cookies=_get_auth_session(),
+            timeout=90,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -443,8 +504,10 @@ def test_multi_hop_search():
         graph_results = [r for r in results if r.get("source") == "graph"]
         logger.info(f"多跳检索返回 {len(graph_results)} 条图谱结果（总结果 {len(results)} 条）")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "多跳检索超时"
     except Exception as e:
         return str(e)
 
@@ -456,16 +519,17 @@ def test_multi_hop_search():
 def test_reranker_health():
     """测试 BGE-Reranker 服务健康检查: curl http://localhost:8010/health"""
     try:
-        resp = requests.get(f"{RERANKER_URL}/health", timeout=5)
+        resp = _request_with_retry("get", f"{RERANKER_URL}/health", timeout=30)
         if resp.status_code == 200:
             return True
-        # 某些 reranker 服务可能没有 /health 端点，尝试根路径
-        resp2 = requests.get(f"{RERANKER_URL}/", timeout=5)
+        resp2 = _request_with_retry("get", f"{RERANKER_URL}/", timeout=30)
         if resp2.status_code == 200:
             return True
         return f"HTTP {resp.status_code}"
-    except requests.ConnectionError:
-        return "SKIP（Reranker 服务未启动）"
+    except requests.ConnectionError as e:
+        return f"连接失败: {RERANKER_URL} - {e}"
+    except requests.Timeout:
+        return "Reranker 服务响应超时"
     except Exception as e:
         return str(e)
 
@@ -473,13 +537,12 @@ def test_reranker_health():
 def test_rerank_function():
     """测试 Rerank 功能: POST /api/rag/search, useRerank=true"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达的营收增长趋势", "mode": "hybrid", "topK": 5, "useGraph": False, "useRerank": True, "useParentDoc": False},
-            timeout=30,
+            cookies=_get_auth_session(),
+            timeout=60,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -489,8 +552,10 @@ def test_rerank_function():
         reranked_results = [r for r in results if r.get("reranked") is True]
         logger.info(f"Rerank结果: 总结果 {len(results)} 条, 重排序 {len(reranked_results)} 条, rerankEnabled={data.get('rerankEnabled')}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "Rerank 超时"
     except Exception as e:
         return str(e)
 
@@ -498,19 +563,17 @@ def test_rerank_function():
 def test_hyde_rewrite():
     """测试 HyDE 改写: POST /api/rag/search, useHyde=true"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达下一代芯片的研发进展", "mode": "hybrid", "topK": 5, "useGraph": False, "useHyde": True, "useRerank": False, "useParentDoc": False},
-            timeout=60,
+            cookies=_get_auth_session(),
+            timeout=90,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
         if not data.get("success"):
             return f"搜索失败: {data.get('message', '未知错误')}"
-        # 验证 HyDE 是否生效
         hyde_enabled = data.get("hydeEnabled", False)
         search_query = data.get("searchQuery", "")
         if hyde_enabled and search_query:
@@ -518,8 +581,10 @@ def test_hyde_rewrite():
         else:
             logger.info(f"HyDE标志: hydeEnabled={hyde_enabled}, searchQuery存在={bool(search_query)}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "HyDE 超时"
     except Exception as e:
         return str(e)
 
@@ -527,13 +592,12 @@ def test_hyde_rewrite():
 def test_parent_document():
     """测试父子文档: POST /api/rag/search, useParentDoc=true"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/search",
             json={"query": "英伟达的竞争优势", "mode": "hybrid", "topK": 5, "useGraph": False, "useRerank": False, "useParentDoc": True},
-            timeout=30,
+            cookies=_get_auth_session(),
+            timeout=60,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -543,8 +607,10 @@ def test_parent_document():
         parent_used = [r for r in results if r.get("parentDocUsed") is True]
         logger.info(f"父子文档结果: 总结果 {len(results)} 条, 使用父块 {len(parent_used)} 条, parentDocEnabled={data.get('parentDocEnabled')}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "父子文档超时"
     except Exception as e:
         return str(e)
 
@@ -556,15 +622,14 @@ def test_parent_document():
 def test_answer_with_citation():
     """测试带引用答案 API: POST /api/rag/answer-with-citation"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/answer-with-citation",
             json={"query": "英伟达2024年营收是多少"},
-            timeout=60,
+            cookies=_get_auth_session(),
+            timeout=90,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code == 404:
-            return "SKIP（answer-with-citation API 未实现）"
+            return "answer-with-citation API 未实现（HTTP 404）"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -575,8 +640,10 @@ def test_answer_with_citation():
             return "答案为空"
         logger.info(f"带引用答案长度: {len(answer)}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "答案溯源超时"
     except Exception as e:
         return str(e)
 
@@ -584,15 +651,14 @@ def test_answer_with_citation():
 def test_citation_field():
     """测试答案溯源: 检查返回的 citations 字段"""
     try:
-        resp = requests.post(
+        resp = _request_with_retry("post",
             f"{NEXTJS_URL}/api/rag/answer-with-citation",
             json={"query": "英伟达的竞争对手是谁"},
-            timeout=60,
+            cookies=_get_auth_session(),
+            timeout=90,
         )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code == 404:
-            return "SKIP（answer-with-citation API 未实现）"
+            return "answer-with-citation API 未实现（HTTP 404）"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -603,8 +669,10 @@ def test_citation_field():
             return "citations 字段为空"
         logger.info(f"溯源引用数: {len(citations)}, 示例: {citations[0] if citations else '无'}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "答案溯源超时"
     except Exception as e:
         return str(e)
 
@@ -615,13 +683,12 @@ def test_pdf_parse_via_upload():
         if not os.path.exists(TEST_FILE_PATH):
             return "测试文件不存在"
         with open(TEST_FILE_PATH, "rb") as f:
-            resp = requests.post(
+            resp = _request_with_retry("post",
                 f"{NEXTJS_URL}/api/document/upload",
                 files={"file": ("multimodal_test.txt", f, "text/plain")},
-                timeout=120,
+                cookies=_get_auth_session(),
+                timeout=180,
             )
-        if resp.status_code == 401:
-            return "SKIP"
         if resp.status_code != 200:
             return f"HTTP {resp.status_code}: {resp.text[:300]}"
         data = resp.json()
@@ -632,8 +699,10 @@ def test_pdf_parse_via_upload():
             return "文档分块数为0"
         logger.info(f"文档解析成功, 分块数: {chunk_count}")
         return True
-    except requests.ConnectionError:
-        return "SKIP"
+    except requests.ConnectionError as e:
+        return f"连接失败: {NEXTJS_URL} - {e}"
+    except requests.Timeout:
+        return "文档上传超时"
     except Exception as e:
         return str(e)
 
@@ -644,28 +713,23 @@ def test_pdf_parse_via_upload():
 
 def test_rrf_algorithm_logic():
     """纯逻辑验证: RRF 融合算法正确性"""
-    # 模拟 RRF 融合过程
     RRF_K = 60
 
-    # 模拟稠密检索结果
     dense_results = [
         {"text": "文档A", "score": 0.95},
         {"text": "文档B", "score": 0.85},
         {"text": "文档C", "score": 0.75},
     ]
 
-    # 模拟稀疏检索结果
     sparse_results = [
         {"text": "文档B", "score": 10.5},
         {"text": "文档D", "score": 8.3},
         {"text": "文档A", "score": 6.1},
     ]
 
-    # 按 score 降序排列
     dense_ranked = sorted(dense_results, key=lambda x: x["score"], reverse=True)
     sparse_ranked = sorted(sparse_results, key=lambda x: x["score"], reverse=True)
 
-    # 计算 RRF 分数
     key_to_info = {}
     for i, item in enumerate(dense_ranked):
         key = item["text"]
@@ -678,7 +742,6 @@ def test_rrf_algorithm_logic():
         else:
             key_to_info[key] = {"text": key, "sparseRank": i + 1}
 
-    # 计算 RRF 分数
     fused = []
     for key, info in key_to_info.items():
         rrf_score = 0
@@ -690,11 +753,9 @@ def test_rrf_algorithm_logic():
 
     fused.sort(key=lambda x: x["rrf_score"], reverse=True)
 
-    # 验证：同时出现在两路结果中的文档应该排名更高
     if fused[0]["text"] != "文档A" and fused[0]["text"] != "文档B":
         return f"RRF 融合结果异常，排名第一的是 {fused[0]['text']}，期望是同时出现在两路的文档"
 
-    # 文档A 和 文档B 同时出现在两路中，应该排名靠前
     top2_texts = {fused[0]["text"], fused[1]["text"]}
     if "文档A" not in top2_texts or "文档B" not in top2_texts:
         return f"RRF 融合结果异常，双路命中的文档未排在前2: {fused}"
@@ -710,14 +771,12 @@ def test_bm25_score_logic():
     K1 = 1.5
     B = 0.75
 
-    # 模拟文档集合
     docs = {
         0: ["英伟达", "生产", "H100", "芯片"],
         1: ["AMD", "生产", "MI300", "芯片"],
         2: ["英伟达", "营收", "增长"],
     }
 
-    # 计算 DF
     df = {}
     for doc_tokens in docs.values():
         seen = set()
@@ -729,7 +788,6 @@ def test_bm25_score_logic():
     doc_count = len(docs)
     avg_dl = sum(len(t) for t in docs.values()) / doc_count
 
-    # 对查询 "英伟达 芯片" 计算 BM25 分数
     query_tokens = ["英伟达", "芯片"]
 
     for doc_id, doc_tokens in docs.items():
@@ -750,7 +808,6 @@ def test_bm25_score_logic():
 
         logger.info(f"BM25 文档{doc_id} 分数: {score:.4f}")
 
-    # 文档0 包含 "英伟达" 和 "芯片"，分数应该最高
     return True
 
 
@@ -759,7 +816,6 @@ def test_parent_child_mapping_logic():
     PARENT_CHUNK_SIZE = 2000
     CHILD_CHUNK_SIZE = 500
 
-    # 模拟子块
     child_chunks = [
         {"id": "chunk_0", "text": "A" * 400},
         {"id": "chunk_1", "text": "B" * 400},
@@ -768,7 +824,6 @@ def test_parent_child_mapping_logic():
         {"id": "chunk_4", "text": "E" * 400},
     ]
 
-    # 构建父子映射
     parent_store = {}
     child_to_parent = {}
     current_parent_id = "parent_0"
@@ -788,12 +843,10 @@ def test_parent_child_mapping_logic():
             current_parent_text = ""
             current_child_ids = []
 
-    # 验证：所有子块都有父块映射
     for chunk in child_chunks:
         if chunk["id"] not in child_to_parent:
             return f"子块 {chunk['id']} 没有父块映射"
 
-    # 验证：父块文本长度 >= 子块文本长度
     for chunk in child_chunks:
         parent_id = child_to_parent[chunk["id"]]
         parent_text = parent_store.get(parent_id, "")
@@ -841,7 +894,6 @@ def test_entity_extraction_logic():
 
 def test_citation_format_logic():
     """纯逻辑验证: 引用格式正确性"""
-    # 模拟引用格式
     test_citations = [
         "[来源: 《招商银行2024年报》第3页]",
         "[来源: sample.pdf, 第5页]",
@@ -868,7 +920,6 @@ if __name__ == "__main__":
     logger.info("Day3-Day6 全覆盖测试开始")
     logger.info("=" * 60)
 
-    # 创建测试文件
     create_test_file()
 
     try:
@@ -937,16 +988,13 @@ if __name__ == "__main__":
         test("引用格式正确性", test_citation_format_logic)
 
     finally:
-        # 删除测试文件
         delete_test_file()
 
-    # 汇总
     logger.info("\n" + "=" * 60)
     logger.info(f"测试完成: ✅ 通过={passed}, ❌ 失败={failed}, ⏭️ 跳过={skipped}")
     logger.info(f"总计: {passed + failed + skipped}")
     logger.info("=" * 60)
 
-    # 保存报告
     save_report()
 
     if failed > 0:

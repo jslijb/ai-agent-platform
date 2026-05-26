@@ -1,0 +1,78 @@
+{
+  "day": 2,
+  "timestamp": "20260526_153505",
+  "duration_seconds": 38.372606,
+  "summary": {
+    "passed": 10,
+    "failed": 5,
+    "skipped": 0,
+    "total": 15
+  },
+  "results": [
+    {
+      "name": "数据服务健康检查",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 历史行情",
+      "status": "FAIL",
+      "reason": "请求失败: 查询失败: 网络接收错误。"
+    },
+    {
+      "name": "Baostock 财务数据",
+      "status": "FAIL",
+      "reason": "请求失败: 查询失败: 网络接收错误。"
+    },
+    {
+      "name": "Baostock 指数数据",
+      "status": "FAIL",
+      "reason": "请求失败: 查询失败: 网络接收错误。"
+    },
+    {
+      "name": "Baostock 股票列表",
+      "status": "FAIL",
+      "reason": "请求失败: 查询失败: 网络接收错误。"
+    },
+    {
+      "name": "mootdx 实时行情",
+      "status": "PASS"
+    },
+    {
+      "name": "mootdx 分钟K线",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 交易日历",
+      "status": "FAIL",
+      "reason": "请求失败: 查询失败: 网络接收错误。"
+    },
+    {
+      "name": "财务数据提取",
+      "status": "PASS"
+    },
+    {
+      "name": "文本摘要",
+      "status": "PASS"
+    },
+    {
+      "name": "研报生成",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent API - 缺少query参数",
+      "status": "PASS"
+    },
+    {
+      "name": "YAML 配置加载",
+      "status": "PASS"
+    },
+    {
+      "name": "YAML 配置值读取",
+      "status": "PASS"
+    },
+    {
+      "name": ".env.local 加载",
+      "status": "PASS"
+    }
+  ]
+}

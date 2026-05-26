@@ -1,5 +1,7 @@
 import nodejieba from "nodejieba";
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { embeddings } from "@/server/db/schema";
+import { asc } from "drizzle-orm";
 
 const STOP_WORDS = new Set([
   "的", "了", "是", "在", "和", "有", "不", "这", "个", "为",
@@ -190,18 +192,16 @@ export async function rebuildIndexFromDB(): Promise<void> {
   console.log("[sparse-retriever] 从数据库重建 BM25 索引...");
 
   try {
-    const embeddings = await prisma.embedding.findMany({
-      select: {
+    const embResults = await db.query.embeddings.findMany({
+      columns: {
         id: true,
         chunkText: true,
         documentId: true,
       },
-      orderBy: {
-        chunkIndex: "asc",
-      },
+      orderBy: asc(embeddings.chunkIndex),
     });
 
-    if (embeddings.length === 0) {
+    if (embResults.length === 0) {
       console.warn("[sparse-retriever] 数据库中无 embedding 数据, 索引为空");
       bm25Index = {
         docs: new Map(),
@@ -212,14 +212,14 @@ export async function rebuildIndexFromDB(): Promise<void> {
       return;
     }
 
-    const docs = embeddings.map((emb, index) => ({
+    const docs = embResults.map((emb, index) => ({
       id: index,
       text: emb.chunkText,
       documentId: emb.documentId,
     }));
 
     buildIndex(docs);
-    console.log(`[sparse-retriever] BM25 索引重建完成, 文档数: ${embeddings.length}`);
+    console.log(`[sparse-retriever] BM25 索引重建完成, 文档数: ${embResults.length}`);
   } catch (error) {
     console.error("[sparse-retriever] 从数据库重建索引失败:", error);
     throw error;

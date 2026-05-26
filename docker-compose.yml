@@ -17,6 +17,12 @@ services:
     networks:
       - docker_default
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u neo4j -p test1234 'RETURN 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
 
   embedding:
     image: ghcr.io/ggml-org/llama.cpp:server
@@ -36,6 +42,12 @@ services:
     networks:
       - docker_default
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8011/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
   reranker:
     image: ghcr.io/ggml-org/llama.cpp:server
@@ -43,17 +55,23 @@ services:
     ports:
       - "8010:8010"
     volumes:
-      - D:\models\modelscope\bge-reranker-base:/models:ro
+      - D:\models\modelscope\models\gpustack\bge-reranker-v2-m3-GGUF:/models:ro
     command: >
-      --model /models/bge-reranker-base-f16.gguf
+      --model /models/bge-reranker-v2-m3-Q8_0.gguf
       --port 8010
       --host 0.0.0.0
-      --pooling rank
-      -c 512
+      --reranking
+      -c 8192
       -t 4
     networks:
       - docker_default
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8010/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
 
 volumes:
   neo4j_data:

@@ -4,7 +4,7 @@ import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { callBailian } from "@/server/llm/providers/bailian";
 import { buildCitationFromDocumentId } from "@/server/rag/citation/source-tracker";
 import { injectCitations, formatCitationList } from "@/server/rag/citation/citation-injector";
-import { prisma } from "@/server/db/client";
+import { db, sql } from "@/server/db/client";
 
 interface AnswerWithCitationRequest {
   query: string;
@@ -64,13 +64,12 @@ export async function POST(request: Request) {
 
       let citation = "";
       try {
-        const embeddingRows = await prisma.$queryRaw<
-          Array<{ metadata: any }>
-        >`
+        const embeddingResult = await db.execute(sql`
           SELECT metadata FROM "Embedding"
           WHERE "documentId" = ${result.documentId}
           LIMIT 1
-        `;
+        `);
+        const embeddingRows = embeddingResult as unknown as Array<{ metadata: any }>;
 
         const metadata = (embeddingRows[0]?.metadata as Record<string, any>) || {};
         citation = await buildCitationFromDocumentId(

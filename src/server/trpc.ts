@@ -1,12 +1,12 @@
 import { initTRPC } from "@trpc/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
 
   return {
-    prisma,
+    db,
     session,
     ...opts,
   };

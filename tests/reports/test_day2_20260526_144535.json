@@ -1,0 +1,132 @@
+{
+  "day": 2,
+  "timestamp": "20260526_144535",
+  "duration_seconds": 309.897291,
+  "summary": {
+    "passed": 11,
+    "failed": 11,
+    "skipped": 4,
+    "total": 26
+  },
+  "results": [
+    {
+      "name": "百炼模型调用（通过Agent API）",
+      "status": "FAIL",
+      "reason": "HTTP 500: {\"success\":false,\"answer\":\"\",\"error\":\"Failed query: insert into \\\"Conversation\\\" (\\\"id\\\", \\\"userId\\\", \\\"title\\\", \\\"createdAt\\\", \\\"updatedAt\\\") values (default, $1, $2, default, default) returning \\\"id"
+    },
+    {
+      "name": "数据服务健康检查",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 历史行情",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 财务数据",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 指数数据",
+      "status": "PASS"
+    },
+    {
+      "name": "Baostock 股票列表",
+      "status": "SKIP",
+      "reason": "SKIP（Baostock 服务器超时）"
+    },
+    {
+      "name": "mootdx 实时行情",
+      "status": "SKIP",
+      "reason": "SKIP（mootdx 服务器连接超时，非交易时段正常）"
+    },
+    {
+      "name": "mootdx 分钟K线",
+      "status": "SKIP",
+      "reason": "SKIP（mootdx 服务器连接超时，非交易时段正常）"
+    },
+    {
+      "name": "Baostock 交易日历",
+      "status": "SKIP",
+      "reason": "SKIP（Baostock 服务器超时）"
+    },
+    {
+      "name": "MA 移动平均线",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "MACD 指标",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "RSI 指标",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "模拟交易-创建账户",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "交易合规检查",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "受限股票检查",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "持仓限制检查",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "VaR 计算",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "压力测试",
+      "status": "FAIL",
+      "reason": "Agent 失败: Failed query: insert into \"Conversation\" (\"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\") values (default, $1, $2, default, default) returning \"id\", \"userId\", \"title\", \"createdAt\", \"updatedAt\"\nparams: default-user,新对话"
+    },
+    {
+      "name": "财务数据提取",
+      "status": "PASS"
+    },
+    {
+      "name": "文本摘要",
+      "status": "PASS"
+    },
+    {
+      "name": "研报生成",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent API - 缺少query参数",
+      "status": "PASS"
+    },
+    {
+      "name": "Agent API - 正常调用",
+      "status": "FAIL",
+      "reason": "HTTP 500: {\"success\":false,\"answer\":\"\",\"error\":\"Failed query: insert into \\\"Conversation\\\" (\\\"id\\\", \\\"userId\\\", \\\"title\\\", \\\"createdAt\\\", \\\"updatedAt\\\") values (default, $1, $2, default, default) returning \\\"id"
+    },
+    {
+      "name": "YAML 配置加载",
+      "status": "PASS"
+    },
+    {
+      "name": "YAML 配置值读取",
+      "status": "PASS"
+    },
+    {
+      "name": ".env.local 加载",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,111 @@
+{
+  "timestamp": "20260526_132922",
+  "summary": {
+    "passed": 18,
+    "failed": 2,
+    "skipped": 0,
+    "total": 20
+  },
+  "results": [
+    {
+      "name": "CDC 监听模块 - 文件存在",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "CDC 监听模块 - 导出函数正确",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "增量嵌入模块 - 文件存在",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "增量嵌入模块 - 导出函数正确",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "反思节点 - 文件存在",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "反思节点 - 导出函数正确",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Agentic RAG - POST /api/agent/run",
+      "status": "FAIL",
+      "detail": "HTTP 500: {\"success\":false,\"answer\":\"\",\"error\":\"\\nInvalid `prisma.conversation.create()` invocation:\\n\\n\\nThe table `public.Conversation` does not exist in the current database.\",\"iterations\":0}"
+    },
+    {
+      "name": "Agent - iterations 字段",
+      "status": "FAIL",
+      "detail": "HTTP 500: {\"success\":false,\"answer\":\"\",\"error\":\"\\nInvalid `prisma.conversation.create()` invocation:\\n\\n\\nThe table `public.Conversation` does not exist in the current database.\",\"iterations\":0}"
+    },
+    {
+      "name": "黄金测试集 - qa-golden.json 存在且格式正确",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "RAG 评估器 - 文件存在",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "RAG 评估器 - 导出函数正确",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "DeepWiki 工具 - 文件存在",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "DeepWiki 工具 - 导出函数正确",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估面板 - GET /api/evaluation/results",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估面板 - page.tsx 文件存在",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "反思评估逻辑 - shouldRetrieveAgain 判断",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "增量索引逻辑 - INSERT/UPDATE/DELETE 处理",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估指标计算 - Hits@K",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "评估指标计算 - Faithfulness",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "综合评分计算 - overallScore",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

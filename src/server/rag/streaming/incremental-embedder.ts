@@ -1,4 +1,6 @@
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { documents, embeddings } from "@/server/db/schema";
+import { eq, sql } from "drizzle-orm";
 import { chunkDocument } from "@/server/rag/chunking/semantic-chunker";
 import { generateEmbeddings, storeEmbeddings } from "@/server/rag/retrieval/dense-retriever";
 
@@ -6,11 +8,9 @@ async function deleteEmbeddingsForDocument(docId: string): Promise<void> {
   console.log(`[incremental-embedder] 删除文档 ${docId} 的所有 embedding 记录`);
 
   try {
-    const result = await prisma.embedding.deleteMany({
-      where: { documentId: docId },
-    });
+    const result = await db.delete(embeddings).where(eq(embeddings.documentId, docId)).returning();
 
-    console.log(`[incremental-embedder] 已删除 ${result.count} 条 embedding 记录, docId: ${docId}`);
+    console.log(`[incremental-embedder] 已删除 ${result.length} 条 embedding 记录, docId: ${docId}`);
   } catch (error) {
     console.error(`[incremental-embedder] 删除 embedding 记录失败, docId: ${docId}:`, error);
     throw error;
@@ -22,8 +22,8 @@ async function embedDocument(docId: string): Promise<void> {
 
   let document;
   try {
-    document = await prisma.document.findUnique({
-      where: { id: docId },
+    document = await db.query.documents.findFirst({
+      where: eq(documents.id, docId),
     });
   } catch (error) {
     console.error(`[incremental-embedder] 查询文档失败, docId: ${docId}:`, error);
@@ -35,9 +35,8 @@ async function embedDocument(docId: string): Promise<void> {
     throw new Error(`文档不存在: ${docId}`);
   }
 
-  const existingEmbeddings = await prisma.embedding.count({
-    where: { documentId: docId },
-  });
+  const countResult = await db.select({ value: sql<number>`count(*)` }).from(embeddings).where(eq(embeddings.documentId, docId));
+  const existingEmbeddings = Number(countResult[0]?.value ?? 0);
 
   if (existingEmbeddings > 0 && document.contentHash) {
     try {
@@ -52,10 +51,7 @@ async function embedDocument(docId: string): Promise<void> {
         console.log(`[incremental-embedder] 内容未变化，跳过重建, docId: ${docId}`);
         return;
       }
-      await prisma.document.update({
-        where: { id: docId },
-        data: { contentHash: currentHash },
-      });
+      await db.update(documents).set({ contentHash: currentHash }).where(eq(documents.id, docId));
     } catch {
       console.warn(`[incremental-embedder] 内容哈希检查失败，继续重建, docId: ${docId}`);
     }
@@ -132,10 +128,10 @@ async function embedDocument(docId: string): Promise<void> {
   }
 
   const chunkTexts = chunks.map((chunk) => chunk.text);
-  let embeddings: number[][];
+  let embResults: number[][];
   try {
-    embeddings = await generateEmbeddings(chunkTexts);
-    console.log(`[incremental-embedder] Embedding 生成完成, 数量: ${embeddings.length}`);
+    embResults = await generateEmbeddings(chunkTexts);
+    console.log(`[incremental-embedder] Embedding 生成完成, 数量: ${embResults.length}`);
   } catch (error) {
     console.error(`[incremental-embedder] Embedding 生成失败, docId: ${docId}:`, error);
     throw error;
@@ -145,7 +141,7 @@ async function embedDocument(docId: string): Promise<void> {
     documentId: docId,
     chunkIndex: chunk.index,
     chunkText: chunk.text,
-    embedding: embeddings[index],
+    embedding: embResults[index],
     tokenCount: chunk.metadata.tokenCount,
   }));
 
@@ -158,10 +154,7 @@ async function embedDocument(docId: string): Promise<void> {
   }
 
   try {
-    await prisma.document.update({
-      where: { id: docId },
-      data: { status: "indexed" },
-    });
+    await db.update(documents).set({ status: "indexed" }).where(eq(documents.id, docId));
     console.log(`[incremental-embedder] 文档状态已更新为 indexed, docId: ${docId}`);
   } catch (error) {
     console.error(`[incremental-embedder] 更新文档状态失败, docId: ${docId}:`, error);
@@ -189,7 +182,7 @@ export async function processDocumentChange(
           const { deleteGraph, createGraph } = await import("@/server/rag/graph/graph-builder");
           const { extractTriples } = await import("@/server/rag/graph/entity-extractor");
           await deleteGraph(docId);
-          const document = await prisma.document.findUnique({ where: { id: docId } });
+          const document = await db.query.documents.findFirst({ where: eq(documents.id, docId) });
           if (document) {
             const fs = await import("fs/promises");
             const path = await import("path");

@@ -1,9 +1,9 @@
 """
 A股上市公司财报爬取脚本
 数据源：巨潮资讯网 (cninfo.com.cn) — 中国证监会指定信息披露平台
-爬取范围：沪深主板上市公司
+爬取范围：沪深主板上市公司（排除创业板、科创板、北交所）
 爬取类型：2025年年报、2026年一季报
-排除：创业板(300xxx/301xxx)、北交所(4xxxxx/8xxxxx)
+优化：按股票代码精确查询 + 并行下载
 """
 
 import os
@@ -13,9 +13,8 @@ import json
 import time
 import logging
 import requests
-from pathlib import Path
 from datetime import datetime
-from urllib.parse import quote
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,6 +30,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data", "financial_reports")
 PROGRESS_FILE = os.path.join(DATA_DIR, "crawl_progress.json")
 LOG_FILE = os.path.join(DATA_DIR, "crawl_error.log")
+CODES_FILE = os.path.join(DATA_DIR, "main_board_codes.json")
 
 ANNUAL_DIR = os.path.join(DATA_DIR, "2025_annual")
 Q1_DIR = os.path.join(DATA_DIR, "2026_q1")
@@ -49,24 +49,14 @@ HEADERS = {
     "X-Requested-With": "XMLHttpRequest",
 }
 
-REQUEST_DELAY = 1.5
+PAGE_DELAY = 0.2
 MAX_RETRIES = 3
 PAGE_SIZE = 30
+DOWNLOAD_WORKERS = 5
+QUERY_WORKERS = 2
 
 CATEGORY_ANNUAL = "category_ndbg_szsh"
 CATEGORY_Q1 = "category_yjdbg_szsh"
-
-
-def is_main_board(code: str) -> bool:
-    if not code or len(code) != 6:
-        return False
-    if code.startswith("600") or code.startswith("601") or code.startswith("603") or code.startswith("605"):
-        return True
-    if code.startswith("000") or code.startswith("001") or code.startswith("002"):
-        return True
-    if code.startswith("688"):
-        return True
-    return False
 
 
 def sanitize_filename(name: str) -> str:
@@ -91,16 +81,48 @@ def save_progress(progress: dict):
         json.dump(progress, f, ensure_ascii=False, indent=2)
 
 
-def fetch_announcements(category: str, se_date: str, page_num: int = 1) -> dict:
+def load_main_board_codes() -> list[str]:
+    if os.path.exists(CODES_FILE):
+        with open(CODES_FILE, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data.get("all", [])
+
+    import baostock as bs
+    lg = bs.login()
+    rs = bs.query_stock_basic()
+    codes = []
+    while rs.error_code == '0' and rs.next():
+        row = rs.get_row_data()
+        code = row[0].replace("sh.", "").replace("sz.", "")
+        outDate = row[3] if len(row) > 3 else ""
+        if outDate and outDate != "":
+            continue
+        if re.match(r'^(600|601|603|605|000|001)', code):
+            codes.append(code)
+    bs.logout()
+
+    os.makedirs(os.path.dirname(CODES_FILE), exist_ok=True)
+    with open(CODES_FILE, "w", encoding="utf-8") as f:
+        json.dump({"all": codes}, f, ensure_ascii=False)
+    return codes
+
+
+def query_stock_announcements(code: str, category: str, se_date: str) -> list[dict]:
+    org_id = ""
+    if code.startswith("6"):
+        org_id = f"sh{code}"
+    else:
+        org_id = f"sz{code}"
+
     body = {
-        "pageNum": str(page_num),
+        "pageNum": "1",
         "pageSize": str(PAGE_SIZE),
         "column": "szse",
         "tabName": "fulltext",
         "plate": "",
-        "stock": "",
+        "stock": code,
         "searchkey": "",
-        "secid": "",
+        "secid": org_id,
         "category": category,
         "trade": "",
         "seDate": se_date,
@@ -115,18 +137,17 @@ def fetch_announcements(category: str, se_date: str, page_num: int = 1) -> dict:
                 CNINFO_QUERY_URL,
                 headers=HEADERS,
                 data=body,
-                timeout=30,
+                timeout=15,
             )
             if resp.status_code == 200:
-                data = resp.json()
-                return data
+                return resp.json().get("announcements", [])
             else:
-                logger.warning(f"请求返回 {resp.status_code}, 重试 {attempt + 1}/{MAX_RETRIES}")
+                logger.warning(f"[{code}] 请求返回 {resp.status_code}, 重试 {attempt + 1}")
         except requests.RequestException as e:
-            logger.warning(f"请求异常: {e}, 重试 {attempt + 1}/{MAX_RETRIES}")
-        time.sleep(2 ** attempt)
+            logger.warning(f"[{code}] 请求异常: {e}, 重试 {attempt + 1}")
+        time.sleep(1)
 
-    return {}
+    return []
 
 
 def download_pdf(url: str, save_path: str) -> bool:
@@ -143,102 +164,141 @@ def download_pdf(url: str, save_path: str) -> bool:
             else:
                 logger.warning(f"下载失败 HTTP {resp.status_code}: {url}")
         except requests.RequestException as e:
-            logger.warning(f"下载异常: {e}, 重试 {attempt + 1}/{MAX_RETRIES}")
-        time.sleep(2 ** attempt)
+            logger.warning(f"下载异常: {e}, 重试 {attempt + 1}")
+        time.sleep(1)
     return False
+
+
+_error_logger_initialized = False
+
+
+def _log_error(msg: str):
+    global _error_logger_initialized
+    error_logger = logging.getLogger("CrawlError")
+    if not _error_logger_initialized:
+        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+        fh = logging.FileHandler(LOG_FILE, encoding="utf-8")
+        fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+        error_logger.addHandler(fh)
+        error_logger.setLevel(logging.ERROR)
+        _error_logger_initialized = True
+    error_logger.error(msg)
+
+
+def process_single_stock(args: tuple) -> list[tuple[str, str]]:
+    code, category, se_date, save_dir = args
+    tasks = []
+
+    announcements = query_stock_announcements(code, category, se_date)
+
+    if not announcements:
+        return tasks
+
+    for ann in announcements:
+        sec_code = ann.get("secCode", "")
+        sec_name = ann.get("secName", "")
+        title = ann.get("announcementTitle", "")
+        adjunct_url = ann.get("adjunctUrl", "")
+
+        if not adjunct_url:
+            continue
+
+        clean_title = re.sub(r"</?em>", "", title)
+        has_exclude = "摘要" in clean_title or "修订版" in clean_title or "英文" in clean_title
+        is_annual = "年度报告" in clean_title and not has_exclude
+        is_q1 = "第一季度报告" in clean_title and not has_exclude
+
+        if category == CATEGORY_ANNUAL and not is_annual:
+            continue
+        if category == CATEGORY_Q1 and not is_q1:
+            continue
+
+        filename = sanitize_filename(f"{sec_code}_{sec_name}_{title}") + ".pdf"
+        save_path = os.path.join(save_dir, filename)
+
+        if os.path.exists(save_path):
+            continue
+
+        pdf_url = CNINFO_PDF_BASE + adjunct_url
+        tasks.append((pdf_url, save_path))
+
+    return tasks
 
 
 def crawl_report_type(category: str, se_date: str, save_dir: str, report_label: str, progress: dict):
     os.makedirs(save_dir, exist_ok=True)
 
-    progress_key = f"{report_label}_page"
-    start_page = progress.get(progress_key, 1)
-    total_downloaded = progress.get(f"{report_label}_downloaded", 0)
-    total_skipped = progress.get(f"{report_label}_skipped", 0)
+    codes = load_main_board_codes()
+    total_stocks = len(codes)
+    logger.info(f"[{report_label}] 主板股票共 {total_stocks} 只，开始查询...")
 
-    page_num = start_page
-    has_more = True
+    progress_key = f"{report_label}_queried"
+    queried = progress.get(progress_key, 0)
 
-    logger.info(f"开始爬取 {report_label}, 日期范围: {se_date}, 起始页: {page_num}")
+    all_tasks = []
+    processed = 0
 
-    while has_more:
-        logger.info(f"正在请求第 {page_num} 页...")
-        data = fetch_announcements(category, se_date, page_num)
+    work_items = []
+    for code in codes[queried:]:
+        work_items.append((code, category, se_date, save_dir))
 
-        if not data:
-            logger.error(f"第 {page_num} 页请求失败，跳过")
-            page_num += 1
-            time.sleep(REQUEST_DELAY)
-            continue
+    with ThreadPoolExecutor(max_workers=QUERY_WORKERS) as executor:
+        futures = {executor.submit(process_single_stock, item): item[0] for item in work_items}
 
-        announcements = data.get("announcements", [])
-        if not announcements:
-            logger.info(f"第 {page_num} 页无数据，爬取完成")
-            break
+        for future in as_completed(futures):
+            code = futures[future]
+            try:
+                tasks = future.result()
+                all_tasks.extend(tasks)
+            except Exception as e:
+                logger.error(f"[{code}] 查询异常: {e}")
+                _log_error(f"查询失败: {code} - {e}")
 
-        has_more = data.get("hasMore", False)
+            processed += 1
+            if processed % 100 == 0 or processed == len(work_items):
+                progress[progress_key] = queried + processed
+                save_progress(progress)
+                logger.info(f"[{report_label}] 查询进度: {processed}/{len(work_items)}, 待下载: {len(all_tasks)}")
 
-        for ann in announcements:
-            sec_code = ann.get("secCode", "")
-            sec_name = ann.get("secName", "")
-            title = ann.get("announcementTitle", "")
-            adjunct_url = ann.get("adjunctUrl", "")
+            time.sleep(0.3)
 
-            if not is_main_board(sec_code):
-                total_skipped += 1
-                continue
+    logger.info(f"[{report_label}] 查询完成: 扫描 {total_stocks} 只股票, 待下载 {len(all_tasks)} 个文件")
 
-            if not adjunct_url:
-                continue
-
-            clean_title = re.sub(r"</?em>", "", title)
-            has_exclude = "摘要" in clean_title or "修订版" in clean_title or "英文" in clean_title
-            is_annual = "年度报告" in clean_title and not has_exclude
-            is_q1 = "第一季度报告" in clean_title and not has_exclude
-
-            if category == CATEGORY_ANNUAL and not is_annual:
-                continue
-            if category == CATEGORY_Q1 and not is_q1:
-                continue
-
-            filename = sanitize_filename(f"{sec_code}_{sec_name}_{title}") + ".pdf"
-            save_path = os.path.join(save_dir, filename)
-
-            if os.path.exists(save_path):
-                logger.info(f"已存在，跳过: {filename}")
-                continue
-
-            pdf_url = CNINFO_PDF_BASE + adjunct_url
-            logger.info(f"下载: {sec_code} {sec_name} - {title}")
-
-            success = download_pdf(pdf_url, save_path)
-            if success:
-                total_downloaded += 1
-                logger.info(f"下载成功 ({total_downloaded}): {filename}")
-            else:
-                logger.error(f"下载失败: {filename}")
-                error_logger = logging.getLogger("CrawlError")
-                if not error_logger.handlers:
-                    os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-                    fh = logging.FileHandler(LOG_FILE, encoding="utf-8")
-                    fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-                    error_logger.addHandler(fh)
-                    error_logger.setLevel(logging.ERROR)
-                error_logger.error(f"下载失败: {pdf_url} -> {save_path}")
-
-            time.sleep(REQUEST_DELAY)
-
-        progress[progress_key] = page_num + 1
-        progress[f"{report_label}_downloaded"] = total_downloaded
-        progress[f"{report_label}_skipped"] = total_skipped
+    if not all_tasks:
+        logger.info(f"[{report_label}] 无新文件需要下载")
+        progress[f"{report_label}_done"] = True
         save_progress(progress)
+        return
 
-        page_num += 1
-        time.sleep(REQUEST_DELAY)
+    success_count = 0
+    fail_count = 0
+    total = len(all_tasks)
 
-    logger.info(f"{report_label} 爬取完成: 下载 {total_downloaded} 份, 跳过非主板 {total_skipped} 份")
+    logger.info(f"[{report_label}] 开始并行下载 {total} 个文件 (并发: {DOWNLOAD_WORKERS})")
+
+    with ThreadPoolExecutor(max_workers=DOWNLOAD_WORKERS) as executor:
+        futures = {executor.submit(download_pdf, url, path): (url, path) for url, path in all_tasks}
+
+        for future in as_completed(futures):
+            url, path = futures[future]
+            try:
+                ok = future.result()
+                if ok:
+                    success_count += 1
+                    if success_count % 50 == 0 or success_count == total:
+                        logger.info(f"[{report_label}] 下载进度: {success_count}/{total}")
+                else:
+                    fail_count += 1
+                    _log_error(f"下载失败: {url}")
+            except Exception as e:
+                fail_count += 1
+                _log_error(f"下载异常: {url} - {e}")
+
+    existing = len([f for f in os.listdir(save_dir) if f.endswith(".pdf")]) if os.path.exists(save_dir) else 0
+    logger.info(f"[{report_label}] 完成: 目录共 {existing} 份PDF, 本次下载 {success_count}, 失败 {fail_count}")
 
     progress[f"{report_label}_done"] = True
+    progress[f"{report_label}_total"] = existing
     save_progress(progress)
 
 
@@ -246,16 +306,12 @@ def main():
     start_time = datetime.now()
     os.makedirs(DATA_DIR, exist_ok=True)
 
-    fh = logging.FileHandler(LOG_FILE, encoding="utf-8")
-    fh.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-    fh.setLevel(logging.ERROR)
-    logging.getLogger("CrawlError").addHandler(fh)
-
     logger.info("=" * 60)
-    logger.info("  A股上市公司财报爬取")
+    logger.info("  A股上市公司财报爬取 (优化版v2)")
     logger.info("  数据源: 巨潮资讯网 (cninfo.com.cn)")
-    logger.info("  范围: 沪深主板（排除创业板、北交所）")
+    logger.info("  范围: 沪深主板（排除创业板、科创板、北交所）")
     logger.info("  类型: 2025年年报 + 2026年一季报")
+    logger.info(f"  查询并发: {QUERY_WORKERS}, 下载并发: {DOWNLOAD_WORKERS}")
     logger.info("=" * 60)
 
     progress = load_progress()
@@ -293,7 +349,7 @@ def main():
     logger.info(f"  2025年年报: {annual_count} 份")
     logger.info(f"  2026年一季报: {q1_count} 份")
     logger.info(f"  总计: {annual_count + q1_count} 份")
-    logger.info(f"  耗时: {duration:.0f}s")
+    logger.info(f"  耗时: {duration:.0f}s ({duration / 60:.1f}min)")
     logger.info(f"  存储位置: {DATA_DIR}")
     logger.info("=" * 60)
 

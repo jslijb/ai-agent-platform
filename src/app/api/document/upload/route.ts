@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { documents } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 import { chunkDocument } from "@/server/rag/chunking/semantic-chunker";
 import {
   generateEmbeddings,
@@ -42,14 +44,12 @@ export async function POST(request: Request) {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const document = await prisma.document.create({
-      data: {
-        userId,
-        fileName,
-        fileKey: fileName,
-        status: "processing",
-      },
-    });
+    const [document] = await db.insert(documents).values({
+      userId,
+      fileName,
+      fileKey: fileName,
+      status: "processing",
+    }).returning();
 
     console.log(`[文档上传] 创建文档记录: ${document.id}, 状态: processing`);
 
@@ -76,10 +76,10 @@ export async function POST(request: Request) {
       console.log("[文档上传] 嵌入向量存储完成");
 
       console.log("[文档上传] 开始添加 BM25 索引");
-      for (const chunk of chunks) {
+      for (let i = 0; i < chunks.length; i++) {
         await addToIndex(
-          `${document.id}_chunk_${chunk.index}`,
-          chunk.text,
+          i,
+          chunks[i].text,
           document.id
         );
       }
@@ -101,10 +101,7 @@ export async function POST(request: Request) {
         console.error("[文档上传] 图谱构建失败，不影响文档处理:", graphError);
       }
 
-      await prisma.document.update({
-        where: { id: document.id },
-        data: { status: "completed" },
-      });
+      await db.update(documents).set({ status: "completed" }).where(eq(documents.id, document.id));
 
       console.log(
         `[文档上传] 文档处理完成: ${document.id}, 分块数: ${chunks.length}`
@@ -118,10 +115,7 @@ export async function POST(request: Request) {
     } catch (processingError) {
       console.error("[文档上传] 文档处理失败:", processingError);
 
-      await prisma.document.update({
-        where: { id: document.id },
-        data: { status: "failed" },
-      });
+      await db.update(documents).set({ status: "failed" }).where(eq(documents.id, document.id));
 
       console.error(`[文档上传] 文档状态已更新为 failed: ${document.id}`);
 

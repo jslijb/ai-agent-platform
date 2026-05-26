@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { users } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
 
     const { email, name, password } = validated.data;
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await db.query.users.findFirst({ where: eq(users.email, email) });
     if (existingUser) {
       return NextResponse.json(
         { message: "该邮箱已被注册" },
@@ -40,12 +42,10 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.user.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-      },
+    await db.insert(users).values({
+      email,
+      name,
+      password: hashedPassword,
     });
 
     return NextResponse.json(

@@ -1,0 +1,24 @@
+Day2 测试报告
+时间: 20260526_152222
+耗时: 131.8s
+============================================================
+
+✅ [PASS] 数据服务健康检查
+✅ [PASS] Baostock 历史行情
+✅ [PASS] Baostock 财务数据
+✅ [PASS] Baostock 指数数据
+✅ [PASS] Baostock 股票列表
+✅ [PASS] mootdx 实时行情
+✅ [PASS] mootdx 分钟K线
+✅ [PASS] Baostock 交易日历
+✅ [PASS] 财务数据提取
+✅ [PASS] 文本摘要
+✅ [PASS] 研报生成
+✅ [PASS] Agent API - 缺少query参数
+✅ [PASS] YAML 配置加载
+✅ [PASS] YAML 配置值读取
+✅ [PASS] .env.local 加载
+
+============================================================
+汇总: ✅ 通过=15, ❌ 失败=0, ⏭️ 跳过=0
+总计: 15

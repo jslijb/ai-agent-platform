@@ -1,12 +1,12 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/server/db/client";
+import { db } from "@/server/db/client";
+import { users } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
   providers: [
     Credentials({
       credentials: {
@@ -25,7 +25,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         const { email, password } = validated.data;
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, email),
+        });
 
         if (!user) {
           return null;
@@ -61,6 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         id: token.id as string,
         name: token.name as string,
         email: token.email as string,
+        emailVerified: null,
       };
       return session;
     },
