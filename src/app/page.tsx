@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import SignOutButton from "@/app/dashboard/SignOutButton";
 import { db, sql } from "@/server/db/client";
 
@@ -14,19 +15,23 @@ interface HealthResult {
   checks: Record<string, HealthCheck>;
 }
 
-async function getSystemHealth(): Promise<HealthResult> {
-  const checks: Record<string, HealthCheck> = {};
-  let overallStatus = "healthy";
+const HEALTH_TIMEOUT_MS = 2000;
+const HEALTH_TIMEOUT_MS_LLM = 3000;
 
+async function checkDatabase(): Promise<{ key: string; check: HealthCheck }> {
+  const start = Date.now();
   try {
-    const start = Date.now();
     await db.execute(sql`SELECT 1`);
-    checks.database = { status: "up", latency: Date.now() - start };
-  } catch {
-    checks.database = { status: "down", error: "连接失败" };
-    overallStatus = "degraded";
+    console.log(`[health] database: ${Date.now() - start}ms`);
+    return { key: "database", check: { status: "up", latency: Date.now() - start } };
+  } catch (e) {
+    console.error(`[health] database FAILED:`, e instanceof Error ? e.message : e);
+    return { key: "database", check: { status: "down", error: "连接失败" } };
   }
+}
 
+async function checkNeo4j(): Promise<{ key: string; check: HealthCheck }> {
+  const start = Date.now();
   try {
     const neo4jUrl = process.env.NEO4J_URI || "bolt://localhost:7687";
     const neo4jUser = process.env.NEO4J_USER || "neo4j";
@@ -35,93 +40,193 @@ async function getSystemHealth(): Promise<HealthResult> {
     const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic(neo4jUser, neo4jPass));
     const session = driver.session();
     try {
-      const start = Date.now();
       await session.run("RETURN 1");
-      checks.neo4j = { status: "up", latency: Date.now() - start };
+      console.log(`[health] neo4j: ${Date.now() - start}ms`);
+      return { key: "neo4j", check: { status: "up", latency: Date.now() - start } };
     } finally {
       await session.close();
       await driver.close();
     }
   } catch (e) {
-    checks.neo4j = { status: "down", error: e instanceof Error ? e.message : String(e) };
-    overallStatus = "degraded";
+    console.error(`[health] neo4j FAILED:`, e instanceof Error ? e.message : e);
+    return { key: "neo4j", check: { status: "down", error: e instanceof Error ? e.message : String(e) } };
   }
+}
 
+async function checkEmbedding(): Promise<{ key: string; check: HealthCheck }> {
+  const start = Date.now();
   try {
-    const start = Date.now();
     const response = await fetch("http://localhost:8011/v1/models", {
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS),
     });
     if (response.ok) {
-      checks.embedding = { status: "up", latency: Date.now() - start };
+      console.log(`[health] embedding: ${Date.now() - start}ms`);
+      return { key: "embedding", check: { status: "up", latency: Date.now() - start } };
     } else {
-      checks.embedding = { status: "down", error: `HTTP ${response.status}` };
-      overallStatus = "degraded";
+      console.error(`[health] embedding FAILED: HTTP ${response.status}`);
+      return { key: "embedding", check: { status: "down", error: `HTTP ${response.status}` } };
     }
   } catch (e) {
-    checks.embedding = { status: "down", error: e instanceof Error ? e.message : String(e) };
-    overallStatus = "degraded";
+    console.error(`[health] embedding FAILED:`, e instanceof Error ? e.message : e);
+    return { key: "embedding", check: { status: "down", error: e instanceof Error ? e.message : String(e) } };
   }
+}
 
+async function checkReranker(): Promise<{ key: string; check: HealthCheck }> {
+  const start = Date.now();
   try {
-    const start = Date.now();
     const rerankerUrl = process.env.RERANKER_URL || "http://localhost:8010";
     const response = await fetch(`${rerankerUrl}/health`, {
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS),
     });
     if (response.ok) {
-      checks.reranker = { status: "up", latency: Date.now() - start };
+      console.log(`[health] reranker: ${Date.now() - start}ms`);
+      return { key: "reranker", check: { status: "up", latency: Date.now() - start } };
     } else {
-      checks.reranker = { status: "down", error: `HTTP ${response.status}` };
-      overallStatus = "degraded";
+      console.error(`[health] reranker FAILED: HTTP ${response.status}`);
+      return { key: "reranker", check: { status: "down", error: `HTTP ${response.status}` } };
     }
   } catch (e) {
-    checks.reranker = { status: "down", error: e instanceof Error ? e.message : String(e) };
-    overallStatus = "degraded";
+    console.error(`[health] reranker FAILED:`, e instanceof Error ? e.message : e);
+    return { key: "reranker", check: { status: "down", error: e instanceof Error ? e.message : String(e) } };
   }
+}
 
+async function checkLLM(): Promise<{ key: string; check: HealthCheck }> {
+  const start = Date.now();
   try {
     const apiKey = process.env.DASHSCOPE_API_KEY;
     if (!apiKey) {
-      checks.llm = { status: "down", error: "API Key 未配置" };
-      overallStatus = "degraded";
+      console.error(`[health] llm FAILED: API Key 未配置`);
+      return { key: "llm", check: { status: "down", error: "API Key 未配置" } };
+    }
+    const response = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/models", {
+      headers: { Authorization: `Bearer ${apiKey}` },
+      signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS_LLM),
+    });
+    if (response.ok) {
+      console.log(`[health] llm: ${Date.now() - start}ms`);
+      return { key: "llm", check: { status: "up", latency: Date.now() - start } };
     } else {
-      const start = Date.now();
-      const response = await fetch("https://dashscope.aliyuncs.com/compatible-mode/v1/models", {
-        headers: { Authorization: `Bearer ${apiKey}` },
-        signal: AbortSignal.timeout(10000),
-      });
-      if (response.ok) {
-        checks.llm = { status: "up", latency: Date.now() - start };
-      } else {
-        checks.llm = { status: "down", error: `HTTP ${response.status}` };
-        overallStatus = "degraded";
-      }
+      console.error(`[health] llm FAILED: HTTP ${response.status}`);
+      return { key: "llm", check: { status: "down", error: `HTTP ${response.status}` } };
     }
   } catch (e) {
-    checks.llm = { status: "down", error: e instanceof Error ? e.message : String(e) };
-    overallStatus = "degraded";
+    console.error(`[health] llm FAILED:`, e instanceof Error ? e.message : e);
+    return { key: "llm", check: { status: "down", error: e instanceof Error ? e.message : String(e) } };
   }
+}
 
+async function getSystemHealth(): Promise<HealthResult> {
+  const start = Date.now();
+  const results = await Promise.all([
+    checkDatabase(),
+    checkNeo4j(),
+    checkEmbedding(),
+    checkReranker(),
+    checkLLM(),
+  ]);
+
+  const checks: Record<string, HealthCheck> = {};
+  let overallStatus = "healthy";
+  for (const { key, check } of results) {
+    checks[key] = check;
+    if (check.status !== "up") {
+      overallStatus = "degraded";
+    }
+  }
+  console.log(`[health] all checks completed in ${Date.now() - start}ms`);
   return { status: overallStatus, checks };
 }
 
-export default async function HomePage() {
-  const session = await auth();
+const serviceLabels: Record<string, { name: string; tech: string }> = {
+  database: { name: "数据库", tech: "PostgreSQL" },
+  neo4j: { name: "图数据库", tech: "Neo4j" },
+  embedding: { name: "向量服务", tech: "BGE-M3" },
+  reranker: { name: "重排序", tech: "BGE-Reranker" },
+  llm: { name: "大模型", tech: "百炼 DeepSeek" },
+};
 
-  if (!session?.user) {
-    redirect("/login");
-  }
-
+async function HealthPanel() {
   const health = await getSystemHealth();
 
-  const serviceLabels: Record<string, { name: string; tech: string }> = {
-    database: { name: "数据库", tech: "PostgreSQL" },
-    neo4j: { name: "图数据库", tech: "Neo4j" },
-    embedding: { name: "向量服务", tech: "BGE-M3" },
-    reranker: { name: "重排序", tech: "BGE-Reranker" },
-    llm: { name: "大模型", tech: "百炼 DeepSeek" },
-  };
+  return (
+    <div className="mt-8 bg-white rounded-xl shadow-sm border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-800">
+          系统状态
+        </h2>
+        <span className={`text-xs px-2 py-1 rounded font-medium ${
+          health.status === "healthy"
+            ? "bg-green-100 text-green-700"
+            : "bg-amber-100 text-amber-700"
+        }`}>
+          {health.status === "healthy" ? "全部正常" : "部分异常"}
+        </span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        {Object.entries(serviceLabels).map(([key, label]) => {
+          const check = health.checks[key];
+          const isUp = check?.status === "up";
+          return (
+            <div key={key} className={`text-center p-3 rounded-lg border ${
+              isUp ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
+            }`}>
+              <div className="font-medium text-gray-600">{label.name}</div>
+              <div className="flex items-center justify-center gap-1.5 mt-1">
+                <span className={`inline-block w-2 h-2 rounded-full ${isUp ? "bg-green-500" : "bg-red-500"}`} />
+                <span className={isUp ? "text-green-600" : "text-red-600"}>
+                  {isUp ? "运行中" : "不可用"}
+                </span>
+              </div>
+              <div className="text-xs text-gray-400 mt-0.5">{label.tech}</div>
+              {check?.latency != null && (
+                <div className="text-xs text-gray-400 mt-0.5">{check.latency}ms</div>
+              )}
+              {check?.error && (
+                <div className="text-xs text-red-400 mt-0.5 truncate" title={check.error}>
+                  {check.error}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function HealthPanelFallback() {
+  return (
+    <div className="mt-8 bg-white rounded-xl shadow-sm border p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-800">系统状态</h2>
+        <span className="text-xs px-2 py-1 rounded font-medium bg-gray-100 text-gray-500">
+          检测中...
+        </span>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+        {Object.entries(serviceLabels).map(([key, label]) => (
+          <div key={key} className="text-center p-3 rounded-lg border bg-gray-50 border-gray-200 animate-pulse">
+            <div className="font-medium text-gray-600">{label.name}</div>
+            <div className="text-xs text-gray-400 mt-1">{label.tech}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default async function HomePage() {
+  const t0 = Date.now();
+  console.log(`[page] HomePage start`);
+  const session = await auth();
+  console.log(`[page] auth() took ${Date.now() - t0}ms, session=${!!session?.user}`);
+
+  if (!session?.user) {
+    console.log(`[page] no session, redirecting to /login, total=${Date.now() - t0}ms`);
+    redirect("/login");
+  }
 
   const features = [
     {
@@ -233,48 +338,9 @@ export default async function HomePage() {
           ))}
         </div>
 
-        <div className="mt-8 bg-white rounded-xl shadow-sm border p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">
-              系统状态
-            </h2>
-            <span className={`text-xs px-2 py-1 rounded font-medium ${
-              health.status === "healthy"
-                ? "bg-green-100 text-green-700"
-                : "bg-amber-100 text-amber-700"
-            }`}>
-              {health.status === "healthy" ? "全部正常" : "部分异常"}
-            </span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-            {Object.entries(serviceLabels).map(([key, label]) => {
-              const check = health.checks[key];
-              const isUp = check?.status === "up";
-              return (
-                <div key={key} className={`text-center p-3 rounded-lg border ${
-                  isUp ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"
-                }`}>
-                  <div className="font-medium text-gray-600">{label.name}</div>
-                  <div className="flex items-center justify-center gap-1.5 mt-1">
-                    <span className={`inline-block w-2 h-2 rounded-full ${isUp ? "bg-green-500" : "bg-red-500"}`} />
-                    <span className={isUp ? "text-green-600" : "text-red-600"}>
-                      {isUp ? "运行中" : "不可用"}
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-400 mt-0.5">{label.tech}</div>
-                  {check?.latency != null && (
-                    <div className="text-xs text-gray-400 mt-0.5">{check.latency}ms</div>
-                  )}
-                  {check?.error && (
-                    <div className="text-xs text-red-400 mt-0.5 truncate" title={check.error}>
-                      {check.error}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <Suspense fallback={<HealthPanelFallback />}>
+          <HealthPanel />
+        </Suspense>
       </main>
     </div>
   );
