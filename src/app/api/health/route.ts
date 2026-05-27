@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db, sql } from "@/server/db/client";
+import { redisGet, redisSet, redisDel } from "@/server/lib/redis";
 
 export async function GET() {
   const checks: Record<string, { status: string; latency?: number; error?: string }> = {};
@@ -11,6 +12,43 @@ export async function GET() {
     checks.database = { status: "up", latency: Date.now() - start };
   } catch (error) {
     checks.database = { status: "down", error: error instanceof Error ? error.message : String(error) };
+    overallStatus = "degraded";
+  }
+
+  try {
+    const start = Date.now();
+    const testKey = "__health_check__";
+    await redisSet(testKey, "ok", 10);
+    const val = await redisGet(testKey);
+    await redisDel(testKey);
+    if (val === "ok") {
+      checks.redis = { status: "up", latency: Date.now() - start };
+    } else {
+      checks.redis = { status: "down", error: "读写验证失败" };
+      overallStatus = "degraded";
+    }
+  } catch (error) {
+    checks.redis = { status: "down", error: error instanceof Error ? error.message : String(error) };
+    overallStatus = "degraded";
+  }
+
+  try {
+    const start = Date.now();
+    const neo4jUrl = process.env.NEO4J_URI || "bolt://localhost:7687";
+    const neo4jUser = process.env.NEO4J_USER || "neo4j";
+    const neo4jPass = process.env.NEO4J_PASSWORD || "test1234";
+    const { default: neo4j } = await import("neo4j-driver");
+    const driver = neo4j.driver(neo4jUrl, neo4j.auth.basic(neo4jUser, neo4jPass));
+    const session = driver.session();
+    try {
+      await session.run("RETURN 1");
+      checks.neo4j = { status: "up", latency: Date.now() - start };
+    } finally {
+      await session.close();
+      await driver.close();
+    }
+  } catch (error) {
+    checks.neo4j = { status: "down", error: error instanceof Error ? error.message : String(error) };
     overallStatus = "degraded";
   }
 

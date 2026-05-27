@@ -1,7 +1,18 @@
 import { callBailian, type BailianMessage } from "@/server/llm/providers/bailian";
 import { withCircuitBreaker, isCircuitOpen } from "@/server/lib/circuit-breaker";
 
-const MODEL_CHAIN = ["qwen-max", "qwen-plus", "qwen-turbo"];
+function getModelChain(): string[] {
+  const configured = process.env.BAILIAN_MODEL?.trim();
+  if (configured) {
+    const fallbacks = process.env.BAILIAN_FALLBACK_MODELS?.trim();
+    if (fallbacks) {
+      return [configured, ...fallbacks.split(",").map((m) => m.trim()).filter(Boolean)];
+    }
+    return [configured];
+  }
+  console.warn("[llm-router] BAILIAN_MODEL 未设置，降级链为空");
+  return [];
+}
 
 interface RouterResult {
   content: string;
@@ -17,9 +28,13 @@ export async function callWithFallback(
   messages: BailianMessage[],
   temperature?: number
 ): Promise<RouterResult> {
-  console.log(`[llm-router] 开始模型调用，降级链: ${MODEL_CHAIN.join(" → ")}`);
+  const modelChain = getModelChain();
+  if (modelChain.length === 0) {
+    throw new Error("BAILIAN_MODEL 未设置，无法调用 LLM。请在 .env.local 中配置 BAILIAN_MODEL");
+  }
+  console.log(`[llm-router] 开始模型调用，降级链: ${modelChain.join(" → ")}`);
 
-  for (const model of MODEL_CHAIN) {
+  for (const model of modelChain) {
     const circuitName = `llm-${model}`;
 
     if (isCircuitOpen(circuitName)) {

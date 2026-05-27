@@ -88,7 +88,7 @@ export async function hybridSearch(
 
     const fusedResults: HybridSearchResult[] = [];
 
-    for (const info of keyToInfo.values()) {
+    for (const info of Array.from(keyToInfo.values())) {
       let rrfScore = 0;
 
       if (info.denseRank !== undefined) {

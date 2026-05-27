@@ -3,7 +3,16 @@ const MAX_RETRIES = 3;
 const BASE_RETRY_INTERVAL = 1000;
 const TIMEOUT_MS = 30000;
 const DEFAULT_TEMPERATURE = 0;
-const DEFAULT_MODEL = "qwen-max";
+
+function resolveModel(): string {
+  const configured = process.env.BAILIAN_MODEL?.trim();
+  if (!configured) {
+    console.warn("[bailian] ⚠️ BAILIAN_MODEL 未设置，请检查 .env / .env.local 配置");
+    console.warn("[bailian] 请在 .env.local 中设置 BAILIAN_MODEL，例如: BAILIAN_MODEL=deepseek-v4-flash");
+    throw new Error("BAILIAN_MODEL 环境变量未设置，请在 .env.local 中配置");
+  }
+  return configured;
+}
 
 export interface BailianMessage {
   role: "system" | "user" | "assistant";
@@ -29,7 +38,10 @@ function getApiKey(): string {
 }
 
 function getModel(model?: string): string {
-  return model || process.env.BAILIAN_MODEL || DEFAULT_MODEL;
+  if (model) return model;
+  const resolved = resolveModel();
+  console.log(`[bailian] 使用模型: ${resolved}`);
+  return resolved;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -78,6 +90,13 @@ export async function callBailian(
         console.error(
           `[bailian] API 请求失败 (第${attempt}次): ${response.status} ${errorText}`
         );
+        const nonRetryableStatuses = [400, 401, 403, 404, 422];
+        if (nonRetryableStatuses.includes(response.status)) {
+          console.error(`[bailian] HTTP ${response.status} 为不可重试错误，立即终止`);
+          throw new Error(
+            `百炼 API 请求失败(不可重试): ${response.status} ${errorText}`
+          );
+        }
         if (attempt < MAX_RETRIES) {
           await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
           continue;

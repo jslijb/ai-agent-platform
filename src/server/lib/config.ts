@@ -39,7 +39,7 @@ export function loadConfig(): Record<string, any> {
   cachedConfig = resolveEnvVars(parsed);
 
   console.log("[config] 配置加载完成");
-  return cachedConfig;
+  return cachedConfig!;
 }
 
 export function getConfigValue(

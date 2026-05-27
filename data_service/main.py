@@ -1,6 +1,7 @@
 import logging
 import time
 import asyncio
+import datetime
 from contextlib import asynccontextmanager
 from typing import Optional
 
@@ -9,6 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from data_service.providers import baostock_provider, efinance_provider, mootdx_provider, tushare_provider, tickflow_provider
+from data_service.cache.local_cache import get_cache, HISTORY_TTL, FINANCIAL_TTL, REALTIME_TTL, BASIC_TTL, INDEX_TTL
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +41,13 @@ async def lifespan(app: FastAPI):
         logger.info("配置加载完成")
     except Exception as e:
         logger.error(f"配置加载失败: {e}")
+    try:
+        cache = get_cache()
+        cache.clear_expired()
+        stats = cache.get_stats()
+        logger.info(f"本地缓存就绪: {stats}")
+    except Exception as e:
+        logger.error(f"缓存初始化失败: {e}")
     logger.info("数据服务已启动，监听端口 8001")
     yield
     logger.info("数据服务正在关闭...")
@@ -46,14 +55,14 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="A股数据服务",
-    description="为 TypeScript MCP 工具提供 A 股数据的 FastAPI 服务",
-    version="1.0.0",
+    description="为 TypeScript MCP 工具提供 A 股数据的 FastAPI 服务（含本地缓存）",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -80,6 +89,11 @@ class FinancialRequest(BaseModel):
     quarter: Optional[int] = None
     period: Optional[str] = None
     count: Optional[int] = 1
+
+
+class FinancialReportRequest(BaseModel):
+    code: str
+    report_type: str = "income"
 
 
 class IndexRequest(BaseModel):
@@ -122,8 +136,8 @@ class MinuteRequest(BaseModel):
     frequency: str = "5"
 
 
-def _make_response(success: bool, data=None, error: Optional[str] = None) -> dict:
-    return {"success": success, "data": data, "error": error}
+def _make_response(success: bool, data=None, error: Optional[str] = None, from_cache: bool = False) -> dict:
+    return {"success": success, "data": data, "error": error, "from_cache": from_cache}
 
 
 def _validate_source(source: str, allowed_sources: list[str]):
@@ -134,9 +148,39 @@ def _validate_source(source: str, allowed_sources: list[str]):
         )
 
 
+def _guess_latest_quarter():
+    now = datetime.datetime.now()
+    year = now.year
+    month = now.month
+    if month <= 3:
+        return year - 1, 4
+    elif month <= 6:
+        return year, 1
+    elif month <= 9:
+        return year, 2
+    else:
+        return year, 3
+
+
 @app.get("/health")
 async def health_check():
-    return _make_response(True, data={"status": "ok", "service": "a股数据服务"})
+    cache = get_cache()
+    stats = cache.get_stats()
+    return _make_response(True, data={"status": "ok", "service": "a股数据服务", "cache_stats": stats})
+
+
+@app.get("/api/cache/stats")
+async def cache_stats():
+    cache = get_cache()
+    stats = cache.get_stats()
+    return _make_response(True, data=stats)
+
+
+@app.post("/api/cache/clear")
+async def cache_clear():
+    cache = get_cache()
+    cache.clear_expired()
+    return _make_response(True, data={"message": "过期缓存已清理"})
 
 
 @app.post("/api/market/history")
@@ -146,6 +190,20 @@ async def market_history(req: HistoryRequest):
 
     try:
         _validate_source(req.source, _HISTORY_SOURCES)
+
+        cache = get_cache()
+        cache_params = {
+            "source": req.source,
+            "code": req.code,
+            "start_date": req.start_date,
+            "end_date": req.end_date,
+            "frequency": req.frequency,
+        }
+        cached = cache.get("history", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"历史行情缓存命中: source={req.source}, code={req.code}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
 
         if req.source == "baostock":
             data = await asyncio.to_thread(
@@ -164,6 +222,9 @@ async def market_history(req: HistoryRequest):
             start = req.start_date.replace("-", "")
             end = req.end_date.replace("-", "")
             data = tushare_provider.get_stock_daily(req.code, start, end)
+
+        if data:
+            cache.set("history", cache_params, data, ttl=HISTORY_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"历史行情请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")
@@ -184,10 +245,21 @@ async def market_realtime(req: RealtimeRequest):
     try:
         _validate_source(req.source, _REALTIME_SOURCES)
 
+        cache = get_cache()
+        cache_params = {"source": req.source, "code": req.code}
+        cached = cache.get("realtime", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"实时行情缓存命中: source={req.source}, code={req.code}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
         if req.source == "efinance":
             data = efinance_provider.get_stock_realtime(req.code)
         elif req.source == "mootdx":
             data = mootdx_provider.get_stock_realtime(req.code)
+
+        if data:
+            cache.set("realtime", cache_params, data, ttl=REALTIME_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"实时行情请求完成: source={req.source}, 耗时={elapsed:.2f}s")
@@ -209,15 +281,53 @@ async def market_financial(req: FinancialRequest):
         _validate_source(req.source, _FINANCIAL_SOURCES)
 
         if req.source == "baostock":
-            if req.year is None or req.quarter is None:
-                return _make_response(False, error="baostock 数据源需要 year 和 quarter 参数")
+            year = req.year
+            quarter = req.quarter
+            if year is None or quarter is None:
+                year, quarter = _guess_latest_quarter()
+                logger.info(f"baostock 未指定 year/quarter，自动推断: year={year}, quarter={quarter}")
+
+            cache = get_cache()
+            cache_params = {"source": "baostock", "code": req.code, "year": year, "quarter": quarter}
+            cached = cache.get("financial", cache_params)
+            if cached is not None:
+                elapsed = time.time() - start_time
+                logger.info(f"财务数据缓存命中: code={req.code}, year={year}, quarter={quarter}, 耗时={elapsed:.2f}s")
+                return _make_response(True, data=cached, from_cache=True)
+
             data = await asyncio.to_thread(
-                baostock_provider.get_financial_data, req.code, req.year, req.quarter
+                baostock_provider.get_financial_data, req.code, year, quarter
             )
+
+            if not data and quarter > 1:
+                logger.info(f"Q{quarter}无数据，尝试Q{quarter-1}")
+                data = await asyncio.to_thread(
+                    baostock_provider.get_financial_data, req.code, year, quarter - 1
+                )
+                if data:
+                    quarter = quarter - 1
+
+            if data:
+                save_params = {"source": "baostock", "code": req.code, "year": year, "quarter": quarter}
+                cache.set("financial", save_params, data, ttl=FINANCIAL_TTL, source="baostock")
+
         elif req.source == "efinance":
+            cache = get_cache()
+            cache_params = {"source": "efinance", "code": req.code, "count": req.count or 1}
+            cached = cache.get("financial", cache_params)
+            if cached is not None:
+                elapsed = time.time() - start_time
+                logger.info(f"财务数据缓存命中: code={req.code}, 耗时={elapsed:.2f}s")
+                return _make_response(True, data=cached, from_cache=True)
+
             data = efinance_provider.get_financial_data(req.code, req.count or 1)
+
+            if data:
+                cache.set("financial", cache_params, data, ttl=FINANCIAL_TTL, source="efinance")
+
         elif req.source == "mootdx":
             data = mootdx_provider.get_financial_data(req.code, req.count or 1)
+
         elif req.source == "tushare":
             if req.period is None:
                 return _make_response(False, error="tushare 数据源需要 period 参数")
@@ -234,6 +344,34 @@ async def market_financial(req: FinancialRequest):
         return _make_response(False, error=str(e))
 
 
+@app.post("/api/market/financial_report")
+async def market_financial_report(req: FinancialReportRequest):
+    logger.info(f"请求详细财报: code={req.code}, report_type={req.report_type}")
+    start_time = time.time()
+
+    try:
+        cache = get_cache()
+        cache_params = {"type": "financial_report", "code": req.code, "report_type": req.report_type}
+        cached = cache.get("financial_report", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"详细财报缓存命中: code={req.code}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
+        data = efinance_provider.get_financial_report(req.code, req.report_type)
+
+        if data:
+            cache.set("financial_report", cache_params, data, ttl=FINANCIAL_TTL, source="efinance")
+
+        elapsed = time.time() - start_time
+        logger.info(f"详细财报请求完成: code={req.code}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")
+        return _make_response(True, data=data)
+
+    except Exception as e:
+        logger.error(f"详细财报请求失败: {e}", exc_info=True)
+        return _make_response(False, error=str(e))
+
+
 @app.post("/api/market/index")
 async def market_index(req: IndexRequest):
     logger.info(f"请求指数数据: source={req.source}, code={req.code}, start={req.start_date}, end={req.end_date}")
@@ -241,6 +379,14 @@ async def market_index(req: IndexRequest):
 
     try:
         _validate_source(req.source, _INDEX_SOURCES)
+
+        cache = get_cache()
+        cache_params = {"source": req.source, "code": req.code, "start_date": req.start_date, "end_date": req.end_date}
+        cached = cache.get("index", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"指数数据缓存命中: code={req.code}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
 
         if req.source == "baostock":
             data = await asyncio.to_thread(
@@ -250,6 +396,9 @@ async def market_index(req: IndexRequest):
             data = efinance_provider.get_index_history(req.code, req.start_date, req.end_date)
         elif req.source == "mootdx":
             data = mootdx_provider.get_index_history(req.code, req.start_date, req.end_date)
+
+        if data:
+            cache.set("index", cache_params, data, ttl=INDEX_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"指数数据请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")
@@ -270,6 +419,14 @@ async def market_basic(req: BasicRequest):
     try:
         _validate_source(req.source, _BASIC_SOURCES)
 
+        cache = get_cache()
+        cache_params = {"source": req.source}
+        cached = cache.get("basic", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"股票列表缓存命中: source={req.source}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
         if req.source == "baostock":
             data = await asyncio.to_thread(baostock_provider.get_stock_basic)
         elif req.source == "efinance":
@@ -278,6 +435,9 @@ async def market_basic(req: BasicRequest):
             data = mootdx_provider.get_stock_basic()
         elif req.source == "tushare":
             data = tushare_provider.get_stock_basic()
+
+        if data:
+            cache.set("basic", cache_params, data, ttl=BASIC_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"股票列表请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")

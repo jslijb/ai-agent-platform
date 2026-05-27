@@ -60,7 +60,7 @@ config/api_keys.yaml
 
 # Logs
 *.log
-logs/
+/logs/
 
 # IDE
 .idea/
@@ -74,3 +74,17 @@ logs/
 # OS
 Thumbs.db
 Desktop.ini
+
+# IDE / Tools
+.arts/
+.codeartsdoer/
+
+# Infrastructure
+postgres/
+nginx/
+
+# Evaluation reports (generated)
+evaluation-reports/
+
+# Test reports (generated)
+tests/reports/

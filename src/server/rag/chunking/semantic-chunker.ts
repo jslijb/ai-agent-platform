@@ -36,7 +36,7 @@ export async function parsePDFWithMinerU(
 
   try {
     const formData = new FormData();
-    const blob = new Blob([fileBuffer], { type: "application/pdf" });
+    const blob = new Blob([new Uint8Array(fileBuffer)], { type: "application/pdf" });
     formData.append("file", blob, fileName);
 
     const response = await fetch(

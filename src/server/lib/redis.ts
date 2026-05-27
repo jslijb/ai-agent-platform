@@ -11,7 +11,7 @@ export async function getRedis(): Promise<any> {
   }
 
   try {
-    const { createClient } = await import("redis");
+    const { createClient } = await import(/* webpackIgnore: true */ "redis");
     redisClient = createClient({ url: getRedisUrl() });
 
     redisClient.on("error", (err: Error) => {

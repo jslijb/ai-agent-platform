@@ -1,13 +1,15 @@
 import { NextResponse } from "next/server";
 import { runAgent } from "@/server/agents/simpleAgent";
 import { checkRateLimit } from "@/server/lib/rate-limiter";
+import { auth } from "@/lib/auth";
 
 export async function POST(request: Request) {
   console.log("[agent/run] 收到 Agent 请求");
 
   try {
+    const session = await auth();
     const body = await request.json();
-    const { query, maxIterations, conversationId } = body;
+    const { query, maxIterations, conversationId, userId: bodyUserId, model } = body;
 
     if (!query || typeof query !== "string") {
       console.error("[agent/run] 缺少 query 参数或类型错误");
@@ -28,10 +30,12 @@ export async function POST(request: Request) {
     }
 
     const iterations = typeof maxIterations === "number" && maxIterations > 0 ? maxIterations : 5;
+    // 优先使用 session 用户，其次使用客户端传入的 userId，最后回退到 default-user
+    const userId = session?.user?.id || bodyUserId || "default-user";
 
-    console.log(`[agent/run] 查询内容: ${query}, 最大迭代次数: ${iterations}`);
+    console.log(`[agent/run] 查询内容: ${query}, 最大迭代次数: ${iterations}, userId: ${userId}, model: ${model || "默认"}`);
 
-    const result = await runAgent(query, iterations, conversationId);
+    const result = await runAgent(query, iterations, conversationId, userId, model);
 
     console.log(
       `[agent/run] Agent 执行完成, 回答长度: ${result.answer.length}, 迭代次数: ${result.iterations}`
@@ -42,6 +46,7 @@ export async function POST(request: Request) {
       answer: result.answer,
       iterations: result.iterations,
       conversationId: result.conversationId,
+      steps: result.steps,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

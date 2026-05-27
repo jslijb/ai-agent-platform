@@ -46,7 +46,7 @@ def _safe_query(query_func, *args, max_retries=2, **kwargs):
             if rs.error_code != "0":
                 error_msg = rs.error_msg
                 # 登录过期类错误，重试
-                if "login" in error_msg.lower() or "connect" in error_msg.lower():
+                if "login" in error_msg.lower() or "connect" in error_msg.lower() or "网络" in error_msg or "超时" in error_msg or "timeout" in error_msg.lower():
                     logger.warning(f"baostock 查询失败(尝试 {attempt + 1}/{max_retries + 1}): {error_msg}，尝试重新登录")
                     _relogin()
                     continue
@@ -241,8 +241,8 @@ def get_trade_calendar(
 
     rs = _safe_query(
         bs.query_trade_dates,
-        start_date=start_date if start_date else "1990-01-01",
-        end_date=end_date if end_date else "2099-12-31",
+        start_date=start_date if start_date else "2020-01-01",
+        end_date=end_date if end_date else "2026-12-31",
     )
 
     data_list = []
@@ -271,7 +271,7 @@ def get_stock_basic() -> list[dict]:
     """
     logger.info("获取股票基本信息列表")
 
-    rs = _safe_query(bs.query_stock_basic)
+    rs = _safe_query(bs.query_stock_basic, code="", code_name="")
 
     data_list = []
     while rs.error_code == "0" and rs.next():

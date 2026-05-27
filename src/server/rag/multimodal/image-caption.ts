@@ -1,6 +1,14 @@
 import { callBailian } from "@/server/llm/providers/bailian";
 
-const VISION_MODEL = "qwen-vl-max";
+function resolveVisionModel(): string {
+  const configured = process.env.VISION_MODEL?.trim();
+  if (!configured) {
+    console.warn("[image-caption] ⚠️ VISION_MODEL 未设置，请在 .env.local 中配置，例如: VISION_MODEL=qwen-vl-max");
+    throw new Error("VISION_MODEL 环境变量未设置，请在 .env.local 中配置视觉模型");
+  }
+  return configured;
+}
+
 const MAX_RETRIES = 3;
 const RETRY_INTERVAL = 2000;
 
@@ -15,12 +23,13 @@ async function callVisionModel(imageBase64: string): Promise<string> {
     throw new Error("DASHSCOPE_API_KEY 环境变量未设置");
   }
 
+  const visionModel = resolveVisionModel();
   const baseUrl =
     process.env.DASHSCOPE_BASE_URL ||
     "https://dashscope.aliyuncs.com/compatible-mode/v1";
 
   console.log(
-    `[image-caption] 调用视觉模型: ${VISION_MODEL}, 图片 base64 长度: ${imageBase64.length}`
+    `[image-caption] 调用视觉模型: ${visionModel}, 图片 base64 长度: ${imageBase64.length}`
   );
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -35,7 +44,7 @@ async function callVisionModel(imageBase64: string): Promise<string> {
           Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: VISION_MODEL,
+          model: visionModel,
           messages: [
             {
               role: "user",
@@ -65,6 +74,11 @@ async function callVisionModel(imageBase64: string): Promise<string> {
         console.error(
           `[image-caption] 视觉模型请求失败 (第${attempt}次): ${response.status} ${errorText}`
         );
+        const nonRetryableStatuses = [400, 401, 403, 404, 422];
+        if (nonRetryableStatuses.includes(response.status)) {
+          console.error(`[image-caption] HTTP ${response.status} 为不可重试错误，立即终止`);
+          throw new Error(`视觉模型请求失败(不可重试): ${response.status} ${errorText}`);
+        }
         if (attempt < MAX_RETRIES) {
           await sleep(RETRY_INTERVAL);
           continue;

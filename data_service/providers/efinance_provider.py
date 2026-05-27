@@ -62,7 +62,53 @@ def get_stock_realtime(code: str) -> list[dict]:
         return result
 
     except Exception as e:
-        logger.error(f"efinance 获取实时行情异常: {e}", exc_info=True)
+        logger.warning(f"efinance 获取实时行情失败，尝试腾讯接口 fallback: {e}")
+
+    try:
+        import urllib.request
+
+        market = "sh" if code.startswith("6") else "sz"
+        url = f"http://qt.gtimg.cn/q={market}{code}"
+        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        resp = urllib.request.urlopen(req, timeout=10)
+        raw = resp.read().decode("gbk")
+
+        if not raw or "~" not in raw:
+            logger.warning(f"腾讯接口未返回有效数据: code={code}")
+            return []
+
+        fields = raw.split("~")
+        result = [{
+            "股票代码": code,
+            "股票名称": fields[1] if len(fields) > 1 else "",
+            "最新价": float(fields[3]) if len(fields) > 3 and fields[3] else None,
+            "最高价": float(fields[33]) if len(fields) > 33 and fields[33] else None,
+            "最低价": float(fields[34]) if len(fields) > 34 and fields[34] else None,
+            "开盘价": float(fields[5]) if len(fields) > 5 and fields[5] else None,
+            "成交量": int(fields[6]) if len(fields) > 6 and fields[6] else None,
+            "成交额": float(fields[37]) if len(fields) > 37 and fields[37] else None,
+            "涨跌额": float(fields[31]) if len(fields) > 31 and fields[31] else None,
+            "涨跌幅": float(fields[32]) if len(fields) > 32 and fields[32] else None,
+            "换手率": float(fields[38]) if len(fields) > 38 and fields[38] else None,
+            "市盈率": float(fields[39]) if len(fields) > 39 and fields[39] else None,
+            "市净率": None,
+            "总市值": float(fields[45]) if len(fields) > 45 and fields[45] else None,
+            "流通市值": float(fields[44]) if len(fields) > 44 and fields[44] else None,
+            "振幅": None,
+            "量比": None,
+            "price": float(fields[3]) if len(fields) > 3 and fields[3] else None,
+            "close": float(fields[3]) if len(fields) > 3 and fields[3] else None,
+            "changePercent": float(fields[32]) if len(fields) > 32 and fields[32] else None,
+            "change_pct": float(fields[32]) if len(fields) > 32 and fields[32] else None,
+            "volume": int(fields[6]) if len(fields) > 6 and fields[6] else None,
+            "amount": float(fields[37]) if len(fields) > 37 and fields[37] else None,
+        }]
+
+        logger.info(f"腾讯接口获取实时行情成功: code={code}")
+        return result
+
+    except Exception as e2:
+        logger.error(f"腾讯接口也获取失败: {e2}", exc_info=True)
         raise
 
 
@@ -310,6 +356,62 @@ def get_concept(code: str) -> list[dict]:
 
     except Exception as e:
         logger.error(f"efinance 获取概念板块异常: {e}", exc_info=True)
+        raise
+
+
+def get_financial_report(code: str, report_type: str = "income") -> list[dict]:
+    logger.info(f"efinance 获取详细财报: code={code}, report_type={report_type}")
+
+    try:
+        import requests
+
+        secid = f"1.{code}" if code.startswith("6") else f"0.{code}"
+
+        type_map = {
+            "income": "RPT_LICO_FN_CPD",
+            "balance": "RPT_DMSK_FN_BALANCE",
+            "cashflow": "RPT_DMSK_FN_CASHFLOW",
+        }
+        report_code = type_map.get(report_type, "RPT_LICO_FN_CPD")
+
+        url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+        params = {
+            "reportName": report_code,
+            "columns": "ALL",
+            "filter": f'(SECURITY_CODE="{code}")',
+            "pageNumber": 1,
+            "pageSize": 5,
+            "sortColumns": "REPORT_DATE",
+            "sortTypes": -1,
+            "source": "HSF10",
+            "client": "PC",
+        }
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": "https://data.eastmoney.com/",
+        }
+
+        resp = requests.get(url, params=params, headers=headers, timeout=30)
+        data = resp.json()
+
+        if data.get("result") is None or data["result"].get("data") is None:
+            logger.warning(f"efinance 未查询到详细财报: code={code}, type={report_type}")
+            return []
+
+        items = data["result"]["data"]
+        result = []
+        for item in items:
+            row = {}
+            for k, v in item.items():
+                if v is not None:
+                    row[k] = v
+            result.append(row)
+
+        logger.info(f"efinance 获取详细财报成功: code={code}, type={report_type}, 共 {len(result)} 条记录")
+        return result
+
+    except Exception as e:
+        logger.error(f"efinance 获取详细财报异常: {e}", exc_info=True)
         raise
 
 

@@ -181,3 +181,58 @@ export const messagesRelations = relations(messages, ({ one }) => ({
     references: [conversations.id],
   }),
 }));
+
+export const agentLogs = pgTable(
+  "AgentLog",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    conversationId: text("conversationId"),
+    userId: text("userId").notNull(),
+    query: text("query").notNull(),
+    answer: text("answer"),
+    model: text("model"),
+    iterations: integer("iterations").notNull().default(0),
+    totalSteps: integer("totalSteps").notNull().default(0),
+    steps: jsonb("steps").notNull().default([]),
+    promptTokens: integer("promptTokens").default(0),
+    completionTokens: integer("completionTokens").default(0),
+    totalTokens: integer("totalTokens").default(0),
+    latencyMs: integer("latencyMs"),
+    status: text("status").notNull().default("success"),
+    errorMessage: text("errorMessage"),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index("AgentLog_userId_idx").on(table.userId),
+    conversationIdIdx: index("AgentLog_conversationId_idx").on(table.conversationId),
+    createdAtIdx: index("AgentLog_createdAt_idx").on(table.createdAt),
+  }),
+);
+
+export const llmUsageLogs = pgTable(
+  "LLMUsageLog",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    model: text("model").notNull(),
+    provider: text("provider").notNull().default("bailian"),
+    promptTokens: integer("promptTokens").notNull().default(0),
+    completionTokens: integer("completionTokens").notNull().default(0),
+    totalTokens: integer("totalTokens").notNull().default(0),
+    callType: text("callType").notNull(),
+    success: integer("success").notNull().default(1),
+    latencyMs: integer("latencyMs"),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    modelIdx: index("LLMUsageLog_model_idx").on(table.model),
+    createdAtIdx: index("LLMUsageLog_createdAt_idx").on(table.createdAt),
+  }),
+);

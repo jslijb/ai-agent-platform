@@ -1,4 +1,42 @@
 services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: aiagent_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: aiagent
+      POSTGRES_PASSWORD: aiagent_secret
+      POSTGRES_DB: agentdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - aiagent_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aiagent -d agentdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/redis:7-alpine
+    container_name: aiagent_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - aiagent_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   neo4j:
     image: neo4j:5
     container_name: aiagent_neo4j
@@ -15,7 +53,7 @@ services:
       - neo4j_data:/data
       - neo4j_logs:/logs
     networks:
-      - docker_default
+      - aiagent_net
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "cypher-shell -u neo4j -p test1234 'RETURN 1'"]
@@ -40,7 +78,7 @@ services:
       -c 8192
       -t 4
     networks:
-      - docker_default
+      - aiagent_net
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8011/health"]
@@ -64,7 +102,7 @@ services:
       -c 8192
       -t 4
     networks:
-      - docker_default
+      - aiagent_net
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:8010/health"]
@@ -73,10 +111,34 @@ services:
       retries: 3
       start_period: 120s
 
+  nginx:
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/nginx:alpine
+    container_name: aiagent_nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - aiagent_net
+    restart: unless-stopped
+    depends_on:
+      - postgres
+      - redis
+      - neo4j
+      - embedding
+      - reranker
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:80/nginx-health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
 volumes:
+  postgres_data:
+  redis_data:
   neo4j_data:
   neo4j_logs:
 
 networks:
-  docker_default:
-    external: true
+  aiagent_net:
+    driver: bridge

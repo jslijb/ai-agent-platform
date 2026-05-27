@@ -33,7 +33,7 @@ export function buildParentChildMapping(
     if (currentParentText.length >= PARENT_CHUNK_SIZE || i === chunks.length - 1) {
       parentStore.set(currentParentId, currentParentText);
 
-      currentParentIndex++;
+      parentIndex++;
       currentParentId = `parent_${Date.now()}_${parentIndex}`;
       currentParentText = "";
       currentChildIds = [];

@@ -1,5 +1,25 @@
 import * as fs from "fs";
 import * as path from "path";
+
+const ENV_LOCAL_PATH = path.resolve(__dirname, "..", ".env.local");
+if (fs.existsSync(ENV_LOCAL_PATH)) {
+  const envContent = fs.readFileSync(ENV_LOCAL_PATH, "utf-8");
+  for (const line of envContent.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIndex = trimmed.indexOf("=");
+    if (eqIndex === -1) continue;
+    const key = trimmed.substring(0, eqIndex).trim();
+    const value = trimmed.substring(eqIndex + 1).trim();
+    if (key && !process.env[key]) {
+      process.env[key] = value;
+    }
+  }
+  console.log("[run-evaluation] 已加载 .env.local 环境变量");
+} else {
+  console.warn("[run-evaluation] .env.local 不存在，使用系统环境变量");
+}
+
 import { hybridSearch } from "../src/server/rag/retrieval/hybrid-retriever";
 import { callBailian } from "../src/server/llm/providers/bailian";
 import {

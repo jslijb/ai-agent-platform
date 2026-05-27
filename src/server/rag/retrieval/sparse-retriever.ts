@@ -43,7 +43,7 @@ function tokenize(text: string): string[] {
 function computeAvgDL(docs: Map<number, { tokens: string[] }>): number {
   if (docs.size === 0) return 0;
   let totalLength = 0;
-  for (const doc of docs.values()) {
+  for (const doc of Array.from(docs.values())) {
     totalLength += doc.tokens.length;
   }
   return totalLength / docs.size;
@@ -51,7 +51,7 @@ function computeAvgDL(docs: Map<number, { tokens: string[] }>): number {
 
 function computeDF(docs: Map<number, { tokens: string[] }>): Map<string, number> {
   const df = new Map<string, number>();
-  for (const doc of docs.values()) {
+  for (const doc of Array.from(docs.values())) {
     const seen = new Set<string>();
     for (const token of doc.tokens) {
       if (!seen.has(token)) {
@@ -145,7 +145,7 @@ export async function sparseSearch(
 
   const scoredDocs: SparseSearchResult[] = [];
 
-  for (const [docId, doc] of bm25Index.docs) {
+  for (const [docId, doc] of Array.from(bm25Index.docs)) {
     const score = bm25Score(
       queryTokens,
       doc.tokens,

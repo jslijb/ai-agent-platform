@@ -16,7 +16,7 @@
 | 缓存 | Redis + 内存缓存（降级方案） |
 | LLM | 阿里百炼（DashScope）+ 本地模型（BGE-M3） |
 | Agent 框架 | LangGraph.js（ReAct + 反思循环 + 多 Agent 编排） |
-| 数据服务 | Python FastAPI（Baostock / mootdx / efinance / Tushare） |
+| 数据服务 | Python FastAPI（efinance / Baostock / mootdx / Tushare） |
 | 容器化 | Docker + Docker Compose |
 
 ---
@@ -140,14 +140,14 @@ ai-agent-platform/
 │   │   │   ├── logger.ts       # 日志
 │   │   │   ├── config.ts       # 配置管理
 │   │   │   └── s3.ts           # 文件存储
-│   │   └── db/                 # Prisma 客户端
+│   │   └── db/                 # Drizzle ORM（Schema + Client）
 │   ├── lib/                    # 前端共享库
 │   └── types/                  # TypeScript 类型定义
 ├── data_service/               # Python 数据服务（FastAPI）
 │   ├── main.py                 # 服务入口
 │   ├── config.py               # 配置管理
 │   └── providers/              # 数据源适配器
-├── prisma/                     # Prisma 数据库模型和迁移
+├── drizzle/                    # Drizzle ORM 迁移文件
 ├── scripts/                    # 辅助脚本
 ├── tests/                      # 测试代码
 ├── config/                     # 配置文件
@@ -231,8 +231,7 @@ docker compose up -d
 ### 6. 初始化数据库
 
 ```bash
-npx prisma migrate dev
-npx prisma generate
+npx drizzle-kit push
 ```
 
 ### 7. 启动数据服务
@@ -358,9 +357,9 @@ MCP Server 通过 `/api/mcp/sse` 端点暴露工具能力：
 
 | 数据源 | 说明 | 用途 |
 |---|---|---|
+| efinance | 东方财富数据接口（首选） | 实时行情、行业板块、概念板块、基金数据 |
 | Baostock | 证券宝开源数据接口 | A 股历史行情、财务数据 |
-| mootdx | 通达信数据接口 | 实时行情、分钟级别数据 |
-| efinance | 东方财富数据接口 | 实时行情、基金数据 |
+| mootdx | 通达信数据接口（备选） | 分钟级别数据 |
 | Tushare | 金融数据接口 | A 股、期货、基金等综合数据 |
 | TickFlow | 逐笔数据接口 | 高频逐笔成交数据 |
 
@@ -410,6 +409,8 @@ python tests/test_day7_8.py
 | [Agent 工具全景](docs/agent_tools.md) | 金融行业 AI Agent 工具分类与说明 |
 | [项目目录结构](docs/project_structure.md) | 完整目录结构及说明 |
 | [P0/P1 改造说明](docs/upgrade_p0_p1.md) | P0/P1 优先级改造详细说明 |
+| [用户操作手册](docs/user_guide.md) | RAG 问答、文档上传、Agent 用途等操作指南 |
+| [模型部署踩坑记录](docs/llama_cpp_model_deployment_pitfalls.md) | llama.cpp 部署 Embedding/Reranker 模型踩坑与解决方案 |
 
 ---
 

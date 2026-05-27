@@ -119,7 +119,7 @@ export function extractFinancialData(text: string): FinancialMetrics {
       const convertedValue = converter(rawValue);
 
       if (!isNaN(convertedValue)) {
-        (result as Record<string, unknown>)[field] = convertedValue;
+        (result as unknown as Record<string, unknown>)[field] = convertedValue;
         result.extractedFields.push(field);
         result.rawMatches[field] = rawValue;
       }

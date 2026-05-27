@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import * as fs from "fs";
 import * as path from "path";
 
+export const dynamic = "force-dynamic";
+
 const REPORT_DIR = path.resolve(process.cwd(), "evaluation-reports");
 
 export async function GET() {
