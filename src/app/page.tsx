@@ -228,7 +228,10 @@ export default async function HomePage() {
     redirect("/login");
   }
 
-  const features = [
+  const isAdmin = session.user.role === "admin";
+  console.log(`[page] user role=${session.user.role}, isAdmin=${isAdmin}`);
+
+  const features = isAdmin ? [
     {
       title: "RAG 智能问答",
       desc: "基于文档库的检索增强生成，支持混合检索、重排序、图谱推理",
@@ -256,6 +259,21 @@ export default async function HomePage() {
       href: "/dashboard/evaluation",
       icon: "📊",
       color: "orange",
+    },
+  ] : [
+    {
+      title: "RAG 智能问答",
+      desc: "基于文档库的检索增强生成，支持混合检索、重排序、图谱推理",
+      href: "/chat",
+      icon: "💬",
+      color: "blue",
+    },
+    {
+      title: "Token 用量",
+      desc: "查看各模型 Token 消耗统计",
+      href: "/dashboard/token-usage",
+      icon: "💰",
+      color: "teal",
     },
   ];
 
@@ -338,9 +356,11 @@ export default async function HomePage() {
           ))}
         </div>
 
-        <Suspense fallback={<HealthPanelFallback />}>
-          <HealthPanel />
-        </Suspense>
+        {isAdmin && (
+          <Suspense fallback={<HealthPanelFallback />}>
+            <HealthPanel />
+          </Suspense>
+        )}
       </main>
     </div>
   );

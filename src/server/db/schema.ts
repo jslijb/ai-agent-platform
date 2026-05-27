@@ -34,6 +34,7 @@ export const users = pgTable("User", {
   email: text("email").notNull().unique(),
   name: text("name").notNull(),
   password: text("password").notNull(),
+  role: text("role").notNull().default("user"),
   createdAt: timestamp("createdAt", { precision: 3 }).notNull().defaultNow(),
 });
 
