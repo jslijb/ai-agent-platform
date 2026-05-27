@@ -16,6 +16,23 @@ interface DocInfo {
   chunkCount: number;
 }
 
+interface ChunkInfo {
+  id: string;
+  chunkIndex: number;
+  chunkText: string;
+  tokenCount: number | null;
+  metadata: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+interface ChunkingStrategy {
+  method: string;
+  maxChunkSize: number;
+  overlapSize: number;
+  minChunkSize: number;
+  description: string;
+}
+
 interface ReportFile {
   name: string;
   path: string;
@@ -50,6 +67,10 @@ export default function DocumentsPage() {
   const [activeTab, setActiveTab] = useState<"uploaded" | "reports">("reports");
   const [reportSearch, setReportSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedDoc, setSelectedDoc] = useState<DocInfo | null>(null);
+  const [chunks, setChunks] = useState<ChunkInfo[]>([]);
+  const [chunkingStrategy, setChunkingStrategy] = useState<ChunkingStrategy | null>(null);
+  const [loadingChunks, setLoadingChunks] = useState(false);
 
   const fetchDocs = useCallback(async () => {
     try {
@@ -62,6 +83,33 @@ export default function DocumentsPage() {
       console.error("获取文档列表失败:", err);
     }
   }, []);
+
+  const fetchChunks = useCallback(async (docId: string) => {
+    setLoadingChunks(true);
+    try {
+      const res = await fetch(`/api/document/chunks/${docId}`);
+      const data = await res.json();
+      if (data.success) {
+        setChunks(data.chunks || []);
+        setChunkingStrategy(data.chunkingStrategy || null);
+      }
+    } catch (err) {
+      console.error("获取切片详情失败:", err);
+    } finally {
+      setLoadingChunks(false);
+    }
+  }, []);
+
+  const handleViewChunks = async (doc: DocInfo) => {
+    setSelectedDoc(doc);
+    await fetchChunks(doc.id);
+  };
+
+  const handleCloseChunks = () => {
+    setSelectedDoc(null);
+    setChunks([]);
+    setChunkingStrategy(null);
+  };
 
   const fetchReports = useCallback(async () => {
     try {
@@ -330,18 +378,84 @@ export default function DocumentsPage() {
                         {new Date(doc.createdAt).toLocaleString("zh-CN")}
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          onClick={() => handleDelete(doc.id)}
-                          className="text-red-500 hover:text-red-700 text-xs"
-                        >
-                          删除
-                        </button>
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => handleViewChunks(doc)}
+                            className="text-blue-500 hover:text-blue-700 text-xs"
+                          >
+                            切片详情
+                          </button>
+                          <button
+                            onClick={() => handleDelete(doc.id)}
+                            className="text-red-500 hover:text-red-700 text-xs"
+                          >
+                            删除
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
                 })}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {selectedDoc && (
+          <div className="mt-6 bg-white rounded-lg shadow-sm border">
+            <div className="px-4 py-3 bg-gray-50 border-b flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">
+                  切片详情: {selectedDoc.fileName}
+                </h3>
+                <span className="text-xs text-gray-500">
+                  共 {chunks.length} 个切片
+                </span>
+              </div>
+              <button
+                onClick={handleCloseChunks}
+                className="text-gray-400 hover:text-gray-600 text-sm"
+              >
+                ✕ 关闭
+              </button>
+            </div>
+
+            {chunkingStrategy && (
+              <div className="px-4 py-3 bg-blue-50 border-b text-xs text-blue-700">
+                <span className="font-medium">切片策略:</span>{" "}
+                {chunkingStrategy.description}
+                <span className="ml-3">maxChunkSize={chunkingStrategy.maxChunkSize}</span>
+                <span className="ml-2">overlapSize={chunkingStrategy.overlapSize}</span>
+                <span className="ml-2">minChunkSize={chunkingStrategy.minChunkSize}</span>
+              </div>
+            )}
+
+            {loadingChunks ? (
+              <div className="text-center py-8 text-gray-400">加载切片中...</div>
+            ) : (
+              <div className="max-h-96 overflow-y-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-gray-50">
+                    <tr className="border-b">
+                      <th className="text-left px-4 py-2 text-gray-600 font-medium w-16">#</th>
+                      <th className="text-left px-4 py-2 text-gray-600 font-medium">内容预览</th>
+                      <th className="text-left px-4 py-2 text-gray-600 font-medium w-20">Token</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {chunks.map((chunk) => (
+                      <tr key={chunk.id} className="border-b hover:bg-gray-50">
+                        <td className="px-4 py-2 text-gray-500">{chunk.chunkIndex}</td>
+                        <td className="px-4 py-2 text-gray-700 max-w-md truncate" title={chunk.chunkText}>
+                          {chunk.chunkText.substring(0, 200)}{chunk.chunkText.length > 200 ? "..." : ""}
+                        </td>
+                        <td className="px-4 py-2 text-gray-500">{chunk.tokenCount ?? "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         )}
         </>

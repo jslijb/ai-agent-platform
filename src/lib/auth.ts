@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || "dev-only-fallback-secret-change-in-production",
   providers: [
     Credentials({
       credentials: {
@@ -38,12 +39,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        return user;
+        return { ...user, role: user.role || "user" };
       },
     }),
   ],
   session: {
     strategy: "jwt",
+    maxAge: 8 * 60 * 60,
   },
   pages: {
     signIn: "/login",
@@ -55,6 +57,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.name = user.name;
         token.email = user.email;
+        token.role = (user as any).role || "user";
       }
       return token;
     },
@@ -64,6 +67,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         name: token.name as string,
         email: token.email as string,
         emailVerified: null,
+        role: (token.role as string) || "user",
       };
       return session;
     },

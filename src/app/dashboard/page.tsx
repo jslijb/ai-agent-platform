@@ -10,7 +10,9 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const cards = [
+  const isAdmin = session.user.role === "admin";
+
+  const adminCards = [
     {
       title: "仪表板",
       desc: "查看您的数据分析",
@@ -39,6 +41,9 @@ export default async function DashboardPage() {
       color: "amber",
       href: "/dashboard/logs",
     },
+  ];
+
+  const userCards = [
     {
       title: "Token 用量",
       desc: "查看各模型 Token 消耗",
@@ -47,6 +52,8 @@ export default async function DashboardPage() {
       href: "/dashboard/token-usage",
     },
   ];
+
+  const cards = isAdmin ? [...adminCards, ...userCards] : userCards;
 
   const colorMap: Record<string, string> = {
     blue: "hover:border-blue-400 hover:shadow-blue-100",
