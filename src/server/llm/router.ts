@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
 
-function readModelChainFromYaml(): string[] {
+function readModelChainFromYaml(requireFunctionCalling: boolean = false): string[] {
   const configPath = path.resolve(process.cwd(), "config/api_keys.yaml");
   if (!fs.existsSync(configPath)) return [];
 
@@ -12,9 +12,13 @@ function readModelChainFromYaml(): string[] {
     const raw = fs.readFileSync(configPath, "utf-8");
     const parsed = yaml.load(raw) as Record<string, any>;
     const llmSection = parsed?.llm || {};
-    const models: Array<{ id?: string }> = Array.isArray(llmSection.models) ? llmSection.models : [];
+    const models: Array<{ id?: string; functionCalling?: boolean }> = Array.isArray(llmSection.models) ? llmSection.models : [];
     return models
-      .filter((m) => m && typeof m.id === "string" && m.id.trim().length > 0)
+      .filter((m) => {
+        if (!m || typeof m.id !== "string" || m.id.trim().length === 0) return false;
+        if (requireFunctionCalling && !m.functionCalling) return false;
+        return true;
+      })
       .map((m) => m.id!.trim());
   } catch (err) {
     console.error("[llm-router] 读取 api_keys.yaml 失败:", err);
@@ -22,8 +26,8 @@ function readModelChainFromYaml(): string[] {
   }
 }
 
-function getModelChain(): string[] {
-  const yamlModelIds = readModelChainFromYaml();
+function getModelChain(requireFunctionCalling: boolean = false): string[] {
+  const yamlModelIds = readModelChainFromYaml(requireFunctionCalling);
 
   if (yamlModelIds.length === 0) {
     console.warn("[llm-router] api_keys.yaml 中 llm.models 列表为空，降级链为空");
@@ -45,9 +49,10 @@ interface RouterResult {
 
 export async function callWithFallback(
   messages: BailianMessage[],
-  temperature?: number
+  temperature?: number,
+  requireFunctionCalling: boolean = false
 ): Promise<RouterResult> {
-  const modelChain = getModelChain();
+  const modelChain = getModelChain(requireFunctionCalling);
   if (modelChain.length === 0) {
     throw new Error("api_keys.yaml 中 llm.models 列表为空，无法调用 LLM。请在 api_keys.yaml 中配置至少一个模型");
   }

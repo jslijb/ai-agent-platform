@@ -71,10 +71,17 @@ export async function createConversation(userId: string, title: string = "新对
 export async function addMessage(
   conversationId: string,
   role: "system" | "user" | "assistant",
-  content: string
+  content: string,
+  userId?: string
 ): Promise<void> {
   console.log(`[memory] 添加消息, conversationId: ${conversationId}, role: ${role}, 内容长度: ${content.length}`);
   await db.insert(messages).values({ conversationId, role, content });
+
+  if (userId && role !== "system") {
+    checkAndGenerateSummary(conversationId, userId).catch((err) => {
+      console.error(`[memory] 异步摘要生成失败: ${err instanceof Error ? err.message : String(err)}`);
+    });
+  }
 }
 
 export async function getConversationHistory(
@@ -472,4 +479,136 @@ async function getL4Profile(userId: string): Promise<string> {
   const formatted = formatUserProfileForPrompt(profile);
   console.log(`[memory:L4] 用户画像注入: ${formatted ? "有内容" : "空"}`);
   return formatted;
+}
+
+const SUMMARY_TRIGGER_THRESHOLD = 20;
+
+export async function checkAndGenerateSummary(conversationId: string, userId: string): Promise<void> {
+  try {
+    const allMessages = await db.query.messages.findMany({
+      where: eq(messages.conversationId, conversationId),
+      orderBy: asc(messages.createdAt),
+    });
+
+    const lastSummary = await db.query.memorySummaries.findFirst({
+      where: eq(memorySummaries.conversationId, conversationId),
+      orderBy: desc(memorySummaries.messageRangeEnd),
+    });
+
+    const summarizedUpTo = lastSummary?.messageRangeEnd ?? -1;
+    const unsummarizedCount = allMessages.length - (summarizedUpTo + 1);
+
+    console.log(`[memory:L2] 检查摘要触发, conversationId: ${conversationId}, 总消息: ${allMessages.length}, 已摘要至: ${summarizedUpTo}, 未摘要: ${unsummarizedCount}`);
+
+    if (unsummarizedCount < SUMMARY_TRIGGER_THRESHOLD) return;
+
+    const startIndex = summarizedUpTo + 1;
+    const endIndex = startIndex + SUMMARY_TRIGGER_THRESHOLD - 1;
+    const messagesToSummarize = allMessages.slice(startIndex, endIndex + 1);
+
+    console.log(`[memory:L2] 触发摘要生成, 消息范围: ${startIndex}-${endIndex}, 共${messagesToSummarize.length}条`);
+
+    await generateRollingSummary(conversationId, userId, messagesToSummarize, startIndex, endIndex);
+  } catch (err) {
+    console.error(`[memory:L2] 检查摘要触发失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+async function generateRollingSummary(
+  conversationId: string,
+  userId: string,
+  msgs: Array<{ role: string; content: string; createdAt: Date }>,
+  rangeStart: number,
+  rangeEnd: number
+): Promise<void> {
+  console.log(`[memory:L2] 生成滚动摘要, conversationId: ${conversationId}, 消息范围: ${rangeStart}-${rangeEnd}`);
+
+  const conversationContext = msgs
+    .map((m) => `${m.role === "user" ? "用户" : "助手"}: ${m.content.slice(0, 500)}`)
+    .join("\n");
+
+  const summaryPrompt = `请对以下对话内容生成简洁摘要，提取关键数据点、结论和用户意图。格式如下：
+摘要：[一段话概括对话核心内容]
+关键数据点：
+- [主题]: [数据/结论]
+
+对话内容：
+${conversationContext}`;
+
+  try {
+    const { callWithFallback } = await import("@/server/llm/router");
+    const summaryResult = await callWithFallback(
+      [{ role: "user", content: summaryPrompt }],
+      0.3
+    );
+    const summaryText = summaryResult.content;
+
+    const keyPointsMatch = summaryText.match(/关键数据点[：:]\s*([\s\S]*?)$/);
+    const keyPoints = keyPointsMatch
+      ? keyPointsMatch[1].split("\n").filter((l: string) => l.trim().startsWith("-")).map((l: string) => {
+          const match = l.match(/-\s*\[?([^\]]*)\]?\s*[：:]\s*(.*)/);
+          return match ? { topic: match[1].trim(), data: match[2].trim() } : { topic: l.replace(/^-\s*/, ""), data: "" };
+        })
+      : [];
+
+    const tokenCount = estimateTokens(summaryText);
+
+    await db.insert(memorySummaries).values({
+      conversationId,
+      userId,
+      messageRangeStart: rangeStart,
+      messageRangeEnd: rangeEnd,
+      summary: summaryText,
+      keyPoints,
+      tokenCount,
+    });
+
+    console.log(`[memory:L2] 摘要生成成功, tokens: ${tokenCount}, 关键数据点: ${keyPoints.length}`);
+
+    if (keyPoints.length > 0) {
+      await extractFragmentsFromSummary(conversationId, userId, summaryText, keyPoints);
+    }
+  } catch (err) {
+    console.error(`[memory:L2] 生成滚动摘要失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+async function extractFragmentsFromSummary(
+  conversationId: string,
+  userId: string,
+  summary: string,
+  keyPoints: Array<{ topic: string; data: string }>
+): Promise<void> {
+  console.log(`[memory:L2] 从摘要提取片段, conversationId: ${conversationId}, 关键数据点: ${keyPoints.length}`);
+
+  for (const kp of keyPoints) {
+    if (!kp.data || kp.data.length < 10) continue;
+
+    try {
+      const content = `${kp.topic}: ${kp.data}`;
+      await db.insert(memoryFragments).values({
+        userId,
+        scope: "personal",
+        sourceConversationId: conversationId,
+        sourceType: "data_point",
+        content,
+        metadata: { topic: kp.topic },
+      });
+    } catch (err) {
+      console.error(`[memory:L2] 提取片段失败: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
+  try {
+    await db.insert(memoryFragments).values({
+      userId,
+      scope: "personal",
+      sourceConversationId: conversationId,
+      sourceType: "conclusion",
+      content: summary.slice(0, 1000),
+      metadata: { type: "summary" },
+    });
+  } catch (err) {
+    console.error(`[memory:L2] 提取摘要片段失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
