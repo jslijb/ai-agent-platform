@@ -13,9 +13,9 @@ export function cleanText(text: string): string {
   return result;
 }
 
-export function fixChunkBoundaries(
-  chunks: Array<{ text: string; index: number; metadata: Record<string, unknown> }>
-): Array<{ text: string; index: number; metadata: Record<string, unknown> }> {
+export function fixChunkBoundaries<T extends { text: string; index: number; metadata: Record<string, unknown> }>(
+  chunks: T[]
+): T[] {
   const inputCount = chunks.length;
   const fixed = chunks.map((c) => ({ ...c, text: c.text }));
 
@@ -134,7 +134,7 @@ function step4_removeDuplicateHeadersFooters(text: string): string {
   const duplicateLines = new Set<number>();
   let removedCount = 0;
 
-  for (const [, positions] of linePositions) {
+  for (const [, positions] of Array.from(linePositions)) {
     if (positions.length >= 3) {
       let hasWideSpacing = false;
       for (let i = 1; i < positions.length; i++) {

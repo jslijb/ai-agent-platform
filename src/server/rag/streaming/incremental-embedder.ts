@@ -121,10 +121,15 @@ async function embedDocument(docId: string): Promise<void> {
     } else if (content) {
       chunkResult = await chunkDocument(content, document.fileName);
     }
-    console.log(`[incremental-embedder] 文档切片完成, 共 ${chunkResult.chunks.length} 个 chunk`);
+    console.log(`[incremental-embedder] 文档切片完成, 共 ${chunkResult?.chunks?.length ?? 0} 个 chunk`);
   } catch (error) {
     console.error(`[incremental-embedder] 文档切片失败, docId: ${docId}:`, error);
     throw error;
+  }
+
+  if (!chunkResult) {
+    console.error(`[incremental-embedder] 文档切片结果为空, docId: ${docId}`);
+    return;
   }
 
   const chunks = chunkResult.chunks;

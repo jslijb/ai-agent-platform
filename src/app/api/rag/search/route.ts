@@ -175,10 +175,10 @@ export async function POST(request: Request) {
       documentId: item.documentId,
       score: item.score,
       source: item.source,
-      denseScore: item.denseScore,
-      sparseScore: item.sparseScore,
-      entities: item.entities,
-      paths: item.paths,
+      denseScore: "denseScore" in item ? item.denseScore : undefined,
+      sparseScore: "sparseScore" in item ? item.sparseScore : undefined,
+      entities: "entities" in item ? item.entities : undefined,
+      paths: "paths" in item ? item.paths : undefined,
     }));
 
     let docRerankedItems = [...docItems];

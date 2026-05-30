@@ -183,7 +183,7 @@ async function runAll() {
   console.log(`综合测试结果: ${passed}/${total} PASSED, ${failed} FAILED`);
   console.log("=".repeat(60));
 
-  const suites = [...new Set(results.map(r => r.suite))];
+  const suites = Array.from(new Set(results.map(r => r.suite)));
   for (const suite of suites) {
     const suiteResults = results.filter(r => r.suite === suite);
     const suitePassed = suiteResults.filter(r => r.pass).length;
