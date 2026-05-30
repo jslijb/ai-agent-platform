@@ -299,3 +299,182 @@ export const marketCacheEntries = pgTable(
     expiresAtIdx: index("market_cache_expires_at_idx").on(table.expiresAt),
   }),
 );
+
+export const memoryProfiles = pgTable(
+  "MemoryProfile",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    scope: text("scope").notNull().default("personal"),
+    teamId: text("teamId"),
+    preferences: jsonb("preferences").default({}),
+    frequentStocks: jsonb("frequentStocks").default([]),
+    riskProfile: text("riskProfile"),
+    investmentStyle: text("investmentStyle"),
+    customNotes: jsonb("customNotes").default([]),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { precision: 3 })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  },
+  (table) => ({
+    userIdIdx: index("MemoryProfile_userId_idx").on(table.userId),
+    scopeIdx: index("MemoryProfile_scope_idx").on(table.scope),
+  }),
+);
+
+export const memorySummaries = pgTable(
+  "MemorySummary",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    conversationId: text("conversationId")
+      .notNull()
+      .references(() => conversations.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    messageRangeStart: integer("messageRangeStart").notNull(),
+    messageRangeEnd: integer("messageRangeEnd").notNull(),
+    summary: text("summary").notNull(),
+    keyPoints: jsonb("keyPoints").default([]),
+    tokenCount: integer("tokenCount"),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    conversationIdIdx: index("MemorySummary_conversationId_idx").on(table.conversationId),
+    userIdIdx: index("MemorySummary_userId_idx").on(table.userId),
+  }),
+);
+
+export const memoryFragments = pgTable(
+  "MemoryFragment",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    scope: text("scope").notNull().default("personal"),
+    teamId: text("teamId"),
+    sourceConversationId: text("sourceConversationId"),
+    sourceType: text("sourceType").notNull().default("conclusion"),
+    content: text("content").notNull(),
+    embedding: vector("embedding"),
+    metadata: jsonb("metadata").default({}),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    userIdIdx: index("MemoryFragment_userId_idx").on(table.userId),
+    scopeIdx: index("MemoryFragment_scope_idx").on(table.scope),
+    sourceTypeIdx: index("MemoryFragment_sourceType_idx").on(table.sourceType),
+    embeddingIdx: index("MemoryFragment_embedding_idx").using(
+      "ivfflat",
+      table.embedding.op("vector_cosine_ops"),
+    ),
+  }),
+);
+
+export const teams = pgTable(
+  "Team",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    name: text("name").notNull(),
+    leaderId: text("leaderId")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict", onUpdate: "cascade" }),
+    description: text("description"),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { precision: 3 })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  },
+  (table) => ({
+    leaderIdIdx: index("Team_leaderId_idx").on(table.leaderId),
+  }),
+);
+
+export const teamMembers = pgTable(
+  "TeamMember",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    teamId: text("teamId")
+      .notNull()
+      .references(() => teams.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    role: text("role").notNull().default("member"),
+    joinedAt: timestamp("joinedAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    teamIdIdx: index("TeamMember_teamId_idx").on(table.teamId),
+    userIdIdx: index("TeamMember_userId_idx").on(table.userId),
+  }),
+);
+
+export const memoryProfilesRelations = relations(memoryProfiles, ({ one }) => ({
+  user: one(users, {
+    fields: [memoryProfiles.userId],
+    references: [users.id],
+  }),
+}));
+
+export const memorySummariesRelations = relations(memorySummaries, ({ one }) => ({
+  conversation: one(conversations, {
+    fields: [memorySummaries.conversationId],
+    references: [conversations.id],
+  }),
+  user: one(users, {
+    fields: [memorySummaries.userId],
+    references: [users.id],
+  }),
+}));
+
+export const memoryFragmentsRelations = relations(memoryFragments, ({ one }) => ({
+  user: one(users, {
+    fields: [memoryFragments.userId],
+    references: [users.id],
+  }),
+}));
+
+export const teamsRelations = relations(teams, ({ one, many }) => ({
+  leader: one(users, {
+    fields: [teams.leaderId],
+    references: [users.id],
+  }),
+  members: many(teamMembers),
+}));
+
+export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
+  team: one(teams, {
+    fields: [teamMembers.teamId],
+    references: [teams.id],
+  }),
+  user: one(users, {
+    fields: [teamMembers.userId],
+    references: [users.id],
+  }),
+}));

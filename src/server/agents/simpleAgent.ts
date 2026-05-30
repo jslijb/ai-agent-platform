@@ -41,6 +41,31 @@ interface CachedStockData {
 
 let lastStockData: CachedStockData | null = null;
 
+let currentUserId: string = "default-user";
+
+const stockDataCache = new Map<string, { data: CachedStockData; expiresAt: number }>();
+const STOCK_CACHE_TTL_MS = 30 * 60 * 1000;
+
+function getStockCache(userId: string): CachedStockData | null {
+  const cached = stockDataCache.get(userId);
+  if (!cached) return null;
+  if (Date.now() > cached.expiresAt) {
+    stockDataCache.delete(userId);
+    return null;
+  }
+  return cached.data;
+}
+
+function setStockCache(userId: string, data: CachedStockData): void {
+  stockDataCache.set(userId, { data, expiresAt: Date.now() + STOCK_CACHE_TTL_MS });
+  if (stockDataCache.size > 100) {
+    const now = Date.now();
+    for (const [key, value] of Array.from(stockDataCache.entries())) {
+      if (now > value.expiresAt) stockDataCache.delete(key);
+    }
+  }
+}
+
 export interface AgentStep {
   type: "thinking" | "tool_call" | "tool_result" | "reflection" | "retrieval" | "answer";
   round: number;
@@ -617,6 +642,7 @@ const tools: ToolDefinition[] = [
           latestTradeDate,
           rowCount: rows.length,
         };
+        setStockCache(currentUserId, lastStockData);
         console.log(`[getStockHistory] 数据已缓存: code=${params.code}, ${rows.length}条, 日期范围=${startDate}~${endDate}, 最新交易日=${latestTradeDate}`);
 
         const latestRow = rows[rows.length - 1];
@@ -921,7 +947,8 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   console.log(`[simpleAgent] 收到查询: ${query}, 最大迭代次数: ${maxIterations}, userId: ${userId}, model: ${model || "默认"}`);
   const startTime = Date.now();
   const steps: AgentStep[] = [];
-  lastStockData = null;
+  lastStockData = getStockCache(userId);
+  currentUserId = userId;
 
   const pushStep = (step: AgentStep) => {
     steps.push(step);
