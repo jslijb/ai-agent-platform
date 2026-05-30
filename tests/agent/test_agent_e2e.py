@@ -2,6 +2,10 @@ import requests
 import json
 import time
 import os
+import sys
+
+if sys.stdout.encoding != "utf-8":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 AGENT_URL = "http://localhost:3001"
 REPORT_DIR = os.path.join(os.path.dirname(__file__), "reports")

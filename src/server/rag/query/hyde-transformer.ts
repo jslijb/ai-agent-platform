@@ -1,4 +1,4 @@
-import { callBailian } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 
 export async function hydeRewrite(originalQuery: string): Promise<string> {
   console.log(`[HyDE] 开始查询改写, 原始查询: "${originalQuery}"`);
@@ -16,7 +16,7 @@ export async function hydeRewrite(originalQuery: string): Promise<string> {
   ];
 
   try {
-    const response = await callBailian(messages);
+    const response = await callWithFallback(messages);
     const hydeText = response.content.trim();
 
     console.log(`[HyDE] 改写完成, 假设文档长度: ${hydeText.length} 字`);

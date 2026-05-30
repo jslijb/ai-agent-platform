@@ -49,12 +49,14 @@ export async function rerank(
 
     results.sort((a, b) => b.score - a.score);
 
-    console.log(`[Reranker] 重排序完成, 返回 ${results.length} 条结果`);
-    results.forEach((r, i) => {
+    const trimmed = results.slice(0, topK);
+
+    console.log(`[Reranker] 重排序完成, API返回 ${results.length} 条, 截取top${topK}后 ${trimmed.length} 条结果`);
+    trimmed.forEach((r, i) => {
       console.log(`[Reranker] #${i + 1} score=${r.score.toFixed(4)} text=${r.text.substring(0, 60)}...`);
     });
 
-    return results;
+    return trimmed;
   } catch (error) {
     console.error("[Reranker] 重排序失败:", error);
     const fallback: RerankResult[] = documents.slice(0, topK).map((text, index) => ({

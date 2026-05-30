@@ -145,7 +145,7 @@ export default function AgentLogsPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link
-                href="/dashboard"
+                href="/"
                 className="text-gray-500 hover:text-gray-700 mr-2"
               >
                 &larr;
@@ -155,14 +155,23 @@ export default function AgentLogsPage() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link
-                href="/dashboard/token-usage"
-                className="text-blue-600 hover:text-blue-800 text-sm"
-              >
+              <Link href="/chat" className="text-gray-600 hover:text-gray-900 text-sm">
+                智能对话
+              </Link>
+              <Link href="/dashboard/documents" className="text-gray-600 hover:text-gray-900 text-sm">
+                文档管理
+              </Link>
+              <Link href="/dashboard/evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                RAG 评估
+              </Link>
+              <Link href="/dashboard/agent-evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 评估
+              </Link>
+              <Link href="/dashboard/token-usage" className="text-gray-600 hover:text-gray-900 text-sm">
                 Token 用量
               </Link>
-              <Link href="/chat" className="text-gray-600 hover:text-gray-900 text-sm">
-                对话
+              <Link href="/dashboard/wrong-answers" className="text-gray-600 hover:text-gray-900 text-sm">
+                错题本
               </Link>
             </div>
           </div>

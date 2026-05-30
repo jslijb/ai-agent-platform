@@ -1,4 +1,4 @@
-import { callBailian } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 
 export interface Triple {
   head: string;
@@ -6,7 +6,29 @@ export interface Triple {
   tail: string;
 }
 
-const MAX_SEGMENT_LENGTH = 2000;
+class NonRetryableError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NonRetryableError";
+  }
+}
+
+function isNonRetryableError(error: unknown): boolean {
+  if (error instanceof Error) {
+    if (
+      error.message.includes("不可重试") ||
+      error.message.includes("AllocationQuota") ||
+      error.message.includes("403") ||
+      error.message.includes("401") ||
+      error.message.includes("422")
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+const MAX_SEGMENT_LENGTH = 1500;
 
 const EXTRACT_PROMPT = `你是一个专业的金融领域知识图谱构建助手。请从以下文本中提取实体关系三元组。
 
@@ -138,13 +160,13 @@ export async function extractTriples(text: string): Promise<Triple[]> {
     try {
       const prompt = EXTRACT_PROMPT.replace("{text}", segment);
 
-      const response = await callBailian([
+      const response = await callWithFallback([
         { role: "user", content: prompt },
       ]);
 
       const triples = parseTriplesFromResponse(response.content);
       console.log(
-        `[entity-extractor] 第 ${i + 1} 段提取到 ${triples.length} 个三元组`
+        `[entity-extractor] 第 ${i + 1} 段提取到 ${triples.length} 个三元组 (模型: ${response.model})`
       );
 
       allTriples.push(...triples);
@@ -153,6 +175,15 @@ export async function extractTriples(text: string): Promise<Triple[]> {
         `[entity-extractor] 第 ${i + 1} 段提取失败:`,
         error
       );
+
+      if (isNonRetryableError(error)) {
+        console.error(
+          `[entity-extractor] 检测到不可重试错误(如额度耗尽/认证失败)，立即终止后续段提取`
+        );
+        throw new NonRetryableError(
+          `知识图谱提取终止: ${error instanceof Error ? error.message : String(error)}。请检查百炼API额度或配置 BAILIAN_FALLBACK_MODELS 环境变量添加备用模型。`
+        );
+      }
     }
   }
 

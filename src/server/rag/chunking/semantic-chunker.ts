@@ -1,3 +1,5 @@
+import { cleanText, fixChunkBoundaries } from "./text-cleaner";
+
 export interface ChunkOptions {
   maxChunkSize?: number;
   overlapSize?: number;
@@ -14,8 +16,8 @@ export interface ChunkResult {
   };
 }
 
-const DEFAULT_MAX_CHUNK_SIZE = 512;
-const DEFAULT_OVERLAP_SIZE = 64;
+const DEFAULT_MAX_CHUNK_SIZE = 800;
+const DEFAULT_OVERLAP_SIZE = 128;
 const DEFAULT_MIN_CHUNK_SIZE = 50;
 
 function estimateTokenCount(text: string): number {
@@ -28,8 +30,8 @@ export async function parsePDFWithMinerU(
 ): Promise<string> {
   const apiKey = process.env.MINERU_API_KEY;
   if (!apiKey) {
-    console.error("[semantic-chunker] MINERU_API_KEY 环境变量未设置");
-    throw new Error("MINERU_API_KEY 环境变量未设置");
+    console.log("[semantic-chunker] MINERU_API_KEY 未设置，使用 pdf-parse 本地解析");
+    return parsePDFWithPdfParse(fileBuffer, fileName);
   }
 
   console.log(`[semantic-chunker] 开始解析 PDF: ${fileName}, 大小: ${fileBuffer.length} bytes`);
@@ -118,7 +120,7 @@ export async function parsePDFWithMinerU(
 
         const markdown = await contentResponse.text();
         console.log(`[semantic-chunker] Markdown 内容获取成功, 长度: ${markdown.length}`);
-        return markdown;
+        return cleanText(markdown);
       }
 
       if (item.status === "failed" || item.status === "error") {
@@ -254,25 +256,59 @@ function splitLongText(
 ): string[] {
   const chunks: string[] = [];
   let start = 0;
+  const minAdvance = Math.max(Math.floor(maxChunkSize / 2), 1);
 
   while (start < text.length) {
     let end = Math.min(start + maxChunkSize, text.length);
 
     if (end < text.length) {
-      const lastSentenceEnd = text.lastIndexOf("。", end);
-      const lastNewline = text.lastIndexOf("\n", end);
-      const breakPoint = Math.max(lastSentenceEnd, lastNewline);
+      const breakCandidates: Array<{ pos: number; priority: number }> = [];
 
-      if (breakPoint > start) {
-        end = breakPoint + 1;
+      const sentenceEnds = ["。", "！", "？", "；"];
+      for (const sep of sentenceEnds) {
+        const pos = text.lastIndexOf(sep, end);
+        if (pos > start && pos > end - maxChunkSize * 0.5) {
+          breakCandidates.push({ pos: pos + 1, priority: 10 });
+        }
+      }
+
+      const newlinePos = text.lastIndexOf("\n", end);
+      if (newlinePos > start && newlinePos > end - maxChunkSize * 0.5) {
+        breakCandidates.push({ pos: newlinePos + 1, priority: 8 });
+      }
+
+      const commaPos = text.lastIndexOf("，", end);
+      if (commaPos > start && commaPos > end - maxChunkSize * 0.3) {
+        breakCandidates.push({ pos: commaPos + 1, priority: 5 });
+      }
+
+      const tableRowPattern = /\d[,\s]\d{3}/g;
+      let match;
+      while ((match = tableRowPattern.exec(text)) !== null) {
+        if (match.index > start && match.index < end && match.index > end - maxChunkSize * 0.5) {
+          const lineStart = text.lastIndexOf("\n", match.index);
+          if (lineStart > start) {
+            breakCandidates.push({ pos: lineStart + 1, priority: 7 });
+          }
+        }
+      }
+
+      breakCandidates.sort((a, b) => b.priority - a.priority);
+
+      if (breakCandidates.length > 0) {
+        end = breakCandidates[0].pos;
       }
     }
 
-    chunks.push(text.slice(start, end).trim());
-    start = end - overlapSize;
+    const chunkText = text.slice(start, end).trim();
+    if (chunkText.length > 0) {
+      chunks.push(chunkText);
+    }
+
+    const nextStart = end - overlapSize;
+    start = Math.max(nextStart, start + minAdvance);
 
     if (start >= text.length) break;
-    if (start < 0) start = 0;
   }
 
   return chunks.filter((c) => c.length > 0);
@@ -369,12 +405,21 @@ export async function chunkText(
   return chunks;
 }
 
+export interface ChunkDocumentResult {
+  rawText: string;
+  chunks: ChunkResult[];
+}
+
 export async function chunkDocument(
   content: string | Buffer,
   fileName: string,
   options?: ChunkOptions
-): Promise<ChunkResult[]> {
+): Promise<ChunkDocumentResult> {
   console.log(`[semantic-chunker] 开始处理文档: ${fileName}`);
+
+  if (typeof content === "string") {
+    content = cleanText(content);
+  }
 
   const ext = fileName.toLowerCase().split(".").pop();
 
@@ -384,36 +429,103 @@ export async function chunkDocument(
       throw new Error("PDF 文件需要 Buffer 类型输入");
     }
 
-    const markdown = await parsePDFWithMinerU(content, fileName);
-    const chunks = await chunkMarkdown(markdown, options);
-    return chunks.map((chunk) => ({
-      ...chunk,
-      metadata: {
-        ...chunk.metadata,
-        source: fileName,
-      },
-    }));
+    const parsedText = await parsePDFWithMinerU(content, fileName);
+    const isMarkdown = parsedText.includes("# ") && (parsedText.includes("## ") || parsedText.match(/^#{1,3}\s/m));
+    const chunks = isMarkdown
+      ? await chunkMarkdown(parsedText, options)
+      : await chunkText(parsedText, options);
+    const fixedChunks = fixChunkBoundaries(chunks);
+    return {
+      rawText: parsedText,
+      chunks: fixedChunks.map((chunk) => ({
+        ...chunk,
+        metadata: {
+          ...chunk.metadata,
+          source: fileName,
+        },
+      })),
+    };
   }
 
   if (ext === "md" || ext === "markdown") {
     const text = typeof content === "string" ? content : content.toString("utf-8");
     const chunks = await chunkMarkdown(text, options);
-    return chunks.map((chunk) => ({
+    const fixedChunks = fixChunkBoundaries(chunks);
+    return {
+      rawText: text,
+      chunks: fixedChunks.map((chunk) => ({
+        ...chunk,
+        metadata: {
+          ...chunk.metadata,
+          source: fileName,
+        },
+      })),
+    };
+  }
+
+  const text = typeof content === "string" ? content : content.toString("utf-8");
+  const chunks = await chunkText(text, options);
+  const fixedChunks = fixChunkBoundaries(chunks);
+  return {
+    rawText: text,
+    chunks: fixedChunks.map((chunk) => ({
       ...chunk,
       metadata: {
         ...chunk.metadata,
         source: fileName,
       },
-    }));
-  }
+    })),
+  };
+}
 
-  const text = typeof content === "string" ? content : content.toString("utf-8");
-  const chunks = await chunkText(text, options);
-  return chunks.map((chunk) => ({
-    ...chunk,
-    metadata: {
-      ...chunk.metadata,
-      source: fileName,
-    },
-  }));
+async function parsePDFWithPdfParse(
+  fileBuffer: Buffer,
+  fileName: string
+): Promise<string> {
+  console.log(`[semantic-chunker] 使用子进程 pdfjs-dist 解析: ${fileName}, 大小: ${fileBuffer.length} bytes`);
+  try {
+    const { execFileSync } = await import("child_process");
+    const nodePath = await import("path");
+    const nodeFs = await import("fs");
+    const os = await import("os");
+
+    const tmpDir = os.tmpdir();
+    const uniqueId = `pdf_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const inputPath = nodePath.join(tmpDir, `${uniqueId}_input.bin`);
+    const outputPath = nodePath.join(tmpDir, `${uniqueId}_output.json`);
+
+    nodeFs.writeFileSync(inputPath, fileBuffer);
+
+    const workerPath = nodePath.join(process.cwd(), "scripts", "pdf-parse-worker.cjs");
+
+    console.log(`[semantic-chunker] 调用子进程: node ${workerPath}`);
+    execFileSync("node", [workerPath, inputPath, outputPath, fileName], {
+      encoding: "utf-8",
+      timeout: 300000,
+      maxBuffer: 10 * 1024 * 1024,
+    });
+
+    if (!nodeFs.existsSync(outputPath)) {
+      throw new Error("PDF 解析子进程未输出结果文件");
+    }
+
+    const resultStr = nodeFs.readFileSync(outputPath, "utf-8");
+
+    try { nodeFs.unlinkSync(inputPath); } catch {}
+    try { nodeFs.unlinkSync(outputPath); } catch {}
+
+    const parsed = JSON.parse(resultStr);
+    if (!parsed.success) {
+      throw new Error(parsed.error || "PDF 解析失败");
+    }
+
+    console.log(`[semantic-chunker] 子进程 pdfjs-dist 解析完成, 页数: ${parsed.pages}, 文本长度: ${parsed.text.length}`);
+    if (parsed.text.length < 50) {
+      console.warn(`[semantic-chunker] 提取文本过短(${parsed.text.length}字符)，PDF可能是扫描件`);
+    }
+    return cleanText(parsed.text);
+  } catch (error) {
+    console.error(`[semantic-chunker] 子进程 pdfjs-dist 解析失败: ${error}`);
+    throw new Error(`PDF 解析失败: ${error instanceof Error ? error.message : String(error)}`);
+  }
 }

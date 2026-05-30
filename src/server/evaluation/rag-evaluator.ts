@@ -1,4 +1,4 @@
-import { callBailian } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 
 export interface RetrievalEvaluationResult {
   hitsAtK: number;
@@ -186,7 +186,7 @@ async function llmEvaluateFaithfulness(
     .join("\n\n");
 
   try {
-    const response = await callBailian([
+    const response = await callWithFallback([
       {
         role: "system",
         content:
@@ -221,7 +221,7 @@ async function llmEvaluateAnswerRelevance(
   console.log("[rag-evaluator] 使用 LLM 评估 Answer Relevance");
 
   try {
-    const response = await callBailian([
+    const response = await callWithFallback([
       {
         role: "system",
         content:

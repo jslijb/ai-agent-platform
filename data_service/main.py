@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 import asyncio
 import datetime
@@ -35,6 +36,9 @@ _MINUTE_SOURCES = ["efinance", "mootdx"]
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("数据服务启动中...")
+    if not os.environ.get("CACHE_BACKEND"):
+        os.environ["CACHE_BACKEND"] = "postgresql"
+        logger.info("设置缓存后端: postgresql")
     try:
         from data_service.config import get_config
         config = get_config()

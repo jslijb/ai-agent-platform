@@ -1,17 +1,18 @@
+import { getConfigValue, getRawSection } from "@/server/lib/config";
+
 const DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MAX_RETRIES = 3;
 const BASE_RETRY_INTERVAL = 1000;
-const TIMEOUT_MS = 30000;
+const TIMEOUT_MS = 60000;
 const DEFAULT_TEMPERATURE = 0;
 
 function resolveModel(): string {
-  const configured = process.env.BAILIAN_MODEL?.trim();
-  if (!configured) {
-    console.warn("[bailian] ⚠️ BAILIAN_MODEL 未设置，请检查 .env / .env.local 配置");
-    console.warn("[bailian] 请在 .env.local 中设置 BAILIAN_MODEL，例如: BAILIAN_MODEL=deepseek-v4-flash");
-    throw new Error("BAILIAN_MODEL 环境变量未设置，请在 .env.local 中配置");
+  const llmSection = getRawSection("llm");
+  const models: Array<{ id?: string }> = Array.isArray(llmSection?.models) ? llmSection.models : [];
+  if (models.length > 0 && models[0].id) {
+    return models[0].id;
   }
-  return configured;
+  throw new Error("api_keys.yaml 中 llm.models 列表为空，请配置至少一个模型");
 }
 
 export interface BailianMessage {
@@ -29,7 +30,7 @@ export interface BailianResponse {
 }
 
 function getApiKey(): string {
-  const apiKey = process.env.DASHSCOPE_API_KEY;
+  const apiKey = getConfigValue("llm", "DASHSCOPE_API_KEY") || process.env.DASHSCOPE_API_KEY || "";
   if (!apiKey) {
     console.error("[bailian] DASHSCOPE_API_KEY 环境变量未设置");
     throw new Error("DASHSCOPE_API_KEY 环境变量未设置");
@@ -146,10 +147,17 @@ export async function callBailian(
     } catch (error) {
       clearTimeout(timeoutId);
 
+      if (error instanceof Error && error.message.includes("不可重试")) {
+        throw error;
+      }
+
       if (error instanceof DOMException && error.name === "AbortError") {
         console.error(
           `[bailian] 请求超时 (第${attempt}次), 超时时间: ${TIMEOUT_MS}ms`
         );
+        if (attempt >= 2) {
+          throw new Error(`百炼 API 请求超时: 模型 ${useModel} 连续 ${attempt} 次超时`);
+        }
       } else {
         console.error(
           `[bailian] 调用异常 (第${attempt}次):`,

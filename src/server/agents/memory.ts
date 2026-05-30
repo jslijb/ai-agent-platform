@@ -26,52 +26,45 @@ function estimateTokens(text: string): number {
 /**
  * 确保 default-user 存在于 User 表中，避免 Conversation 外键约束失败
  */
-export async function ensureUserExists(userId: string): Promise<void> {
-  const existing = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-  });
-  if (existing) return;
+export async function ensureUserExists(userId: string, userName?: string, userEmail?: string): Promise<void> {
+  try {
+    const existing = await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    });
+    if (existing) return;
+  } catch (err) {
+    console.error(`[memory] 查询用户失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
 
-  if (userId === DEFAULT_USER_ID) {
-    console.log(`[memory] 创建默认用户: ${DEFAULT_USER_ID}`);
-    try {
-      await db.insert(users).values({
-        id: DEFAULT_USER_ID,
-        email: "default@agent.local",
-        name: "Default User",
-        password: await bcrypt.hash("default-not-for-login", 10),
-      });
-      console.log(`[memory] 默认用户创建成功`);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("unique") || msg.includes("duplicate")) {
-        console.log(`[memory] 默认用户已存在（并发创建）`);
-      } else {
-        console.error(`[memory] 创建默认用户失败: ${msg}`);
-        throw err;
-      }
+  const name = userName || (userId === DEFAULT_USER_ID ? "Default User" : `User-${userId.substring(0, 8)}`);
+  const email = userEmail || (userId === DEFAULT_USER_ID ? "default@agent.local" : `${userId.substring(0, 8)}@agent.local`);
+
+  console.log(`[memory] 创建用户: ${userId}, name: ${name}`);
+  try {
+    await db.insert(users).values({
+      id: userId,
+      email,
+      name,
+      password: await bcrypt.hash("auto-created-not-for-login", 10),
+    });
+    console.log(`[memory] 用户创建成功: ${userId}`);
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("unique") || msg.includes("duplicate")) {
+      console.log(`[memory] 用户已存在（并发创建）: ${userId}`);
+    } else {
+      console.error(`[memory] 创建用户失败: ${msg}`);
     }
-  } else {
-    console.warn(`[memory] 用户不存在: ${userId}, 将使用 default-user 替代`);
   }
 }
 
-export async function createConversation(userId: string, title: string = "新对话"): Promise<string> {
+export async function createConversation(userId: string, title: string = "新对话", userName?: string, userEmail?: string): Promise<string> {
   console.log(`[memory] 创建新会话, userId: ${userId}`);
 
-  await ensureUserExists(userId);
+  await ensureUserExists(userId, userName, userEmail);
 
-  const userExists = await db.query.users.findFirst({
-    where: eq(users.id, userId),
-  });
-  const effectiveUserId = userExists ? userId : DEFAULT_USER_ID;
-
-  if (effectiveUserId === DEFAULT_USER_ID) {
-    await ensureUserExists(DEFAULT_USER_ID);
-  }
-
-  const [conversation] = await db.insert(conversations).values({ userId: effectiveUserId, title }).returning();
-  console.log(`[memory] 会话创建成功, id: ${conversation.id}, userId: ${effectiveUserId}`);
+  const [conversation] = await db.insert(conversations).values({ userId, title }).returning();
+  console.log(`[memory] 会话创建成功, id: ${conversation.id}, userId: ${userId}`);
   return conversation.id;
 }
 
@@ -148,6 +141,19 @@ export async function listConversations(userId: string): Promise<Array<{ id: str
     columns: { id: true, title: true, createdAt: true },
   });
   return result;
+}
+
+export async function updateConversationTitle(conversationId: string, title: string): Promise<void> {
+  console.log(`[memory] 更新会话标题, conversationId: ${conversationId}, title: ${title}`);
+  try {
+    await db
+      .update(conversations)
+      .set({ title, updatedAt: new Date() })
+      .where(eq(conversations.id, conversationId));
+    console.log(`[memory] 会话标题更新成功: ${conversationId}`);
+  } catch (err) {
+    console.error(`[memory] 更新会话标题失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 
 export async function deleteConversation(conversationId: string): Promise<void> {

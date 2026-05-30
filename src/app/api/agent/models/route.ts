@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { getRawSection } from "@/server/lib/config";
 
 export const dynamic = "force-dynamic";
 
@@ -8,46 +9,41 @@ interface ModelOption {
   name: string;
   provider: string;
   description: string;
+  context: string;
+  thinking: boolean;
+  functionCalling: boolean;
 }
 
-const AVAILABLE_MODELS: ModelOption[] = [
-  {
-    id: "deepseek-v4-flash",
-    name: "DeepSeek V4 Flash",
-    provider: "bailian",
-    description: "快速推理，适合日常对话和简单分析",
-  },
-  {
-    id: "deepseek-v4",
-    name: "DeepSeek V4",
-    provider: "bailian",
-    description: "深度推理，适合复杂分析和多步计算",
-  },
-  {
-    id: "qwen-max",
-    name: "Qwen Max",
-    provider: "bailian",
-    description: "通义千问旗舰模型，综合能力强",
-  },
-  {
-    id: "qwen-plus",
-    name: "Qwen Plus",
-    provider: "bailian",
-    description: "通义千问增强版，性价比高",
-  },
-  {
-    id: "qwen-turbo",
-    name: "Qwen Turbo",
-    provider: "bailian",
-    description: "通义千问快速版，响应速度快",
-  },
-  {
-    id: "qwen-long",
-    name: "Qwen Long",
-    provider: "bailian",
-    description: "长文本模型，支持超长上下文",
-  },
-];
+function loadModelsFromConfig(): ModelOption[] {
+  try {
+    const llmSection = getRawSection("llm");
+    const models = llmSection?.models;
+
+    if (!Array.isArray(models) || models.length === 0) {
+      console.warn("[agent/models] 配置文件中未找到 llm.models，使用空列表");
+      return [];
+    }
+
+    const validModels: ModelOption[] = models
+      .filter((m: any) => m && typeof m.id === "string" && typeof m.name === "string")
+      .map((m: any) => ({
+        id: m.id,
+        name: m.name,
+        provider: m.provider || "unknown",
+        description: m.description || "",
+        context: m.context || "",
+        thinking: m.thinking === true,
+        functionCalling: m.functionCalling === true,
+      }));
+
+    console.log(`[agent/models] 从配置文件加载了 ${validModels.length} 个模型`);
+    return validModels;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[agent/models] 读取模型配置失败: ${message}`);
+    return [];
+  }
+}
 
 export async function GET() {
   try {
@@ -59,11 +55,12 @@ export async function GET() {
       );
     }
 
-    const defaultModel = process.env.BAILIAN_MODEL || "";
+    const models = loadModelsFromConfig();
+    const defaultModel = models.length > 0 ? models[0].id : "";
 
     return NextResponse.json({
       success: true,
-      models: AVAILABLE_MODELS,
+      models,
       defaultModel,
     });
   } catch (error) {

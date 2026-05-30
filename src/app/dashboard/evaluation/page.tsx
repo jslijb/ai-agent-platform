@@ -140,7 +140,7 @@ export default function EvaluationPage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <a
-                href="/dashboard"
+                href="/"
                 className="text-gray-500 hover:text-gray-700 mr-4"
               >
                 &larr; 返回
@@ -148,6 +148,23 @@ export default function EvaluationPage() {
               <span className="text-xl font-bold text-gray-800">
                 RAG 评估监控面板
               </span>
+            </div>
+            <div className="flex items-center space-x-4">
+              <a href="/chat" className="text-gray-600 hover:text-gray-900 text-sm">
+                智能对话
+              </a>
+              <a href="/dashboard/documents" className="text-gray-600 hover:text-gray-900 text-sm">
+                文档管理
+              </a>
+              <a href="/dashboard/agent-evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 评估
+              </a>
+              <a href="/dashboard/logs" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 日志
+              </a>
+              <a href="/dashboard/token-usage" className="text-gray-600 hover:text-gray-900 text-sm">
+                Token 用量
+              </a>
             </div>
             {latest && (
               <span className="text-sm text-gray-500">

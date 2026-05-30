@@ -1,4 +1,4 @@
-import { callBailian } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 
 function resolveVisionModel(): string {
   const configured = process.env.VISION_MODEL?.trim();
@@ -151,7 +151,7 @@ export async function describeImage(imageBase64: string): Promise<string> {
 
     try {
       console.log("[image-caption] 尝试使用 callBailian 文本模型降级处理...");
-      const response = await callBailian([
+      const response = await callWithFallback([
         {
           role: "user",
           content:

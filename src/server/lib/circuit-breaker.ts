@@ -53,6 +53,20 @@ export function recordFailure(name: string): void {
   }
 }
 
+export function forceOpenCircuit(name: string, reason?: string): void {
+  let circuit = circuits.get(name);
+  if (!circuit) {
+    circuit = { failures: 0, lastFailureTime: 0, state: "closed", nextRetryTime: 0 };
+    circuits.set(name, circuit);
+  }
+
+  circuit.failures = FAILURE_THRESHOLD;
+  circuit.lastFailureTime = Date.now();
+  circuit.state = "open";
+  circuit.nextRetryTime = Date.now() + OPEN_DURATION_MS * 6;
+  console.error(`[circuit-breaker] ${name} 熔断器强制打开（${reason || "不可重试错误"}），下次重试时间: ${new Date(circuit.nextRetryTime).toISOString()}`);
+}
+
 export function isCircuitOpen(name: string): boolean {
   const state = getCircuitState(name);
   return state === "open";

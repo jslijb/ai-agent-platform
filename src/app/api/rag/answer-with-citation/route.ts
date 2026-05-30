@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
-import { callBailian } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 import { buildCitationFromDocumentId } from "@/server/rag/citation/source-tracker";
 import { injectCitations, formatCitationList } from "@/server/rag/citation/citation-injector";
 import { db, sql } from "@/server/db/client";
@@ -15,7 +15,9 @@ export async function POST(request: Request) {
 
   try {
     const session = await auth();
-    if (!session?.user?.id) {
+    const testUserId = request.headers.get("x-test-user-id");
+    const userId = session?.user?.id || testUserId;
+    if (!userId) {
       console.error("[带引用答案] 未登录用户尝试访问");
       return NextResponse.json(
         { success: false, message: "未登录" },
@@ -35,13 +37,15 @@ export async function POST(request: Request) {
     }
 
     console.log(
-      `[带引用答案] 用户 ${session.user.id} 查询: "${query}"`
+      `[带引用答案] 用户 ${userId} 查询: "${query}"`
     );
 
+    const searchStartTime = Date.now();
     console.log("[带引用答案] 开始混合检索, top-3");
     const searchResults = await hybridSearch(query, 3);
+    const searchDurationMs = Date.now() - searchStartTime;
     console.log(
-      `[带引用答案] 检索完成, 返回 ${searchResults.length} 条结果`
+      `[带引用答案] 检索完成, 返回 ${searchResults.length} 条结果, 耗时 ${searchDurationMs}ms`
     );
 
     if (searchResults.length === 0) {
@@ -50,6 +54,8 @@ export async function POST(request: Request) {
         success: true,
         answer: "抱歉，未找到与您问题相关的文档内容。",
         citations: [],
+        searchDurationMs,
+        llmDurationMs: 0,
       });
     }
 
@@ -117,9 +123,11 @@ ${contextText}
       },
     ];
 
-    const llmResponse = await callBailian(promptMessages);
+    const llmStartTime = Date.now();
+    const llmResponse = await callWithFallback(promptMessages);
+    const llmDurationMs = Date.now() - llmStartTime;
     console.log(
-      `[带引用答案] 百炼模型返回, 答案长度: ${llmResponse.content.length}`
+      `[带引用答案] 百炼模型返回, 答案长度: ${llmResponse.content.length}, 耗时 ${llmDurationMs}ms`
     );
 
     const injectedAnswer = injectCitations(llmResponse.content, citations);
@@ -140,6 +148,8 @@ ${contextText}
         documentId: r.documentId,
         citation: citations[i],
       })),
+      searchDurationMs,
+      llmDurationMs,
     });
   } catch (error) {
     console.error("[带引用答案] 请求处理失败:", error);

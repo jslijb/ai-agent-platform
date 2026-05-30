@@ -1,17 +1,36 @@
 import { callBailian, type BailianMessage } from "@/server/llm/providers/bailian";
-import { withCircuitBreaker, isCircuitOpen } from "@/server/lib/circuit-breaker";
+import { withCircuitBreaker, isCircuitOpen, forceOpenCircuit } from "@/server/lib/circuit-breaker";
+import fs from "fs";
+import path from "path";
+import yaml from "js-yaml";
+
+function readModelChainFromYaml(): string[] {
+  const configPath = path.resolve(process.cwd(), "config/api_keys.yaml");
+  if (!fs.existsSync(configPath)) return [];
+
+  try {
+    const raw = fs.readFileSync(configPath, "utf-8");
+    const parsed = yaml.load(raw) as Record<string, any>;
+    const llmSection = parsed?.llm || {};
+    const models: Array<{ id?: string }> = Array.isArray(llmSection.models) ? llmSection.models : [];
+    return models
+      .filter((m) => m && typeof m.id === "string" && m.id.trim().length > 0)
+      .map((m) => m.id!.trim());
+  } catch (err) {
+    console.error("[llm-router] 读取 api_keys.yaml 失败:", err);
+    return [];
+  }
+}
 
 function getModelChain(): string[] {
-  const configured = process.env.BAILIAN_MODEL?.trim();
-  if (configured) {
-    const fallbacks = process.env.BAILIAN_FALLBACK_MODELS?.trim();
-    if (fallbacks) {
-      return [configured, ...fallbacks.split(",").map((m) => m.trim()).filter(Boolean)];
-    }
-    return [configured];
+  const yamlModelIds = readModelChainFromYaml();
+
+  if (yamlModelIds.length === 0) {
+    console.warn("[llm-router] api_keys.yaml 中 llm.models 列表为空，降级链为空");
+    return [];
   }
-  console.warn("[llm-router] BAILIAN_MODEL 未设置，降级链为空");
-  return [];
+
+  return yamlModelIds;
 }
 
 interface RouterResult {
@@ -30,7 +49,7 @@ export async function callWithFallback(
 ): Promise<RouterResult> {
   const modelChain = getModelChain();
   if (modelChain.length === 0) {
-    throw new Error("BAILIAN_MODEL 未设置，无法调用 LLM。请在 .env.local 中配置 BAILIAN_MODEL");
+    throw new Error("api_keys.yaml 中 llm.models 列表为空，无法调用 LLM。请在 api_keys.yaml 中配置至少一个模型");
   }
   console.log(`[llm-router] 开始模型调用，降级链: ${modelChain.join(" → ")}`);
 
@@ -55,11 +74,19 @@ export async function callWithFallback(
         usage: response.usage,
       };
     } catch (error) {
-      console.error(`[llm-router] 模型 ${model} 调用失败:`, error);
+      const errMsg = error instanceof Error ? error.message : String(error);
+      const isQuotaError = errMsg.includes("AllocationQuota") || errMsg.includes("403") || errMsg.includes("401") || errMsg.includes("FreeTierOnly");
+
+      if (isQuotaError) {
+        forceOpenCircuit(circuitName, `模型 ${model} 额度耗尽/认证失败`);
+        console.error(`[llm-router] 模型 ${model} 额度耗尽，强制打开熔断器: ${errMsg.slice(0, 100)}`);
+      } else {
+        console.error(`[llm-router] 模型 ${model} 调用失败:`, error);
+      }
       continue;
     }
   }
 
   console.error("[llm-router] 所有模型均不可用");
-  throw new Error("所有 LLM 模型均不可用，请稍后重试");
+  throw new Error("所有 LLM 模型均不可用，请检查 api_keys.yaml 中的模型列表或百炼API额度");
 }

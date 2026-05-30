@@ -1,0 +1,258 @@
+{
+  "timestamp": "2026-05-29 20:50:53",
+  "stocks": [
+    "五粮液",
+    "中国长城",
+    "格力电器"
+  ],
+  "date_range": "2025-05-29 ~ 2026-05-29",
+  "elapsed_seconds": 396.1,
+  "summary": {
+    "total": 48,
+    "pass": 8,
+    "fail": 6,
+    "warn": 34
+  },
+  "details": [
+    {
+      "name": "历史行情 五粮液 (mootdx)",
+      "status": "FAIL",
+      "detail": "[WinError 10054] 远程主机强迫关闭了一个现有的连接。"
+    },
+    {
+      "name": "历史行情 五粮液 (baostock)",
+      "status": "FAIL",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "历史行情 中国长城 (mootdx)",
+      "status": "FAIL",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "历史行情 中国长城 (baostock)",
+      "status": "FAIL",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "历史行情 格力电器 (mootdx)",
+      "status": "FAIL",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "历史行情 格力电器 (baostock)",
+      "status": "FAIL",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "实时行情 五粮液 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "实时行情 中国长城 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "实时行情 格力电器 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财务数据 五粮液 (baostock)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财务数据 中国长城 (baostock)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财务数据 格力电器 (baostock)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 五粮液 (income)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 五粮液 (balance)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 五粮液 (cashflow)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 中国长城 (income)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 中国长城 (balance)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 中国长城 (cashflow)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 格力电器 (income)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 格力电器 (balance)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "财报 格力电器 (cashflow)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "指数 上证指数 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "指数 上证指数 (baostock)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "指数 深证成指 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "指数 深证成指 (baostock)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "指数 创业板指 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "指数 创业板指 (baostock)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "行业分类 五粮液 (mootdx)",
+      "status": "WARN",
+      "detail": "[WinError 10054] 远程主机强迫关闭了一个现有的连接。"
+    },
+    {
+      "name": "行业分类 中国长城 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "行业分类 格力电器 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "概念板块 五粮液 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "概念板块 中国长城 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "概念板块 格力电器 (mootdx)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "分钟K线 五粮液 (5min)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "分钟K线 五粮液 (15min)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "分钟K线 五粮液 (30min)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "分钟K线 五粮液 (60min)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "分钟K线 中国长城 (5min)",
+      "status": "WARN",
+      "detail": "连接失败: [WinError 10061] 由于目标计算机积极拒绝，无法连接。"
+    },
+    {
+      "name": "分钟K线 中国长城 (15min)",
+      "status": "WARN",
+      "detail": "timed out"
+    },
+    {
+      "name": "分钟K线 中国长城 (30min)",
+      "status": "WARN",
+      "detail": "timed out"
+    },
+    {
+      "name": "分钟K线 中国长城 (60min)",
+      "status": "PASS",
+      "detail": "800 条记录"
+    },
+    {
+      "name": "分钟K线 格力电器 (5min)",
+      "status": "PASS",
+      "detail": "800 条记录"
+    },
+    {
+      "name": "分钟K线 格力电器 (15min)",
+      "status": "PASS",
+      "detail": "800 条记录"
+    },
+    {
+      "name": "分钟K线 格力电器 (30min)",
+      "status": "PASS",
+      "detail": "800 条记录"
+    },
+    {
+      "name": "分钟K线 格力电器 (60min)",
+      "status": "PASS",
+      "detail": "800 条记录"
+    },
+    {
+      "name": "股票列表 (mootdx)",
+      "status": "PASS",
+      "detail": "27165 条记录"
+    },
+    {
+      "name": "股票列表 (baostock)",
+      "status": "PASS",
+      "detail": "8766 条记录"
+    },
+    {
+      "name": "交易日历",
+      "status": "PASS",
+      "detail": "243 条记录"
+    }
+  ]
+}

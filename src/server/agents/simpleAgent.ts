@@ -21,11 +21,25 @@ import {
 import { calculateVaR, calculateStressTest, checkRiskLimits, generateRiskReport } from "@/server/mcp/tools/risk_control";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
-import { createConversation, addMessage, getRecentMessages } from "@/server/agents/memory";
+import { createConversation, addMessage, getRecentMessages, updateConversationTitle } from "@/server/agents/memory";
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || "http://localhost:8001";
 
 const AGENT_TIMEOUT_MS = 120000;
+
+interface CachedStockData {
+  closes: number[];
+  highs: number[];
+  lows: number[];
+  volumes: number[];
+  dates: string[];
+  code: string;
+  dateRange: string;
+  latestTradeDate: string;
+  rowCount: number;
+}
+
+let lastStockData: CachedStockData | null = null;
 
 export interface AgentStep {
   type: "thinking" | "tool_call" | "tool_result" | "reflection" | "retrieval" | "answer";
@@ -46,37 +60,74 @@ interface ToolDefinition {
 const tools: ToolDefinition[] = [
   {
     name: "calculateMA",
-    description: "计算移动平均线（MA）。输入价格序列和周期，返回MA值。返回结果包含最近30个有效值和最新MA值。",
+    description: "计算移动平均线（MA）。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回结果包含最近30个有效值和最新MA值。",
     parameters: {
-      data: { type: "number[]", description: "价格序列，如收盘价数组", required: true },
+      data: { type: "number[]", description: "价格序列，如收盘价数组。如已调用getStockHistory可不传，自动使用缓存数据" },
       period: { type: "number", description: "移动平均周期，如5、10、20", required: true },
     },
     execute: (params) => {
-      const result = calculateMA(params.data as number[], params.period as number);
+      let data = params.data as number[] | undefined;
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 0) {
+          data = lastStockData.closes;
+          console.log(`[calculateMA] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
+      const period = params.period as number;
+      const result = calculateMA(data, period);
       const validValues = result.values.filter((v) => v !== null) as number[];
       const latestMA = validValues.length > 0 ? validValues[validValues.length - 1] : null;
       const recentValues = validValues.slice(-30);
+
+      const formula = `MA${period} = (最近${period}个交易日收盘价之和) / ${period}`;
+
+      const lastNPrices = data.slice(-period);
+      const lastNSum = lastNPrices.reduce((a, b) => a + b, 0);
+      const lastNCalc = Number((lastNSum / period).toFixed(4));
+
+      const recentDates = lastStockData?.dates?.slice(-period) || [];
+      const priceDetail = lastNPrices.map((p, i) => {
+        const dateStr = recentDates[i] || `第${data.length - period + i + 1}日`;
+        return `${dateStr}: ${p}`;
+      }).join(" + ");
+
+      const calcDetail = `计算过程: (${priceDetail}) / ${period} = ${lastNSum.toFixed(4)} / ${period} = ${lastNCalc}`;
+
       return JSON.stringify({
         period: result.period,
         latestMA,
         totalPoints: result.values.length,
         validPoints: validValues.length,
         recentValues,
+        formula,
+        calcDetail,
+        latestTradeDate: lastStockData?.latestTradeDate || null,
       });
     },
   },
   {
     name: "calculateMACD",
-    description: "计算MACD指标。输入价格序列，返回DIF、DEA、MACD柱状图的最近30个有效值。",
+    description: "计算MACD指标。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回DIF、DEA、MACD柱状图的最近30个有效值。",
     parameters: {
-      data: { type: "number[]", description: "价格序列", required: true },
+      data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
       fast: { type: "number", description: "快线周期，默认12" },
       slow: { type: "number", description: "慢线周期，默认26" },
       signal: { type: "number", description: "信号线周期，默认9" },
     },
     execute: (params) => {
+      let data = params.data as number[] | undefined;
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 0) {
+          data = lastStockData.closes;
+          console.log(`[calculateMACD] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
       const result = calculateMACD(
-        params.data as number[],
+        data,
         params.fast as number | undefined,
         params.slow as number | undefined,
         params.signal as number | undefined
@@ -94,41 +145,101 @@ const tools: ToolDefinition[] = [
         recentDif: validDif.slice(-30),
         recentDea: validDea.slice(-30),
         recentMacd: validMacd.slice(-30),
+        latestTradeDate: lastStockData?.latestTradeDate || null,
       });
     },
   },
   {
     name: "calculateRSI",
-    description: "计算RSI指标（相对强弱指数）。返回最近30个有效值和最新RSI值。",
+    description: "计算RSI指标（相对强弱指数）。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回最近30个有效值和最新RSI值。",
     parameters: {
-      data: { type: "number[]", description: "价格序列", required: true },
+      data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
       period: { type: "number", description: "RSI周期，默认14" },
     },
     execute: (params) => {
-      const result = calculateRSI(params.data as number[], params.period as number | undefined);
+      let data = params.data as number[] | undefined;
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 0) {
+          data = lastStockData.closes;
+          console.log(`[calculateRSI] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
+      const period = (params.period as number) || 14;
+      const result = calculateRSI(data, period);
       const validValues = result.values.filter((v) => v !== null) as number[];
       const latestRSI = validValues.length > 0 ? validValues[validValues.length - 1] : null;
       const recentValues = validValues.slice(-30);
+
+      const formula = `RSI(${period}) = 100 - 100 / (1 + RS)，其中 RS = 平均涨幅 / 平均跌幅（使用Wilder平滑法）`;
+
+      const recentDates = lastStockData?.dates || [];
+      const last15Closes = data.slice(-(period + 1));
+      const last15Dates = recentDates.slice(-(period + 1));
+      const changes: Array<{ date: string; close: number; change: number; gain: number; loss: number }> = [];
+      for (let i = 1; i < last15Closes.length; i++) {
+        const change = last15Closes[i] - last15Closes[i - 1];
+        changes.push({
+          date: last15Dates[i] || `第${data.length - period - 1 + i}日`,
+          close: last15Closes[i],
+          change: Number(change.toFixed(4)),
+          gain: change > 0 ? Number(change.toFixed(4)) : 0,
+          loss: change < 0 ? Number(Math.abs(change).toFixed(4)) : 0,
+        });
+      }
+
+      let avgGain = 0;
+      let avgLoss = 0;
+      for (let i = 0; i < period && i < changes.length; i++) {
+        avgGain += changes[i].gain;
+        avgLoss += changes[i].loss;
+      }
+      avgGain /= period;
+      avgLoss /= period;
+
+      for (let i = period; i < changes.length; i++) {
+        avgGain = (avgGain * (period - 1) + changes[i].gain) / period;
+        avgLoss = (avgLoss * (period - 1) + changes[i].loss) / period;
+      }
+
+      const rs = avgLoss === 0 ? Infinity : avgGain / avgLoss;
+      const calcRSI = avgLoss === 0 ? 100 : Number((100 - 100 / (1 + rs)).toFixed(4));
+
+      const calcDetail = `最近${period + 1}日收盘价变动:\n${changes.map((c) => `${c.date}: 收${c.close}, 变动${c.change > 0 ? "+" : ""}${c.change}, 涨=${c.gain}, 跌=${c.loss}`).join("\n")}\n\n最终 avgGain=${avgGain.toFixed(4)}, avgLoss=${avgLoss.toFixed(4)}, RS=${rs === Infinity ? "∞" : rs.toFixed(4)}, RSI=${calcRSI}`;
+
       return JSON.stringify({
         period: result.period,
         latestRSI,
         totalPoints: result.values.length,
         validPoints: validValues.length,
         recentValues,
+        formula,
+        calcDetail,
+        latestTradeDate: lastStockData?.latestTradeDate || null,
       });
     },
   },
   {
     name: "calculateBollinger",
-    description: "计算布林带指标。返回最近30个有效值和最新上轨/中轨/下轨。",
+    description: "计算布林带指标。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回最近30个有效值和最新上轨/中轨/下轨。",
     parameters: {
-      data: { type: "number[]", description: "价格序列", required: true },
+      data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
       period: { type: "number", description: "周期，默认20" },
       stdDev: { type: "number", description: "标准差倍数，默认2" },
     },
     execute: (params) => {
+      let data = params.data as number[] | undefined;
+      if (!data || !Array.isArray(data) || data.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 0) {
+          data = lastStockData.closes;
+          console.log(`[calculateBollinger] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
       const result = calculateBollinger(
-        params.data as number[],
+        data,
         params.period as number | undefined,
         params.stdDev as number | undefined
       );
@@ -144,23 +255,36 @@ const tools: ToolDefinition[] = [
         recentUpper: validUpper.slice(-30),
         recentMiddle: validMiddle.slice(-30),
         recentLower: validLower.slice(-30),
+        latestTradeDate: lastStockData?.latestTradeDate || null,
       });
     },
   },
   {
     name: "calculateKDJ",
-    description: "计算KDJ指标。返回最近30个有效值和最新K/D/J值。",
+    description: "计算KDJ指标。如已调用getStockHistory获取过数据，可不传highs/lows/closes参数，自动使用缓存数据。返回最近30个有效值和最新K/D/J值。",
     parameters: {
-      highs: { type: "number[]", description: "最高价序列", required: true },
-      lows: { type: "number[]", description: "最低价序列", required: true },
-      closes: { type: "number[]", description: "收盘价序列", required: true },
+      highs: { type: "number[]", description: "最高价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
+      lows: { type: "number[]", description: "最低价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
+      closes: { type: "number[]", description: "收盘价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
       period: { type: "number", description: "KDJ周期，默认9" },
     },
     execute: (params) => {
+      let highs = params.highs as number[] | undefined;
+      let lows = params.lows as number[] | undefined;
+      let closes = params.closes as number[] | undefined;
+      if ((!highs || !Array.isArray(highs) || highs.length === 0) && lastStockData) {
+        highs = lastStockData.highs;
+        lows = lastStockData.lows;
+        closes = lastStockData.closes;
+        console.log(`[calculateKDJ] 使用缓存数据: ${lastStockData.code}, ${closes.length}条`);
+      }
+      if (!highs || !lows || !closes) {
+        return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+      }
       const result = calculateKDJ(
-        params.highs as number[],
-        params.lows as number[],
-        params.closes as number[],
+        highs,
+        lows,
+        closes,
         params.period as number | undefined
       );
       const validK = result.k.filter((v) => v !== null) as number[];
@@ -174,72 +298,152 @@ const tools: ToolDefinition[] = [
         recentK: validK.slice(-30),
         recentD: validD.slice(-30),
         recentJ: validJ.slice(-30),
+        latestTradeDate: lastStockData?.latestTradeDate || null,
       });
     },
   },
   {
     name: "calculateVWAP",
-    description: "计算VWAP（成交量加权平均价）。",
+    description: "计算VWAP（成交量加权平均价）。如已调用getStockHistory获取过数据，可不传参数，自动使用缓存的收盘价和成交量序列。",
     parameters: {
-      closes: { type: "number[]", description: "收盘价序列", required: true },
-      volumes: { type: "number[]", description: "成交量序列", required: true },
+      closes: { type: "number[]", description: "收盘价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
+      volumes: { type: "number[]", description: "成交量序列。如已调用getStockHistory可不传，自动使用缓存数据" },
     },
     execute: (params) => {
-      const result = calculateVWAP(params.closes as number[], params.volumes as number[]);
-      return JSON.stringify({ vwap: result });
+      let closes = params.closes as number[] | undefined;
+      let volumes = params.volumes as number[] | undefined;
+      if ((!closes || !Array.isArray(closes) || closes.length === 0) && lastStockData) {
+        closes = lastStockData.closes;
+        volumes = lastStockData.volumes;
+        console.log(`[calculateVWAP] 使用缓存数据: ${lastStockData.code}`);
+      }
+      if (!closes || !volumes) {
+        return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+      }
+      const result = calculateVWAP(closes, volumes);
+      return JSON.stringify({ vwap: result, latestTradeDate: lastStockData?.latestTradeDate || null });
     },
   },
   {
     name: "calculateSharpeRatio",
-    description: "计算夏普比率。",
+    description: "计算夏普比率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
     parameters: {
-      returns: { type: "number[]", description: "收益率序列", required: true },
+      returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
       riskFreeRate: { type: "number", description: "无风险利率，默认0.03" },
     },
     execute: (params) => {
+      let returns = params.returns as number[] | undefined;
+      if (!returns || !Array.isArray(returns) || returns.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 1) {
+          returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
+          console.log(`[calculateSharpeRatio] 使用缓存数据计算收益率: ${lastStockData.code}, ${returns.length}条`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
       const result = calculateSharpeRatio(
-        params.returns as number[],
+        returns,
         params.riskFreeRate as number | undefined
       );
-      return JSON.stringify({ sharpeRatio: result });
+      return JSON.stringify({ sharpeRatio: result, latestTradeDate: lastStockData?.latestTradeDate || null });
     },
   },
   {
     name: "calculateMaxDrawdown",
-    description: "计算最大回撤。",
+    description: "计算最大回撤。如已调用getStockHistory获取过数据，可不传values参数，自动使用缓存的收盘价序列。",
     parameters: {
-      values: { type: "number[]", description: "资产净值序列", required: true },
+      values: { type: "number[]", description: "资产净值序列。如已调用getStockHistory可不传，自动使用缓存数据" },
     },
     execute: (params) => {
-      const result = calculateMaxDrawdown(params.values as number[]);
-      return JSON.stringify(result);
+      let values = params.values as number[] | undefined;
+      if (!values || !Array.isArray(values) || values.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 0) {
+          values = lastStockData.closes;
+          console.log(`[calculateMaxDrawdown] 使用缓存数据: ${lastStockData.code}`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
+      const result = calculateMaxDrawdown(values);
+      return JSON.stringify({ ...result, latestTradeDate: lastStockData?.latestTradeDate || null });
     },
   },
   {
     name: "calculateVolatility",
-    description: "计算波动率。",
+    description: "计算波动率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
     parameters: {
-      returns: { type: "number[]", description: "收益率序列", required: true },
+      returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
       annualize: { type: "boolean", description: "是否年化，默认true" },
     },
     execute: (params) => {
+      let returns = params.returns as number[] | undefined;
+      if (!returns || !Array.isArray(returns) || returns.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 1) {
+          returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
+          console.log(`[calculateVolatility] 使用缓存数据计算收益率: ${lastStockData.code}`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
       const result = calculateVolatility(
-        params.returns as number[],
+        returns,
         params.annualize as boolean | undefined
       );
-      return JSON.stringify({ volatility: result });
+      return JSON.stringify({ volatility: result, latestTradeDate: lastStockData?.latestTradeDate || null });
     },
   },
   {
     name: "calculateCorrelation",
-    description: "计算两个序列的相关系数。",
+    description: "计算两个股票的相关系数。支持两种方式：1) 传入code1和code2，自动获取数据计算；2) 传入series1和series2数组。推荐使用方式1，只需提供股票代码即可。",
     parameters: {
-      series1: { type: "number[]", description: "第一组数据", required: true },
-      series2: { type: "number[]", description: "第二组数据", required: true },
+      code1: { type: "string", description: "第一只股票代码，如sh.600036。如已调用getStockHistory获取过数据，可不传code1，自动使用缓存数据" },
+      code2: { type: "string", description: "第二只股票代码，如sz.000858" },
+      series1: { type: "number[]", description: "第一组数据数组（可选，优先使用code1）" },
+      series2: { type: "number[]", description: "第二组数据数组（可选，优先使用code2）" },
     },
-    execute: (params) => {
-      const result = calculateCorrelation(params.series1 as number[], params.series2 as number[]);
-      return JSON.stringify({ correlation: result });
+    execute: async (params) => {
+      let series1 = params.series1 as number[] | undefined;
+      let series2 = params.series2 as number[] | undefined;
+
+      if (!series1 || !Array.isArray(series1) || series1.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 0) {
+          series1 = lastStockData.closes;
+          console.log(`[calculateCorrelation] 使用缓存数据作为series1: ${lastStockData.code}`);
+        }
+      }
+
+      if ((!series2 || !Array.isArray(series2) || series2.length === 0) && params.code2) {
+        try {
+          const endDate = new Date().toISOString().split("T")[0];
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+          const startDate = oneYearAgo.toISOString().split("T")[0];
+          const fetchStart = Date.now();
+          const res = await fetch(`${DATA_SERVICE_URL}/api/market/history`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ source: "baostock", code: params.code2, start_date: startDate, end_date: endDate, frequency: "d" }),
+            signal: AbortSignal.timeout(30000),
+          });
+          const data = await res.json();
+          console.log(`[calculateCorrelation] 获取code2=${params.code2}数据耗时: ${((Date.now() - fetchStart) / 1000).toFixed(2)}s`);
+          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+            series2 = data.data.map((r: Record<string, unknown>) => Number(r.close));
+          }
+        } catch (err) {
+          console.error(`[calculateCorrelation] 获取code2数据失败: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+
+      if (!series1 || !series2) {
+        return JSON.stringify({ error: "缺少数据：请提供code1+code2或series1+series2" });
+      }
+
+      const minLen = Math.min(series1.length, series2.length);
+      const s1 = series1.slice(-minLen);
+      const s2 = series2.slice(-minLen);
+      const result = calculateCorrelation(s1, s2);
+      return JSON.stringify({ correlation: result, dataPoints: minLen, code1: params.code1 || lastStockData?.code, code2: params.code2 });
     },
   },
   {
@@ -299,19 +503,28 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateVaR",
-    description: "计算VaR（在险价值）。",
+    description: "计算VaR（在险价值）。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
     parameters: {
-      returns: { type: "number[]", description: "收益率序列", required: true },
+      returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
       confidence: { type: "number", description: "置信水平，如0.95", required: true },
       horizon: { type: "number", description: "持有期天数", required: true },
     },
     execute: (params) => {
+      let returns = params.returns as number[] | undefined;
+      if (!returns || !Array.isArray(returns) || returns.length === 0) {
+        if (lastStockData && lastStockData.closes.length > 1) {
+          returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
+          console.log(`[calculateVaR] 使用缓存数据计算收益率: ${lastStockData.code}`);
+        } else {
+          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
+        }
+      }
       const result = calculateVaR({
-        returns: params.returns as number[],
+        returns,
         confidence: params.confidence as number,
         horizon: params.horizon as number,
       });
-      return JSON.stringify(result);
+      return JSON.stringify({ ...result, latestTradeDate: lastStockData?.latestTradeDate || null });
     },
   },
   {
@@ -326,7 +539,7 @@ const tools: ToolDefinition[] = [
         portfolio: params.portfolio as Record<string, { quantity: number; currentPrice: number }>,
         scenarios: params.scenarios as { name: string; priceChange: number }[],
       });
-      return JSON.stringify(result);
+      return JSON.stringify({ ...result, latestTradeDate: lastStockData?.latestTradeDate || null });
     },
   },
   {
@@ -342,25 +555,29 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "getStockHistory",
-    description: "获取A股股票历史K线数据。返回指定时间段内的开高低收、成交量等数据。支持日K、周K、月K。这是获取股价数据的首选工具，计算技术指标前必须先调用此工具获取数据。不指定日期时默认获取最近1年数据。",
+    description: "获取A股股票历史K线数据，并自动计算常用技术指标（MA5/10/20/60、RSI14、MACD、布林带、KDJ）。返回数据中已包含计算好的指标值，无需再单独调用calculateMA/calculateRSI等工具。如果需要非标准周期（如MA30、RSI6等），则仍需单独调用计算工具。支持日K、周K、月K。返回结果中包含最新交易日日期，回答用户时必须使用该日期作为数据截止日期，不要使用end_date或其他日期。",
     parameters: {
       code: { type: "string", description: "股票代码，如 sh.600036（招商银行）、sz.000858（五粮液），baostock格式需带sh./sz.前缀", required: true },
-      start_date: { type: "string", description: "开始日期，格式 YYYY-MM-DD。不指定则默认为1年前" },
-      end_date: { type: "string", description: "结束日期，格式 YYYY-MM-DD。不指定则默认为今天" },
       frequency: { type: "string", description: "K线频率: d=日K, w=周K, m=月K，默认d" },
       source: { type: "string", description: "数据源: baostock(默认), efinance, mootdx, tushare" },
+      start_date: { type: "string", description: "开始日期，格式YYYY-MM-DD。当用户指定某个日期查询指标时，start_date应设为该日期前约3个月（确保有足够数据计算MA60等指标）。不指定时默认最近1年" },
+      end_date: { type: "string", description: "结束日期，格式YYYY-MM-DD。当用户指定某个日期查询指标时，end_date设为该日期。不指定时默认到今天" },
     },
     execute: async (params) => {
       try {
         const source = (params.source as string) || "baostock";
-        const now = new Date();
-        const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
-        const defaultStart = oneYearAgo.toISOString().split("T")[0];
-        const defaultEnd = now.toISOString().split("T")[0];
-        const startDate = (params.start_date as string) || defaultStart;
-        const endDate = (params.end_date as string) || defaultEnd;
+        const endDate = (params.end_date as string) || new Date().toISOString().split("T")[0];
+        let startDate: string;
+        if (params.start_date) {
+          startDate = params.start_date as string;
+        } else {
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+          startDate = oneYearAgo.toISOString().split("T")[0];
+        }
 
-        console.log(`[getStockHistory] 请求: code=${params.code}, start=${startDate}, end=${endDate}`);
+        console.log(`[getStockHistory] 请求: code=${params.code}, start=${startDate}, end=${endDate}, source=${source}`);
+        const fetchStartTime = Date.now();
 
         const res = await fetch(`${DATA_SERVICE_URL}/api/market/history`, {
           method: "POST",
@@ -375,18 +592,51 @@ const tools: ToolDefinition[] = [
           signal: AbortSignal.timeout(30000),
         });
         const data = await res.json();
+        console.log(`[getStockHistory] 数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${data.success}`);
         if (!data.success) return `获取历史行情失败: ${data.error || "未知错误"}`;
         const rows = data.data || [];
         if (rows.length === 0) return "未查询到数据，请检查股票代码和日期范围";
         const fromCache = data.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-        const summary = rows.slice(-5).map((r: Record<string, unknown>) =>
-          `${r.date || r.tradeDate}: 开${r.open} 高${r.high} 低${r.low} 收${r.close} 量${r.volume}`
-        ).join("\n");
+
         const closes = rows.map((r: Record<string, unknown>) => Number(r.close));
         const highs = rows.map((r: Record<string, unknown>) => Number(r.high));
         const lows = rows.map((r: Record<string, unknown>) => Number(r.low));
         const volumes = rows.map((r: Record<string, unknown>) => Number(r.volume));
-        return `共${rows.length}条记录${fromCache}，最近5条:\n${summary}\n\n收盘价序列(用于MA/RSI/MACD/布林带等计算): [${closes.join(", ")}]\n最高价序列(用于KDJ等计算): [${highs.join(", ")}]\n最低价序列(用于KDJ等计算): [${lows.join(", ")}]\n成交量序列(用于VWAP等计算): [${volumes.join(", ")}]`;
+        const dates = rows.map((r: Record<string, unknown>) => String(r.date || r.tradeDate || ""));
+
+        const latestTradeDate = dates[dates.length - 1] || endDate;
+
+        lastStockData = {
+          closes,
+          highs,
+          lows,
+          volumes,
+          dates,
+          code: params.code as string,
+          dateRange: `${startDate} ~ ${endDate}`,
+          latestTradeDate,
+          rowCount: rows.length,
+        };
+        console.log(`[getStockHistory] 数据已缓存: code=${params.code}, ${rows.length}条, 日期范围=${startDate}~${endDate}, 最新交易日=${latestTradeDate}`);
+
+        const latestRow = rows[rows.length - 1];
+        const summary = rows.slice(-10).map((r: Record<string, unknown>) =>
+          `${r.date || r.tradeDate}: 开${r.open} 高${r.high} 低${r.low} 收${r.close} 量${r.volume}`
+        ).join("\n");
+
+        const latestClose = closes[closes.length - 1];
+        const maxClose = Math.max(...closes);
+        const minClose = Math.min(...closes);
+        const avgVolume = volumes.reduce((a: number, b: number) => a + b, 0) / volumes.length;
+
+        return `共${rows.length}条记录${fromCache}，日期范围: ${startDate}~${endDate}，最新交易日: ${latestTradeDate}
+
+最近10条K线:
+${summary}
+
+关键统计: 最新收盘价${latestClose}, 区间最高${maxClose}, 区间最低${minClose}, 日均成交量${avgVolume.toFixed(0)}
+
+【重要】完整价格数据已缓存，后续调用calculateMA/calculateRSI/calculateMACD/calculateBollinger/calculateKDJ/calculateVWAP/calculateSharpeRatio/calculateMaxDrawdown/calculateVolatility/calculateVaR等计算工具时，无需传入data参数，系统会自动使用缓存数据。只需指定周期等参数即可。回答时必须使用最新交易日${latestTradeDate}作为数据截止日期，不要使用end_date参数或其他日期。`;
       } catch (error) {
         return `获取历史行情异常: ${error instanceof Error ? error.message : String(error)}`;
       }
@@ -402,6 +652,7 @@ const tools: ToolDefinition[] = [
     execute: async (params) => {
       try {
         const source = (params.source as string) || "efinance";
+        const fetchStartTime = Date.now();
         const res = await fetch(`${DATA_SERVICE_URL}/api/market/realtime`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -409,6 +660,7 @@ const tools: ToolDefinition[] = [
           signal: AbortSignal.timeout(15000),
         });
         const data = await res.json();
+        console.log(`[getStockRealtime] 数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${data.success}`);
         if (!data.success) return `获取实时行情失败: ${data.error || "未知错误"}`;
         const records = data.data;
         if (!records || !Array.isArray(records) || records.length === 0) return "未查询到实时数据";
@@ -434,6 +686,7 @@ const tools: ToolDefinition[] = [
         const body: Record<string, unknown> = { source, code: params.code };
         if (source === "baostock" && params.year) body.year = params.year;
         if (source === "baostock" && params.quarter) body.quarter = params.quarter;
+        const fetchStartTime = Date.now();
         const res = await fetch(`${DATA_SERVICE_URL}/api/market/financial`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -441,6 +694,7 @@ const tools: ToolDefinition[] = [
           signal: AbortSignal.timeout(30000),
         });
         const data = await res.json();
+        console.log(`[getStockFinancial] 数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${data.success}`);
         if (!data.success) return `获取财务数据失败: ${data.error || "未知错误"}`;
         const rows = data.data || [];
         if (rows.length === 0) return "未查询到财务数据";
@@ -453,14 +707,15 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "getFinancialReport",
-    description: "获取A股股票详细财务报表。返回利润表、资产负债表或现金流量表的详细数据。当需要查看具体的财务报表项目（如营业收入明细、资产构成、现金流详情等）时使用此工具。",
+    description: "获取A股股票详细财务报表，同时自动补充关键盈利能力指标（ROE、毛利率、净利率等）。返回利润表/资产负债表/现金流量表的详细数据，以及盈利能力指标摘要。无需再单独调用getStockFinancial。",
     parameters: {
       code: { type: "string", description: "股票代码，如 600519（不需要sh./sz.前缀）", required: true },
       report_type: { type: "string", description: "报表类型: income=利润表(默认), balance=资产负债表, cashflow=现金流量表" },
     },
     execute: async (params) => {
       try {
-        const res = await fetch(`${DATA_SERVICE_URL}/api/market/financial_report`, {
+        const fetchStartTime = Date.now();
+        const reportRes = await fetch(`${DATA_SERVICE_URL}/api/market/financial_report`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -469,14 +724,40 @@ const tools: ToolDefinition[] = [
           }),
           signal: AbortSignal.timeout(30000),
         });
-        const data = await res.json();
-        if (!data.success) return `获取财务报表失败: ${data.error || "未知错误"}`;
-        const rows = data.data || [];
-        if (rows.length === 0) return "未查询到财务报表数据";
-        const fromCache = data.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
+        const reportData = await reportRes.json();
+        console.log(`[getFinancialReport] 报表数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${reportData.success}`);
+
+        const rows = reportData.data || [];
+        const fromCache = reportData.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
         const reportNames: Record<string, string> = { income: "利润表", balance: "资产负债表", cashflow: "现金流量表" };
         const reportName = reportNames[(params.report_type as string) || "income"] || "利润表";
-        return `${reportName}${fromCache}（最近${rows.length}期）:\n${JSON.stringify(rows, null, 2)}`;
+
+        let reportResult = "";
+        if (!reportData.success || rows.length === 0) {
+          reportResult = `${reportName}获取失败: ${reportData.error || "未查询到数据"}`;
+        } else {
+          reportResult = `${reportName}${fromCache}（最近${rows.length}期）:\n${JSON.stringify(rows, null, 2)}`;
+        }
+
+        let financialSummary = "";
+        try {
+          const financialRes = await fetch(`${DATA_SERVICE_URL}/api/market/financial`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ source: "efinance", code: params.code }),
+            signal: AbortSignal.timeout(15000),
+          });
+          const financialData = await financialRes.json();
+          console.log(`[getFinancialReport] 盈利指标补充耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${financialData.success}`);
+          if (financialData.success && Array.isArray(financialData.data) && financialData.data.length > 0) {
+            const finCache = financialData.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
+            financialSummary = `\n\n【自动补充】盈利能力指标${finCache}:\n${JSON.stringify(financialData.data, null, 2)}`;
+          }
+        } catch (finErr) {
+          console.error(`[getFinancialReport] 补充盈利指标失败: ${finErr instanceof Error ? finErr.message : String(finErr)}`);
+        }
+
+        return `${reportResult}${financialSummary}`;
       } catch (error) {
         return `获取财务报表异常: ${error instanceof Error ? error.message : String(error)}`;
       }
@@ -491,10 +772,12 @@ const tools: ToolDefinition[] = [
     },
     execute: async (params) => {
       try {
+        const searchStartTime = Date.now();
         const results = await hybridSearch(
           params.query as string,
           (params.topK as number) || 10
         );
+        console.log(`[hybridSearch] RAG检索耗时: ${((Date.now() - searchStartTime) / 1000).toFixed(2)}s, 结果数: ${results.length}`);
         const formatted = results
           .map((r, i) => `[${i + 1}] (分数: ${r.score.toFixed(4)}) ${r.text}`)
           .join("\n\n");
@@ -516,7 +799,7 @@ function getToolDescriptions(): string {
     .join("\n\n");
 }
 
-function parseToolCall(text: string): { name: string; params: Record<string, unknown> } | null {
+function parseSingleToolCall(text: string): { name: string; params: Record<string, unknown> } | null {
   try {
     const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
     if (jsonMatch) {
@@ -566,12 +849,42 @@ function parseToolCall(text: string): { name: string; params: Record<string, unk
         return { name, params };
       }
     }
-
-    console.log("[simpleAgent] 未检测到工具调用格式");
   } catch (e) {
     console.error("[simpleAgent] 解析工具调用异常:", e);
   }
   return null;
+}
+
+function parseToolCalls(text: string): { name: string; params: Record<string, unknown> }[] {
+  const results: { name: string; params: Record<string, unknown> }[] = [];
+
+  const jsonBlocks = text.match(/```json\s*([\s\S]*?)```/g);
+  if (jsonBlocks && jsonBlocks.length > 1) {
+    for (const block of jsonBlocks) {
+      const inner = block.replace(/```json\s*/, "").replace(/```$/, "");
+      try {
+        const parsed = JSON.parse(inner);
+        if (parsed.tool && parsed.parameters) {
+          results.push({ name: parsed.tool, params: parsed.parameters });
+        } else if (parsed.name || parsed.function?.name) {
+          const toolName = parsed.name || parsed.function?.name;
+          const toolArgs = parsed.arguments || parsed.function?.arguments || parsed.parameters || {};
+          const finalArgs = typeof toolArgs === "string" ? JSON.parse(toolArgs) : toolArgs;
+          results.push({ name: toolName, params: finalArgs });
+        }
+      } catch { /* ignore */ }
+    }
+    if (results.length > 0) {
+      console.log(`[simpleAgent] 解析到 ${results.length} 个工具调用: ${results.map(r => r.name).join(", ")}`);
+      return results;
+    }
+  }
+
+  const single = parseSingleToolCall(text);
+  if (single) {
+    results.push(single);
+  }
+  return results;
 }
 
 export interface AgentResult {
@@ -581,20 +894,54 @@ export interface AgentResult {
   steps: AgentStep[];
 }
 
-export async function runAgent(query: string, maxIterations: number = 5, conversationId?: string, userId: string = "default-user", model?: string): Promise<AgentResult> {
+async function generateConversationTitle(query: string, answer: string, conversationId: string, model?: string): Promise<void> {
+  try {
+    const titlePrompt: BailianMessage[] = [
+      {
+        role: "system",
+        content: "你是一个会话标题生成器。根据用户的问题和AI的回答，生成一个简短的中文会话标题（不超过15个字）。只输出标题文本，不要输出任何其他内容。标题要概括对话的核心主题。",
+      },
+      {
+        role: "user",
+        content: `用户问题: ${query}\nAI回答: ${answer.substring(0, 500)}`,
+      },
+    ];
+    const response = await callBailian(titlePrompt, model, 0.7);
+    const title = response.content.trim().replace(/["""'']/g, "").substring(0, 20);
+    if (title && title.length > 0) {
+      await updateConversationTitle(conversationId, title);
+      console.log(`[simpleAgent] 会话标题已生成: ${title}`);
+    }
+  } catch (err) {
+    console.error(`[simpleAgent] 生成会话标题失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+export async function runAgent(query: string, maxIterations: number = 5, conversationId?: string, userId: string = "default-user", model?: string, _userName?: string, _userEmail?: string, onStep?: (step: AgentStep) => void): Promise<AgentResult> {
   console.log(`[simpleAgent] 收到查询: ${query}, 最大迭代次数: ${maxIterations}, userId: ${userId}, model: ${model || "默认"}`);
   const startTime = Date.now();
   const steps: AgentStep[] = [];
+  lastStockData = null;
+
+  const pushStep = (step: AgentStep) => {
+    steps.push(step);
+    onStep?.(step);
+  };
 
   let convId = conversationId;
+  let needGenerateTitle = false;
   if (!convId) {
     convId = await createConversation(userId);
+    needGenerateTitle = true;
   }
 
   const historyMessages = await getRecentMessages(convId);
+  if (!needGenerateTitle && historyMessages.length <= 1) {
+    needGenerateTitle = true;
+  }
   await addMessage(convId, "user", query);
 
-  steps.push({
+  pushStep({
     type: "thinking",
     round: 0,
     title: "接收用户查询",
@@ -629,8 +976,9 @@ ${getToolDescriptions()}
    - 用户询问营收、利润、ROE、毛利率等财务指标 → 必须调用 getStockFinancial（优先efinance数据源，code格式如600519）
    - 用户询问具体股价、涨跌幅 → 必须调用 getStockRealtime
    - 用户要求计算技术指标（MA、RSI、MACD等）→ 必须先调用 getStockHistory 获取股价数据
-   - 用户询问详细财务报表项目 → 调用 getFinancialReport
+   - 用户询问详细财务报表项目 → 调用 getFinancialReport（已自动包含盈利能力指标，无需再调用getStockFinancial）
    - 用户询问公司财报、行业分析等文档内容 → 使用 hybridSearch
+   - 用户要求计算两只股票相关系数 → 同时调用 getStockHistory + calculateCorrelation（见规则9）
 
 3. 【工具选择优先级】当用户询问财务数据时：
    - 首选 getStockFinancial（efinance数据源，无需指定year/quarter，自动获取最新）
@@ -645,14 +993,50 @@ ${getToolDescriptions()}
 
 6. 如果工具调用失败或返回空数据，应如实告知用户，不要用编造的数据来回答。可以尝试换一个数据源重新获取。
 
-7. 【技术指标计算流程】当用户要求计算技术指标时，严格按以下步骤操作：
-   步骤1: 调用 getStockHistory 获取股价数据（只需提供code，日期会自动填充为最近1年）
-   步骤2: 从 getStockHistory 返回的"收盘价序列"中提取数组，调用 calculateMA/calculateRSI 等计算工具
-   步骤3: 用计算结果回答用户问题
-   注意：计算工具的 data 参数需要传入数字数组，如 [46.2, 46.5, 47.1]，不要传入字符串或对象
-   注意：getStockHistory 不指定日期时会自动获取最近1年数据，足够计算任何技术指标，无需手动指定日期
+7. 【技术指标计算流程】当用户要求计算技术指标时，你必须在同一次响应中同时输出两个工具调用，以减少迭代轮次：
+   步骤1（同一轮中）: 同时输出 getStockHistory 和 calculateMA/calculateRSI 等计算工具的调用，格式如下：
 
-8. 【重要】每次只调用一个工具。获得工具结果后，如果还需要调用其他工具，在下一轮再调用。不要在一次回复中尝试调用多个工具。`;
+   我需要先获取股价数据，然后计算MA20指标。
+
+   \`\`\`json
+   {"tool": "getStockHistory", "parameters": {"code": "sh.600036"}}
+   \`\`\`
+
+   \`\`\`json
+   {"tool": "calculateMA", "parameters": {"period": 20}}
+   \`\`\`
+
+   系统会按顺序执行：先执行getStockHistory缓存数据，再执行calculateMA使用缓存数据计算。
+   注意：不要在工具调用中传入大量价格数据数组，系统会自动从缓存中读取
+   - 如果用户指定了某个日期（如"2026-05-06的MA20"），getStockHistory需传入 start_date 和 end_date 参数
+
+8. 【重要】计算技术指标时，必须在同一次响应中同时输出 getStockHistory 和计算工具的调用（见规则7）。其他场景下，每次只调用一个工具，获得工具结果后如果还需要调用其他工具，在下一轮再调用。
+
+9. 【相关系数计算流程】当用户要求计算两只股票的相关系数时，你必须在同一次响应中同时输出 getStockHistory 和 calculateCorrelation 的调用，格式如下：
+
+   我需要获取招商银行的股价数据，然后计算招商银行和五粮液的相关系数。
+
+   \`\`\`json
+   {"tool": "getStockHistory", "parameters": {"code": "sh.600036"}}
+   \`\`\`
+
+   \`\`\`json
+   {"tool": "calculateCorrelation", "parameters": {"code2": "sz.000858"}}
+   \`\`\`
+
+   注意：calculateCorrelation 只需传 code2 参数（第二只股票代码），code1 会自动使用 getStockHistory 缓存的数据。不要传 series1/series2 数组，系统会自动获取。
+
+10. 【回答格式要求 - 时间相关数据必须标注日期】当你回答涉及股价、技术指标、财务数据等与时间相关的数据时，必须在回答中明确标注数据的查询日期或截止日期。例如：
+   - "截至2026-05-29（最新交易日），招商银行MA20为37.92"
+   - 如果用户指定了日期，回答中使用用户指定的日期
+   - 如果用户未指定日期，回答中必须使用工具返回的latestTradeDate（最新交易日）作为数据截止日期，不要使用当前日期或end_date参数
+   - 例如：getStockHistory返回latestTradeDate=2026-05-29，则回答中写"截至2026-05-29（最新交易日）"，而不是"截至2026-05-30（今天）"
+
+11. 【计算公式和验证数据】当计算MA、RSI等技术指标时，工具返回结果中包含formula（计算公式）和calcDetail（计算过程和中间数据）。你必须在回答中输出这些信息，让用户可以手动验证计算结果是否正确。格式示例：
+   - MA20计算公式：MA20 = (最近20个交易日收盘价之和) / 20
+   - 计算过程：(2026-05-06: 38.50 + ... + 2026-05-29: 37.50) / 20 = 758.35 / 20 = 37.9175
+   - RSI(14)计算公式：RSI(14) = 100 - 100 / (1 + RS)，RS = 平均涨幅 / 平均跌幅
+   - 计算过程：列出最近15日收盘价变动、每日涨跌、avgGain、avgLoss、RS、最终RSI`;
 
   const messages: BailianMessage[] = [
     { role: "system", content: systemPrompt },
@@ -668,12 +1052,13 @@ ${getToolDescriptions()}
   let toolObservations: string[] = [];
   let totalPromptTokens = 0;
   let totalCompletionTokens = 0;
-  let currentModel = model || process.env.BAILIAN_MODEL || "unknown";
+  let currentModel = model || "unknown";
 
   for (let i = 0; i < maxIterations; i++) {
     if (Date.now() - startTime > AGENT_TIMEOUT_MS) {
-      console.error(`[simpleAgent] Agent 执行超过 ${AGENT_TIMEOUT_MS}ms，强制终止`);
-      steps.push({
+      const elapsedMs = Date.now() - startTime;
+      console.error(`[simpleAgent] Agent 执行超过 ${AGENT_TIMEOUT_MS}ms (实际耗时: ${(elapsedMs / 1000).toFixed(1)}s)，强制终止`);
+      pushStep({
         type: "answer",
         round: i + 1,
         title: "执行超时",
@@ -695,21 +1080,27 @@ ${getToolDescriptions()}
         latencyMs: Date.now() - startTime,
         status: "timeout",
       }).catch((e) => console.error("[simpleAgent] 保存超时日志失败:", e));
+      if (needGenerateTitle) await generateConversationTitle(query, "Agent 执行超时", convId, model);
       return { answer: "Agent 执行超时，请稍后重试或简化您的问题。", iterations, conversationId: convId, steps };
     }
     iterations++;
-    console.log(`[simpleAgent] 第 ${i + 1}/${maxIterations} 轮迭代`);
+    const roundStartTime = Date.now();
+    const elapsedMs = roundStartTime - startTime;
+    console.log(`[simpleAgent] 第 ${i + 1}/${maxIterations} 轮迭代 (累计耗时: ${(elapsedMs / 1000).toFixed(1)}s)`);
 
-    steps.push({
+    pushStep({
       type: "thinking",
       round: i + 1,
       title: `第 ${i + 1} 轮 — LLM 推理`,
       content: `正在调用大模型进行推理...`,
+      detail: { roundIndex: i + 1, elapsedMs },
       timestamp: Date.now(),
     });
 
     try {
+      const llmStartTime = Date.now();
       const response = await callBailian(messages, model);
+      const llmMs = Date.now() - llmStartTime;
       const assistantContent = response.content;
 
       if (response.usage) {
@@ -717,27 +1108,66 @@ ${getToolDescriptions()}
         totalCompletionTokens += response.usage.completion_tokens || 0;
       }
 
+      console.log(`[simpleAgent] 第 ${i + 1} 轮 LLM调用耗时: ${(llmMs / 1000).toFixed(2)}s, 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
       console.log(`[simpleAgent] LLM 响应: ${assistantContent.substring(0, 200)}...`);
 
       messages.push({ role: "assistant", content: assistantContent });
 
-      const toolCall = parseToolCall(assistantContent);
+      const toolCalls = parseToolCalls(assistantContent);
       const reasoningText = assistantContent.replace(/```json[\s\S]*?```/g, "").trim();
       const reasoning = reasoningText.substring(0, 500);
 
-      if (!toolCall) {
-        console.log("[simpleAgent] 无工具调用，进入反思评估阶段");
+      if (toolCalls.length === 0) {
+        if (toolObservations.length > 0) {
+          const roundMs = Date.now() - roundStartTime;
+          console.log(`[simpleAgent] 已有工具结果且LLM给出最终答案，直接结束 (本轮耗时: ${(roundMs / 1000).toFixed(2)}s)`);
 
-        steps.push({
+          pushStep({
+            type: "answer",
+            round: i + 1,
+            title: "最终答案",
+            content: assistantContent,
+            detail: { roundMs, llmMs, totalMs: Date.now() - startTime },
+            timestamp: Date.now(),
+          });
+
+          await addMessage(convId, "assistant", assistantContent);
+
+          const latencyMs = Date.now() - startTime;
+          saveAgentLog({
+            userId,
+            conversationId: convId,
+            query,
+            answer: assistantContent,
+            model: model || "unknown",
+            iterations: i + 1,
+            steps,
+            promptTokens: totalPromptTokens,
+            completionTokens: totalCompletionTokens,
+            totalTokens: totalPromptTokens + totalCompletionTokens,
+            latencyMs,
+            status: "success",
+          }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
+
+          if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
+          return { answer: assistantContent, iterations, conversationId: convId, steps };
+        }
+
+        console.log("[simpleAgent] 无工具调用且无工具结果，进入反思评估阶段");
+
+        pushStep({
           type: "reflection",
           round: i + 1,
           title: `第 ${i + 1} 轮 — 反思评估`,
           content: "LLM 未调用工具，评估答案是否充分...",
-          detail: { answerPreview: assistantContent.substring(0, 300) },
+          detail: { answerPreview: assistantContent.substring(0, 300), llmMs },
           timestamp: Date.now(),
         });
 
+        const reflectionStartTime = Date.now();
         const reflection = await shouldRetrieveAgain(query, assistantContent, lastSearchResults, toolObservations);
+        const reflectionMs = Date.now() - reflectionStartTime;
+        console.log(`[simpleAgent] 第 ${i + 1} 轮 反思评估耗时: ${(reflectionMs / 1000).toFixed(2)}s, 结果: needMore=${reflection.needMore}`);
 
         if (reflection.needMore && reflection.refinedQuery && i < maxIterations - 1) {
           console.log(
@@ -749,7 +1179,7 @@ ${getToolDescriptions()}
             reflection.refinedQuery.includes("getFinancialReport") ||
             reflection.refinedQuery.includes("getStockRealtime");
 
-          steps.push({
+          pushStep({
             type: "reflection",
             round: i + 1,
             title: `第 ${i + 1} 轮 — 反思决定：${isToolSuggestion ? "需要调用数据工具" : "继续检索"}`,
@@ -763,7 +1193,7 @@ ${getToolDescriptions()}
           });
 
           if (isToolSuggestion) {
-            steps.push({
+            pushStep({
               type: "tool_call",
               round: i + 1,
               title: `第 ${i + 1} 轮 — 反思触发数据工具调用`,
@@ -776,7 +1206,7 @@ ${getToolDescriptions()}
               content: `【重要提示】你之前的回答中包含了没有工具调用支撑的具体数字，这些数据可能是编造的。反思评估建议：${reflection.refinedQuery}\n\n请严格按照建议调用对应的工具获取真实数据，然后用工具返回的真实数据重新回答用户的问题。绝不能再使用没有工具支撑的数字！`,
             });
           } else {
-            steps.push({
+            pushStep({
               type: "retrieval",
               round: i + 1,
               title: `第 ${i + 1} 轮 — 反思触发补充检索`,
@@ -784,14 +1214,17 @@ ${getToolDescriptions()}
               timestamp: Date.now(),
             });
 
+            const ragStartTime = Date.now();
             const ragResult = await hybridSearch(reflection.refinedQuery, 10);
+            const ragMs = Date.now() - ragStartTime;
+            console.log(`[simpleAgent] 第 ${i + 1} 轮 反思补充检索耗时: ${(ragMs / 1000).toFixed(2)}s, 结果数: ${ragResult.length}`);
             const formattedResult = ragResult
               .map((r, idx) => `[${idx + 1}] (分数: ${r.score.toFixed(4)}) ${r.text}`)
               .join("\n\n");
 
             lastSearchResults.push(formattedResult);
 
-            steps.push({
+            pushStep({
               type: "retrieval",
               round: i + 1,
               title: `第 ${i + 1} 轮 — 补充检索结果`,
@@ -815,21 +1248,24 @@ ${getToolDescriptions()}
             });
           }
 
+          const roundMs = Date.now() - roundStartTime;
+          console.log(`[simpleAgent] 第 ${i + 1} 轮总耗时: ${(roundMs / 1000).toFixed(2)}s (LLM=${(llmMs / 1000).toFixed(2)}s, 反思=${(reflectionMs / 1000).toFixed(2)}s), 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
           continue;
         }
 
-        steps.push({
+        pushStep({
           type: "reflection",
           round: i + 1,
           title: `第 ${i + 1} 轮 — 反思决定：答案充分`,
           content: "答案已充分回答用户问题，结束迭代",
-          detail: { needMore: false },
+          detail: { needMore: false, llmMs, reflectionMs },
           timestamp: Date.now(),
         });
 
-        console.log("[simpleAgent] 反思通过，返回最终答案");
+        const roundMs = Date.now() - roundStartTime;
+        console.log(`[simpleAgent] 反思通过，返回最终答案 (本轮耗时: ${(roundMs / 1000).toFixed(2)}s, 其中LLM=${(llmMs / 1000).toFixed(2)}s, 反思=${(reflectionMs / 1000).toFixed(2)}s)`);
 
-        steps.push({
+        pushStep({
           type: "answer",
           round: i + 1,
           title: "最终答案",
@@ -855,20 +1291,22 @@ ${getToolDescriptions()}
           status: "success",
         }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
+        if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
         return { answer: assistantContent, iterations, conversationId: convId, steps };
       }
 
-      const tool = tools.find((t) => t.name === toolCall.name);
-      if (!tool) {
-        const errorMsg = `未找到工具: ${toolCall.name}`;
+      const toolCallsList = toolCalls;
+      const invalidTools = toolCallsList.filter((tc) => !tools.find((t) => t.name === tc.name));
+      if (invalidTools.length > 0) {
+        const errorMsg = `未找到工具: ${invalidTools.map((t) => t.name).join(", ")}`;
         console.error(`[simpleAgent] ${errorMsg}`);
 
-        steps.push({
+        pushStep({
           type: "tool_call",
           round: i + 1,
           title: `第 ${i + 1} 轮 — 工具调用失败`,
           content: errorMsg,
-          detail: { toolName: toolCall.name, error: true },
+          detail: { toolName: invalidTools[0].name, error: true },
           timestamp: Date.now(),
         });
 
@@ -876,73 +1314,79 @@ ${getToolDescriptions()}
         continue;
       }
 
-      console.log(`[simpleAgent] 调用工具: ${toolCall.name}, 参数: ${JSON.stringify(toolCall.params).substring(0, 100)}`);
+      const observationParts: string[] = [];
+      let totalToolMs = 0;
 
-      steps.push({
-        type: "tool_call",
-        round: i + 1,
-        title: `第 ${i + 1} 轮 — 调用工具: ${toolCall.name}`,
-        content: reasoning ? `推理: ${reasoning}\n\n参数: ${JSON.stringify(toolCall.params, null, 2)}` : `参数: ${JSON.stringify(toolCall.params, null, 2)}`,
-        detail: { toolName: toolCall.name, params: toolCall.params, reasoning },
-        timestamp: Date.now(),
-      });
+      for (const toolCall of toolCallsList) {
+        const tool = tools.find((t) => t.name === toolCall.name)!;
 
-      const toolResult = await tool.execute(toolCall.params);
-      console.log(`[simpleAgent] 工具结果: ${toolResult.substring(0, 200)}...`);
+        console.log(`[simpleAgent] 调用工具: ${toolCall.name}, 参数: ${JSON.stringify(toolCall.params).substring(0, 100)}`);
 
-      toolObservations.push(`[${toolCall.name}] ${toolResult.substring(0, 500)}`);
-
-      if (toolCall.name === "hybridSearch") {
-        lastSearchResults.push(toolResult);
-
-        steps.push({
-          type: "retrieval",
+        pushStep({
+          type: "tool_call",
           round: i + 1,
-          title: `第 ${i + 1} 轮 — RAG 检索结果`,
-          content: toolResult.substring(0, 500),
-          detail: {
-            query: toolCall.params.query as string,
-            topK: toolCall.params.topK as number | undefined,
-            resultPreview: toolResult.substring(0, 1000),
-          },
+          title: `第 ${i + 1} 轮 — 调用工具: ${toolCall.name}`,
+          content: reasoning ? `推理: ${reasoning}\n\n参数: ${JSON.stringify(toolCall.params, null, 2)}` : `参数: ${JSON.stringify(toolCall.params, null, 2)}`,
+          detail: { toolName: toolCall.name, params: toolCall.params, reasoning, llmMs },
           timestamp: Date.now(),
         });
-      } else {
-        steps.push({
-          type: "tool_result",
-          round: i + 1,
-          title: `第 ${i + 1} 轮 — 工具结果: ${toolCall.name}`,
-          content: toolResult.substring(0, 500),
-          detail: { toolName: toolCall.name, resultPreview: toolResult.substring(0, 1000) },
-          timestamp: Date.now(),
-        });
+
+        const toolStartTime = Date.now();
+        const toolResult = await tool.execute(toolCall.params);
+        const toolMs = Date.now() - toolStartTime;
+        totalToolMs += toolMs;
+        console.log(`[simpleAgent] 第 ${i + 1} 轮 工具 ${toolCall.name} 耗时: ${(toolMs / 1000).toFixed(2)}s, 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+        console.log(`[simpleAgent] 工具结果: ${toolResult.substring(0, 200)}...`);
+
+        toolObservations.push(`[${toolCall.name}] ${toolResult.substring(0, 500)}`);
+
+        if (toolCall.name === "hybridSearch") {
+          lastSearchResults.push(toolResult);
+
+          pushStep({
+            type: "retrieval",
+            round: i + 1,
+            title: `第 ${i + 1} 轮 — RAG 检索结果`,
+            content: toolResult.substring(0, 500),
+            detail: {
+              query: toolCall.params.query as string,
+              topK: toolCall.params.topK as number | undefined,
+              resultPreview: toolResult.substring(0, 1000),
+              toolMs,
+            },
+            timestamp: Date.now(),
+          });
+        } else {
+          pushStep({
+            type: "tool_result",
+            round: i + 1,
+            title: `第 ${i + 1} 轮 — 工具结果: ${toolCall.name}`,
+            content: toolResult.substring(0, 500),
+            detail: { toolName: toolCall.name, resultPreview: toolResult.substring(0, 1000), toolMs },
+            timestamp: Date.now(),
+          });
+        }
+
+        observationParts.push(`[${toolCall.name}] ${toolResult}`);
       }
 
       const MAX_OBSERVATION_LENGTH = 8000;
-      let observationContent = `Observation: ${toolResult}`;
+      let observationContent = `Observation:\n${observationParts.join("\n\n")}`;
       if (observationContent.length > MAX_OBSERVATION_LENGTH) {
-        const priceArrayMatch = toolResult.match(/收盘价序列[\s\S]*?:\s*\[([\s\S]*?)\]/);
-        const rsiArrayMatch = toolResult.match(/RSI[\s\S]*?:\s*\[([\s\S]*?)\]/);
-        const maArrayMatch = toolResult.match(/MA[\s\S]*?:\s*\[([\s\S]*?)\]/);
-        let truncated = toolResult.substring(0, 2000);
-        if (priceArrayMatch) {
-          truncated += `\n\n[完整收盘价序列]: [${priceArrayMatch[1]}]`;
-        }
-        if (maArrayMatch) {
-          truncated += `\n[完整MA结果]: [${maArrayMatch[1]}]`;
-        }
-        if (rsiArrayMatch) {
-          truncated += `\n[完整RSI结果]: [${rsiArrayMatch[1]}]`;
-        }
-        observationContent = `Observation: ${truncated}`;
-        console.log(`[simpleAgent] 工具结果已截断: 原始${toolResult.length}字符 → ${truncated.length}字符`);
+        const truncated = observationContent.substring(0, MAX_OBSERVATION_LENGTH);
+        observationContent = `${truncated}\n\n[结果已截断，原始长度: ${observationContent.length}字符]`;
+        console.log(`[simpleAgent] 多工具结果已截断: 原始${observationContent.length}字符 → ${MAX_OBSERVATION_LENGTH}字符`);
       }
       messages.push({ role: "user", content: observationContent });
+
+      const roundMs = Date.now() - roundStartTime;
+      const toolNames = toolCallsList.map((tc) => tc.name).join("+");
+      console.log(`[simpleAgent] 第 ${i + 1} 轮总耗时: ${(roundMs / 1000).toFixed(2)}s (LLM=${(llmMs / 1000).toFixed(2)}s, 工具${toolNames}=${(totalToolMs / 1000).toFixed(2)}s), 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error(`[simpleAgent] 迭代异常: ${errorMsg}`);
 
-      steps.push({
+      pushStep({
         type: "answer",
         round: i + 1,
         title: "执行异常",
@@ -968,12 +1412,12 @@ ${getToolDescriptions()}
         status: "error",
         errorMessage: errorMsg,
       }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
-
+      if (needGenerateTitle) await generateConversationTitle(query, `执行出错: ${errorMsg}`, convId, model);
       return { answer: `Agent 执行出错: ${errorMsg}`, iterations, conversationId: convId, steps };
     }
   }
 
-  steps.push({
+  pushStep({
     type: "answer",
     round: iterations,
     title: "超过最大迭代次数",
@@ -982,5 +1426,6 @@ ${getToolDescriptions()}
   });
 
   await addMessage(convId, "assistant", "Agent 超过最大迭代次数，未能得出结论。");
+  if (needGenerateTitle) await generateConversationTitle(query, "超过最大迭代次数", convId, model);
   return { answer: "Agent 超过最大迭代次数，未能得出结论。", iterations, conversationId: convId, steps };
 }

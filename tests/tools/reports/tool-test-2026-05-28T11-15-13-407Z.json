@@ -1,0 +1,1858 @@
+[
+  {
+    "id": 1,
+    "query": "获取招商银行最近1年的日K线数据",
+    "targetTool": "getStockHistory",
+    "description": "测试getStockHistory工具 - 获取股票历史K线数据",
+    "totalAttempts": 2,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "截至2026-05-28，已为您获取招商银行（600036）最近1年（2025-05-28至2026-05-28）的日K线数据。\n\n**关键统计信息：**\n*   **最新收盘价**：37.00元（2026-05-26）\n*   **近一年区间最高价**：48.24元\n*   **近一年区间最低价**：36.94元\n*   **日均成交量**：约7,707万股\n\n**最近10个交易日行情回顾：**\n| 日期 | 开盘 | 最高 | 最低 | 收盘 | 成交量(手) |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2026-05-13 | 37.96 | 38.09 | 37.85 | 37.88 | 71,830,416 |\n| 2026-05-14 | 37.81 | 38.02 | 37.73 | 37.81 | 86,786,790 |\n| 2026-05-15 | 37.81 | 37.97 | 37.61 | 37.65 | 82,173,796 |\n| 2026-05-18 | 37.65 | 37.66 | 37.35 | 37.47 | 70,768,410 |\n| 2026-05-19 | 37.48 | 37.74 | 37.34 | 37.37 | 71,991,007 |\n| 2026-05-20 | 37.37 | 37.44 | 37.17 | 37.17 | 69,318,422 |\n| 2026-05-21 | 37.18 | 37.34 | 37.11 | 37.15 | 72,519,969 |\n| 2026-05-22 | 37.10 | 37.33 | 36.97 | 37.02 | 79,761,712 |\n| 2026-05-25 | 37.01 | 37.26 | 36.90 | 36.94 | 71,066,833 |\n| 2026-05-26 | 36.94 | 37.29 | 36.90 | 37.00 | 70,620,290 |\n\n该历史数据已自动缓存，如果您需要计算移动平均线（MA）、MACD、RSI或其他技术指标，请直接告诉我。",
+        "iterations": 2,
+        "totalMs": 20340,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "招商银行",
+            "found": true
+          },
+          {
+            "keyword": "收盘价",
+            "found": true
+          },
+          {
+            "keyword": "记录",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2593,
+            "toolName": "getStockHistory",
+            "toolMs": 15,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 10009,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 10011,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: 记录"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": true,
+        "answer": "已为您获取招商银行（sh.600036）最近1年（2025-05-28 至 2026-05-28）的日K线数据。\n\n**数据统计概览：**\n*   **数据周期**：2025-05-28 ~ 2026-05-28\n*   **记录数量**：241条\n*   **区间最高价**：48.24元\n*   **区间最低价**：36.94元\n*   **最新收盘价**：37.00元（截至2026-05-26）\n*   **日均成交量**：约7,707万股\n\n**最近10个交易日行情（截至2026-05-26）：**\n\n| 日期 | 开盘价 | 最高价 | 最低价 | 收盘价 | 成交量(股) |\n| :--- | :--- | :--- | :--- | :--- | :--- |\n| 2026-05-13 | 37.96 | 38.09 | 37.85 | 37.88 | 71,830,416 |\n| 2026-05-14 | 37.81 | 38.02 | 37.73 | 37.81 | 86,786,790 |\n| 2026-05-15 | 37.81 | 37.97 | 37.61 | 37.65 | 82,173,796 |\n| 2026-05-18 | 37.65 | 37.66 | 37.35 | 37.47 | 70,768,410 |\n| 2026-05-19 | 37.48 | 37.74 | 37.34 | 37.37 | 71,991,007 |\n| 2026-05-20 | 37.37 | 37.44 | 37.17 | 37.17 | 69,318,422 |\n| 2026-05-21 | 37.18 | 37.34 | 37.11 | 37.15 | 72,519,969 |\n| 2026-05-22 | 37.10 | 37.33 | 36.97 | 37.02 | 79,761,712 |\n| 2026-05-25 | 37.01 | 37.26 | 36.90 | 36.94 | 71,066,833 |\n| 2026-05-26 | 36.94 | 37.29 | 36.90 | 37.00 | 70,620,290 |\n\n完整的历史价格序列及技术指标（MA、RSI、MACD等）已缓存，如需计算特定指标请随时告知。",
+        "iterations": 2,
+        "totalMs": 18822,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "招商银行",
+            "found": true
+          },
+          {
+            "keyword": "收盘价",
+            "found": true
+          },
+          {
+            "keyword": "记录",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 3187,
+            "toolName": "getStockHistory",
+            "toolMs": 18,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 7179,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 7180,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "query": "查询贵州茅台实时行情",
+    "targetTool": "getStockRealtime",
+    "description": "测试getStockRealtime工具 - 获取股票实时行情",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-28，贵州茅台（600519）的实时行情如下：\n\n*   **最新价**：1275.98元\n*   **涨跌幅**：-2.07%\n*   **今开**：1290元\n*   **最高**：1304元\n*   **最低**：1271元\n*   **成交量**：45,890手\n*   **成交额**：约5.90亿元\n*   **换手率**：0.37%",
+        "iterations": 2,
+        "totalMs": 15733,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "茅台",
+            "found": true
+          },
+          {
+            "keyword": "最新价",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 1667,
+            "toolName": "getStockRealtime",
+            "toolMs": 383,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 2750,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 2752,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "query": "查询贵州茅台的财务数据，包括营收和净利润",
+    "targetTool": "getStockFinancial",
+    "description": "测试getStockFinancial工具 - 获取股票财务数据",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "根据截至2026-05-28的最新财务数据，贵州茅台（600519）的关键财务指标如下：\n\n*   **营业收入**：547.03亿元\n*   **净利润**：12.12（注：工具返回数值，可能存在单位或统计口径差异，建议结合净利率参考）\n*   **毛利率**：89.76%\n*   **净利率**：52.22%\n*   **净资产收益率 (ROE)**：10.57%",
+        "iterations": 3,
+        "totalMs": 85885,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "茅台",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2344,
+            "toolName": "getStockFinancial",
+            "toolMs": 6,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 45636,
+            "toolName": "getFinancialReport",
+            "toolMs": 616,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 29906,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 29907,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "query": "查询贵州茅台的利润表",
+    "targetTool": "getFinancialReport",
+    "description": "测试getFinancialReport工具 - 获取财务报表",
+    "totalAttempts": 3,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "Agent 超过最大迭代次数，未能得出结论。",
+        "iterations": 5,
+        "totalMs": 135648,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "茅台",
+            "found": false
+          },
+          {
+            "keyword": "利润表",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 1822,
+            "toolName": "getFinancialReport",
+            "toolMs": 192,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 4676,
+            "toolName": "getStockFinancial",
+            "toolMs": 5,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 35066,
+            "toolName": "getFinancialReport",
+            "toolMs": 398,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 4,
+            "llmMs": 11358,
+            "toolName": "hybridSearch",
+            "toolMs": 918,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 5,
+            "llmMs": 77829,
+            "toolName": "hybridSearch",
+            "toolMs": 316,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: 茅台, 利润表; 超过最大迭代次数"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "Agent 超过最大迭代次数，未能得出结论。",
+        "iterations": 5,
+        "totalMs": 91852,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "茅台",
+            "found": false
+          },
+          {
+            "keyword": "利润表",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2111,
+            "toolName": "getFinancialReport",
+            "toolMs": 332,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 4160,
+            "toolName": "getStockFinancial",
+            "toolMs": 6,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 3504,
+            "toolName": "getFinancialReport",
+            "toolMs": 736,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 4,
+            "llmMs": 5595,
+            "toolName": "hybridSearch",
+            "toolMs": 363,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 5,
+            "llmMs": 37479,
+            "toolName": "getStockFinancial",
+            "toolMs": 30001,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: 茅台, 利润表; 超过最大迭代次数"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": true,
+        "answer": "很抱歉，目前无法获取贵州茅台（600519）的详细利润表全文（包含各项收支明细）。\n\n不过，根据系统获取到的最新财务摘要数据，您可以参考以下核心盈利指标：\n\n*   **营业收入**：约 547.03 亿元\n*   **净利润**：12.12（注：该数值相对于营收较小，可能存在单位差异或数据源显示问题，仅供参考）\n*   **净利率**：52.22%\n*   **毛利率**：89.76%\n*   **净资产收益率 (ROE)**：10.57%\n\n如果您需要更详细的财务分析，建议查阅公司发布的官方定期报告。",
+        "iterations": 4,
+        "totalMs": 54399,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "茅台",
+            "found": true
+          },
+          {
+            "keyword": "利润表",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 1946,
+            "toolName": "getFinancialReport",
+            "toolMs": 410,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 10548,
+            "toolName": "getStockFinancial",
+            "toolMs": 9,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 18226,
+            "toolName": "hybridSearch",
+            "toolMs": 312,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 4,
+            "llmMs": 15357,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 15357,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "query": "搜索A股交易规则相关文档",
+    "targetTool": "hybridSearch",
+    "description": "测试hybridSearch工具 - RAG混合检索",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "很抱歉，在知识库中未检索到专门的“A股交易规则”文档。\n\n不过，根据通用的A股市场交易制度，为您总结如下核心规则：\n\n1.  **交易时间**\n    *   **交易日**：周一至周五（国家法定节假日除外）。\n    *   **连续竞价**：上午 9:30 - 11:30，下午 13:00 - 15:00。\n    *   **集合竞价**：上午 9:15 - 9:25（其中 9:20-9:25 不可撤单），下午 14:57 - 15:00（深市适用）。\n\n2.  **交易制度**\n    *   **T+1 交易**：当日买入的股票，下一个交易日才能卖出。\n    *   **T+0 回转**：目前A股股票不支持T+0，但可转债、部分ETF基金支持T+0。\n\n3.  **涨跌幅限制**\n    *   **主板**（沪深）：通常为 ±10%。\n    *   **科创板**（沪）、**创业板**（深）：通常为 ±20%。\n    *   **ST/*ST 股**：通常为 ±5%。\n    *   **北交所**：通常为 ±30%。\n    *   **新股上市**：前5个交易日通常不设涨跌幅限制（随后按相应板块规则执行）。\n\n4.  **交易单位**\n    *   **买入**：申报数量应当为100股（1手）或其整数倍。\n    *   **卖出**：余额不足100股的，应当一次性申报卖出。\n\n如果您需要了解特定股票的交易状态（如是否停牌、是否ST等），可以使用 `getStockRealtime` 或 `checkTradeCompliance` 工具进行查询。",
+        "iterations": 3,
+        "totalMs": 20392,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "A股",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 1933,
+            "toolName": "hybridSearch",
+            "toolMs": 370,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 2829,
+            "toolName": "hybridSearch",
+            "toolMs": 114,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 8486,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 8486,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "query": "计算招商银行的20日移动平均线MA20",
+    "targetTool": "calculateMA",
+    "description": "测试calculateMA工具 - 计算移动平均线",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-28，招商银行（sh.600036）的20日移动平均线（MA20）为 **37.92**。",
+        "iterations": 3,
+        "totalMs": 15305,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "MA20",
+            "found": true
+          },
+          {
+            "keyword": "招商银行",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 1805,
+            "toolName": "getStockHistory",
+            "toolMs": 14,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1370,
+            "toolName": "calculateMA",
+            "toolMs": 1,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 2356,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 2356,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "query": "计算招商银行的MACD指标",
+    "targetTool": "calculateMACD",
+    "description": "测试calculateMACD工具 - 计算MACD指标",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-26，招商银行（600036）的MACD指标计算结果如下：\n\n*   **DIF (快线)**: -0.5826\n*   **DEA (慢线)**: -0.5118\n*   **MACD (柱状图)**: -0.1416\n\n**分析简述**：\n目前DIF位于DEA下方，且MACD柱状图为负值，显示短期动能偏弱。",
+        "iterations": 3,
+        "totalMs": 47552,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "MACD",
+            "found": true
+          },
+          {
+            "keyword": "DIF",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2479,
+            "toolName": "getStockHistory",
+            "toolMs": 16,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1733,
+            "toolName": "calculateMACD",
+            "toolMs": 1,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 5642,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 5642,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "query": "计算招商银行的RSI指标",
+    "targetTool": "calculateRSI",
+    "description": "测试calculateRSI工具 - 计算RSI指标",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 6158,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "RSI",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateRSI未被调用; 答案缺少关键词: RSI; Agent执行出错"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 15323,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "RSI",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateRSI未被调用; 答案缺少关键词: RSI; Agent执行出错"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 16807,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "RSI",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateRSI未被调用; 答案缺少关键词: RSI; Agent执行出错"
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "query": "计算招商银行的布林带指标",
+    "targetTool": "calculateBollinger",
+    "description": "测试calculateBollinger工具 - 计算布林带",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 6102,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "布林",
+            "found": false
+          },
+          {
+            "keyword": "上轨",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateBollinger未被调用; 答案缺少关键词: 布林, 上轨; Agent执行出错"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 16832,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "布林",
+            "found": false
+          },
+          {
+            "keyword": "上轨",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateBollinger未被调用; 答案缺少关键词: 布林, 上轨; Agent执行出错"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 13330,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "布林",
+            "found": false
+          },
+          {
+            "keyword": "上轨",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateBollinger未被调用; 答案缺少关键词: 布林, 上轨; Agent执行出错"
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "query": "计算招商银行的KDJ指标",
+    "targetTool": "calculateKDJ",
+    "description": "测试calculateKDJ工具 - 计算KDJ指标",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-28，招商银行（sh.600036）的KDJ指标（周期9）计算结果如下：\n\n*   **K值**: 5.71\n*   **D值**: 5.46\n*   **J值**: 6.19\n\n**分析提示**：目前K、D、J三项指标数值均处于极低位置（低于20），通常被视为**超卖信号**，表明股价近期可能经历了较大幅度的下跌或调整。",
+        "iterations": 3,
+        "totalMs": 22912,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "KDJ",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 4718,
+            "toolName": "getStockHistory",
+            "toolMs": 13,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1721,
+            "toolName": "calculateKDJ",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 2774,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 2775,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "query": "计算招商银行的VWAP成交量加权平均价",
+    "targetTool": "calculateVWAP",
+    "description": "测试calculateVWAP工具 - 计算VWAP",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-28，基于过去一年的历史交易数据，招商银行（600036）的VWAP（成交量加权平均价）为 **41.34元**。",
+        "iterations": 3,
+        "totalMs": 17806,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "VWAP",
+            "found": true
+          },
+          {
+            "keyword": "招商银行",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2049,
+            "toolName": "getStockHistory",
+            "toolMs": 13,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 3776,
+            "toolName": "calculateVWAP",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 3179,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3179,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "query": "计算招商银行的夏普比率",
+    "targetTool": "calculateSharpeRatio",
+    "description": "测试calculateSharpeRatio工具 - 计算夏普比率",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "截至2026-05-28，招商银行（600036）的夏普比率为 **-1.1382**（基于3%的无风险利率计算）。\n\n该负值表明在过去一年的统计区间内，招商银行的风险调整后收益为负，即其超额收益未能覆盖承担的风险。",
+        "iterations": 3,
+        "totalMs": 17577,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "夏普",
+            "found": true
+          },
+          {
+            "keyword": "Sharpe",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2724,
+            "toolName": "getStockHistory",
+            "toolMs": 13,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1934,
+            "toolName": "calculateSharpeRatio",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 3018,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3018,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: Sharpe"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "截至2026-05-28，基于过去一年的历史数据计算，招商银行（600036）的夏普比率为 **-1.1382**（假设无风险利率为3%）。\n\n这表明在考察期内，招商银行的风险调整后收益表现较弱，其收益率未能有效覆盖所承担的风险成本。",
+        "iterations": 3,
+        "totalMs": 14328,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "夏普",
+            "found": true
+          },
+          {
+            "keyword": "Sharpe",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2231,
+            "toolName": "getStockHistory",
+            "toolMs": 12,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 2032,
+            "toolName": "calculateSharpeRatio",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 3787,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3787,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: Sharpe"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "截至2026-05-28，招商银行（600036）的夏普比率为 **-1.1382**。\n\n这表明在统计周期内，招商银行的投资组合收益未能有效覆盖其承担的风险，风险调整后的表现较差（低于无风险利率）。",
+        "iterations": 3,
+        "totalMs": 19568,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "夏普",
+            "found": true
+          },
+          {
+            "keyword": "Sharpe",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2518,
+            "toolName": "getStockHistory",
+            "toolMs": 13,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1807,
+            "toolName": "calculateSharpeRatio",
+            "toolMs": 1,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 3022,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3022,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: Sharpe"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "query": "计算招商银行的最大回撤",
+    "targetTool": "calculateMaxDrawdown",
+    "description": "测试calculateMaxDrawdown工具 - 计算最大回撤",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-28，基于招商银行（sh.600036）最近一年（2025-05-28至2026-05-28）的日K线数据计算，其最大回撤为 **23.42%**。",
+        "iterations": 3,
+        "totalMs": 21143,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "回撤",
+            "found": true
+          },
+          {
+            "keyword": "最大",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2459,
+            "toolName": "getStockHistory",
+            "toolMs": 14,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1315,
+            "toolName": "calculateMaxDrawdown",
+            "toolMs": 1,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 4933,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 4933,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "query": "计算招商银行的波动率",
+    "targetTool": "calculateVolatility",
+    "description": "测试calculateVolatility工具 - 计算波动率",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "截至2026-05-28，招商银行（600036）的年化波动率为 **16.71%**。\n\n该数据是基于过去一年的历史股价（2025-05-28至2026-05-28）计算得出的日收益率标准差并进行年化处理的结果。",
+        "iterations": 3,
+        "totalMs": 16250,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "波动率",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 1752,
+            "toolName": "getStockHistory",
+            "toolMs": 13,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1785,
+            "toolName": "calculateVolatility",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 3547,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3547,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "query": "计算招商银行和五粮液的相关系数",
+    "targetTool": "calculateCorrelation",
+    "description": "测试calculateCorrelation工具 - 计算相关系数",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "Agent 执行出错: This operation was aborted",
+        "iterations": 2,
+        "totalMs": 111738,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "相关系数",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 7897,
+            "toolName": "getStockHistory",
+            "toolMs": 15,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateCorrelation未被调用; 答案缺少关键词: 相关系数; Agent执行出错"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "",
+        "iterations": 3,
+        "totalMs": 107674,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "相关系数",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 4073,
+            "toolName": "getStockHistory",
+            "toolMs": 15,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 2635,
+            "toolName": "getStockHistory",
+            "toolMs": 11,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 86906,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 86906,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateCorrelation未被调用; 答案缺少关键词: 相关系数"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "Agent 执行出错: This operation was aborted",
+        "iterations": 3,
+        "totalMs": 137244,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "相关系数",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 34157,
+            "toolName": "getStockHistory",
+            "toolMs": 14,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 2363,
+            "toolName": "getStockHistory",
+            "toolMs": 8,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateCorrelation未被调用; 答案缺少关键词: 相关系数; Agent执行出错"
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "query": "检查以22元买入招商银行(sh.600036)100股，昨收20元，是否合规",
+    "targetTool": "checkTradeCompliance",
+    "description": "测试checkTradeCompliance工具 - 交易合规检查",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "根据合规检查工具的结果，该笔交易**完全合规**。\n\n具体分析如下：\n1. **价格限制**：招商银行（sh.600036）作为主板股票，涨跌幅限制通常为10%。昨收价为20元，涨停价为22元（20 × 1.1 = 22）。您设定的买入价格为22元，正好处于涨停价位，这是允许的（虽然可能因卖盘不足而难以成交，但挂单行为本身不违规）。\n2. **交易单位**：买入数量为100股，符合A股“一手”（100股）及其整数倍的最低交易单位要求。\n3. **其他规则**：非ST股、非科创板/创业板特殊限制，且无其他违规项。\n\n结论：**可以正常提交买单。**",
+        "iterations": 2,
+        "totalMs": 16945,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "合规",
+            "found": true
+          },
+          {
+            "keyword": "涨跌停",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 4320,
+            "toolName": "checkTradeCompliance",
+            "toolMs": 1,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 4949,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 4949,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: 涨跌停"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "根据检查结果，该笔交易**合规**。\n\n具体分析如下：\n1.  **价格合规**：昨收价为20元，您设定的买入价为22元，涨幅为10%。招商银行属于沪市主板股票，其日涨跌幅限制为10%，因此22元处于允许的涨停价格范围内。\n2.  **数量合规**：买入数量为100股，符合A股主板股票“1手”（100股）起买且为100股整数倍的规则。\n3.  **标的合规**：招商银行（sh.600036）为正常上市的主板股票，非ST股，无交易限制。\n\n您可以放心提交该买单。",
+        "iterations": 2,
+        "totalMs": 18070,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "合规",
+            "found": true
+          },
+          {
+            "keyword": "涨跌停",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 5342,
+            "toolName": "checkTradeCompliance",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 5009,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 5009,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: 涨跌停"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "根据交易合规检查结果，该笔交易**合规**。\n\n具体检查情况如下：\n*   **交易方向**：买入\n*   **股票代码**：600036 (招商银行)\n*   **买入价格**：22.00元\n*   **昨收价格**：20.00元\n*   **买入数量**：100股\n\n**分析说明**：\n1.  **价格合规**：招商银行属于主板股票，涨跌幅限制为10%。昨收20元，涨停价为22元。您设定的买入价22元等于涨停价，符合交易所规定的价格范围（在涨停价以内均可申报）。\n2.  **数量合规**：A股买入最小单位为100股（1手），您的买入数量为100股，符合规定。\n\n**注意**：虽然交易规则允许在涨停价挂单买入，但由于涨停板时卖盘极少，实际成交难度较大。",
+        "iterations": 2,
+        "totalMs": 18096,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "合规",
+            "found": true
+          },
+          {
+            "keyword": "涨跌停",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 6107,
+            "toolName": "checkTradeCompliance",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 3207,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3207,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "答案缺少关键词: 涨跌停"
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "query": "检查账户A持有招商银行30万元，总资产100万元，持仓比例是否合规",
+    "targetTool": "checkPositionLimit",
+    "description": "测试checkPositionLimit工具 - 持仓限制检查",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "根据检查结果，账户A持有招商银行的持仓比例为 **30%**（30万元/100万元）。\n\n**结论：**\n*   **合规性**：**通过**。该比例未超过规定的单只股票持仓上限（30%）。\n*   **风险提示**：系统发出**预警**，提示持仓比例已达到限制阈值（30%）。建议关注后续资金变动或股价波动，避免因市值上涨导致持仓比例超标。",
+        "iterations": 2,
+        "totalMs": 16150,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "持仓",
+            "found": true
+          },
+          {
+            "keyword": "合规",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 4864,
+            "toolName": "checkPositionLimit",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 2897,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 2898,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "query": "检查股票sh.600036是否为受限股票",
+    "targetTool": "checkRestrictedStock",
+    "description": "测试checkRestrictedStock工具 - 受限股票检查",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "根据检查结果，股票代码 **600036**（招商银行）**不是**受限股票。\n\n该股票目前不在新股上市初期、退市整理期或其他交易限制范围内，可以进行正常交易。",
+        "iterations": 2,
+        "totalMs": 16670,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "受限",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 4765,
+            "toolName": "checkRestrictedStock",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 3464,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 3464,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "query": "计算招商银行在95%置信水平下1天的VaR",
+    "targetTool": "calculateVaR",
+    "description": "测试calculateVaR工具 - 计算VaR",
+    "totalAttempts": 1,
+    "finalPassed": true,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": true,
+        "answer": "根据招商银行（sh.600036）过去一年的历史交易数据，计算其在 **95%置信水平** 下 **1天持有期** 的风险价值（VaR）如下：\n\n*   **历史模拟法 VaR**: **1.39%**\n*   **参数法 VaR**: **1.80%**\n\n**解读：**\n这意味着在正常的市场波动情况下，招商银行股票在未来一天内出现亏损的概率不超过5%。具体来说：\n*   按历史模拟法估算，未来一天最大潜在损失约为 **1.39%**。\n*   按参数法（假设正态分布）估算，未来一天最大潜在损失约为 **1.80%**。\n\n如果您有具体的持仓金额，可以将上述百分比乘以持仓市值来计算具体的风险金额。例如，若持有100万元，则面临的最大潜在日损失约为1.39万至1.80万元。",
+        "iterations": 3,
+        "totalMs": 21046,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": true,
+        "keywordMatches": [
+          {
+            "keyword": "VaR",
+            "found": true
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": 2484,
+            "toolName": "getStockHistory",
+            "toolMs": 17,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 2,
+            "llmMs": 1755,
+            "toolName": "calculateVaR",
+            "toolMs": 0,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          },
+          {
+            "round": 3,
+            "llmMs": 5864,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": 5864,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": null
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "query": "对持有招商银行100股当前价40元的组合进行压力测试，假设市场下跌10%和20%",
+    "targetTool": "calculateStressTest",
+    "description": "测试calculateStressTest工具 - 压力测试",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 46491,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "压力测试",
+            "found": false
+          },
+          {
+            "keyword": "情景",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateStressTest未被调用; 答案缺少关键词: 压力测试, 情景; Agent执行出错"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 16423,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "压力测试",
+            "found": false
+          },
+          {
+            "keyword": "情景",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateStressTest未被调用; 答案缺少关键词: 压力测试, 情景; Agent执行出错"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 27387,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "压力测试",
+            "found": false
+          },
+          {
+            "keyword": "情景",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具calculateStressTest未被调用; 答案缺少关键词: 压力测试, 情景; Agent执行出错"
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "query": "检查账户test-account的风险限额",
+    "targetTool": "checkRiskLimits",
+    "description": "测试checkRiskLimits工具 - 风险限额检查",
+    "totalAttempts": 3,
+    "finalPassed": false,
+    "attempts": [
+      {
+        "attemptNumber": 1,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 14314,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "风险",
+            "found": false
+          },
+          {
+            "keyword": "限额",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具checkRiskLimits未被调用; 答案缺少关键词: 风险, 限额; Agent执行出错"
+      },
+      {
+        "attemptNumber": 2,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 6151,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "风险",
+            "found": false
+          },
+          {
+            "keyword": "限额",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具checkRiskLimits未被调用; 答案缺少关键词: 风险, 限额; Agent执行出错"
+      },
+      {
+        "attemptNumber": 3,
+        "passed": false,
+        "answer": "Agent 执行出错: fetch failed",
+        "iterations": 1,
+        "totalMs": 16442,
+        "totalPromptTokens": 0,
+        "totalCompletionTokens": 0,
+        "toolCalled": false,
+        "keywordMatches": [
+          {
+            "keyword": "风险",
+            "found": false
+          },
+          {
+            "keyword": "限额",
+            "found": false
+          }
+        ],
+        "roundDetails": [
+          {
+            "round": 1,
+            "llmMs": null,
+            "toolName": null,
+            "toolMs": null,
+            "roundMs": null,
+            "promptTokens": 0,
+            "completionTokens": 0
+          }
+        ],
+        "error": null,
+        "fixLog": "目标工具checkRiskLimits未被调用; 答案缺少关键词: 风险, 限额; Agent执行出错"
+      }
+    ]
+  }
+]

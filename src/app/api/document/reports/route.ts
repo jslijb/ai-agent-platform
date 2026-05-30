@@ -27,9 +27,10 @@ function scanDirectory(dir: string, category: string): ReportFile[] {
       files.push(...scanDirectory(fullPath, entry.name));
     } else if (entry.name.endsWith(".pdf")) {
       const stat = fs.statSync(fullPath);
+      const relativePath = path.relative(REPORTS_DIR, fullPath).replace(/\\/g, "/");
       files.push({
         name: entry.name,
-        path: fullPath.replace(/\\/g, "/"),
+        path: relativePath,
         size: stat.size,
         modifiedAt: stat.mtime.toISOString(),
         category: category || "其他",
@@ -40,24 +41,51 @@ function scanDirectory(dir: string, category: string): ReportFile[] {
   return files;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ success: false, message: "未登录" }, { status: 401 });
     }
 
-    const files = scanDirectory(REPORTS_DIR, "");
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
+    const search = searchParams.get("search") || "";
+    const category = searchParams.get("category") || "all";
+
+    const allFiles = scanDirectory(REPORTS_DIR, "");
+
     const categories: Record<string, number> = {};
-    for (const f of files) {
+    for (const f of allFiles) {
       categories[f.category] = (categories[f.category] || 0) + 1;
     }
 
+    let filtered = allFiles;
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter((f) => f.name.toLowerCase().includes(q));
+    }
+    if (category !== "all") {
+      filtered = filtered.filter((f) => f.category === category);
+    }
+
+    filtered.sort((a, b) => a.name.localeCompare(b.name));
+
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const start = (page - 1) * pageSize;
+    const paged = filtered.slice(start, start + pageSize);
+
     return NextResponse.json({
       success: true,
-      totalFiles: files.length,
+      totalFiles: allFiles.length,
+      filteredTotal: total,
+      page,
+      pageSize,
+      totalPages,
       categories,
-      files: files.slice(0, 500),
+      files: paged,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

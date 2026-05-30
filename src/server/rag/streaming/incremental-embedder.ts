@@ -64,7 +64,9 @@ async function embedDocument(docId: string): Promise<void> {
   await deleteEmbeddingsForDocument(docId);
   console.log(`[incremental-embedder] 已清除旧 embedding，开始重新切片和嵌入`);
 
-  let content: string;
+  let content: string | null = null;
+  let pdfBuffer: Buffer | null = null;
+
   try {
     const fs = await import("fs/promises");
     const path = await import("path");
@@ -72,55 +74,60 @@ async function embedDocument(docId: string): Promise<void> {
     const filePath = path.join(uploadDir, document.fileKey);
 
     const fileBuffer = await fs.readFile(filePath);
-    content = fileBuffer.toString("utf-8");
-    console.log(`[incremental-embedder] 从本地文件系统获取文档内容成功, 长度: ${content.length}, 路径: ${filePath}`);
+
+    if (document.fileName.toLowerCase().endsWith(".pdf")) {
+      pdfBuffer = fileBuffer;
+      console.log(`[incremental-embedder] PDF文件使用Buffer直接传入, 大小: ${fileBuffer.length}, 路径: ${filePath}`);
+    } else {
+      content = fileBuffer.toString("utf-8");
+      console.log(`[incremental-embedder] 从本地文件系统获取文档内容成功, 长度: ${content.length}, 路径: ${filePath}`);
+    }
   } catch (fsError) {
     console.warn(`[incremental-embedder] 从本地文件系统获取文档内容失败:`, fsError);
+  }
 
+  if (!pdfBuffer && !content) {
     try {
-      const { Client } = await import("pg");
-      const dbUrl = process.env.DATABASE_URL;
-      if (!dbUrl) {
-        throw new Error("DATABASE_URL 未设置");
-      }
-
-      const parsed = new URL(dbUrl);
-      const pgClient = new Client({
-        host: parsed.hostname,
-        port: parseInt(parsed.port, 10) || 5432,
-        database: parsed.pathname.slice(1),
-        user: parsed.username,
-        password: parsed.password,
-      });
-
-      await pgClient.connect();
-      const res = await pgClient.query(
-        `SELECT "chunkText" FROM "Embedding" WHERE "documentId" = $1 ORDER BY "chunkIndex"`,
-        [docId]
-      );
-      await pgClient.end();
-
-      if (res.rows.length > 0) {
-        content = res.rows.map((row: { chunkText: string }) => row.chunkText).join("\n\n");
-        console.log(`[incremental-embedder] 从数据库获取已有切片内容成功, 切片数: ${res.rows.length}`);
-      } else {
-        console.warn(`[incremental-embedder] 数据库中无已有切片, 使用文件名作为内容`);
-        content = document.fileName;
+      const { db } = await import("@/server/db");
+      const { documents } = await import("@/server/db/schema");
+      const { eq } = await import("drizzle-orm");
+      const docRecord = await db.select({ rawContent: documents.rawContent }).from(documents).where(eq(documents.id, docId)).limit(1);
+      if (docRecord.length > 0 && docRecord[0].rawContent) {
+        content = docRecord[0].rawContent;
+        console.log(`[incremental-embedder] 从数据库rawContent获取内容成功, 长度: ${content.length}`);
       }
     } catch (dbError) {
-      console.warn(`[incremental-embedder] 从数据库获取内容也失败:`, dbError);
-      content = document.fileName;
+      console.warn(`[incremental-embedder] 从数据库获取rawContent失败:`, dbError);
     }
   }
 
-  let chunks;
+  if (!pdfBuffer && !content) {
+    console.error(`[incremental-embedder] 无法获取文档内容, docId: ${docId}, fileName: ${document.fileName}`);
+    try {
+      const { db } = await import("@/server/db");
+      const { documents } = await import("@/server/db/schema");
+      const { eq } = await import("drizzle-orm");
+      await db.update(documents).set({ status: "failed" }).where(eq(documents.id, docId));
+    } catch (updateError) {
+      console.error(`[incremental-embedder] 更新文档状态为failed也失败:`, updateError);
+    }
+    return;
+  }
+
+  let chunkResult;
   try {
-    chunks = await chunkDocument(content, document.fileName);
-    console.log(`[incremental-embedder] 文档切片完成, 共 ${chunks.length} 个 chunk`);
+    if (pdfBuffer) {
+      chunkResult = await chunkDocument(pdfBuffer, document.fileName);
+    } else if (content) {
+      chunkResult = await chunkDocument(content, document.fileName);
+    }
+    console.log(`[incremental-embedder] 文档切片完成, 共 ${chunkResult.chunks.length} 个 chunk`);
   } catch (error) {
     console.error(`[incremental-embedder] 文档切片失败, docId: ${docId}:`, error);
     throw error;
   }
+
+  const chunks = chunkResult.chunks;
 
   if (chunks.length === 0) {
     console.warn(`[incremental-embedder] 文档切片结果为空, docId: ${docId}`);

@@ -14,36 +14,64 @@ export default async function DashboardPage() {
 
   const adminCards = [
     {
-      title: "仪表板",
-      desc: "查看您的数据分析",
-      icon: "📊",
-      color: "blue",
-      href: "/dashboard/evaluation",
-    },
-    {
-      title: "Agent",
-      desc: "管理您的 AI Agent",
+      title: "智能对话",
+      desc: "RAG 问答、量化分析、合规检查",
       icon: "🤖",
-      color: "green",
+      color: "blue",
       href: "/chat",
     },
     {
-      title: "文档",
-      desc: "管理您的文档",
+      title: "文档管理",
+      desc: "上传、解析、切片、预览",
       icon: "📁",
-      color: "purple",
+      color: "green",
       href: "/dashboard/documents",
     },
     {
-      title: "Agent 日志",
-      desc: "查看对话日志和执行详情",
-      icon: "📋",
+      title: "RAG 评估",
+      desc: "检索质量与答案评估",
+      icon: "📊",
       color: "amber",
+      href: "/dashboard/evaluation",
+    },
+    {
+      title: "Agent 评估",
+      desc: "Agent 性能指标监控",
+      icon: "🤖",
+      color: "indigo",
+      href: "/dashboard/agent-evaluation",
+    },
+    {
+      title: "Agent 日志",
+      desc: "对话日志与执行详情",
+      icon: "📋",
+      color: "purple",
       href: "/dashboard/logs",
+    },
+    {
+      title: "Token 用量",
+      desc: "模型消耗统计",
+      icon: "💰",
+      color: "teal",
+      href: "/dashboard/token-usage",
     },
   ];
 
   const userCards = [
+    {
+      title: "智能对话",
+      desc: "RAG 问答、量化分析",
+      icon: "🤖",
+      color: "blue",
+      href: "/chat",
+    },
+    {
+      title: "文档管理",
+      desc: "上传、解析、预览",
+      icon: "📁",
+      color: "green",
+      href: "/dashboard/documents",
+    },
     {
       title: "Token 用量",
       desc: "查看各模型 Token 消耗",
@@ -60,6 +88,7 @@ export default async function DashboardPage() {
     green: "hover:border-green-400 hover:shadow-green-100",
     purple: "hover:border-purple-400 hover:shadow-purple-100",
     amber: "hover:border-amber-400 hover:shadow-amber-100",
+    indigo: "hover:border-indigo-400 hover:shadow-indigo-100",
     teal: "hover:border-teal-400 hover:shadow-teal-100",
   };
 
@@ -74,7 +103,26 @@ export default async function DashboardPage() {
               </Link>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-gray-600">欢迎, {session.user.name}</span>
+              <Link href="/chat" className="text-gray-600 hover:text-gray-900 text-sm">
+                智能对话
+              </Link>
+              <Link href="/dashboard/documents" className="text-gray-600 hover:text-gray-900 text-sm">
+                文档管理
+              </Link>
+              <Link href="/dashboard/evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                RAG 评估
+              </Link>
+              <Link href="/dashboard/agent-evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 评估
+              </Link>
+              <Link href="/dashboard/logs" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 日志
+              </Link>
+              <Link href="/dashboard/token-usage" className="text-gray-600 hover:text-gray-900 text-sm">
+                Token 用量
+              </Link>
+              <span className="text-gray-400">|</span>
+              <span className="text-gray-600 text-sm">欢迎, {session.user.name}</span>
               <SignOutButton />
             </div>
           </div>
@@ -82,7 +130,7 @@ export default async function DashboardPage() {
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
           {cards.map((card) => (
             <Link
               key={card.title}

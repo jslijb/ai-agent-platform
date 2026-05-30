@@ -105,7 +105,7 @@ export default function TokenUsagePage() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <Link
-                href="/dashboard"
+                href="/"
                 className="text-gray-500 hover:text-gray-700 mr-2"
               >
                 &larr;
@@ -115,14 +115,20 @@ export default function TokenUsagePage() {
               </span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link
-                href="/dashboard/logs"
-                className="text-blue-600 hover:text-blue-800 text-sm"
-              >
-                Agent 日志
-              </Link>
               <Link href="/chat" className="text-gray-600 hover:text-gray-900 text-sm">
-                对话
+                智能对话
+              </Link>
+              <Link href="/dashboard/documents" className="text-gray-600 hover:text-gray-900 text-sm">
+                文档管理
+              </Link>
+              <Link href="/dashboard/evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                RAG 评估
+              </Link>
+              <Link href="/dashboard/agent-evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 评估
+              </Link>
+              <Link href="/dashboard/logs" className="text-gray-600 hover:text-gray-900 text-sm">
+                Agent 日志
               </Link>
             </div>
           </div>

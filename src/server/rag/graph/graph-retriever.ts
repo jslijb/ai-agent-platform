@@ -1,4 +1,4 @@
-import { callBailian } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 import { getNeo4jDriver } from "./graph-builder";
 
 export interface GraphSearchResult {
@@ -53,13 +53,13 @@ export async function extractQueryEntities(query: string): Promise<string[]> {
   try {
     const prompt = ENTITY_EXTRACT_PROMPT.replace("{query}", query);
 
-    const response = await callBailian([
+    const response = await callWithFallback([
       { role: "user", content: prompt },
     ]);
 
     const entities = parseEntitiesFromResponse(response.content);
     console.log(
-      `[graph-retriever] 提取到实体: ${entities.join(", ") || "无"}`
+      `[graph-retriever] 提取到实体: ${entities.join(", ") || "无"} (模型: ${response.model})`
     );
 
     return entities;

@@ -61,6 +61,8 @@ export const documents = pgTable(
     version: integer("version").notNull().default(1),
     validUntil: timestamp("validUntil", { precision: 3 }),
     documentType: text("documentType").notNull().default("general"),
+    rawContent: text("rawContent"),
+    metadata: jsonb("metadata").default({}),
   },
 );
 
@@ -235,5 +237,65 @@ export const llmUsageLogs = pgTable(
   (table) => ({
     modelIdx: index("LLMUsageLog_model_idx").on(table.model),
     createdAtIdx: index("LLMUsageLog_createdAt_idx").on(table.createdAt),
+  }),
+);
+
+export const wrongAnswers = pgTable(
+  "WrongAnswer",
+  {
+    id: text("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()::text`),
+    userId: text("userId")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" }),
+    conversationId: text("conversationId"),
+    agentLogId: text("agentLogId"),
+    query: text("query").notNull(),
+    wrongAnswer: text("wrongAnswer").notNull(),
+    correctAnswer: text("correctAnswer"),
+    errorType: text("errorType").notNull().default("other"),
+    toolsUsed: text("toolsUsed"),
+    model: text("model"),
+    iterations: integer("iterations").default(0),
+    note: text("note"),
+    resolved: integer("resolved").notNull().default(0),
+    createdAt: timestamp("createdAt", { precision: 3 })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updatedAt", { precision: 3 })
+      .notNull()
+      .defaultNow()
+      .$onUpdateFn(() => new Date()),
+  },
+  (table) => ({
+    userIdIdx: index("WrongAnswer_userId_idx").on(table.userId),
+    errorTypeIdx: index("WrongAnswer_errorType_idx").on(table.errorType),
+    resolvedIdx: index("WrongAnswer_resolved_idx").on(table.resolved),
+    createdAtIdx: index("WrongAnswer_createdAt_idx").on(table.createdAt),
+  }),
+);
+
+export const wrongAnswersRelations = relations(wrongAnswers, ({ one }) => ({
+  user: one(users, {
+    fields: [wrongAnswers.userId],
+    references: [users.id],
+  }),
+}));
+
+export const marketCacheEntries = pgTable(
+  "market_cache_entries",
+  {
+    cacheKey: text("cache_key").primaryKey(),
+    dataType: text("data_type").notNull(),
+    data: text("data").notNull(),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { precision: 3 }),
+    source: text("source"),
+    recordCount: integer("record_count").default(0),
+  },
+  (table) => ({
+    dataTypeIdx: index("market_cache_data_type_idx").on(table.dataType),
+    expiresAtIdx: index("market_cache_expires_at_idx").on(table.expiresAt),
   }),
 );

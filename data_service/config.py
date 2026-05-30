@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 import yaml
 from pathlib import Path
@@ -47,19 +48,22 @@ def _load_env_local():
 _load_env_local()
 
 
+_ENV_VAR_PATTERN = re.compile(r'^[A-Z][A-Z0-9_]*$')
+
 def _resolve_env_values(data: Any) -> Any:
-    """递归解析配置中的环境变量引用，将 value 作为环境变量名从 os.environ 获取实际值"""
     if isinstance(data, dict):
         resolved = {}
         for key, value in data.items():
             resolved[key] = _resolve_env_values(value)
         return resolved
     elif isinstance(data, str):
-        env_value = os.environ.get(data)
-        if env_value is not None:
-            return env_value
-        logger.debug(f"环境变量 '{data}' 未设置")
-        return None
+        if _ENV_VAR_PATTERN.match(data):
+            env_value = os.environ.get(data)
+            if env_value is not None:
+                return env_value
+            logger.debug(f"环境变量 '{data}' 未设置")
+            return None
+        return data
     elif isinstance(data, list):
         return [_resolve_env_values(item) for item in data]
     else:
@@ -126,9 +130,46 @@ def get_value(section: str, key: str, default: Any = None) -> Any:
     return value
 
 
+_RAW_CONFIG_CACHE: Optional[dict] = None
+
+def get_raw_config() -> dict:
+    global _RAW_CONFIG_CACHE
+    if _RAW_CONFIG_CACHE is not None:
+        return _RAW_CONFIG_CACHE
+
+    if not CONFIG_PATH.exists():
+        logger.error(f"配置文件不存在: {CONFIG_PATH}")
+        raise FileNotFoundError(f"配置文件不存在: {CONFIG_PATH}")
+
+    try:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            raw_config = yaml.safe_load(f)
+        logger.info("原始配置加载完成（不解析环境变量）")
+    except yaml.YAMLError as e:
+        logger.error(f"YAML 解析失败: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"读取配置文件失败: {e}")
+        raise
+
+    _RAW_CONFIG_CACHE = raw_config
+    return raw_config
+
+
+def get_raw_value(section: str, key: str, default: Any = None) -> Any:
+    config = get_raw_config()
+    section_data = config.get(section, {})
+    if section_data is None:
+        section_data = {}
+    if not isinstance(section_data, dict):
+        logger.warning(f"配置模块 '{section}' 不是字典类型")
+        return default
+    return section_data.get(key, default)
+
+
 def reload_config() -> dict:
-    """强制重新加载配置文件（清除缓存）"""
-    global _CONFIG_CACHE
+    global _CONFIG_CACHE, _RAW_CONFIG_CACHE
     _CONFIG_CACHE = None
+    _RAW_CONFIG_CACHE = None
     logger.info("配置缓存已清除，将重新加载")
     return get_config()
