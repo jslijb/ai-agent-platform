@@ -22,7 +22,7 @@ import {
 import { calculateVaR, calculateStressTest, checkRiskLimits, generateRiskReport } from "@/server/mcp/tools/risk_control";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
-import { createConversation, addMessage, getRecentMessages, updateConversationTitle } from "@/server/agents/memory";
+import { createConversation, addMessage, getRecentMessages, updateConversationTitle, assembleContext, extractAndApplyPreferences, trackStockQuery } from "@/server/agents/memory";
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || "http://localhost:8001";
 
@@ -646,6 +646,8 @@ const tools: ToolDefinition[] = [
         setStockCache(currentUserId, lastStockData);
         console.log("[getStockHistory] Data cached: code=" + params.code + ", " + rows.length + " rows, date range=" + startDate + "~" + endDate + ", latestTradeDate=" + latestTradeDate);
 
+        trackStockQuery(currentUserId, params.code as string, "").catch(() => {});
+
         const latestRow = rows[rows.length - 1];
         const summary = rows.slice(-10).map((r: Record<string, unknown>) =>
           (r.date || r.tradeDate) + ": O=" + r.open + " H=" + r.high + " L=" + r.low + " C=" + r.close + " V=" + r.volume
@@ -960,7 +962,11 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   if (!needGenerateTitle && historyMessages.length <= 1) {
     needGenerateTitle = true;
   }
-  await addMessage(convId, "user", query);
+  await addMessage(convId, "user", query, userId);
+
+  extractAndApplyPreferences(userId, query).catch((err) => {
+    console.error(`[simpleAgent] 偏好提取失败: ${err instanceof Error ? err.message : String(err)}`);
+  });
 
   pushStep({
     type: "thinking",
@@ -1065,8 +1071,26 @@ ${getToolDescriptions()}
 
 14. 【迭代效率】每个工具最多调用1次。如果某个工具返回了数据但你觉得不够完整，应该使用hybridSearch补充文档信息，而不是再次调用同一个工具。如果所有工具都已调用过，必须立即输出最终答案。`;
 
+  const modelMaxTokens = 32768;
+  let contextMemory: string[] = [];
+  try {
+    const assembled = await assembleContext(query, userId, convId, modelMaxTokens);
+    contextMemory = [
+      assembled.l4Profile,
+      assembled.l2Summary,
+      assembled.l3Fragments,
+    ].filter((s) => s.length > 0);
+    console.log(`[simpleAgent] 记忆上下文: L4=${assembled.l4Profile ? "有" : "无"}, L2=${assembled.l2Summary ? "有" : "无"}, L3=${assembled.l3Fragments ? "有" : "无"}`);
+  } catch (err) {
+    console.error(`[simpleAgent] 记忆上下文组装失败: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
+  const memorySection = contextMemory.length > 0
+    ? `\n\n【用户记忆上下文】\n${contextMemory.join("\n\n")}`
+    : "";
+
   const messages: BailianMessage[] = [
-    { role: "system", content: systemPrompt },
+    { role: "system", content: systemPrompt + memorySection },
     ...historyMessages.filter((m) => m.role !== "system").map((m) => ({
       role: m.role as "user" | "assistant",
       content: m.content,
