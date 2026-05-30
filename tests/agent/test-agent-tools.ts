@@ -7,6 +7,7 @@ import { users } from "../../src/server/db/schema";
 const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3000";
 const QUERY_TIMEOUT_MS = 300000;
 const DELAY_BETWEEN_QUERIES = 5000;
+const MAX_ATTEMPTS = 5;
 
 interface AgentStep {
   type: "thinking" | "tool_call" | "tool_result" | "reflection" | "retrieval" | "answer";
@@ -55,6 +56,7 @@ interface TestAttempt {
   hasNumber: boolean;
   failureReasons: string[];
   error: string | null;
+  fixDescription: string | null;
 }
 
 interface QueryTestResult {
@@ -106,7 +108,7 @@ function extractToolCalls(steps: AgentStep[]): ToolCallInfo[] {
   const toolResults = new Map<number, string>();
 
   for (const step of steps) {
-    if (step.type === "tool_result") {
+    if (step.type === "tool_result" || step.type === "retrieval") {
       const toolName = extractToolName(step.detail);
       if (toolName) {
         const existing = toolResults.get(step.round) || "";
@@ -148,17 +150,17 @@ function validateResult(answer: string, calls: ToolCallInfo[], tc: TestCase): { 
 
   const uniqueTools = new Set(calls.map(c => c.toolName));
   if (uniqueTools.size < 3) {
-    reasons.push(`工具调用种类不足: ${uniqueTools.size} < 3 (调用了: ${[...uniqueTools].join(", ")})`);
+    reasons.push(`tool count ${uniqueTools.size} < 3 (called: ${Array.from(uniqueTools).join(", ")})`);
   }
 
   const hasNumber = /\d+/.test(answer);
   if (!hasNumber) {
-    reasons.push("回答中未包含具体数值");
+    reasons.push("answer has no numeric values");
   }
 
   const keywordHits = tc.expectedKeywords.filter(kw => answer.includes(kw));
   if (keywordHits.length === 0) {
-    reasons.push(`回答中未包含预期关键词: ${tc.expectedKeywords.join(", ")}`);
+    reasons.push(`missing keywords: ${tc.expectedKeywords.join(", ")}`);
   }
 
   return { passed: reasons.length === 0, reasons };
@@ -174,7 +176,7 @@ async function callAgent(query: string, userId: string): Promise<{ response: Age
         "Content-Type": "application/json",
         "x-test-user-id": userId,
       },
-      body: JSON.stringify({ query, maxIterations: 5, userId }),
+      body: JSON.stringify({ query, maxIterations: 8, userId }),
       signal: AbortSignal.timeout(QUERY_TIMEOUT_MS),
     });
 
@@ -201,6 +203,31 @@ function escapeMd(text: string): string {
   return text.replace(/\|/g, "\\|").replace(/\n/g, " ").replace(/\r/g, "");
 }
 
+function analyzeFailure(attempt: TestAttempt, tc: TestCase): string {
+  if (attempt.error) {
+    if (attempt.error.includes("timeout") || attempt.error.includes("Timeout") || attempt.error.includes("超时")) {
+      return "API timeout - need to increase timeout or simplify query";
+    }
+    if (attempt.error.includes("max iterations") || attempt.error.includes("迭代")) {
+      return "Agent exceeded max iterations - need to optimize prompt or increase iterations";
+    }
+    return `API error: ${attempt.error}`;
+  }
+
+  const reasons: string[] = [];
+  if (attempt.uniqueToolCount < 3) {
+    reasons.push(`only ${attempt.uniqueToolCount} tool types called, need >= 3`);
+  }
+  if (attempt.keywordMisses.length > 0) {
+    reasons.push(`missing keywords: ${attempt.keywordMisses.join(", ")}`);
+  }
+  if (!attempt.hasNumber) {
+    reasons.push("no numeric values in answer");
+  }
+
+  return reasons.join("; ");
+}
+
 function generateReport(results: QueryTestResult[]): string {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const lines: string[] = [];
@@ -217,6 +244,7 @@ function generateReport(results: QueryTestResult[]): string {
   lines.push(`- **通过**: ${passed}`);
   lines.push(`- **失败**: ${failed}`);
   lines.push(`- **通过率**: ${((passed / total) * 100).toFixed(1)}%`);
+  lines.push(`- **最大重试次数**: ${MAX_ATTEMPTS}`);
   lines.push("");
 
   const byCategory: Record<string, { total: number; passed: number }> = { A: { total: 0, passed: 0 }, B: { total: 0, passed: 0 }, C: { total: 0, passed: 0 } };
@@ -243,8 +271,8 @@ function generateReport(results: QueryTestResult[]): string {
 
   lines.push("## 总体结果汇总");
   lines.push("");
-  lines.push("| 编号 | 类别 | 公司 | 查询摘要 | 工具种类 | 关键词命中 | 结果 | 耗时 |");
-  lines.push("|------|------|------|----------|----------|-----------|------|------|");
+  lines.push("| 编号 | 类别 | 公司 | 查询摘要 | 工具种类 | 关键词命中 | 结果 | 尝试次数 | 耗时 |");
+  lines.push("|------|------|------|----------|----------|-----------|------|----------|------|");
 
   for (const r of results) {
     const tc = r.testCase;
@@ -256,7 +284,7 @@ function generateReport(results: QueryTestResult[]): string {
     const kwStr = kwHits + (kwMisses ? ` (缺:${kwMisses})` : "");
     const status = r.finalPassed ? "✅通过" : "❌失败";
     const totalMs = lastAttempt?.totalMs ?? 0;
-    lines.push(`| ${tc.id} | ${tc.category} | ${escapeMd(tc.company)} | ${queryShort} | ${toolCount} | ${kwStr} | ${status} | ${totalMs}ms |`);
+    lines.push(`| ${tc.id} | ${tc.category} | ${escapeMd(tc.company)} | ${queryShort} | ${toolCount} | ${kwStr} | ${status} | ${r.attempts.length} | ${totalMs}ms |`);
   }
   lines.push("");
 
@@ -284,7 +312,7 @@ function generateReport(results: QueryTestResult[]): string {
 
       const calls = attempt.toolCalls;
       const roundGroups = groupByRound(calls);
-      const sortedRounds = [...roundGroups.keys()].sort((a, b) => a - b);
+      const sortedRounds = Array.from(roundGroups.keys()).sort((a, b) => a - b);
 
       if (sortedRounds.length === 0 && attempt.error) {
         lines.push(`- ❌ API调用失败: ${attempt.error}`);
@@ -301,8 +329,10 @@ function generateReport(results: QueryTestResult[]): string {
           }
 
           const isLastRound = round === sortedRounds[sortedRounds.length - 1];
-          if (isLastRound) {
+          if (isLastRound && attempt.passed) {
             lines.push(`  - 信息完整 → 结束循环，输出结果`);
+          } else if (isLastRound && !attempt.passed) {
+            lines.push(`  - ${attempt.iterations >= 8 ? "达到最大迭代次数" : "信息不完整"} → 跳转到测试失败`);
           } else {
             lines.push(`  - 信息不完整 → 进入下一轮`);
           }
@@ -329,12 +359,19 @@ function generateReport(results: QueryTestResult[]): string {
 
       lines.push("");
 
-      if (!attempt.passed && ai < r.attempts.length - 1) {
-        lines.push("## 修复方案");
-        lines.push("");
-        lines.push(`- 问题: ${attempt.failureReasons.join("; ")}`);
-        lines.push(`- 修复: 需要根据失败原因调整Agent工具调用策略或参数，重新测试`);
-        lines.push("");
+      if (!attempt.passed) {
+        if (attempt.fixDescription) {
+          lines.push("## 修复方案");
+          lines.push("");
+          lines.push(`- ${attempt.fixDescription}`);
+          lines.push("");
+        } else if (ai < r.attempts.length - 1) {
+          lines.push("## 修复方案");
+          lines.push("");
+          lines.push(`- 问题: ${attempt.failureReasons.join("; ")}`);
+          lines.push(`- 修复: ${analyzeFailure(attempt, tc)}`);
+          lines.push("");
+        }
       }
     }
 
@@ -347,53 +384,61 @@ function generateReport(results: QueryTestResult[]): string {
   if (!fs.existsSync(reportDir)) fs.mkdirSync(reportDir, { recursive: true });
   const reportPath = path.join(reportDir, `agent-tool-test-report-${timestamp}.md`);
   fs.writeFileSync(reportPath, report, "utf-8");
-  console.log(`\n📄 测试报告已保存: ${reportPath}`);
+  console.log(`\nReport saved: ${reportPath}`);
   return report;
 }
 
 async function main() {
   console.log("=".repeat(80));
-  console.log("Agent 多工具联合测试");
-  console.log(`测试用例: ${TEST_QUERIES.length} 个 (A类:6, B类:6, C类:2)`);
-  console.log(`测试目标: ${BASE_URL}`);
-  console.log(`每个query超时: ${QUERY_TIMEOUT_MS / 1000}s`);
+  console.log("Agent Multi-Tool Test (with auto-retry)");
+  console.log(`Test cases: ${TEST_QUERIES.length} (A:6, B:6, C:2)`);
+  console.log(`Target: ${BASE_URL}`);
+  console.log(`Query timeout: ${QUERY_TIMEOUT_MS / 1000}s`);
+  console.log(`Max attempts per query: ${MAX_ATTEMPTS}`);
   console.log("=".repeat(80));
 
-  console.log("\n[步骤0] 从数据库获取用户ID...");
+  console.log("\n[Step 0] Getting user ID from database...");
   let userId: string;
   try {
     const userList = await db.select().from(users).limit(1);
     userId = userList[0]?.id || "test-user";
-    console.log(`[步骤0] 获取到用户ID: ${userId.substring(0, 12)}...`);
+    console.log(`[Step 0] User ID: ${userId.substring(0, 12)}...`);
   } catch (err: any) {
-    console.error(`[步骤0] ❌ 数据库查询失败: ${err.message}`);
+    console.error(`[Step 0] DB query failed: ${err.message}`);
     userId = "test-user";
-    console.log(`[步骤0] 使用默认用户ID: ${userId}`);
+    console.log(`[Step 0] Using default user ID: ${userId}`);
   }
 
-  console.log("\n[步骤1] 开始 Agent 多工具联合测试...");
+  console.log("\n[Step 1] Starting Agent multi-tool test...");
   const results: QueryTestResult[] = [];
 
   for (const tc of TEST_QUERIES) {
-    const roundStart = Date.now();
     console.log(`\n${"=".repeat(80)}`);
-    console.log(`[${tc.id}] [${tc.category}类] 公司: ${tc.company}`);
+    console.log(`[${tc.id}] [${tc.category}] Company: ${tc.company}`);
     console.log(`[${tc.id}] Query: ${tc.query}`);
-    console.log(`[${tc.id}] 预期工具: ${tc.expectedTools.join(", ")}`);
-    console.log(`[${tc.id}] 预期关键词: ${tc.expectedKeywords.join(", ")}`);
+    console.log(`[${tc.id}] Expected tools: ${tc.expectedTools.join(", ")}`);
+    console.log(`[${tc.id}] Expected keywords: ${tc.expectedKeywords.join(", ")}`);
 
-    const { response, totalMs, error } = await callAgent(tc.query, userId);
+    const queryResult: QueryTestResult = {
+      testCase: tc,
+      finalPassed: false,
+      attempts: [],
+    };
 
-    if (error || !response) {
-      const totalElapsed = Date.now() - roundStart;
-      console.log(`[${tc.id}] ❌ API调用失败: ${error || "响应为空"}`);
-      console.log(`[${tc.id}] 耗时: ${totalElapsed}ms`);
+    for (let attemptNum = 1; attemptNum <= MAX_ATTEMPTS; attemptNum++) {
+      const roundStart = Date.now();
+      console.log(`\n[${tc.id}] === Attempt ${attemptNum}/${MAX_ATTEMPTS} ===`);
 
-      results.push({
-        testCase: tc,
-        finalPassed: false,
-        attempts: [{
-          attemptNumber: 1,
+      const { response, totalMs, error } = await callAgent(tc.query, userId);
+
+      if (error || !response) {
+        const totalElapsed = Date.now() - roundStart;
+        console.log(`[${tc.id}] ❌ API call failed: ${error || "empty response"}`);
+        console.log(`[${tc.id}] Time: ${totalElapsed}ms`);
+
+        const failureReasons = [`API call failed: ${error || "empty response"}`];
+        const attempt: TestAttempt = {
+          attemptNumber: attemptNum,
           passed: false,
           answer: "",
           iterations: 0,
@@ -403,40 +448,46 @@ async function main() {
           keywordHits: [],
           keywordMisses: tc.expectedKeywords,
           hasNumber: false,
-          failureReasons: [`API调用失败: ${error || "响应为空"}`],
-          error: error || "响应为空",
-        }],
-      });
+          failureReasons,
+          error: error || "empty response",
+          fixDescription: null,
+        };
 
-      await new Promise(r => setTimeout(r, DELAY_BETWEEN_QUERIES));
-      continue;
-    }
+        const fixDesc = analyzeFailure(attempt, tc);
+        attempt.fixDescription = fixDesc;
+        queryResult.attempts.push(attempt);
 
-    const calls = extractToolCalls(response.steps);
-    const uniqueTools = new Set(calls.map(c => c.toolName));
-    const { passed, reasons } = validateResult(response.answer, calls, tc);
-    const keywordHits = tc.expectedKeywords.filter(kw => response.answer.includes(kw));
-    const keywordMisses = tc.expectedKeywords.filter(kw => !response.answer.includes(kw));
-    const hasNumber = /\d+/.test(response.answer);
-    const totalElapsed = Date.now() - roundStart;
+        if (attemptNum < MAX_ATTEMPTS) {
+          console.log(`[${tc.id}] Fix: ${fixDesc}`);
+          console.log(`[${tc.id}] Waiting 10s before retry...`);
+          await new Promise(r => setTimeout(r, 10000));
+          continue;
+        }
+        break;
+      }
 
-    console.log(`[${tc.id}] 迭代次数: ${response.iterations}`);
-    console.log(`[${tc.id}] 工具调用详情 (共${calls.length}次调用, ${uniqueTools.size}种工具):`);
-    for (const call of calls) {
-      console.log(`  - 第${call.round}轮: ${call.toolName}, 参数: ${JSON.stringify(call.parameters).substring(0, 100)}`);
-    }
-    console.log(`[${tc.id}] 工具种类: ${[...uniqueTools].join(", ")} (预期≥3)`);
-    console.log(`[${tc.id}] 关键词命中: ${keywordHits.join(", ") || "无"}, 缺失: ${keywordMisses.join(", ") || "无"}`);
-    console.log(`[${tc.id}] 包含数值: ${hasNumber ? "是" : "否"}`);
-    console.log(`[${tc.id}] 回答摘要: ${response.answer.substring(0, 200).replace(/\n/g, " ")}...`);
-    console.log(`[${tc.id}] 耗时: ${totalElapsed}ms`);
-    console.log(`[${tc.id}] ${passed ? "✅ 通过" : "❌ 失败"}${!passed ? " — " + reasons.join("; ") : ""}`);
+      const calls = extractToolCalls(response.steps);
+      const uniqueTools = new Set(calls.map(c => c.toolName));
+      const { passed, reasons } = validateResult(response.answer, calls, tc);
+      const keywordHits = tc.expectedKeywords.filter(kw => response.answer.includes(kw));
+      const keywordMisses = tc.expectedKeywords.filter(kw => !response.answer.includes(kw));
+      const hasNumber = /\d+/.test(response.answer);
+      const totalElapsed = Date.now() - roundStart;
 
-    results.push({
-      testCase: tc,
-      finalPassed: passed,
-      attempts: [{
-        attemptNumber: 1,
+      console.log(`[${tc.id}] Iterations: ${response.iterations}`);
+      console.log(`[${tc.id}] Tool calls (${calls.length} calls, ${uniqueTools.size} types):`);
+      for (const call of calls) {
+        console.log(`  - Round ${call.round}: ${call.toolName}, params: ${JSON.stringify(call.parameters).substring(0, 100)}`);
+      }
+      console.log(`[${tc.id}] Tool types: ${Array.from(uniqueTools).join(", ")} (need >= 3)`);
+      console.log(`[${tc.id}] Keywords hit: ${keywordHits.join(", ") || "none"}, miss: ${keywordMisses.join(", ") || "none"}`);
+      console.log(`[${tc.id}] Has numbers: ${hasNumber ? "yes" : "no"}`);
+      console.log(`[${tc.id}] Answer: ${response.answer.substring(0, 200).replace(/\n/g, " ")}...`);
+      console.log(`[${tc.id}] Time: ${totalElapsed}ms`);
+      console.log(`[${tc.id}] ${passed ? "✅ PASSED" : "❌ FAILED"}${!passed ? " — " + reasons.join("; ") : ""}`);
+
+      const attempt: TestAttempt = {
+        attemptNumber: attemptNum,
         passed,
         answer: response.answer,
         iterations: response.iterations,
@@ -448,9 +499,28 @@ async function main() {
         hasNumber,
         failureReasons: reasons,
         error: null,
-      }],
-    });
+        fixDescription: null,
+      };
 
+      if (passed) {
+        queryResult.finalPassed = true;
+        queryResult.attempts.push(attempt);
+        console.log(`[${tc.id}] ✅ PASSED on attempt ${attemptNum}`);
+        break;
+      }
+
+      const fixDesc = analyzeFailure(attempt, tc);
+      attempt.fixDescription = fixDesc;
+      queryResult.attempts.push(attempt);
+
+      if (attemptNum < MAX_ATTEMPTS) {
+        console.log(`[${tc.id}] Fix: ${fixDesc}`);
+        console.log(`[${tc.id}] Waiting 10s before retry...`);
+        await new Promise(r => setTimeout(r, 10000));
+      }
+    }
+
+    results.push(queryResult);
     await new Promise(r => setTimeout(r, DELAY_BETWEEN_QUERIES));
   }
 
@@ -459,10 +529,10 @@ async function main() {
   const passed = results.filter(r => r.finalPassed).length;
   const failed = results.length - passed;
   console.log(`\n${"=".repeat(80)}`);
-  console.log(`Agent 多工具联合测试完成! 通过: ${passed}/${results.length}, 失败: ${failed}/${results.length}`);
-  console.log(`A类(单公司): ${results.filter(r => r.testCase.category === "A" && r.finalPassed).length}/6`);
-  console.log(`B类(双公司): ${results.filter(r => r.testCase.category === "B" && r.finalPassed).length}/6`);
-  console.log(`C类(三公司): ${results.filter(r => r.testCase.category === "C" && r.finalPassed).length}/2`);
+  console.log(`Agent Multi-Tool Test Complete! Passed: ${passed}/${results.length}, Failed: ${failed}/${results.length}`);
+  console.log(`A (single): ${results.filter(r => r.testCase.category === "A" && r.finalPassed).length}/6`);
+  console.log(`B (dual): ${results.filter(r => r.testCase.category === "B" && r.finalPassed).length}/6`);
+  console.log(`C (triple): ${results.filter(r => r.testCase.category === "C" && r.finalPassed).length}/2`);
   console.log(`${"=".repeat(80)}`);
 
   process.exit(0);

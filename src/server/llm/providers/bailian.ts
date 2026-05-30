@@ -3,7 +3,7 @@ import { getConfigValue, getRawSection } from "@/server/lib/config";
 const DASHSCOPE_BASE_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1";
 const MAX_RETRIES = 3;
 const BASE_RETRY_INTERVAL = 1000;
-const TIMEOUT_MS = 120000;
+const TIMEOUT_MS = 240000;
 const DEFAULT_TEMPERATURE = 0;
 
 function resolveModel(): string {

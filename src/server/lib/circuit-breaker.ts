@@ -8,7 +8,7 @@ interface CircuitState {
 const circuits = new Map<string, CircuitState>();
 
 const FAILURE_THRESHOLD = 3;
-const OPEN_DURATION_MS = 30000;
+const OPEN_DURATION_MS = 60000;
 const HALF_OPEN_MAX_CALLS = 1;
 
 export function getCircuitState(name: string): "closed" | "open" | "half-open" {
@@ -63,7 +63,7 @@ export function forceOpenCircuit(name: string, reason?: string): void {
   circuit.failures = FAILURE_THRESHOLD;
   circuit.lastFailureTime = Date.now();
   circuit.state = "open";
-  circuit.nextRetryTime = Date.now() + OPEN_DURATION_MS * 6;
+  circuit.nextRetryTime = Date.now() + OPEN_DURATION_MS * 5;
   console.error(`[circuit-breaker] ${name} 熔断器强制打开（${reason || "不可重试错误"}），下次重试时间: ${new Date(circuit.nextRetryTime).toISOString()}`);
 }
 

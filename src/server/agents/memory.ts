@@ -612,3 +612,139 @@ async function extractFragmentsFromSummary(
     console.error(`[memory:L2] 提取摘要片段失败: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
+
+export type MemoryScope = "personal" | "team" | "enterprise";
+
+export interface ScopeAccessResult {
+  allowed: boolean;
+  scope: MemoryScope;
+  teamId?: string;
+  reason?: string;
+}
+
+export async function resolveMemoryScope(
+  userId: string,
+  requestedScope: MemoryScope,
+  teamId?: string
+): Promise<ScopeAccessResult> {
+  console.log(`[memory:scope] 解析权限, userId: ${userId}, scope: ${requestedScope}, teamId: ${teamId}`);
+
+  if (requestedScope === "personal") {
+    return { allowed: true, scope: "personal" };
+  }
+
+  if (requestedScope === "team") {
+    if (!teamId) {
+      return { allowed: false, scope: "team", reason: "团队记忆需要指定teamId" };
+    }
+    const isMember = await checkTeamMembership(userId, teamId);
+    if (!isMember) {
+      return { allowed: false, scope: "team", teamId, reason: `用户${userId}不是团队${teamId}的成员` };
+    }
+    return { allowed: true, scope: "team", teamId };
+  }
+
+  if (requestedScope === "enterprise") {
+    const isMember = await checkTeamMembership(userId, "enterprise");
+    if (!isMember) {
+      return { allowed: false, scope: "enterprise", reason: "用户无企业级权限" };
+    }
+    return { allowed: true, scope: "enterprise" };
+  }
+
+  return { allowed: false, scope: requestedScope, reason: "未知的scope类型" };
+}
+
+async function checkTeamMembership(userId: string, teamId: string): Promise<boolean> {
+  try {
+    const { teams, teamMembers } = await import("@/server/db/schema");
+    const membership = await db.query.teamMembers.findFirst({
+      where: and(eq(teamMembers.userId, userId), eq(teamMembers.teamId, teamId)),
+    });
+    return !!membership;
+  } catch (err) {
+    console.error(`[memory:scope] 检查团队成员失败: ${err instanceof Error ? err.message : String(err)}`);
+    return false;
+  }
+}
+
+export async function getScopedFragments(
+  userId: string,
+  query: string,
+  tokenBudget: number,
+  scope?: MemoryScope,
+  teamId?: string
+): Promise<string> {
+  const effectiveScope = scope || "personal";
+
+  if (effectiveScope !== "personal") {
+    const access = await resolveMemoryScope(userId, effectiveScope, teamId);
+    if (!access.allowed) {
+      console.warn(`[memory:scope] 权限不足: ${access.reason}`);
+      return getL3Fragments(query, userId, tokenBudget);
+    }
+  }
+
+  try {
+    const conditions = [eq(memoryFragments.userId, userId)];
+
+    if (effectiveScope === "team" && teamId) {
+      conditions.push(eq(memoryFragments.scope, "team"));
+      conditions.push(eq(memoryFragments.teamId, teamId));
+    } else if (effectiveScope === "enterprise") {
+      conditions.push(eq(memoryFragments.scope, "enterprise"));
+    } else {
+      conditions.push(eq(memoryFragments.scope, "personal"));
+    }
+
+    const fragments = await db.query.memoryFragments.findMany({
+      where: and(...conditions),
+      orderBy: desc(memoryFragments.createdAt),
+      limit: 20,
+    });
+
+    if (fragments.length === 0) return "";
+
+    const avgFragmentTokens = 200;
+    const maxFragments = Math.max(1, Math.floor(tokenBudget / avgFragmentTokens));
+    const selected = fragments.slice(0, maxFragments);
+
+    const parts = selected.map((f) => {
+      const source = f.sourceConversationId ? `来源会话${f.sourceConversationId.slice(0, 8)}` : "历史记录";
+      const date = f.createdAt ? new Date(f.createdAt).toLocaleDateString("zh-CN") : "";
+      return `[${source} | ${date} | ${f.scope}] ${f.content}`;
+    });
+
+    const scopeLabel = effectiveScope === "personal" ? "个人" : effectiveScope === "team" ? "团队" : "企业";
+    const result = parts.length > 0 ? `[${scopeLabel}历史相关记忆]\n${parts.join("\n")}` : "";
+    console.log(`[memory:scope] 注入 ${parts.length} 条${scopeLabel}片段`);
+    return result;
+  } catch (err) {
+    console.error(`[memory:scope] 获取作用域片段失败: ${err instanceof Error ? err.message : String(err)}`);
+    return "";
+  }
+}
+
+export async function createTeam(name: string, leaderId: string, description?: string): Promise<string> {
+  console.log(`[memory:scope] 创建团队: ${name}, leader: ${leaderId}`);
+  const { teams, teamMembers } = await import("@/server/db/schema");
+  const result = await db.insert(teams).values({ name, leaderId, description }).returning({ id: teams.id });
+  const teamId = result[0]?.id;
+  if (teamId) {
+    await db.insert(teamMembers).values({ teamId, userId: leaderId, role: "leader" });
+    console.log(`[memory:scope] 团队创建成功: ${teamId}, leader已加入`);
+  }
+  return teamId || "";
+}
+
+export async function addTeamMember(teamId: string, userId: string, role: string = "member"): Promise<void> {
+  console.log(`[memory:scope] 添加团队成员: teamId: ${teamId}, userId: ${userId}, role: ${role}`);
+  const { teamMembers } = await import("@/server/db/schema");
+  await db.insert(teamMembers).values({ teamId, userId, role });
+}
+
+export async function removeTeamMember(teamId: string, userId: string): Promise<void> {
+  console.log(`[memory:scope] 移除团队成员: teamId: ${teamId}, userId: ${userId}`);
+  const { teamMembers } = await import("@/server/db/schema");
+  await db.delete(teamMembers).where(and(eq(teamMembers.teamId, teamId), eq(teamMembers.userId, userId)));
+}

@@ -1,4 +1,5 @@
 import { callBailian, type BailianMessage } from "@/server/llm/providers/bailian";
+import { callWithFallback } from "@/server/llm/router";
 import { saveAgentLog, saveLLMUsage } from "./agent-logger";
 import {
   calculateMA,
@@ -25,7 +26,7 @@ import { createConversation, addMessage, getRecentMessages, updateConversationTi
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || "http://localhost:8001";
 
-const AGENT_TIMEOUT_MS = 120000;
+const AGENT_TIMEOUT_MS = 240000;
 
 interface CachedStockData {
   closes: number[];
@@ -95,7 +96,7 @@ const tools: ToolDefinition[] = [
       if (!data || !Array.isArray(data) || data.length === 0) {
         if (lastStockData && lastStockData.closes.length > 0) {
           data = lastStockData.closes;
-          console.log(`[calculateMA] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+          console.log("[calculateMA] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -106,7 +107,7 @@ const tools: ToolDefinition[] = [
       const latestMA = validValues.length > 0 ? validValues[validValues.length - 1] : null;
       const recentValues = validValues.slice(-30);
 
-      const formula = `MA${period} = (最近${period}个交易日收盘价之和) / ${period}`;
+      const formula = "MA" + period + " = (Sum of last " + period + " closing prices) / " + period;
 
       const lastNPrices = data.slice(-period);
       const lastNSum = lastNPrices.reduce((a, b) => a + b, 0);
@@ -114,11 +115,11 @@ const tools: ToolDefinition[] = [
 
       const recentDates = lastStockData?.dates?.slice(-period) || [];
       const priceDetail = lastNPrices.map((p, i) => {
-        const dateStr = recentDates[i] || `第${data.length - period + i + 1}日`;
+        const dateStr = recentDates[i] || ("Day " + (data.length - period + i + 1));
         return `${dateStr}: ${p}`;
       }).join(" + ");
 
-      const calcDetail = `计算过程: (${priceDetail}) / ${period} = ${lastNSum.toFixed(4)} / ${period} = ${lastNCalc}`;
+      const calcDetail = "Calc: (" + priceDetail + ") / " + period + " = " + lastNSum.toFixed(4) + " / " + period + " = " + lastNCalc;
 
       return JSON.stringify({
         period: result.period,
@@ -146,7 +147,7 @@ const tools: ToolDefinition[] = [
       if (!data || !Array.isArray(data) || data.length === 0) {
         if (lastStockData && lastStockData.closes.length > 0) {
           data = lastStockData.closes;
-          console.log(`[calculateMACD] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+          console.log("[calculateMACD] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -186,7 +187,7 @@ const tools: ToolDefinition[] = [
       if (!data || !Array.isArray(data) || data.length === 0) {
         if (lastStockData && lastStockData.closes.length > 0) {
           data = lastStockData.closes;
-          console.log(`[calculateRSI] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+          console.log("[calculateRSI] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -197,7 +198,7 @@ const tools: ToolDefinition[] = [
       const latestRSI = validValues.length > 0 ? validValues[validValues.length - 1] : null;
       const recentValues = validValues.slice(-30);
 
-      const formula = `RSI(${period}) = 100 - 100 / (1 + RS)，其中 RS = 平均涨幅 / 平均跌幅（使用Wilder平滑法）`;
+      const formula = "RSI(" + period + ") = 100 - 100 / (1 + RS), RS = Avg Gain / Avg Loss (Wilder smoothing)";
 
       const recentDates = lastStockData?.dates || [];
       const last15Closes = data.slice(-(period + 1));
@@ -206,7 +207,7 @@ const tools: ToolDefinition[] = [
       for (let i = 1; i < last15Closes.length; i++) {
         const change = last15Closes[i] - last15Closes[i - 1];
         changes.push({
-          date: last15Dates[i] || `第${data.length - period - 1 + i}日`,
+          date: last15Dates[i] || ("Day " + (data.length - period - 1 + i)),
           close: last15Closes[i],
           change: Number(change.toFixed(4)),
           gain: change > 0 ? Number(change.toFixed(4)) : 0,
@@ -231,7 +232,7 @@ const tools: ToolDefinition[] = [
       const rs = avgLoss === 0 ? Infinity : avgGain / avgLoss;
       const calcRSI = avgLoss === 0 ? 100 : Number((100 - 100 / (1 + rs)).toFixed(4));
 
-      const calcDetail = `最近${period + 1}日收盘价变动:\n${changes.map((c) => `${c.date}: 收${c.close}, 变动${c.change > 0 ? "+" : ""}${c.change}, 涨=${c.gain}, 跌=${c.loss}`).join("\n")}\n\n最终 avgGain=${avgGain.toFixed(4)}, avgLoss=${avgLoss.toFixed(4)}, RS=${rs === Infinity ? "∞" : rs.toFixed(4)}, RSI=${calcRSI}`;
+      const calcDetail = "Last " + (period + 1) + " days close changes:\n" + changes.map((c) => c.date + ": close=" + c.close + ", change=" + (c.change > 0 ? "+" : "") + c.change + ", gain=" + c.gain + ", loss=" + c.loss).join("\n") + "\n\nFinal avgGain=" + avgGain.toFixed(4) + ", avgLoss=" + avgLoss.toFixed(4) + ", RS=" + (rs === Infinity ? "inf" : rs.toFixed(4)) + ", RSI=" + calcRSI;
 
       return JSON.stringify({
         period: result.period,
@@ -258,7 +259,7 @@ const tools: ToolDefinition[] = [
       if (!data || !Array.isArray(data) || data.length === 0) {
         if (lastStockData && lastStockData.closes.length > 0) {
           data = lastStockData.closes;
-          console.log(`[calculateBollinger] 使用缓存数据: ${lastStockData.code}, ${data.length}条收盘价`);
+          console.log("[calculateBollinger] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -301,7 +302,7 @@ const tools: ToolDefinition[] = [
         highs = lastStockData.highs;
         lows = lastStockData.lows;
         closes = lastStockData.closes;
-        console.log(`[calculateKDJ] 使用缓存数据: ${lastStockData.code}, ${closes.length}条`);
+        console.log("[calculateKDJ] Using cached data: " + lastStockData.code + ", " + closes.length + " rows");
       }
       if (!highs || !lows || !closes) {
         return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
@@ -340,7 +341,7 @@ const tools: ToolDefinition[] = [
       if ((!closes || !Array.isArray(closes) || closes.length === 0) && lastStockData) {
         closes = lastStockData.closes;
         volumes = lastStockData.volumes;
-        console.log(`[calculateVWAP] 使用缓存数据: ${lastStockData.code}`);
+        console.log("[calculateVWAP] Using cached data: " + lastStockData.code);
       }
       if (!closes || !volumes) {
         return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
@@ -361,7 +362,7 @@ const tools: ToolDefinition[] = [
       if (!returns || !Array.isArray(returns) || returns.length === 0) {
         if (lastStockData && lastStockData.closes.length > 1) {
           returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
-          console.log(`[calculateSharpeRatio] 使用缓存数据计算收益率: ${lastStockData.code}, ${returns.length}条`);
+          console.log("[calculateSharpeRatio] Using cached data for returns: " + lastStockData.code + ", " + returns.length + " rows");
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -384,7 +385,7 @@ const tools: ToolDefinition[] = [
       if (!values || !Array.isArray(values) || values.length === 0) {
         if (lastStockData && lastStockData.closes.length > 0) {
           values = lastStockData.closes;
-          console.log(`[calculateMaxDrawdown] 使用缓存数据: ${lastStockData.code}`);
+          console.log("[calculateMaxDrawdown] Using cached data: " + lastStockData.code);
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -405,7 +406,7 @@ const tools: ToolDefinition[] = [
       if (!returns || !Array.isArray(returns) || returns.length === 0) {
         if (lastStockData && lastStockData.closes.length > 1) {
           returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
-          console.log(`[calculateVolatility] 使用缓存数据计算收益率: ${lastStockData.code}`);
+          console.log("[calculateVolatility] Using cached data for returns: " + lastStockData.code);
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -433,7 +434,7 @@ const tools: ToolDefinition[] = [
       if (!series1 || !Array.isArray(series1) || series1.length === 0) {
         if (lastStockData && lastStockData.closes.length > 0) {
           series1 = lastStockData.closes;
-          console.log(`[calculateCorrelation] 使用缓存数据作为series1: ${lastStockData.code}`);
+          console.log("[calculateCorrelation] Using cached data as series1: " + lastStockData.code);
         }
       }
 
@@ -451,12 +452,12 @@ const tools: ToolDefinition[] = [
             signal: AbortSignal.timeout(30000),
           });
           const data = await res.json();
-          console.log(`[calculateCorrelation] 获取code2=${params.code2}数据耗时: ${((Date.now() - fetchStart) / 1000).toFixed(2)}s`);
+          console.log("[calculateCorrelation] Fetch code2=" + params.code2 + " data time: " + ((Date.now() - fetchStart) / 1000).toFixed(2) + "s");
           if (data.success && Array.isArray(data.data) && data.data.length > 0) {
             series2 = data.data.map((r: Record<string, unknown>) => Number(r.close));
           }
         } catch (err) {
-          console.error(`[calculateCorrelation] 获取code2数据失败: ${err instanceof Error ? err.message : String(err)}`);
+          console.error("[calculateCorrelation] Fetch code2 data failed: " + (err instanceof Error ? err.message : String(err)));
         }
       }
 
@@ -539,7 +540,7 @@ const tools: ToolDefinition[] = [
       if (!returns || !Array.isArray(returns) || returns.length === 0) {
         if (lastStockData && lastStockData.closes.length > 1) {
           returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
-          console.log(`[calculateVaR] 使用缓存数据计算收益率: ${lastStockData.code}`);
+          console.log("[calculateVaR] Using cached data for returns: " + lastStockData.code);
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
@@ -601,7 +602,7 @@ const tools: ToolDefinition[] = [
           startDate = oneYearAgo.toISOString().split("T")[0];
         }
 
-        console.log(`[getStockHistory] 请求: code=${params.code}, start=${startDate}, end=${endDate}, source=${source}`);
+        console.log("[getStockHistory] Request: code=" + params.code + ", start=" + startDate + ", end=" + endDate + ", source=" + source);
         const fetchStartTime = Date.now();
 
         const res = await fetch(`${DATA_SERVICE_URL}/api/market/history`, {
@@ -617,8 +618,8 @@ const tools: ToolDefinition[] = [
           signal: AbortSignal.timeout(30000),
         });
         const data = await res.json();
-        console.log(`[getStockHistory] 数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${data.success}`);
-        if (!data.success) return `获取历史行情失败: ${data.error || "未知错误"}`;
+        console.log("[getStockHistory] Data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + data.success);
+        if (!data.success) return "Failed to get history: " + (data.error || "Unknown error");
         const rows = data.data || [];
         if (rows.length === 0) return "未查询到数据，请检查股票代码和日期范围";
         const fromCache = data.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
@@ -643,11 +644,11 @@ const tools: ToolDefinition[] = [
           rowCount: rows.length,
         };
         setStockCache(currentUserId, lastStockData);
-        console.log(`[getStockHistory] 数据已缓存: code=${params.code}, ${rows.length}条, 日期范围=${startDate}~${endDate}, 最新交易日=${latestTradeDate}`);
+        console.log("[getStockHistory] Data cached: code=" + params.code + ", " + rows.length + " rows, date range=" + startDate + "~" + endDate + ", latestTradeDate=" + latestTradeDate);
 
         const latestRow = rows[rows.length - 1];
         const summary = rows.slice(-10).map((r: Record<string, unknown>) =>
-          `${r.date || r.tradeDate}: 开${r.open} 高${r.high} 低${r.low} 收${r.close} 量${r.volume}`
+          (r.date || r.tradeDate) + ": O=" + r.open + " H=" + r.high + " L=" + r.low + " C=" + r.close + " V=" + r.volume
         ).join("\n");
 
         const latestClose = closes[closes.length - 1];
@@ -655,16 +656,9 @@ const tools: ToolDefinition[] = [
         const minClose = Math.min(...closes);
         const avgVolume = volumes.reduce((a: number, b: number) => a + b, 0) / volumes.length;
 
-        return `共${rows.length}条记录${fromCache}，日期范围: ${startDate}~${endDate}，最新交易日: ${latestTradeDate}
-
-最近10条K线:
-${summary}
-
-关键统计: 最新收盘价${latestClose}, 区间最高${maxClose}, 区间最低${minClose}, 日均成交量${avgVolume.toFixed(0)}
-
-【重要】完整价格数据已缓存，后续调用calculateMA/calculateRSI/calculateMACD/calculateBollinger/calculateKDJ/calculateVWAP/calculateSharpeRatio/calculateMaxDrawdown/calculateVolatility/calculateVaR等计算工具时，无需传入data参数，系统会自动使用缓存数据。只需指定周期等参数即可。回答时必须使用最新交易日${latestTradeDate}作为数据截止日期，不要使用end_date参数或其他日期。`;
+        return "Total " + rows.length + " records" + fromCache + ", date range: " + startDate + "~" + endDate + ", latestTradeDate: " + latestTradeDate + "\n\nLast 10 K-lines:\n" + summary + "\n\nKey stats: latestClose=" + latestClose + ", rangeHigh=" + maxClose + ", rangeLow=" + minClose + ", avgVolume=" + avgVolume.toFixed(0) + "\n\n[Important] Full price data cached. Subsequent calculateMA/calculateRSI/calculateMACD/calculateBollinger/calculateKDJ/calculateVWAP/calculateSharpeRatio/calculateMaxDrawdown/calculateVolatility/calculateVaR calls do not need data param, system will use cache automatically. Just specify period etc. When answering, must use latestTradeDate " + latestTradeDate + " as data cutoff date, do not use end_date or other dates.";
       } catch (error) {
-        return `获取历史行情异常: ${error instanceof Error ? error.message : String(error)}`;
+        return "History fetch error: " + (error instanceof Error ? error.message : String(error));
       }
     },
   },
@@ -686,14 +680,14 @@ ${summary}
           signal: AbortSignal.timeout(15000),
         });
         const data = await res.json();
-        console.log(`[getStockRealtime] 数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${data.success}`);
-        if (!data.success) return `获取实时行情失败: ${data.error || "未知错误"}`;
+        console.log("[getStockRealtime] Data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + data.success);
+        if (!data.success) return "Failed to get realtime data: " + (data.error || "Unknown error");
         const records = data.data;
         if (!records || !Array.isArray(records) || records.length === 0) return "未查询到实时数据";
         const r = records[0];
-        return `实时行情: ${r.股票名称} 最新价${r.最新价} 涨跌幅${r.涨跌幅}% 开盘价${r.开盘价} 最高价${r.最高价} 最低价${r.最低价} 成交量${r.成交量} 成交额${r.成交额} 换手率${r.换手率}`;
+        return "Realtime: " + r.股票名称 + " price=" + r.最新价 + " change=" + r.涨跌幅 + "% open=" + r.开盘价 + " high=" + r.最高价 + " low=" + r.最低价 + " vol=" + r.成交量 + " amount=" + r.成交额 + " turnover=" + r.换手率;
       } catch (error) {
-        return `获取实时行情异常: ${error instanceof Error ? error.message : String(error)}`;
+        return "Realtime fetch error: " + (error instanceof Error ? error.message : String(error));
       }
     },
   },
@@ -720,14 +714,14 @@ ${summary}
           signal: AbortSignal.timeout(30000),
         });
         const data = await res.json();
-        console.log(`[getStockFinancial] 数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${data.success}`);
-        if (!data.success) return `获取财务数据失败: ${data.error || "未知错误"}`;
+        console.log("[getStockFinancial] Data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + data.success);
+        if (!data.success) return "Failed to get financial data: " + (data.error || "Unknown error");
         const rows = data.data || [];
         if (rows.length === 0) return "未查询到财务数据";
         const fromCache = data.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-        return `财务数据${fromCache}:\n${JSON.stringify(rows, null, 2)}`;
+        return "Financial data" + fromCache + ":\n" + JSON.stringify(rows, null, 2);
       } catch (error) {
-        return `获取财务数据异常: ${error instanceof Error ? error.message : String(error)}`;
+        return "Financial data fetch error: " + (error instanceof Error ? error.message : String(error));
       }
     },
   },
@@ -751,7 +745,7 @@ ${summary}
           signal: AbortSignal.timeout(30000),
         });
         const reportData = await reportRes.json();
-        console.log(`[getFinancialReport] 报表数据服务响应耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${reportData.success}`);
+        console.log("[getFinancialReport] Report data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + reportData.success);
 
         const rows = reportData.data || [];
         const fromCache = reportData.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
@@ -760,9 +754,9 @@ ${summary}
 
         let reportResult = "";
         if (!reportData.success || rows.length === 0) {
-          reportResult = `${reportName}获取失败: ${reportData.error || "未查询到数据"}`;
+          reportResult = reportName + " fetch failed: " + (reportData.error || "No data found");
         } else {
-          reportResult = `${reportName}${fromCache}（最近${rows.length}期）:\n${JSON.stringify(rows, null, 2)}`;
+          reportResult = reportName + fromCache + " (last " + rows.length + " periods):\n" + JSON.stringify(rows, null, 2);
         }
 
         let financialSummary = "";
@@ -774,18 +768,18 @@ ${summary}
             signal: AbortSignal.timeout(15000),
           });
           const financialData = await financialRes.json();
-          console.log(`[getFinancialReport] 盈利指标补充耗时: ${((Date.now() - fetchStartTime) / 1000).toFixed(2)}s, success=${financialData.success}`);
+          console.log("[getFinancialReport] Profitability metrics supplement time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + financialData.success);
           if (financialData.success && Array.isArray(financialData.data) && financialData.data.length > 0) {
             const finCache = financialData.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-            financialSummary = `\n\n【自动补充】盈利能力指标${finCache}:\n${JSON.stringify(financialData.data, null, 2)}`;
+            financialSummary = "\n\n[Auto-supplement] Profitability metrics" + finCache + ":\n" + JSON.stringify(financialData.data, null, 2);
           }
         } catch (finErr) {
-          console.error(`[getFinancialReport] 补充盈利指标失败: ${finErr instanceof Error ? finErr.message : String(finErr)}`);
+          console.error("[getFinancialReport] Profitability metrics supplement failed: " + (finErr instanceof Error ? finErr.message : String(finErr)));
         }
 
         return `${reportResult}${financialSummary}`;
       } catch (error) {
-        return `获取财务报表异常: ${error instanceof Error ? error.message : String(error)}`;
+        return "Financial report fetch error: " + (error instanceof Error ? error.message : String(error));
       }
     },
   },
@@ -803,14 +797,14 @@ ${summary}
           params.query as string,
           (params.topK as number) || 10
         );
-        console.log(`[hybridSearch] RAG检索耗时: ${((Date.now() - searchStartTime) / 1000).toFixed(2)}s, 结果数: ${results.length}`);
+        console.log("[hybridSearch] RAG search time: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, results: " + results.length);
         const formatted = results
-          .map((r, i) => `[${i + 1}] (分数: ${r.score.toFixed(4)}) ${r.text}`)
+          .map((r, i) => "[" + (i + 1) + "] (score: " + r.score.toFixed(4) + ") " + r.text)
           .join("\n\n");
         return formatted || "未找到相关结果";
       } catch (error) {
         console.error("[simpleAgent] hybridSearch 执行失败:", error);
-        return `检索失败: ${error instanceof Error ? error.message : String(error)}`;
+        return "Search failed: " + (error instanceof Error ? error.message : String(error));
       }
     },
   },
@@ -820,7 +814,7 @@ function getToolDescriptions(): string {
   return tools
     .map(
       (t) =>
-        `- ${t.name}: ${t.description}\n  参数: ${JSON.stringify(t.parameters)}`
+        `- ${t.name}: ${t.description}\n  params: ${JSON.stringify(t.parameters)}`
     )
     .join("\n\n");
 }
@@ -831,7 +825,7 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[1]);
       if (parsed.tool && parsed.parameters) {
-        console.log(`[simpleAgent] 解析工具调用成功(格式1): tool=${parsed.tool}`);
+        console.log("[simpleAgent] Parse tool call success (format 1): tool=" + parsed.tool);
         return { name: parsed.tool, params: parsed.parameters };
       }
       if (parsed.name || parsed.function?.name) {
@@ -840,7 +834,7 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
         if (typeof toolArgs === "string") {
           try { return { name: toolName, params: JSON.parse(toolArgs) }; } catch { /* ignore */ }
         }
-        console.log(`[simpleAgent] 解析工具调用成功(格式1-alt): tool=${toolName}`);
+        console.log("[simpleAgent] Parse tool call success (format 1-alt): tool=" + toolName);
         return { name: toolName, params: toolArgs };
       }
     }
@@ -849,7 +843,7 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
     if (actionMatch) {
       const name = actionMatch[1].trim();
       const params = JSON.parse(actionMatch[2].trim());
-      console.log(`[simpleAgent] 解析工具调用成功(格式2): tool=${name}`);
+      console.log("[simpleAgent] Parse tool call success (format 2): tool=" + name);
       return { name, params };
     }
 
@@ -860,7 +854,7 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
         const argsStr = funcCallMatch[2].trim();
         if (tools.some(t => t.name === name)) {
           const params = JSON.parse(argsStr);
-          console.log(`[simpleAgent] 解析工具调用成功(格式3): tool=${name}`);
+          console.log("[simpleAgent] Parse tool call success (format 3): tool=" + name);
           return { name, params };
         }
       } catch { /* ignore */ }
@@ -871,7 +865,7 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
       const name = inlineJsonMatch[1];
       const params = JSON.parse(inlineJsonMatch[2]);
       if (tools.some(t => t.name === name)) {
-        console.log(`[simpleAgent] 解析工具调用成功(格式4-inline): tool=${name}`);
+        console.log("[simpleAgent] Parse tool call success (format 4-inline): tool=" + name);
         return { name, params };
       }
     }
@@ -901,7 +895,7 @@ function parseToolCalls(text: string): { name: string; params: Record<string, un
       } catch { /* ignore */ }
     }
     if (results.length > 0) {
-      console.log(`[simpleAgent] 解析到 ${results.length} 个工具调用: ${results.map(r => r.name).join(", ")}`);
+      console.log("[simpleAgent] Parsed " + results.length + " tool calls: " + results.map(r => r.name).join(", "));
       return results;
     }
   }
@@ -929,22 +923,22 @@ async function generateConversationTitle(query: string, answer: string, conversa
       },
       {
         role: "user",
-        content: `用户问题: ${query}\nAI回答: ${answer.substring(0, 500)}`,
+        content: "User query: " + query + "\nAI answer: " + answer.substring(0, 500),
       },
     ];
-    const response = await callBailian(titlePrompt, model, 0.7);
+    const response = await callWithFallback(titlePrompt, 0.7);
     const title = response.content.trim().replace(/["""'']/g, "").substring(0, 20);
     if (title && title.length > 0) {
       await updateConversationTitle(conversationId, title);
-      console.log(`[simpleAgent] 会话标题已生成: ${title}`);
+      console.log("[simpleAgent] Conversation title generated: " + title);
     }
   } catch (err) {
-    console.error(`[simpleAgent] 生成会话标题失败: ${err instanceof Error ? err.message : String(err)}`);
+    console.error("[simpleAgent] Generate conversation title failed: " + (err instanceof Error ? err.message : String(err)));
   }
 }
 
 export async function runAgent(query: string, maxIterations: number = 5, conversationId?: string, userId: string = "default-user", model?: string, _userName?: string, _userEmail?: string, onStep?: (step: AgentStep) => void): Promise<AgentResult> {
-  console.log(`[simpleAgent] 收到查询: ${query}, 最大迭代次数: ${maxIterations}, userId: ${userId}, model: ${model || "默认"}`);
+  console.log("[simpleAgent] Received query: " + query + ", maxIterations: " + maxIterations + ", userId: " + userId + ", model: " + (model || "default"));
   const startTime = Date.now();
   const steps: AgentStep[] = [];
   lastStockData = getStockCache(userId);
@@ -971,7 +965,7 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   pushStep({
     type: "thinking",
     round: 0,
-    title: "接收用户查询",
+    title: "Received User Query",
     content: query,
     timestamp: Date.now(),
   });
@@ -993,7 +987,7 @@ ${getToolDescriptions()}
 \`\`\`
 
 当你已经获得足够信息可以回答时，直接输出最终答案，不要使用工具格式。
-每次只调用一个工具。
+为了减少迭代轮次，你可以在同一轮中同时调用多个工具（最多3个）。
 
 【核心规则 - 必须严格遵守】：
 
@@ -1037,7 +1031,7 @@ ${getToolDescriptions()}
    注意：不要在工具调用中传入大量价格数据数组，系统会自动从缓存中读取
    - 如果用户指定了某个日期（如"2026-05-06的MA20"），getStockHistory需传入 start_date 和 end_date 参数
 
-8. 【重要】计算技术指标时，必须在同一次响应中同时输出 getStockHistory 和计算工具的调用（见规则7）。其他场景下，每次只调用一个工具，获得工具结果后如果还需要调用其他工具，在下一轮再调用。
+8. 【重要】计算技术指标时，必须在同一次响应中同时输出 getStockHistory 和计算工具的调用（见规则7）。对于多公司查询，也应在同一轮中同时调用多家公司的工具，以减少迭代轮次。
 
 9. 【相关系数计算流程】当用户要求计算两只股票的相关系数时，你必须在同一次响应中同时输出 getStockHistory 和 calculateCorrelation 的调用，格式如下：
 
@@ -1063,7 +1057,13 @@ ${getToolDescriptions()}
    - MA20计算公式：MA20 = (最近20个交易日收盘价之和) / 20
    - 计算过程：(2026-05-06: 38.50 + ... + 2026-05-29: 37.50) / 20 = 758.35 / 20 = 37.9175
    - RSI(14)计算公式：RSI(14) = 100 - 100 / (1 + RS)，RS = 平均涨幅 / 平均跌幅
-   - 计算过程：列出最近15日收盘价变动、每日涨跌、avgGain、avgLoss、RS、最终RSI`;
+   - 计算过程：列出最近15日收盘价变动、每日涨跌、avgGain、avgLoss、RS、最终RSI
+
+12. 【及时输出原则】当你已经通过工具获取到足够的数据来回答用户问题时，必须立即输出最终答案，不要再调用额外的工具。例如：如果用户问'毛利率是多少'且你已经从getStockFinancial获取到了毛利率数据，就直接回答，不要再调用hybridSearch去查找年报确认。
+
+13. 【禁止重复调用】绝对不要重复调用已经调用过的工具！如果getStockFinancial已经返回了数据，不要再次调用它。如果getStockHistory已经返回了K线数据，不要再次调用它。重复调用相同的工具是严重错误，会浪费时间和资源。一旦获取到数据，立即基于已有数据回答问题。
+
+14. 【迭代效率】每个工具最多调用1次。如果某个工具返回了数据但你觉得不够完整，应该使用hybridSearch补充文档信息，而不是再次调用同一个工具。如果所有工具都已调用过，必须立即输出最终答案。`;
 
   const messages: BailianMessage[] = [
     { role: "system", content: systemPrompt },
@@ -1080,16 +1080,19 @@ ${getToolDescriptions()}
   let totalPromptTokens = 0;
   let totalCompletionTokens = 0;
   let currentModel = model || "unknown";
+  let toolCallHistory: string[] = [];
+  let duplicateCallCount = 0;
 
   for (let i = 0; i < maxIterations; i++) {
     if (Date.now() - startTime > AGENT_TIMEOUT_MS) {
       const elapsedMs = Date.now() - startTime;
-      console.error(`[simpleAgent] Agent 执行超过 ${AGENT_TIMEOUT_MS}ms (实际耗时: ${(elapsedMs / 1000).toFixed(1)}s)，强制终止`);
+      const elapsedSec = (elapsedMs / 1000).toFixed(1);
+      console.error("[simpleAgent] Agent timeout after " + AGENT_TIMEOUT_MS + "ms, elapsed: " + elapsedSec + "s");
       pushStep({
         type: "answer",
         round: i + 1,
-        title: "执行超时",
-        content: "Agent 执行超时，请稍后重试或简化您的问题。",
+        title: "Agent Timeout",
+        content: "Agent timeout, please try again later or simplify your question.",
         timestamp: Date.now(),
       });
       await addMessage(convId, "assistant", "Agent 执行超时，请稍后重试或简化您的问题。");
@@ -1113,20 +1116,21 @@ ${getToolDescriptions()}
     iterations++;
     const roundStartTime = Date.now();
     const elapsedMs = roundStartTime - startTime;
-    console.log(`[simpleAgent] 第 ${i + 1}/${maxIterations} 轮迭代 (累计耗时: ${(elapsedMs / 1000).toFixed(1)}s)`);
+    const elapsedSec = (elapsedMs / 1000).toFixed(1);
+    console.log("[simpleAgent] Round " + (i + 1) + "/" + maxIterations + " elapsed: " + elapsedSec + "s");
 
     pushStep({
       type: "thinking",
       round: i + 1,
-      title: `第 ${i + 1} 轮 — LLM 推理`,
-      content: `正在调用大模型进行推理...`,
+      title: "Round " + (i + 1) + " - LLM Reasoning",
+      content: "Calling LLM for reasoning...",
       detail: { roundIndex: i + 1, elapsedMs },
       timestamp: Date.now(),
     });
 
     try {
       const llmStartTime = Date.now();
-      const response = await callBailian(messages, model);
+      const response = await callWithFallback(messages, undefined, true);
       const llmMs = Date.now() - llmStartTime;
       const assistantContent = response.content;
 
@@ -1135,8 +1139,8 @@ ${getToolDescriptions()}
         totalCompletionTokens += response.usage.completion_tokens || 0;
       }
 
-      console.log(`[simpleAgent] 第 ${i + 1} 轮 LLM调用耗时: ${(llmMs / 1000).toFixed(2)}s, 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
-      console.log(`[simpleAgent] LLM 响应: ${assistantContent.substring(0, 200)}...`);
+      console.log("[simpleAgent] Round " + (i + 1) + " LLM: " + (llmMs / 1000).toFixed(2) + "s, total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
+      console.log("[simpleAgent] LLM response: " + assistantContent.substring(0, 200) + "...");
 
       messages.push({ role: "assistant", content: assistantContent });
 
@@ -1147,12 +1151,12 @@ ${getToolDescriptions()}
       if (toolCalls.length === 0) {
         if (toolObservations.length > 0) {
           const roundMs = Date.now() - roundStartTime;
-          console.log(`[simpleAgent] 已有工具结果且LLM给出最终答案，直接结束 (本轮耗时: ${(roundMs / 1000).toFixed(2)}s)`);
+          console.log("[simpleAgent] Has tool results and LLM final answer, done. Round: " + (roundMs / 1000).toFixed(2) + "s");
 
           pushStep({
             type: "answer",
             round: i + 1,
-            title: "最终答案",
+            title: "Final Answer",
             content: assistantContent,
             detail: { roundMs, llmMs, totalMs: Date.now() - startTime },
             timestamp: Date.now(),
@@ -1185,8 +1189,8 @@ ${getToolDescriptions()}
         pushStep({
           type: "reflection",
           round: i + 1,
-          title: `第 ${i + 1} 轮 — 反思评估`,
-          content: "LLM 未调用工具，评估答案是否充分...",
+          title: "Round " + (i + 1) + " - Reflection",
+          content: "LLM did not call tools, evaluating if answer is sufficient...",
           detail: { answerPreview: assistantContent.substring(0, 300), llmMs },
           timestamp: Date.now(),
         });
@@ -1194,11 +1198,11 @@ ${getToolDescriptions()}
         const reflectionStartTime = Date.now();
         const reflection = await shouldRetrieveAgain(query, assistantContent, lastSearchResults, toolObservations);
         const reflectionMs = Date.now() - reflectionStartTime;
-        console.log(`[simpleAgent] 第 ${i + 1} 轮 反思评估耗时: ${(reflectionMs / 1000).toFixed(2)}s, 结果: needMore=${reflection.needMore}`);
+        console.log("[simpleAgent] Round " + (i + 1) + " reflection: " + (reflectionMs / 1000).toFixed(2) + "s, needMore=" + reflection.needMore);
 
         if (reflection.needMore && reflection.refinedQuery && i < maxIterations - 1) {
           console.log(
-            `[simpleAgent] 反思结果: 需要更多信息, 建议: "${reflection.refinedQuery}"`
+            "[simpleAgent] Reflection result: need more info, suggestion: \"" + reflection.refinedQuery + "\""
           );
 
           const isToolSuggestion = reflection.refinedQuery.includes("getStockFinancial") ||
@@ -1209,8 +1213,8 @@ ${getToolDescriptions()}
           pushStep({
             type: "reflection",
             round: i + 1,
-            title: `第 ${i + 1} 轮 — 反思决定：${isToolSuggestion ? "需要调用数据工具" : "继续检索"}`,
-            content: `当前答案不够充分，${isToolSuggestion ? "答案中的数据可能来自LLM编造，需要调用数据工具获取真实数据" : "需要更多信息"}`,
+            title: "Round " + (i + 1) + " - Reflection: " + (isToolSuggestion ? "Need Data Tools" : "Continue Search"),
+            content: "Current answer insufficient, " + (isToolSuggestion ? "data may be fabricated, need real data tools" : "need more information"),
             detail: {
               needMore: true,
               refinedQuery: reflection.refinedQuery,
@@ -1223,30 +1227,30 @@ ${getToolDescriptions()}
             pushStep({
               type: "tool_call",
               round: i + 1,
-              title: `第 ${i + 1} 轮 — 反思触发数据工具调用`,
-              content: `建议: ${reflection.refinedQuery}`,
+              title: "Round " + (i + 1) + " - Reflection Triggered Data Tool Call",
+              content: "Suggestion: " + reflection.refinedQuery,
               timestamp: Date.now(),
             });
 
             messages.push({
               role: "user",
-              content: `【重要提示】你之前的回答中包含了没有工具调用支撑的具体数字，这些数据可能是编造的。反思评估建议：${reflection.refinedQuery}\n\n请严格按照建议调用对应的工具获取真实数据，然后用工具返回的真实数据重新回答用户的问题。绝不能再使用没有工具支撑的数字！`,
+              content: "[Important] Your previous answer contains specific numbers without tool call support, which may be fabricated. Reflection suggestion: " + reflection.refinedQuery + "\n\nPlease call the corresponding tools as suggested to get real data, then re-answer the user's question with the real data. Never use numbers without tool support!",
             });
           } else {
             pushStep({
               type: "retrieval",
               round: i + 1,
-              title: `第 ${i + 1} 轮 — 反思触发补充检索`,
-              content: `改写查询: "${reflection.refinedQuery}"`,
+              title: "Round " + (i + 1) + " - Reflection Triggered Additional Search",
+              content: "Rewritten query: \"" + reflection.refinedQuery + "\"",
               timestamp: Date.now(),
             });
 
             const ragStartTime = Date.now();
             const ragResult = await hybridSearch(reflection.refinedQuery, 10);
             const ragMs = Date.now() - ragStartTime;
-            console.log(`[simpleAgent] 第 ${i + 1} 轮 反思补充检索耗时: ${(ragMs / 1000).toFixed(2)}s, 结果数: ${ragResult.length}`);
+            console.log("[simpleAgent] Round " + (i + 1) + " reflection RAG: " + (ragMs / 1000).toFixed(2) + "s, results: " + ragResult.length);
             const formattedResult = ragResult
-              .map((r, idx) => `[${idx + 1}] (分数: ${r.score.toFixed(4)}) ${r.text}`)
+              .map((r, idx) => "[" + (idx + 1) + "] (score: " + r.score.toFixed(4) + ") " + r.text)
               .join("\n\n");
 
             lastSearchResults.push(formattedResult);
@@ -1254,8 +1258,8 @@ ${getToolDescriptions()}
             pushStep({
               type: "retrieval",
               round: i + 1,
-              title: `第 ${i + 1} 轮 — 补充检索结果`,
-              content: `检索到 ${ragResult.length} 条结果`,
+              title: "Round " + (i + 1) + " - Additional Search Results",
+              content: "Found " + ragResult.length + " results",
               detail: {
                 query: reflection.refinedQuery,
                 resultCount: ragResult.length,
@@ -1271,31 +1275,31 @@ ${getToolDescriptions()}
 
             messages.push({
               role: "user",
-              content: `反思检索结果（查询: "${reflection.refinedQuery}"）:\n${formattedResult}\n\n请基于以上所有信息，重新回答用户的问题。如果信息仍然不足，请直接给出你目前最好的回答。`,
+              content: "Reflection search results (query: \"" + reflection.refinedQuery + "\"):\n" + formattedResult + "\n\nPlease re-answer the user's question based on all the above information. If information is still insufficient, give your best answer directly.",
             });
           }
 
           const roundMs = Date.now() - roundStartTime;
-          console.log(`[simpleAgent] 第 ${i + 1} 轮总耗时: ${(roundMs / 1000).toFixed(2)}s (LLM=${(llmMs / 1000).toFixed(2)}s, 反思=${(reflectionMs / 1000).toFixed(2)}s), 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+          console.log("[simpleAgent] Round " + (i + 1) + " total: " + (roundMs / 1000).toFixed(2) + "s (LLM=" + (llmMs / 1000).toFixed(2) + "s, reflection=" + (reflectionMs / 1000).toFixed(2) + "s), total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
           continue;
         }
 
         pushStep({
           type: "reflection",
           round: i + 1,
-          title: `第 ${i + 1} 轮 — 反思决定：答案充分`,
-          content: "答案已充分回答用户问题，结束迭代",
+          title: "Round " + (i + 1) + " - Reflection: Answer Sufficient",
+          content: "Answer sufficiently addresses the question, ending iteration",
           detail: { needMore: false, llmMs, reflectionMs },
           timestamp: Date.now(),
         });
 
         const roundMs = Date.now() - roundStartTime;
-        console.log(`[simpleAgent] 反思通过，返回最终答案 (本轮耗时: ${(roundMs / 1000).toFixed(2)}s, 其中LLM=${(llmMs / 1000).toFixed(2)}s, 反思=${(reflectionMs / 1000).toFixed(2)}s)`);
+        console.log("[simpleAgent] Reflection passed, return final answer. Round: " + (roundMs / 1000).toFixed(2) + "s (LLM=" + (llmMs / 1000).toFixed(2) + "s, reflection=" + (reflectionMs / 1000).toFixed(2) + "s)");
 
         pushStep({
           type: "answer",
           round: i + 1,
-          title: "最终答案",
+          title: "Final Answer",
           content: assistantContent,
           timestamp: Date.now(),
         });
@@ -1325,19 +1329,19 @@ ${getToolDescriptions()}
       const toolCallsList = toolCalls;
       const invalidTools = toolCallsList.filter((tc) => !tools.find((t) => t.name === tc.name));
       if (invalidTools.length > 0) {
-        const errorMsg = `未找到工具: ${invalidTools.map((t) => t.name).join(", ")}`;
-        console.error(`[simpleAgent] ${errorMsg}`);
+        const errorMsg = "Tool not found: " + invalidTools.map((t) => t.name).join(", ");
+        console.error("[simpleAgent] " + errorMsg);
 
         pushStep({
           type: "tool_call",
           round: i + 1,
-          title: `第 ${i + 1} 轮 — 工具调用失败`,
+          title: "Round " + (i + 1) + " - Tool Call Failed",
           content: errorMsg,
           detail: { toolName: invalidTools[0].name, error: true },
           timestamp: Date.now(),
         });
 
-        messages.push({ role: "user", content: `Observation: 错误 - ${errorMsg}` });
+        messages.push({ role: "user", content: "Observation: Error - " + errorMsg });
         continue;
       }
 
@@ -1347,13 +1351,13 @@ ${getToolDescriptions()}
       for (const toolCall of toolCallsList) {
         const tool = tools.find((t) => t.name === toolCall.name)!;
 
-        console.log(`[simpleAgent] 调用工具: ${toolCall.name}, 参数: ${JSON.stringify(toolCall.params).substring(0, 100)}`);
+        console.log("[simpleAgent] Calling tool: " + toolCall.name + ", params: " + JSON.stringify(toolCall.params).substring(0, 100));
 
         pushStep({
           type: "tool_call",
           round: i + 1,
-          title: `第 ${i + 1} 轮 — 调用工具: ${toolCall.name}`,
-          content: reasoning ? `推理: ${reasoning}\n\n参数: ${JSON.stringify(toolCall.params, null, 2)}` : `参数: ${JSON.stringify(toolCall.params, null, 2)}`,
+          title: "Round " + (i + 1) + " - Calling Tool: " + toolCall.name,
+          content: reasoning ? "Reasoning: " + reasoning + "\n\nParams: " + JSON.stringify(toolCall.params, null, 2) : "Params: " + JSON.stringify(toolCall.params, null, 2),
           detail: { toolName: toolCall.name, params: toolCall.params, reasoning, llmMs },
           timestamp: Date.now(),
         });
@@ -1362,8 +1366,8 @@ ${getToolDescriptions()}
         const toolResult = await tool.execute(toolCall.params);
         const toolMs = Date.now() - toolStartTime;
         totalToolMs += toolMs;
-        console.log(`[simpleAgent] 第 ${i + 1} 轮 工具 ${toolCall.name} 耗时: ${(toolMs / 1000).toFixed(2)}s, 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
-        console.log(`[simpleAgent] 工具结果: ${toolResult.substring(0, 200)}...`);
+        console.log("[simpleAgent] Round " + (i + 1) + " tool " + toolCall.name + ": " + (toolMs / 1000).toFixed(2) + "s, total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
+        console.log("[simpleAgent] Tool result: " + toolResult.substring(0, 200) + "...");
 
         toolObservations.push(`[${toolCall.name}] ${toolResult.substring(0, 500)}`);
 
@@ -1373,7 +1377,7 @@ ${getToolDescriptions()}
           pushStep({
             type: "retrieval",
             round: i + 1,
-            title: `第 ${i + 1} 轮 — RAG 检索结果`,
+            title: "Round " + (i + 1) + " - RAG Search Results",
             content: toolResult.substring(0, 500),
             detail: {
               query: toolCall.params.query as string,
@@ -1387,7 +1391,7 @@ ${getToolDescriptions()}
           pushStep({
             type: "tool_result",
             round: i + 1,
-            title: `第 ${i + 1} 轮 — 工具结果: ${toolCall.name}`,
+            title: "Round " + (i + 1) + " - Tool Result: " + toolCall.name,
             content: toolResult.substring(0, 500),
             detail: { toolName: toolCall.name, resultPreview: toolResult.substring(0, 1000), toolMs },
             timestamp: Date.now(),
@@ -1401,34 +1405,52 @@ ${getToolDescriptions()}
       let observationContent = `Observation:\n${observationParts.join("\n\n")}`;
       if (observationContent.length > MAX_OBSERVATION_LENGTH) {
         const truncated = observationContent.substring(0, MAX_OBSERVATION_LENGTH);
-        observationContent = `${truncated}\n\n[结果已截断，原始长度: ${observationContent.length}字符]`;
-        console.log(`[simpleAgent] 多工具结果已截断: 原始${observationContent.length}字符 → ${MAX_OBSERVATION_LENGTH}字符`);
+        observationContent = truncated + "\n\n[Result truncated, original length: " + observationContent.length + " chars]";
+        console.log("[simpleAgent] Multi-tool result truncated: original " + observationContent.length + " chars -> " + MAX_OBSERVATION_LENGTH + " chars");
       }
+
+      const currentToolNames = toolCallsList.map((tc) => tc.name);
+      const prevSet = new Set(toolCallHistory);
+      const duplicates = currentToolNames.filter((name) => prevSet.has(name));
+      toolCallHistory.push(...currentToolNames);
+
+      if (duplicates.length > 0) {
+        duplicateCallCount++;
+        console.log("[simpleAgent] Duplicate tool calls detected: " + duplicates.join(", ") + " (count: " + duplicateCallCount + ")");
+      } else {
+        duplicateCallCount = 0;
+      }
+
+      if (duplicateCallCount >= 2) {
+        observationContent += "\n\n[IMPORTANT] You have already called these tools before and received results. You MUST NOT call the same tools again. Instead, you MUST immediately output your final answer based on the data you have already collected. Do not call any more tools!";
+        console.log("[simpleAgent] Force output: duplicate call count >= 2, appending force-output instruction");
+      }
+
       messages.push({ role: "user", content: observationContent });
 
       const roundMs = Date.now() - roundStartTime;
       const toolNames = toolCallsList.map((tc) => tc.name).join("+");
-      console.log(`[simpleAgent] 第 ${i + 1} 轮总耗时: ${(roundMs / 1000).toFixed(2)}s (LLM=${(llmMs / 1000).toFixed(2)}s, 工具${toolNames}=${(totalToolMs / 1000).toFixed(2)}s), 累计: ${((Date.now() - startTime) / 1000).toFixed(1)}s`);
+      console.log("[simpleAgent] Round " + (i + 1) + " total: " + (roundMs / 1000).toFixed(2) + "s (LLM=" + (llmMs / 1000).toFixed(2) + "s, tools=" + toolNames + "=" + (totalToolMs / 1000).toFixed(2) + "s), total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
-      console.error(`[simpleAgent] 迭代异常: ${errorMsg}`);
+      console.error("[simpleAgent] Iteration error: " + errorMsg);
 
       pushStep({
         type: "answer",
         round: i + 1,
-        title: "执行异常",
-        content: `Agent 执行出错: ${errorMsg}`,
+        title: "Agent Error",
+        content: "Agent execution error: " + errorMsg,
         timestamp: Date.now(),
       });
 
-      await addMessage(convId, "assistant", `Agent 执行出错: ${errorMsg}`);
+      await addMessage(convId, "assistant", "Agent execution error: " + errorMsg);
 
       const latencyMs = Date.now() - startTime;
       saveAgentLog({
         userId,
         conversationId: convId,
         query,
-        answer: `Agent 执行出错: ${errorMsg}`,
+        answer: "Agent execution error: " + errorMsg,
         model: currentModel,
         iterations: i + 1,
         steps,
@@ -1439,16 +1461,16 @@ ${getToolDescriptions()}
         status: "error",
         errorMessage: errorMsg,
       }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
-      if (needGenerateTitle) await generateConversationTitle(query, `执行出错: ${errorMsg}`, convId, model);
-      return { answer: `Agent 执行出错: ${errorMsg}`, iterations, conversationId: convId, steps };
+      if (needGenerateTitle) await generateConversationTitle(query, "Execution error: " + errorMsg, convId, model);
+      return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps };
     }
   }
 
   pushStep({
     type: "answer",
     round: iterations,
-    title: "超过最大迭代次数",
-    content: "Agent 超过最大迭代次数，未能得出结论。",
+    title: "Max Iterations Reached",
+    content: "Agent reached max iterations without conclusion.",
     timestamp: Date.now(),
   });
 
