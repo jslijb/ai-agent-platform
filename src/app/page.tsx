@@ -231,20 +231,27 @@ export default async function HomePage() {
   const isAdmin = session.user.role === "admin";
   console.log(`[page] user role=${session.user.role}, isAdmin=${isAdmin}`);
 
-  const features = [
+  const features = isAdmin ? [
     {
-      title: "智能对话",
-      desc: "RAG 文档问答、量化分析、合规检查、风控计算、研报生成，自动判断问题类型",
+      title: "RAG 智能问答",
+      desc: "基于文档库的检索增强生成，支持混合检索、重排序、图谱推理",
       href: "/chat",
-      icon: "🤖",
+      icon: "💬",
       color: "blue",
     },
     {
       title: "文档管理",
-      desc: "上传 PDF/TXT 文档，自动解析、切片、向量化，支持原文/切片/向量库预览",
+      desc: "上传 PDF/TXT 文档，自动解析、切片、向量化、索引构建",
       href: "/dashboard/documents",
       icon: "📁",
       color: "green",
+    },
+    {
+      title: "Agent 对话",
+      desc: "量化分析、合规检查、风控计算、研报生成等多 Agent 协作",
+      href: "/chat",
+      icon: "🤖",
+      color: "purple",
     },
     {
       title: "RAG 评估",
@@ -253,23 +260,17 @@ export default async function HomePage() {
       icon: "📊",
       color: "orange",
     },
+  ] : [
     {
-      title: "Agent 评估",
-      desc: "Agent 成功率、迭代轮次、响应时间、Token 消耗等指标监控",
-      href: "/dashboard/agent-evaluation",
-      icon: "🤖",
-      color: "indigo",
-    },
-    {
-      title: "Agent 日志",
-      desc: "查看 Agent 对话日志、执行步骤、工具调用详情",
-      href: "/dashboard/logs",
-      icon: "📋",
-      color: "purple",
+      title: "RAG 智能问答",
+      desc: "基于文档库的检索增强生成，支持混合检索、重排序、图谱推理",
+      href: "/chat",
+      icon: "💬",
+      color: "blue",
     },
     {
       title: "Token 用量",
-      desc: "查看各模型 Token 消耗统计与性能对比",
+      desc: "查看各模型 Token 消耗统计",
       href: "/dashboard/token-usage",
       icon: "💰",
       color: "teal",
@@ -281,8 +282,6 @@ export default async function HomePage() {
     green: "bg-green-50 border-green-200 hover:border-green-400",
     purple: "bg-purple-50 border-purple-200 hover:border-purple-400",
     orange: "bg-orange-50 border-orange-200 hover:border-orange-400",
-    indigo: "bg-indigo-50 border-indigo-200 hover:border-indigo-400",
-    teal: "bg-teal-50 border-teal-200 hover:border-teal-400",
   };
 
   return (
@@ -299,37 +298,19 @@ export default async function HomePage() {
                   href="/chat"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
                 >
-                  智能对话
+                  对话
                 </a>
                 <a
-                  href="/dashboard/documents"
+                  href="/dashboard"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
                 >
-                  文档管理
+                  控制台
                 </a>
                 <a
                   href="/dashboard/evaluation"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
                 >
-                  RAG 评估
-                </a>
-                <a
-                  href="/dashboard/agent-evaluation"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
-                >
-                  Agent 评估
-                </a>
-                <a
-                  href="/dashboard/logs"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
-                >
-                  Agent 日志
-                </a>
-                <a
-                  href="/dashboard/token-usage"
-                  className="text-gray-600 hover:text-gray-900 px-3 py-2 text-sm font-medium"
-                >
-                  Token 用量
+                  评估
                 </a>
               </div>
             </div>
@@ -353,7 +334,7 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {features.map((f) => (
             <a
               key={f.title}

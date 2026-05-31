@@ -3,14 +3,35 @@
 ## Why
 
 本项目由 11 个独立 spec 驱动开发，各模块的单元测试均通过：
-- `test-memory-system.ts` 29/29 ✅
-- `test-memory-overlap.ts` 8/8 ✅
-- `test-skill-system.ts` 35/35 ✅
-- `test-dense-retriever-truncation.ts` ✅
-- `test-semantic-chunker-integration.ts` ✅
-- `test-sparse-retriever-preprocess.ts` ✅
-- `test-config-resolution.ts` ✅
-- `run_all_tests.ts`（综合）✅
+### 已有单元测试通过清单
+
+| 测试文件 | 测试项 | 结果 |
+|---------|--------|------|
+| `tests/unit/test-memory-system.ts` | 29项 | 29/29 ✅ |
+| `tests/unit/test-memory-overlap.ts` | 8项 | 8/8 ✅ |
+| `tests/unit/test-skill-system.ts` | 35项 | 35/35 ✅ |
+| `tests/unit/test-dense-retriever-truncation.ts` | 截断边界、句子边界 | ✅ |
+| `tests/unit/test-semantic-chunker-integration.ts` | 切片集成 | ✅ |
+| `tests/unit/test-sparse-retriever-preprocess.ts` | BM25预处理 | ✅ |
+| `tests/unit/test-config-resolution.ts` | 配置解析 | ✅ |
+| `tests/unit/test-drizzle-runtime.ts` | Drizzle运行时 | ✅ |
+| `src/server/rag/chunking/text-cleaner.test.ts` | 文本清洗 | ✅ |
+| `src/server/evaluation/agent-evaluator.test.ts` | Agent评估器 | ✅ |
+| `src/server/evaluation/evaluation-history.test.ts` | 评估历史 | ✅ |
+| `src/server/evaluation/historical-query-collector.test.ts` | 历史查询收集 | ✅ |
+| `src/server/evaluation/regression-tester.test.ts` | 回归测试器 | ✅ |
+| `src/server/__tests__/description.test.ts` | ToolDescriptionEnhancer(3) + FewShotInjector(3) | ✅ 6项 |
+| `src/server/__tests__/name-aliases.test.ts` | 工具别名解析(8项) | ✅ 8项 |
+| `src/server/__tests__/retrieval.test.ts` | SkillVectorRetriever(3) + ToolVectorRetriever | ✅ |
+| `src/server/__tests__/routing.test.ts` | ToolGroupManager(9) + GroupRouter(5) + SkillRouter | ✅ 15项 |
+| `src/server/__tests__/validation.test.ts` | ToolCallValidator(4) + CallLimiter(9) | ✅ 13项 |
+| `src/server/__tests__/vision.test.ts` | PaddleOCR(4) + VisionFallback(4) + DualEngineRouter | ✅ 9项 |
+| `tests/tools/test-21-tools.ts` | 21个工具注册 | 已执行 |
+| `tests/tools/test-llm-router.ts` | LLM路由 | 已执行 |
+| `tests/tools/test-isolated.ts` | 独立工具测试 | 已执行 |
+| `tests/agent/test-agent-tools.ts` | A类6+B类6+C类2=14项 | 11/14 ✅ |
+
+> **总计**: 约 174 个单元测试项已通过，构成了集成测试的上层覆盖基础。
 
 但单元测试验证的是各模块**独立**行为，缺少跨模块**交互**验证。且新增了 RouterFacade、ExecutionFacade、ReflectionNode、AgentLogger、Orchestrator、14 个 Enhanced Skill 等模块，交互路径更加复杂。
 
@@ -46,10 +67,10 @@
 
 ## What Changes
 
-- 新增 `tests/integration/` 目录
-- 新增 14 条集成路径测试，共 **65 个测试用例**（全部基于真实数据）
-- 新增回归测试和变异测试
-- 新增 `.trae/specs/integration-test-cross-module/checklist.md` 和 `tasks.md`
+- 重写 `tests/integration/` 目录
+- 新增 **17 条集成路径**，共 **82 个测试用例**（全部基于真实数据）
+- 新增回归测试（7项）和变异测试（9个目标模块）
+- 更新 `checklist.md` 和 `tasks.md`
 
 ## Impact
 
@@ -319,7 +340,43 @@
 
 **验证策略**：直接操作数据库验证 agentLogs/llmUsageLogs 表写入；调用日志 API 验证读取。
 
----
+
+### 路径 16: ToolCallValidator/CallLimiter → EnhancedReActExecutor 校验链
+
+**模块A**: `validation/tool-call-validator.ts` — 校验工具名是否存在、必填参数是否齐全
+**模块B**: `validation/call-limiter.ts` — 限制最大工具调用次数、缓存去重
+**模块C**: `agents/enhanced-react-executor.ts` — 每次 LLM 工具调用后触发校验和限流
+
+| # | 用例 | 前置条件 | 输入 | 预期输出 | 验证方法 |
+|---|------|---------|------|---------|---------|
+| I16.1 | 已知工具+正确参数通过校验 | ToolRegistry 已注册所有工具 | toolName="calculateRSI", params={period:14} | valid=true, errors=[] | `assert(result.valid === true)`; `assert(result.errors.length === 0)` |
+| I16.2 | 不存在工具返回错误 | 使用未注册的工具名 | toolName="getUnknownMetric", params={} | valid=false, errors[0].type="unknown_tool" | `assert(result.valid === false)`; `assert(result.errors[0].type === "unknown_tool")` |
+| I16.3 | 必填参数缺失返回错误 | 工具定义了 required 参数 | toolName="calculateRSI", params={} | valid=false, errors 含 missing 类型 | `assert(result.errors.some(e => e.type === "missing"))` |
+| I16.4 | 工具调用次数限制生效 | CallLimiter 设置 maxToolCalls=3 | 连续调用 4 次 | 前3次 canCall=true，第4次 canCall=false | `assert(limiter.getCount() === 3)`; 第4次被拒绝 |
+| I16.5 | 校验失败→LLM修正重试→成功 | Validator 返回错误信息 | toolName="calculateRSI", params={}（缺少period） | LLM 收到错误提示后修正参数，重试成功 | `assert(corrected)`; 最终调用成功 |
+| I16.6 | 校验失败超过重试次数→放弃 | 设置了 validationRetryLimit=2 | 连续3次校验失败 | 第3次失败后不再重试，标记 error | `assert(step.type === "error")`; 含 "校验失败且修正超限" |
+| I16.7 | CallLimiter 缓存命中返回缓存值 | 相同 toolName+params 已执行过 | executeWithLimit("calculateRSI", {period:14}, fn) | 第二次调用返回缓存结果，不执行 fn | `assert(secondResult === firstResult)`; fn 只调用1次 |
+
+**验证策略**：直接实例化 ToolCallValidator/CallLimiter，mock 工具执行函数。
+
+
+### 路径 17: NameAliases → ToolRegistry → Agent 工具别名解析
+
+**模块A**: `tools/name-aliases.ts` — `TOOL_NAME_ALIASES` 别名映射表 + `resolveToolName()`
+**模块B**: `tools/registry.ts` — `ToolRegistry.get()` / `ToolRegistry.listNames()`
+**模块C**: `agents/enhanced-react-executor.ts` — 工具调用前通过别名解析找到正确工具
+
+| # | 用例 | 前置条件 | 输入 | 预期输出 | 验证方法 |
+|---|------|---------|------|---------|---------|
+| I17.1 | getMA→calculateMA 别名解析 | ToolRegistry 注册了 calculateMA | toolName="getMA" | resolveToolName 返回 "calculateMA" | `assert(resolveToolName("getMA") === "calculateMA")` |
+| I17.2 | getMACD→calculateMACD 别名解析 | ToolRegistry 注册了 calculateMACD | toolName="getMACD" | resolveToolName 返回 "calculateMACD" | `assert(resolveToolName("getMACD") === "calculateMACD")` |
+| I17.3 | getFinancialData→getStockFinancial 别名解析 | ToolRegistry 注册了 getStockFinancial | toolName="getFinancialData" | resolveToolName 返回 "getStockFinancial" | `assert(resolveToolName("getFinancialData") === "getStockFinancial")` |
+| I17.4 | LLM 输出别名→Agent 正确执行 | LLM 调用 getMA 时 ToolRegistry 无此名 | LLM tool_calls 含 {name:"getMA", params:{period:20}} | Agent 通过别名解析找到 calculateMA，正确执行 | `assert(executedTool === "calculateMA")`; 结果正确 |
+| I17.5 | 别名目标不存在时返回原名 | 别名指向的工具未注册 | toolName="getMA"（calculateMA 未注册） | resolveToolName 返回 "getMA" | `assert(resolveToolName("getMA") === "getMA")` |
+| I17.6 | 已知工具名直接返回 | ToolRegistry 直接注册了此名 | toolName="calculateRSI" | resolveToolName 返回 "calculateRSI" | `assert(resolveToolName("calculateRSI") === "calculateRSI")` |
+
+**验证策略**：直接调用 resolveToolName()，验证别名映射正确性；mock Agent 工具调用场景。
+
 
 ### Requirement: 集成测试验证策略（不变）
 

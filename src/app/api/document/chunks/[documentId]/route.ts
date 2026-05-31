@@ -10,9 +10,13 @@ export async function GET(
 ) {
   try {
     const session = await auth();
+<<<<<<< HEAD
     const testUserId = request.headers.get("x-test-user-id");
     const userId = session?.user?.id || testUserId;
     if (!userId) {
+=======
+    if (!session?.user?.id) {
+>>>>>>> origin/trae/solo-agent-ToMrL8
       return NextResponse.json({ success: false, message: "未登录" }, { status: 401 });
     }
 
