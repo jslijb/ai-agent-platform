@@ -1,0 +1,16 @@
+- [x] text-cleaner.ts 中 cleanText() 实现了6步清洗（控制字符→空白→Markdown噪声→重复去重→全半角→NFC）
+- [x] text-cleaner.ts 中 fixChunkBoundaries() 修正切片以标点开头/括号结尾的问题
+- [x] 清洗模块单元测试通过（PDF Markdown清洗、控制字符去除、边界修正）
+- [x] semantic-chunker.ts 在切片前调用 cleanText()，切片后调用 fixChunkBoundaries()
+- [x] rawContent 存储原始未清洗文本，chunkText 使用清洗后文本
+- [x] dense-retriever.ts MAX_INPUT_CHARS 从 512 提升到 2000，使用句子边界截断
+- [x] 800字符切片完整参与 embedding 生成，无截断
+- [x] incremental-embedder.ts PDF 文件使用 Buffer 直接传入，不再 utf-8 解码
+- [x] incremental-embedder.ts 移除旧切片拼接 fallback，改为 rawContent fallback
+- [x] incremental-embedder.ts 最终降级标记文档为 failed 而非用文件名
+- [x] sparse-retriever.ts BM25 分词前去除标点、英文小写、数字格式统一（数字逗号优先移除）
+- [x] rebuild-index.ts 重建时先清洗 rawContent 再切片
+- [x] rebuild-index/route.ts 重建时先清洗 rawContent 再切片
+- [x] 切片不再以标点开头（如"，中国长城..."→"中国长城..."）
+- [x] incremental-embedder PDF 更新流程正常工作
+- [x] 重建索引后数据质量提升（对比重建前后的切片内容）

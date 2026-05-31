@@ -1,0 +1,38 @@
+- [ ] MemoryProfile 表已创建，包含 userId, scope, teamId, preferences, frequentStocks, riskProfile, investmentStyle, customNotes 字段
+- [ ] MemorySummary 表已创建，包含 conversationId, userId, messageRangeStart, messageRangeEnd, summary, keyPoints, tokenCount 字段
+- [ ] MemoryFragment 表已创建，包含 userId, scope, teamId, sourceConversationId, sourceType, content, embedding, metadata 字段
+- [ ] Team 表已创建，包含 name, leaderId, description 字段
+- [ ] TeamMember 表已创建，包含 teamId, userId, role 字段
+- [ ] 数据库迁移已执行（drizzle-kit push）
+- [ ] getUserProfile(userId) 已实现，含权限过滤
+- [ ] updateUserProfile(userId, updates) 已实现
+- [ ] 显式偏好提取已实现 — 从用户消息中识别偏好表达并更新画像
+- [ ] 隐式偏好提取已实现 — 统计股票查询频率自动更新 frequentStocks
+- [ ] 画像注入已实现 — 格式化用户画像文本注入 system prompt 末尾
+- [ ] checkAndGenerateSummary 已实现 — 未摘要消息≥20条触发生成
+- [ ] generateRollingSummary 已实现 — 调用 LLM 生成摘要
+- [ ] extractFragmentsFromSummary 已实现 — 从摘要提取 MemoryFragment（含 embedding）
+- [ ] addMessage 已修改 — 写入后调用 checkAndGenerateSummary
+- [ ] getRecentSummaries 已实现 — 按 token 预算返回摘要
+- [ ] retrieveHistoryFragments 已实现 — embedding 检索 + 权限过滤
+- [ ] 权限过滤已实现 — 个人级/团队级/企业级记忆可见性
+- [ ] 片段格式化已实现 — [来源会话 | 日期] 内容
+- [ ] calculateTokenBudget 已实现 — 根据模型 maxTokens 计算各层分配
+- [ ] assembleContext 已实现 — 分层记忆组装入口
+- [ ] 预算裁剪已实现 — 按 L3→L2→L4动态→L1 顺序缩减
+- [ ] runAgent 已修改 — 替换 getRecentMessages 为 assembleContext
+- [ ] checkMemoryAccess 已实现 — userId, scope, teamId, action 权限检查
+- [ ] Team/TeamMember CRUD API 已实现
+- [ ] 所有记忆查询已注入权限过滤条件
+- [ ] 冲突优先级已实现 — 个人 > 团队 > 企业
+- [ ] lastStockData 已改为按 userId 隔离的 Map 缓存，TTL 30分钟
+- [ ] 记忆重合测试：5个重合场景 query 全部执行，验证多种记忆同时生效
+- [ ] 前端记忆管理页面：/dashboard/memories 已实现，支持查看/编辑/删除/导出
+- [ ] 团队管理页面已实现，支持创建团队、邀请成员、管理团队记忆
+- [ ] 知识图谱 API 已实现：GET /api/document/graph/[documentId]，返回 nodes/edges/stats
+- [ ] Neo4j 不可用时 API 返回 neo4jAvailable: false + 提示信息
+- [ ] react-force-graph-2d 已安装
+- [ ] 文档预览面板新增「🔗 知识图谱」tab
+- [ ] 力导向图可视化已实现：节点拖拽、高亮、缩放、关系标签、节点大小按度数
+- [ ] 图谱统计面板已实现：实体数、关系数、Top实体
+- [ ] Neo4j 不可用时前端显示明确提示和修复建议

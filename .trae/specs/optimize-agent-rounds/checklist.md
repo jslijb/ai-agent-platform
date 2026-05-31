@@ -1,0 +1,8 @@
+- [x] parseToolCalls 函数能从 LLM 响应中解析出多个工具调用（0个、1个、2个以上）
+- [x] Agent 主循环同一轮中按顺序执行多个工具调用，所有结果合并为一条 observation
+- [x] 单工具调用场景行为不变（向后兼容）
+- [x] system prompt 引导 LLM 同时输出 getStockHistory + 计算工具
+- [x] 技术指标查询（calculateMA/MACD/RSI/布林带/KDJ/VWAP/夏普/回撤/波动率/VaR）从 3 轮降为 2 轮
+- [ ] getFinancialReport 查询从 3 轮降为 2 轮（仍为3轮，LLM在第2轮额外调用了getStockFinancial）
+- [x] 21 个工具测试全部通过
+- [x] 编译无类型错误

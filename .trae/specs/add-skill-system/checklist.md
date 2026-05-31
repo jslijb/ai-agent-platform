@@ -1,0 +1,19 @@
+- [ ] ToolRegistry 统一注册表创建完成，simpleAgent 和 MCP Server 共用同一套工具
+- [ ] simpleAgent.ts 中 21 个内联工具已提取到独立实现文件
+- [ ] simpleAgent.ts 不再硬编码工具数组，从 ToolRegistry 获取
+- [ ] SkillDefinition 和 SkillStep 接口定义完成
+- [ ] SkillExecutor 支持步骤解析、参数传递（引用前步输出）和并行执行（Promise.all）
+- [ ] Skill 注册表支持 register/get/list/match 操作
+- [ ] "技术分析" Skill 定义完成：getStockHistory → [MA+RSI+Bollinger](并行) → getStockRealtime → 结论
+- [ ] "合规检查" Skill 定义完成：getStockRealtime → [checkTradeCompliance+checkPositionLimit+checkRestrictedStock](并行) → 报告
+- [ ] "风控评估" Skill 定义完成：getStockHistory → [VaR+MaxDrawdown+Volatility](并行) → checkRiskLimits → 报告
+- [ ] "综合诊断" Skill 定义完成：[技术分析+合规检查+风控评估](并行) → 综合报告
+- [ ] simpleAgent 主循环支持 Skill 匹配：匹配到 Skill 时调用 SkillExecutor，无匹配时回退直接工具调用
+- [ ] system prompt 包含可用 Skill 列表及描述
+- [ ] MCP Server 从 ToolRegistry 获取工具列表，不再硬编码注册 6 个工具
+- [ ] MCP Server 支持 skills/list 和 skills/call 方法
+- [ ] MCP SSE 端点支持 Skill 相关的 JSON-RPC 方法
+- [ ] 验证"技术分析"Skill 正确编排工具并并行执行
+- [ ] 验证"综合诊断"Skill 正确并行执行三个子 Skill
+- [ ] 验证无匹配 Skill 时回退到直接工具调用
+- [ ] 验证 MCP 客户端可列举和调用 Skill

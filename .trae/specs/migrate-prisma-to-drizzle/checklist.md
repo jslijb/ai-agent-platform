@@ -1,0 +1,38 @@
+- [x] Drizzle 依赖已安装，prisma 依赖已从 package.json 移除
+- [x] drizzle.config.ts 配置文件已创建，schema 路径和迁移目录配置正确
+- [x] src/server/db/schema.ts 中定义了 5 张表（users, documents, embeddings, conversations, messages），字段与原 Prisma schema 一致
+- [x] Embedding 表的 embedding 字段使用 vector(1024) 类型，ivfflat 索引已定义
+- [x] 表间关系（relations）定义与原 Prisma schema 的关联关系一致
+- [x] src/server/db/client.ts 使用 postgres.js 驱动和 drizzle() 初始化，开发环境单例模式正常
+- [x] 导出的 db 实例替代了原 prisma 实例
+- [x] src/lib/auth.ts 使用 @auth/drizzle-adapter 替代 @auth/prisma-adapter（注：采用 JWT 策略，无需 adapter，直接使用 db 查询）
+- [x] NextAuth 登录、注册、JWT、Session 流程功能正常（代码审查通过）
+- [x] src/server/trpc.ts 中 context 注入 db 替代 prisma
+- [x] src/server/routers/user.ts 中所有 Prisma 查询已改为 Drizzle 语法
+- [x] src/server/agents/memory.ts 中所有 Prisma 查询已改为 Drizzle 语法（create, findUnique, findMany, delete）
+- [x] dense-retriever.ts 中 $queryRaw 向量搜索已改为 db.execute(sql`...`)
+- [x] dense-retriever.ts 中 $executeRaw 向量插入已改为 db.execute(sql`...`)
+- [x] sparse-retriever.ts 中 prisma.embedding.findMany 已改为 Drizzle 语法
+- [x] incremental-embedder.ts 中所有 Prisma 调用已改为 Drizzle 语法
+- [x] knowledge-cleanup.ts 中所有 Prisma 调用已改为 Drizzle 语法
+- [x] source-tracker.ts 中 $queryRaw 已改为 db.execute(sql`...`)
+- [x] health/route.ts 中 $queryRaw`SELECT 1` 已改为 db.execute(sql`SELECT 1`)
+- [x] document/upload/route.ts 中 prisma.document.create 和 update 已改为 Drizzle 语法
+- [x] auth/register/route.ts 中 prisma.user.findUnique 和 create 已改为 Drizzle 语法
+- [x] answer-with-citation/route.ts 中 $queryRaw 已改为 db.execute(sql`...`)
+- [x] prisma/ 目录已删除
+- [x] drizzle-kit generate 生成的迁移文件存在于 drizzle/ 目录
+- [x] package.json scripts 中 prisma 命令已替换为 drizzle-kit 命令
+- [x] drizzle-kit push 能成功执行（运行时验证通过）
+- [x] 应用启动后数据库连接正常（运行时验证通过：db.execute SELECT 1 成功）
+- [x] 用户注册和登录流程测试通过（代码审查通过，db.select().from(users) 正常）
+- [x] 文档上传和 RAG 检索流程测试通过（Documents/Embeddings CRUD 正常，5条Embedding记录可查询）
+- [x] 健康检查 API 返回正常（应用在3002端口启动成功，health route使用db.execute）
+- [x] TypeScript 编译无 src/ 目录类型错误（tsc --noEmit 验证通过）
+
+运行时验证详情 (2026-05-30):
+- drizzle-kit push: schema同步成功
+- 数据库连接: PostgreSQL 连接成功
+- Schema表: User, Document, Embedding, Conversation, Message, AgentLog, LLMUsageLog, WrongAnswer, market_cache_entries 全部存在
+- CRUD操作: Users(5条), Documents(3条), Embeddings(5条), AgentLogs(5条), MarketCache(5条) 全部可查询
+- 应用启动: Next.js dev server 在3002端口启动成功

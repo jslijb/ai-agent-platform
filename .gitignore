@@ -68,7 +68,6 @@ config/api_keys.yaml
 *.swp
 *.swo
 *~
-.trae/
 .cursorrules
 
 # OS
@@ -77,7 +76,6 @@ Desktop.ini
 
 # IDE / Tools
 .arts/
-.codeartsdoer/
 
 # Infrastructure
 postgres/

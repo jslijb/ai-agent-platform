@@ -1,0 +1,57 @@
+- [ ] I1.1 完整四层记忆注入：assembleContext 返回非空，Agent system prompt 包含 memorySection
+- [ ] I1.2 全新用户无记忆：空 L2/L3/L4，Agent 正常执行
+- [ ] I1.3 L4 画像存在但 L2/L3 为空：仅画像注入
+- [ ] I1.4 Token 预算不足时 L3 裁剪：4K 模型下 L3 仅 1-2 条
+- [ ] I1.5 assembleContext 异常时 Agent 降级：记录日志，继续执行
+- [ ] I1.6 跨会话 L3 检索：L3Fragments 包含跨会话引用
+- [ ] I2.1 Skill 正常执行返回结果：success=true，stepResults 完整
+- [ ] I2.2 Skill 中某步骤工具不存在：返回失败，error 含 "未注册"
+- [ ] I2.3 Agent 调用不存在的 Skill：observation 含 "Skill not found"
+- [ ] I2.4 Skill 内并行步骤执行：并行执行时间 < 顺序执行时间
+- [ ] I2.5 Skill 执行超时：Agent 回退到直接工具调用
+- [ ] I2.6 综合诊断 Skill 嵌套执行：子 Skill 顺序执行，综合报告输出
+- [ ] I3.1 工具分组过滤正确：activeTools 含正确工具组
+- [ ] I3.2 查询不匹配任何工具组：routeType="direct"
+- [ ] I3.3 工具组过滤后 activeTools 为空：回退到全部工具
+- [ ] I3.4 工具注册表重复注册：size() 不变，警告日志
+- [ ] I3.5 工具名别名解析：get("getMA") 返回 calculateMA
+- [ ] I4.1 正常清洗→切片→Embedding 全链路：向量维度 1024
+- [ ] I4.2 清洗后文本为空：切片为空数组
+- [ ] I4.3 切片边界修正：不以标点开头
+- [ ] I4.4 Embedding 输入截断：句子边界截断 ≤ 2000 字符
+- [ ] I4.5 清洗后文本含特殊 Unicode：零宽字符移除，全角转半角
+- [ ] I5.1 文档+图谱正常分离精排：results 8 条
+- [ ] I5.2 仅文档结果：graphRerankResults 为空
+- [ ] I5.3 仅图谱结果：docRerankResults 为空
+- [ ] I5.4 两者都为空：results 空数组，success=true
+- [ ] I5.5 图谱三元组限流：三元组数量 ≤ 5
+- [ ] I5.6 精排后文档排名不被图谱挤占：排名基于自身分数
+- [ ] I6.1 正常降级链构建：链长度 = 模型数
+- [ ] I6.2 models 列表为空：错误信息含 "models 列表为空"
+- [ ] I6.3 第一个模型不可用降级：自动尝试下一个模型
+- [ ] I6.4 所有模型不可用：错误信息含 "所有模型"
+- [ ] I6.5 配置值非环境变量格式保留原值：值不变
+- [ ] I6.6 环境变量特殊字符处理：API 调用正常
+- [ ] I6.7 context 字段不匹配：Token 预算使用配置值
+- [ ] I7.1 MemoryFragment 有 embedding 正常检索：返回相关片段
+- [ ] I7.2 MemoryFragment 无 embedding 降级：时间倒序返回
+- [ ] I7.3 MemoryFragment 表为空：返回空数组
+- [ ] I7.4 向量维度不匹配：记录错误，返回空
+- [ ] I8.1 清洗后检索质量提升：噪声切片被排除
+- [ ] I8.2 切片边界修正后检索改善：不出现标点开头切片
+- [ ] I8.3 Agent 调用 hybridSearch：全链路正常
+- [ ] I8.4 文档 status=failed 时检索降级：提示数据不可用
+- [ ] I8.5 BM25 不可用降级：仅 dense 检索
+- [ ] I9.1 Agent 正常回答被评估消费：评估报告含工具调用记录
+- [ ] I9.2 Agent 错误时评估：标记失败，不崩溃
+- [ ] I9.3 Agent 空回答时评估：各指标为 0
+- [ ] I9.4 Agent 超长回答时评估：正常处理
+- [ ] I9.5 评估版本对比：版本号自增，对比报告含 Δ 值
+- [ ] I10.1 tushare token 正确读取：返回值非空
+- [ ] I10.2 数据源降级：efinance 失败 → baostock
+- [ ] I10.3 所有数据源不可用：明确错误信息
+- [ ] I10.4 缓存命中时不调用数据源：日志含 "缓存命中"
+- [ ] I10.5 缓存迁移后数据一致性：前后数据一致
+- [ ] 回归测试：7 项检查全部通过
+- [ ] 变异测试：各模块存活率 ≥ 60%
+- [ ] 测试报告对比：生成集成测试 vs 单元测试对比报告
