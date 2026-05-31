@@ -36,7 +36,7 @@ export abstract class BaseAgent {
       undefined,
       this.config.temperature ?? 0
     );
-    return response.content;
+    return response.content ?? "";
   }
 
   protected buildSystemPrompt(): string {

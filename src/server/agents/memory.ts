@@ -541,7 +541,7 @@ ${conversationContext}`;
       [{ role: "user", content: summaryPrompt }],
       0.3
     );
-    const summaryText = summaryResult.content;
+    const summaryText = summaryResult.content ?? "";
 
     const keyPointsMatch = summaryText.match(/关键数据点[：:]\s*([\s\S]*?)$/);
     const keyPoints = keyPointsMatch

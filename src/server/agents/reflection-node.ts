@@ -79,7 +79,7 @@ ${resultsSummary || "（无检索结果）"}
 
   try {
     const response = await callBailian(messages, undefined, 0);
-    const content = response.content.trim();
+    const content = (response.content ?? "").trim();
 
     console.log(`[reflection-node] LLM 反思评估响应: ${content.substring(0, 300)}`);
 

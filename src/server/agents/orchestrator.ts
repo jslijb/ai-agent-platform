@@ -2,6 +2,8 @@ import { callBailianWithCache } from "@/server/llm/cache";
 import type { BailianMessage } from "@/server/llm/providers/bailian";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
+import { RouterFacade } from "@/server/agents/routing/router-facade";
+import { ExecutionFacade } from "@/server/agents/execution-facade";
 import {
   calculateMA, calculateMACD, calculateRSI, calculateBollinger,
   calculateKDJ, calculateVWAP, calculateSharpeRatio,
@@ -18,7 +20,7 @@ interface OrchestratorState {
   currentAnswer: string;
   iterations: number;
   searchResults: string[];
-  route: "research" | "quant" | "compliance" | "general";
+  route: "research" | "quant" | "compliance" | "general" | "skill";
   done: boolean;
 }
 
@@ -116,11 +118,54 @@ async function executeTool(name: string, params: Record<string, unknown>): Promi
   }
 }
 
+const routerFacade = new RouterFacade();
+const executionFacade = new ExecutionFacade();
+
+let routerInitialized = false;
+async function ensureRouterInitialized(): Promise<void> {
+  if (routerInitialized) return;
+  try {
+    await routerFacade.initialize();
+  } catch {
+    console.warn("[orchestrator] RouterFacade初始化失败，使用降级路由");
+  }
+  routerInitialized = true;
+}
+
 export async function runOrchestrator(
   query: string,
   maxIterations: number = 5
 ): Promise<{ answer: string; iterations: number; route: string }> {
   const startTime = Date.now();
+
+  await ensureRouterInitialized();
+
+  try {
+    const decision = routerFacade.route(query);
+
+    if (decision.routeType === "skill" && decision.matchedSkill) {
+      console.log(`[orchestrator] RouterFacade路由到Skill: ${decision.matchedSkill.name}, 查询: ${query}`);
+
+      const result = await executionFacade.execute(
+        decision,
+        query,
+        {
+          routeType: decision.routeType,
+          availableTools: decision.availableTools,
+          systemPrompt: decision.enhancedPrompt,
+        }
+      );
+
+      return {
+        answer: result.output,
+        iterations: 1,
+        route: "skill",
+      };
+    }
+  } catch (err) {
+    console.warn(`[orchestrator] RouterFacade路由失败，降级到传统路由: ${err instanceof Error ? err.message : String(err)}`);
+  }
+
   const route = routeQuery(query);
   console.log(`[orchestrator] 查询路由: ${route}, 查询: ${query}`);
 
@@ -143,7 +188,7 @@ export async function runOrchestrator(
 
     try {
       const response = await callBailianWithCache(messages, undefined, 0);
-      const assistantContent = response.content;
+      const assistantContent = response.content ?? "";
 
       messages.push({ role: "assistant", content: assistantContent });
 
