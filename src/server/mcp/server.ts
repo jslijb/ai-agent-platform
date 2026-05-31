@@ -1,3 +1,6 @@
+import { ToolRegistry } from "@/server/tools/registry";
+import { SkillRegistry, executeSkill } from "@/server/agents/skills";
+
 interface MCPTool {
   name: string;
   description: string;
@@ -24,12 +27,37 @@ export function listTools(): Array<{ name: string; description: string; inputSch
   }));
 }
 
+export function listSkills(): Array<{ name: string; description: string; triggerKeywords?: string[]; stepCount: number }> {
+  return SkillRegistry.list().map((s) => ({
+    name: s.name,
+    description: s.description,
+    triggerKeywords: s.triggerKeywords,
+    stepCount: s.steps.length,
+  }));
+}
+
 export async function callTool(name: string, params: Record<string, unknown>): Promise<string> {
   const tool = registeredTools.get(name);
-  if (!tool) {
-    throw new Error(`工具不存在: ${name}`);
+  if (tool) {
+    return tool.handler(params);
   }
-  return tool.handler(params);
+
+  const registryTool = ToolRegistry.get(name);
+  if (registryTool) {
+    const result = await registryTool.execute(params);
+    return typeof result === "string" ? result : JSON.stringify(result);
+  }
+
+  throw new Error(`工具不存在: ${name}`);
+}
+
+export async function callSkill(name: string, params: Record<string, unknown>): Promise<string> {
+  const skill = SkillRegistry.get(name);
+  if (!skill) {
+    throw new Error(`Skill不存在: ${name}`);
+  }
+  const result = await executeSkill(skill, params);
+  return result.finalOutput;
 }
 
 export function registerAllTools(): void {
@@ -143,4 +171,6 @@ export function registerAllTools(): void {
   });
 
   console.log(`[mcp-server] 工具注册完成，共 ${registeredTools.size} 个工具`);
+  console.log(`[mcp-server] ToolRegistry 中还有 ${ToolRegistry.size()} 个工具可通过 callTool 访问`);
+  console.log(`[mcp-server] SkillRegistry 中有 ${SkillRegistry.list().length} 个Skill可通过 callSkill 访问`);
 }

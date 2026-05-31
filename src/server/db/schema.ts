@@ -6,6 +6,9 @@ import {
   jsonb,
   index,
   customType,
+  serial,
+  varchar,
+  numeric,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -478,3 +481,69 @@ export const teamMembersRelations = relations(teamMembers, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const evaluationPool = pgTable(
+  "evaluation_pool",
+  {
+    id: serial("id").primaryKey(),
+    query: text("query").notNull(),
+    answer: text("answer"),
+    context: text("context"),
+    toolsUsed: varchar("tools_used", { length: 512 }),
+    category: varchar("category", { length: 64 }),
+    source: varchar("source", { length: 32 }).notNull(),
+    userFeedback: varchar("user_feedback", { length: 16 }),
+    conversationId: varchar("conversation_id", { length: 64 }),
+    model: varchar("model", { length: 64 }),
+    iterations: integer("iterations"),
+    latencyMs: integer("latency_ms"),
+    tokenUsage: integer("token_usage"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    sourceIdx: index("evaluation_pool_source_idx").on(table.source),
+    categoryIdx: index("evaluation_pool_category_idx").on(table.category),
+    createdAtIdx: index("evaluation_pool_created_at_idx").on(table.createdAt),
+  }),
+);
+
+export const evaluationVersions = pgTable(
+  "evaluation_versions",
+  {
+    id: serial("id").primaryKey(),
+    version: integer("version").notNull(),
+    timestamp: varchar("timestamp", { length: 64 }).notNull(),
+    evaluationType: varchar("evaluation_type", { length: 32 }).notNull(),
+    evaluationLevel: varchar("evaluation_level", { length: 16 }).notNull(),
+    dataSource: varchar("data_source", { length: 32 }).notNull(),
+    dataSourceDetail: varchar("data_source_detail", { length: 256 }),
+    triggerMode: varchar("trigger_mode", { length: 16 }).notNull(),
+    milestone: varchar("milestone", { length: 256 }),
+    totalTests: integer("total_tests").notNull(),
+    overallScore: numeric("overall_score", { precision: 8, scale: 4 }).notNull(),
+    financialOverallScore: numeric("financial_overall_score", { precision: 8, scale: 4 }),
+    avgHitsAtK: numeric("avg_hits_at_k", { precision: 8, scale: 4 }),
+    avgContextRelevance: numeric("avg_context_relevance", { precision: 8, scale: 4 }),
+    avgContextRecall: numeric("avg_context_recall", { precision: 8, scale: 4 }),
+    avgFaithfulness: numeric("avg_faithfulness", { precision: 8, scale: 4 }),
+    avgAnswerRelevance: numeric("avg_answer_relevance", { precision: 8, scale: 4 }),
+    avgNumericalAccuracy: numeric("avg_numerical_accuracy", { precision: 8, scale: 4 }),
+    avgComplianceScore: numeric("avg_compliance_score", { precision: 8, scale: 4 }),
+    avgHallucinationRate: numeric("avg_hallucination_rate", { precision: 8, scale: 4 }),
+    avgRiskDisclosureScore: numeric("avg_risk_disclosure_score", { precision: 8, scale: 4 }),
+    avgTimelinessScore: numeric("avg_timeliness_score", { precision: 8, scale: 4 }),
+    avgToolSelectionScore: numeric("avg_tool_selection_score", { precision: 8, scale: 4 }),
+    avgPlanningScore: numeric("avg_planning_score", { precision: 8, scale: 4 }),
+    avgAgentComplianceScore: numeric("avg_agent_compliance_score", { precision: 8, scale: 4 }),
+    avgConsistencyScore: numeric("avg_consistency_score", { precision: 8, scale: 4 }),
+    avgEfficiencyScore: numeric("avg_efficiency_score", { precision: 8, scale: 4 }),
+    reportJson: text("report_json"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    evaluationTypeIdx: index("evaluation_versions_type_idx").on(table.evaluationType),
+    evaluationLevelIdx: index("evaluation_versions_level_idx").on(table.evaluationLevel),
+    timestampIdx: index("evaluation_versions_timestamp_idx").on(table.timestamp),
+    createdAtIdx: index("evaluation_versions_created_at_idx").on(table.createdAt),
+  }),
+);

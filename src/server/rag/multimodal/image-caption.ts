@@ -159,7 +159,7 @@ export async function describeImage(imageBase64: string): Promise<string> {
         },
       ]);
       console.log("[image-caption] 降级处理完成");
-      return response.content;
+      return response.content ?? "";
     } catch (fallbackError) {
       console.error("[image-caption] 降级处理也失败:", fallbackError);
       return "[图片内容暂无法识别]";

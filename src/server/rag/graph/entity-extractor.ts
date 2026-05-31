@@ -164,7 +164,7 @@ export async function extractTriples(text: string): Promise<Triple[]> {
         { role: "user", content: prompt },
       ]);
 
-      const triples = parseTriplesFromResponse(response.content);
+      const triples = parseTriplesFromResponse(response.content ?? "");
       console.log(
         `[entity-extractor] 第 ${i + 1} 段提取到 ${triples.length} 个三元组 (模型: ${response.model})`
       );

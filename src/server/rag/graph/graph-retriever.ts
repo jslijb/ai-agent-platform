@@ -57,7 +57,7 @@ export async function extractQueryEntities(query: string): Promise<string[]> {
       { role: "user", content: prompt },
     ]);
 
-    const entities = parseEntitiesFromResponse(response.content);
+    const entities = parseEntitiesFromResponse(response.content ?? "");
     console.log(
       `[graph-retriever] 提取到实体: ${entities.join(", ") || "无"} (模型: ${response.model})`
     );

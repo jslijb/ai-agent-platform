@@ -17,7 +17,7 @@ export async function hydeRewrite(originalQuery: string): Promise<string> {
 
   try {
     const response = await callWithFallback(messages);
-    const hydeText = response.content.trim();
+    const hydeText = (response.content ?? "").trim();
 
     console.log(`[HyDE] 改写完成, 假设文档长度: ${hydeText.length} 字`);
     console.log(`[HyDE] 假设文档: ${hydeText.substring(0, 100)}...`);
