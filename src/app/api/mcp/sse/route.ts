@@ -1,4 +1,4 @@
-import { listTools, callTool, registerAllTools } from "@/server/mcp/server";
+import { listTools, callTool, callSkill, listSkills, registerAllTools } from "@/server/mcp/server";
 
 let toolsRegistered = false;
 
@@ -9,11 +9,13 @@ export async function GET() {
   }
 
   const tools = listTools();
+  const skills = listSkills();
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({
     start(controller) {
       controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "tools", tools })}\n\n`));
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "skills", skills })}\n\n`));
       controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: "ping" })}\n\n`));
       controller.close();
     },
@@ -45,6 +47,16 @@ export async function POST(request: Request) {
     if (method === "tools/call") {
       const { name, arguments: args } = params || {};
       const result = await callTool(name, args || {});
+      return Response.json({ content: [{ type: "text", text: result }] });
+    }
+
+    if (method === "skills/list") {
+      return Response.json({ skills: listSkills() });
+    }
+
+    if (method === "skills/call") {
+      const { name, arguments: args } = params || {};
+      const result = await callSkill(name, args || {});
       return Response.json({ content: [{ type: "text", text: result }] });
     }
 

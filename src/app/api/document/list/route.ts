@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db/client";
 import { documents, embeddings } from "@/server/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
+import { deleteGraph } from "@/server/rag/graph/graph-builder";
 
 export async function GET(request: Request) {
   try {
@@ -53,6 +54,12 @@ export async function DELETE(request: Request) {
 
     await db.delete(embeddings).where(eq(embeddings.documentId, documentId));
     await db.delete(documents).where(eq(documents.id, documentId));
+
+    try {
+      await deleteGraph(documentId);
+    } catch (graphError) {
+      console.error(`[文档删除] 图谱清理失败（不影响文档删除）, docId: ${documentId}:`, graphError);
+    }
 
     console.log(`[文档删除] 已删除: ${documentId}`);
     return NextResponse.json({ success: true });

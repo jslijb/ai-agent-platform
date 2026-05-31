@@ -84,6 +84,11 @@ interface GraphData {
 
 const STATUS_MAP: Record<string, { label: string; color: string }> = {
   pending: { label: "等待处理", color: "bg-yellow-100 text-yellow-700" },
+  uploaded: { label: "已上传", color: "bg-blue-100 text-blue-700" },
+  chunking: { label: "分块处理中", color: "bg-blue-100 text-blue-700" },
+  embedding: { label: "生成向量中", color: "bg-blue-100 text-blue-700" },
+  indexing: { label: "建立索引中", color: "bg-blue-100 text-blue-700" },
+  graphing: { label: "构建图谱中", color: "bg-blue-100 text-blue-700" },
   processing: { label: "处理中", color: "bg-blue-100 text-blue-700" },
   completed: { label: "已完成", color: "bg-green-100 text-green-700" },
   partial: { label: "部分完成", color: "bg-orange-100 text-orange-700" },
@@ -341,6 +346,18 @@ export default function DocumentsPage() {
     }
   }, [authStatus, router, fetchDocs, fetchReports, reportPage, reportSearch, selectedCategory]);
 
+  useEffect(() => {
+    const processingStatuses = ["uploaded", "chunking", "embedding", "indexing", "graphing", "processing"];
+    const hasProcessing = docs.some((d) => processingStatuses.includes(d.status));
+    if (!hasProcessing) return;
+
+    const interval = setInterval(() => {
+      fetchDocs();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [docs, fetchDocs]);
+
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -361,12 +378,7 @@ export default function DocumentsPage() {
         const res = await fetch("/api/document/upload", { method: "POST", body: formData });
         const data = await res.json();
         if (data.success) {
-          const graphInfo = data.graphStatus === "failed"
-            ? ` (图谱失败: ${data.graphMessage || "未知"})`
-            : data.graphStatus === "no_triples"
-            ? " (无三元组)"
-            : "";
-          results.push({ fileName: file.name, success: true, message: `分块数: ${data.chunkCount}${graphInfo}` });
+          results.push({ fileName: file.name, success: true, message: "已上传，后台处理中..." });
         } else {
           results.push({ fileName: file.name, success: false, message: data.message || "未知错误" });
         }
@@ -381,10 +393,10 @@ export default function DocumentsPage() {
     const failCount = results.filter((r) => !r.success).length;
 
     if (failCount === 0) {
-      setUploadMsg(`全部上传成功! ${successCount} 个文档已处理`);
+      setUploadMsg(`${successCount} 个文档已上传，正在后台处理...`);
     } else {
       const failedNames = results.filter((r) => !r.success).map((r) => r.fileName).join(", ");
-      setUploadMsg(`成功 ${successCount} 个, 失败 ${failCount} 个: ${failedNames}`);
+      setUploadMsg(`上传 ${successCount} 个成功, ${failCount} 个失败: ${failedNames}`);
     }
 
     await fetchDocs();
@@ -759,6 +771,7 @@ export default function DocumentsPage() {
               <tbody>
                 {docs.map((doc) => {
                   const st = STATUS_MAP[doc.status] || { label: doc.status, color: "bg-gray-100 text-gray-600" };
+                  const stepName = (doc.metadata as any)?.stepName;
                   return (
                     <tr key={doc.id} className={`border-b hover:bg-gray-50 ${selectedDoc?.id === doc.id ? "bg-blue-50" : ""}`}>
                       <td className="px-4 py-3">
@@ -769,6 +782,9 @@ export default function DocumentsPage() {
                         <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${st.color}`}>
                           {st.label}
                         </span>
+                        {stepName && doc.status !== "completed" && doc.status !== "partial" && doc.status !== "failed" && (
+                          <div className="text-xs text-blue-500 mt-1">{stepName}</div>
+                        )}
                         {doc.status === "partial" && doc.metadata && typeof doc.metadata === "object" && "graphMessage" in doc.metadata && (
                           <div className="text-xs text-orange-500 mt-1" title={String(doc.metadata.graphMessage)}>
                             图谱: {String(doc.metadata.graphMessage).slice(0, 30)}

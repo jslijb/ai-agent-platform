@@ -76,6 +76,8 @@ services:
       --embedding
       --pooling cls
       -c 8192
+      -b 1024
+      -ub 1024
       -t 4
     networks:
       - aiagent_net

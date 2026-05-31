@@ -1,0 +1,228 @@
+{
+  "test_time": "2026-05-30T11:36:43.067Z",
+  "environment": "http://localhost:3001",
+  "total": 14,
+  "passed": 11,
+  "failed": 3,
+  "results": [
+    {
+      "id": "A1",
+      "company": "五粮液",
+      "query": "五粮液2025年毛利率与近60日MA20趋势对比，结合年报分析毛利率变动原因",
+      "success": true,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory",
+        "calculateMA",
+        "hybridSearch"
+      ],
+      "toolCallCount": 4,
+      "iterations": 2,
+      "durationMs": 42238,
+      "answerPreview": "## 五粮液（000858）2025年毛利率与MA20趋势对比分析\n\n---\n\n### 一、2025年毛利率核心数据\n\n| 指标 | 2025年 | 同比变动 |\n|------|--------|----------|\n| **综合毛利率** | **81.43%** | — |\n| 酒类产品毛利率 | 83.75% | **+1.54个百分点** |\n| 五粮液产品毛利率 | 89.55% |"
+    },
+    {
+      "id": "A2",
+      "company": "五粮液",
+      "query": "五粮液2025年资产负债率是多少？结合近30日成交量变化分析其偿债能力",
+      "success": false,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory"
+      ],
+      "toolCallCount": 2,
+      "iterations": 2,
+      "durationMs": 31550,
+      "error": "工具种类数 2 < 最低要求 3（调用: getFinancialReport, getStockHistory）",
+      "answerPreview": "## 五粮液（000858）资产负债率及偿债能力分析\n\n### 一、2025年资产负债率\n\n根据五粮液2025年年报（报告期：2025-12-31），关键资产负债数据如下：\n\n| 指标 | 2025年末 | 2025Q3 | 2025H1 | 2025Q1 |\n|------|---------|--------|--------|--------|\n| **总资产（亿元）** | 1,899.8"
+    },
+    {
+      "id": "A3",
+      "company": "中国长城",
+      "query": "中国长城2025年研发费用占营收比例是多少？结合RSI指标分析近期股价是否超买",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory",
+        "calculateRSI",
+        "hybridSearch"
+      ],
+      "toolCallCount": 4,
+      "iterations": 3,
+      "durationMs": 47436,
+      "answerPreview": "根据获取到的数据，为您分析中国长城（000066）的研发费用情况及近期RSI技术指标：\n\n### 1. 2025年研发费用及占营收比例\n* **研发费用**：根据检索到的2025年年报片段，中国长城2025年的研发费用为 **1,087,421,743.45元（约10.87亿元）**，较上期的11.30亿元同比下降3.80%。\n* **营收占比**：由于详细财务报表接口获取失败，未能直接获取到20"
+    },
+    {
+      "id": "A4",
+      "company": "中国长城",
+      "query": "中国长城2025年经营现金流净额是多少？结合MACD指标判断当前趋势",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory",
+        "calculateMACD"
+      ],
+      "toolCallCount": 3,
+      "iterations": 2,
+      "durationMs": 28919,
+      "answerPreview": "## 中国长城（000066）经营现金流与MACD趋势分析\n\n### 一、2025年经营现金流净额\n\n根据中国长城2025年年报（报告期：2025-12-31，披露日期：2026-04-29）：\n\n| 指标 | 金额 |\n|------|------|\n| **经营活动现金流净额** | **-3.26亿元**（-325,785,004.20元） |\n| 销售商品/提供劳务收到现金 | 161.4"
+    },
+    {
+      "id": "A5",
+      "company": "格力电器",
+      "query": "格力电器2025年应收账款周转天数是多少？结合布林带分析股价波动区间",
+      "success": true,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory",
+        "calculateBollinger",
+        "getFinancialReport",
+        "hybridSearch"
+      ],
+      "toolCallCount": 8,
+      "iterations": 5,
+      "durationMs": 76901,
+      "answerPreview": "根据已获取的数据，我来为您分析格力电器的应收账款周转天数和布林带指标。\n\n## 一、格力电器2025年应收账款周转天数\n\n### 数据来源说明\n利润表数据获取失败，无法直接获取2025年全年营业收入。以下基于资产负债表数据和行业公开信息进行估算：\n\n**已知数据（来自资产负债表）：**\n- 2025年末应收账款：**159.87亿元**（15,987,180,598.76元）\n- 2026年Q1营"
+    },
+    {
+      "id": "A6",
+      "company": "格力电器",
+      "query": "格力电器2025年分红方案是什么？结合夏普比率评估投资回报质量",
+      "success": true,
+      "toolKinds": [
+        "hybridSearch",
+        "getStockHistory",
+        "calculateSharpeRatio"
+      ],
+      "toolCallCount": 3,
+      "iterations": 2,
+      "durationMs": 41105,
+      "answerPreview": "根据检索到的公司财报与公告文档，以及获取的历史股价数据，为您对格力电器（sz.000651）的分红情况及投资回报质量进行综合评估：\n\n### 一、 格力电器2025年分红情况\n在检索到的知识库文档中，**未明确披露格力电器2025年度具体的每股现金分红预案（如“每10股派X元”）**（注：检索结果中混入了五粮液的分红数据，需注意区分）。但关于股东回报，文档明确了以下核心信息：\n1. **分红理念与"
+    },
+    {
+      "id": "B1",
+      "company": "五粮液+格力电器",
+      "query": "五粮液和格力电器2025年净利率谁更高？结合近20日换手率对比市场活跃度",
+      "success": false,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory"
+      ],
+      "toolCallCount": 4,
+      "iterations": 3,
+      "durationMs": 33827,
+      "error": "工具种类数 2 < 最低要求 3（调用: getStockFinancial, getStockHistory）",
+      "answerPreview": "根据获取到的财务和交易数据，以下是五粮液与格力电器的净利率及市场活跃度对比分析：\n\n### 1. 净利率对比：五粮液显著更高\n* **五粮液（000858）**：净利率为 **36.45%**（毛利率 81.43%）\n* **格力电器（000651）**：净利率为 **14.19%**（毛利率 27.42%）\n\n**分析**：五粮液的净利率远高于格力电器。这主要源于行业商业模式的差异——五粮液作为"
+    },
+    {
+      "id": "B2",
+      "company": "五粮液+中国长城",
+      "query": "五粮液和中国长城2025年存货周转率对比如何？结合KDJ指标分析短期超买超卖",
+      "success": true,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory",
+        "calculateKDJ",
+        "getFinancialReport",
+        "hybridSearch"
+      ],
+      "toolCallCount": 9,
+      "iterations": 4,
+      "durationMs": 43815,
+      "answerPreview": "根据工具获取的数据，为您对五粮液（000858）和中国长城（000066）的存货周转率及KDJ指标进行对比分析：\n\n### 一、 2025年存货周转率对比\n\n**数据说明**：通过财务数据接口和知识库检索，未能直接获取到两家公司2025年度具体的“存货周转率”数值。但基于两家公司的行业特性，可进行以下定性对比：\n\n1. **五粮液（白酒行业）**：白酒企业的存货主要由基酒和成品酒构成，其中优质基酒"
+    },
+    {
+      "id": "B3",
+      "company": "格力电器+中国长城",
+      "query": "格力电器和中国长城2025年ROE谁更高？结合最大回撤对比风险水平",
+      "success": true,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory",
+        "calculateMaxDrawdown"
+      ],
+      "toolCallCount": 7,
+      "iterations": 4,
+      "durationMs": 43944,
+      "answerPreview": "## 格力电器 vs 中国长城：ROE与风险对比分析\n\n### 一、ROE对比（最新财报数据）\n\n| 指标 | 格力电器（000651） | 中国长城（000066） |\n|------|:---:|:---:|\n| **ROE** | **4.07%** ✅ | **-0.76%** ❌ |\n| 毛利率 | 27.42% | 18.83% |\n| 净利率 | 14.19% | -2.85% |\n"
+    },
+    {
+      "id": "B4",
+      "company": "五粮液+格力电器",
+      "query": "五粮液和格力电器2025年商誉金额分别是多少？结合波动率对比股价稳定性",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory",
+        "calculateVolatility",
+        "hybridSearch"
+      ],
+      "toolCallCount": 9,
+      "iterations": 4,
+      "durationMs": 43902,
+      "answerPreview": "根据我获取的财务数据和历史行情数据，为您分析五粮液和格力电器的商誉情况及股价稳定性：\n\n### 一、 2025年商誉金额情况\n\n很抱歉，通过调取两家公司的资产负债表摘要数据，**系统返回的字段中未包含具体的“商誉”科目金额**，因此无法为您提供精确的商誉数字。但结合知识库检索的2025年年报文档及行业特性，可以得出以下结论：\n\n1. **五粮液（000858）**：作为传统白酒龙头企业，五粮液主要"
+    },
+    {
+      "id": "B5",
+      "company": "中国长城+格力电器",
+      "query": "中国长城和格力电器2025年合同负债分别是多少？结合VWAP对比机构持仓成本",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory",
+        "hybridSearch",
+        "calculateVWAP"
+      ],
+      "toolCallCount": 10,
+      "iterations": 5,
+      "durationMs": 55429,
+      "answerPreview": "## 中国长城与格力电器2025年合同负债及VWAP对比分析\n\n### 一、2025年合同负债情况\n\n| 公司 | 2025年期末合同负债 | 2025年期初合同负债 | 同比变动 | 备注 |\n|------|-------------------|-------------------|---------|------|\n| **格力电器** (000651) | **152.07亿元** ("
+    },
+    {
+      "id": "B6",
+      "company": "五粮液+中国长城",
+      "query": "五粮液和中国长城2025年无形资产分别是多少？结合VaR对比尾部风险",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory",
+        "calculateVaR",
+        "hybridSearch"
+      ],
+      "toolCallCount": 9,
+      "iterations": 4,
+      "durationMs": 51335,
+      "answerPreview": "关于您查询的五粮液（000858）和中国长城（000066）2025年无形资产及尾部风险对比，分析如下：\n\n### 一、 2025年无形资产情况\n很抱歉，通过调用财务报表接口获取的资产负债表标准字段中，未直接返回“无形资产”这一具体科目数据；同时通过RAG检索两家公司的2025年年报文档，也未能精准提取到无形资产的具体金额。因此，**未能获取到两家公司2025年无形资产的确切数值**。\n*（注：通"
+    },
+    {
+      "id": "C1",
+      "company": "五粮液+格力电器+中国长城",
+      "query": "五粮液、格力电器、中国长城2025年营业收入增速排名如何？结合相关性分析三只股票走势的联动性",
+      "success": true,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory",
+        "calculateCorrelation"
+      ],
+      "toolCallCount": 10,
+      "iterations": 4,
+      "durationMs": 42344,
+      "answerPreview": "## 五粮液、格力电器、中国长城 2025年营收增速排名及走势联动性分析\n\n### 一、2025年营业收入增速排名\n\n根据最新财报数据（截至2026-05-29最新交易日可获取的财报），三只股票营收同比增速排名如下：\n\n| 排名 | 股票 | 营业收入（亿元） | 营收同比增速 |\n|:---:|------|:---:|:---:|\n| 🥇 1 | **五粮液**（000858） | 228."
+    },
+    {
+      "id": "C2",
+      "company": "五粮液+格力电器+中国长城",
+      "query": "五粮液、格力电器、中国长城2025年经营活动现金流净额分别是多少？结合压力测试对比三家公司极端行情下的风险承受能力",
+      "success": false,
+      "toolKinds": [
+        "getFinancialReport",
+        "calculateStressTest"
+      ],
+      "toolCallCount": 5,
+      "iterations": 4,
+      "durationMs": 43712,
+      "error": "工具种类数 2 < 最低要求 3（调用: getFinancialReport, calculateStressTest）",
+      "answerPreview": "截至2025年12月31日（2025年报），五粮液、格力电器和中国长城的经营活动现金流净额及基本面数据如下：\n\n### 1. 2025年经营活动现金流净额对比\n*   **格力电器 (000651)**：463.83亿元（造血能力最强）\n*   **五粮液 (000858)**：297.06亿元（现金流极其充沛）\n*   **中国长城 (000066)**：-3.26亿元（经营现金流失血）\n\n##"
+    }
+  ]
+}

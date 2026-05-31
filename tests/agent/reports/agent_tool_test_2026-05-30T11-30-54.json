@@ -1,0 +1,25 @@
+{
+  "test_time": "2026-05-30T11:30:54.480Z",
+  "environment": "http://localhost:3001",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "id": "A3",
+      "company": "中国长城",
+      "query": "中国长城2025年研发费用占营收比例是多少？结合RSI指标分析近期股价是否超买",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory",
+        "calculateRSI",
+        "hybridSearch"
+      ],
+      "toolCallCount": 5,
+      "iterations": 4,
+      "durationMs": 34231,
+      "answerPreview": "## 中国长城（000066）研发费用占比与RSI分析\n\n---\n\n### 一、2025年研发费用占营收比例\n\n根据中国长城2025年年度报告数据：\n\n| 项目 | 金额（元） |\n|------|-----------|\n| **研发费用** | 1,087,421,743.45（约10.87亿元） |\n| **营业收入** | 15,808,600,064.94（约158.09亿元） |\n| "
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "test_time": "2026-05-30T11:27:02.648Z",
+  "environment": "http://localhost:3001",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "id": "A1",
+      "company": "五粮液",
+      "query": "五粮液2025年毛利率与近60日MA20趋势对比，结合年报分析毛利率变动原因",
+      "success": true,
+      "toolKinds": [
+        "getStockFinancial",
+        "getStockHistory",
+        "calculateMA",
+        "hybridSearch"
+      ],
+      "toolCallCount": 4,
+      "iterations": 2,
+      "durationMs": 28190,
+      "answerPreview": "根据获取到的数据，为您对五粮液2025年毛利率、近60日MA20趋势以及年报反映的经营情况进行综合分析。\n\n### 一、 五粮液2025年毛利率分析（基于年报数据）\n根据五粮液2025年年报数据，公司毛利率在行业调整期实现了**逆势提升**：\n* **整体酒类毛利率**：83.75%，同比提升 **+1.54%**。\n* **核心产品（五粮液产品）**：毛利率高达 **89.55%**，同比提升 "
+    }
+  ]
+}

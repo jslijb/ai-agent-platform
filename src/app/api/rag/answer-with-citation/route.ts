@@ -127,10 +127,10 @@ ${contextText}
     const llmResponse = await callWithFallback(promptMessages);
     const llmDurationMs = Date.now() - llmStartTime;
     console.log(
-      `[带引用答案] 百炼模型返回, 答案长度: ${llmResponse.content.length}, 耗时 ${llmDurationMs}ms`
+      `[带引用答案] 百炼模型返回, 答案长度: ${(llmResponse.content ?? "").length}, 耗时 ${llmDurationMs}ms`
     );
 
-    const injectedAnswer = injectCitations(llmResponse.content, citations);
+    const injectedAnswer = injectCitations(llmResponse.content ?? "", citations);
     const citationList = formatCitationList(citations);
 
     console.log(

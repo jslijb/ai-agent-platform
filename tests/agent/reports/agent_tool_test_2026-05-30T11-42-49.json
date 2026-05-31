@@ -1,0 +1,23 @@
+{
+  "test_time": "2026-05-30T11:42:49.900Z",
+  "environment": "http://localhost:3001",
+  "total": 1,
+  "passed": 1,
+  "failed": 0,
+  "results": [
+    {
+      "id": "A2",
+      "company": "五粮液",
+      "query": "五粮液2025年资产负债率是多少？结合近30日成交量变化分析其偿债能力",
+      "success": true,
+      "toolKinds": [
+        "getFinancialReport",
+        "getStockHistory"
+      ],
+      "toolCallCount": 2,
+      "iterations": 2,
+      "durationMs": 27826,
+      "answerPreview": "截至2025年12月31日，五粮液（000858）的**资产负债率为35.69%**。\n\n结合其财务数据与截至2026年5月28日（最新交易日）的近30日成交量变化，对其偿债能力分析如下：\n\n### 1. 财务层面的偿债能力（极强）\n* **长期偿债能力稳健**：35.69%的资产负债率处于非常健康的水平，说明公司主要依靠自有资金运营，财务杠杆低，长期债务违约风险极小。\n* **短期偿债能力充裕*"
+    }
+  ]
+}

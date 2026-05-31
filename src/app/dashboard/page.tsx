@@ -55,6 +55,13 @@ export default async function DashboardPage() {
       color: "teal",
       href: "/dashboard/token-usage",
     },
+    {
+      title: "记忆管理",
+      desc: "用户画像、记忆片段、团队",
+      icon: "🧠",
+      color: "rose",
+      href: "/dashboard/memories",
+    },
   ];
 
   const userCards = [
@@ -79,6 +86,13 @@ export default async function DashboardPage() {
       color: "teal",
       href: "/dashboard/token-usage",
     },
+    {
+      title: "记忆管理",
+      desc: "用户画像、记忆片段",
+      icon: "🧠",
+      color: "rose",
+      href: "/dashboard/memories",
+    },
   ];
 
   const cards = isAdmin ? [...adminCards, ...userCards] : userCards;
@@ -90,6 +104,7 @@ export default async function DashboardPage() {
     amber: "hover:border-amber-400 hover:shadow-amber-100",
     indigo: "hover:border-indigo-400 hover:shadow-indigo-100",
     teal: "hover:border-teal-400 hover:shadow-teal-100",
+    rose: "hover:border-rose-400 hover:shadow-rose-100",
   };
 
   return (

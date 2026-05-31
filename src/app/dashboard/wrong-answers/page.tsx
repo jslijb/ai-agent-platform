@@ -291,7 +291,7 @@ export default function WrongAnswersPage() {
                 <div className="text-4xl mb-3">📝</div>
                 <div className="text-gray-500">暂无错题记录</div>
                 <div className="text-gray-400 text-sm mt-1">
-                  在聊天界面点击"标记为错误"按钮添加错题
+                  在聊天界面点击&ldquo;标记为错误&rdquo;按钮添加错题
                 </div>
               </div>
             ) : (
