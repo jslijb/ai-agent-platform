@@ -15,13 +15,34 @@ function resolveModel(): string {
   throw new Error("api_keys.yaml 中 llm.models 列表为空，请配置至少一个模型");
 }
 
+export interface BailianTool {
+  type: "function";
+  function: {
+    name: string;
+    description: string;
+    parameters: Record<string, unknown>;
+  };
+}
+
+export interface BailianToolCall {
+  id: string;
+  type: "function";
+  function: {
+    name: string;
+    arguments: string;
+  };
+}
+
 export interface BailianMessage {
-  role: "system" | "user" | "assistant";
-  content: string;
+  role: "system" | "user" | "assistant" | "tool";
+  content: string | null;
+  tool_calls?: BailianToolCall[];
+  tool_call_id?: string;
 }
 
 export interface BailianResponse {
-  content: string;
+  content: string | null;
+  toolCalls?: BailianToolCall[];
   usage?: {
     prompt_tokens: number;
     completion_tokens: number;
@@ -52,13 +73,14 @@ function sleep(ms: number): Promise<void> {
 export async function callBailian(
   messages: BailianMessage[],
   model?: string,
-  temperature?: number
+  temperature?: number,
+  tools?: BailianTool[]
 ): Promise<BailianResponse> {
   const apiKey = getApiKey();
   const useModel = getModel(model);
 
   console.log(
-    `[bailian] 调用模型: ${useModel}, 消息数: ${messages.length}`
+    `[bailian] 调用模型: ${useModel}, 消息数: ${messages.length}${tools && tools.length > 0 ? `, 工具数: ${tools.length}` : ""}`
   );
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -66,6 +88,17 @@ export async function callBailian(
     const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
     try {
+      const body: Record<string, unknown> = {
+        model: useModel,
+        messages,
+        temperature: temperature ?? DEFAULT_TEMPERATURE,
+        seed: 42,
+      };
+      if (tools && tools.length > 0) {
+        body.tools = tools;
+        body.tool_choice = "auto";
+      }
+
       const response = await fetch(
         `${DASHSCOPE_BASE_URL}/chat/completions`,
         {
@@ -74,12 +107,7 @@ export async function callBailian(
             "Content-Type": "application/json",
             Authorization: `Bearer ${apiKey}`,
           },
-          body: JSON.stringify({
-            model: useModel,
-            messages,
-            temperature: temperature ?? DEFAULT_TEMPERATURE,
-            seed: 42,
-          }),
+          body: JSON.stringify(body),
           signal: controller.signal,
         }
       );
@@ -109,7 +137,14 @@ export async function callBailian(
 
       const result = (await response.json()) as {
         choices?: Array<{
-          message?: { content?: string };
+          message?: {
+            content?: string | null;
+            tool_calls?: Array<{
+              id: string;
+              type: "function";
+              function: { name: string; arguments: string };
+            }>;
+          };
         }>;
         usage?: {
           prompt_tokens: number;
@@ -118,24 +153,36 @@ export async function callBailian(
         };
       };
 
-      const content = result.choices?.[0]?.message?.content;
-      if (content === undefined || content === null) {
+      const content = result.choices?.[0]?.message?.content ?? null;
+      const rawToolCalls = result.choices?.[0]?.message?.tool_calls;
+      const toolCalls: BailianToolCall[] | undefined = rawToolCalls
+        ? rawToolCalls.map((tc) => ({
+            id: tc.id,
+            type: "function" as const,
+            function: { name: tc.function.name, arguments: tc.function.arguments },
+          }))
+        : undefined;
+
+      if (content === null && (!toolCalls || toolCalls.length === 0)) {
         console.error(
-          `[bailian] API 返回内容为空 (第${attempt}次)`
+          `[bailian] API 返回内容为空且无tool_calls (第${attempt}次)`
         );
         if (attempt < MAX_RETRIES) {
           await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
           continue;
         }
-        throw new Error("百炼 API 返回内容为空");
+        throw new Error("百炼 API 返回内容为空且无tool_calls");
       }
 
+      const contentLen = content ? content.length : 0;
+      const tcInfo = toolCalls ? `, tool_calls: ${toolCalls.length}` : "";
       console.log(
-        `[bailian] 调用成功, 返回内容长度: ${content.length}, tokens: ${result.usage?.total_tokens ?? "unknown"}`
+        `[bailian] 调用成功, 返回内容长度: ${contentLen}${tcInfo}, tokens: ${result.usage?.total_tokens ?? "unknown"}`
       );
 
       return {
         content,
+        toolCalls,
         usage: result.usage
           ? {
               prompt_tokens: result.usage.prompt_tokens,

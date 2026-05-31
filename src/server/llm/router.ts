@@ -1,4 +1,4 @@
-import { callBailian, type BailianMessage } from "@/server/llm/providers/bailian";
+import { callBailian, type BailianMessage, type BailianTool, type BailianToolCall } from "@/server/llm/providers/bailian";
 import { withCircuitBreaker, isCircuitOpen, forceOpenCircuit } from "@/server/lib/circuit-breaker";
 import fs from "fs";
 import path from "path";
@@ -38,7 +38,8 @@ function getModelChain(requireFunctionCalling: boolean = false): string[] {
 }
 
 interface RouterResult {
-  content: string;
+  content: string | null;
+  toolCalls?: BailianToolCall[];
   model: string;
   usage?: {
     prompt_tokens: number;
@@ -50,7 +51,8 @@ interface RouterResult {
 export async function callWithFallback(
   messages: BailianMessage[],
   temperature?: number,
-  requireFunctionCalling: boolean = false
+  requireFunctionCalling: boolean = false,
+  tools?: BailianTool[]
 ): Promise<RouterResult> {
   const modelChain = getModelChain(requireFunctionCalling);
   if (modelChain.length === 0) {
@@ -69,12 +71,13 @@ export async function callWithFallback(
     try {
       console.log(`[llm-router] 尝试调用模型: ${model}`);
       const response = await withCircuitBreaker(circuitName, () =>
-        callBailian(messages, model, temperature)
+        callBailian(messages, model, temperature, tools)
       );
 
       console.log(`[llm-router] 模型 ${model} 调用成功`);
       return {
         content: response.content,
+        toolCalls: response.toolCalls,
         model,
         usage: response.usage,
       };
