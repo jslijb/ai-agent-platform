@@ -337,6 +337,24 @@ export function summarizeDocument(text: string, maxLength: number): SummarizeRes
   };
 }
 
+import { DualEngineRouter } from "@/server/vision/dual-engine-router";
+
+export async function analyzeImage(
+  image: string,
+  prompt?: string
+): Promise<string> {
+  const router = new DualEngineRouter();
+  const result = await router.analyze(image, prompt);
+  if (result.success) {
+    const r = result.result;
+    if ("text" in r && r.text) return r.text;
+    if ("description" in r && r.description) return r.description;
+    return JSON.stringify(r);
+  }
+  const reason = result.degradationReason || "未知错误";
+  return `分析失败: ${reason}`;
+}
+
 export type {
   PDFParseResult,
   FinancialMetrics,
