@@ -280,6 +280,10 @@ export default function ChatPage() {
   const [currentConvId, setCurrentConvId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [markingWrongIdx, setMarkingWrongIdx] = useState<number | null>(null);
+  const [pendingImage, setPendingImage] = useState<string | null>(null);
+  const [pendingImagePreview, setPendingImagePreview] = useState<string | null>(null);
+  const [ocrLoading, setOcrLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -395,6 +399,53 @@ export default function ChatPage() {
       console.error("标记错题失败:", err);
     }
     setMarkingWrongIdx(null);
+  };
+
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setPendingImagePreview(dataUrl);
+      setPendingImage(dataUrl.split(",")[1]);
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  };
+
+  const handleOcrAndSend = async () => {
+    if (!pendingImage || ocrLoading) return;
+    setOcrLoading(true);
+    try {
+      const res = await fetch("http://localhost:8001/api/ocr/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image: pendingImage }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.text) {
+        const ocrText = data.data.text;
+        const userQuery = input.trim();
+        const finalQuery = userQuery ? `${userQuery}\n\n[图片OCR内容]:\n${ocrText}` : `请分析以下图片内容:\n${ocrText}`;
+        setInput(finalQuery);
+      } else {
+        setInput((prev) => prev + "\n[图片OCR识别失败]");
+      }
+    } catch {
+      setInput((prev) => prev + "\n[图片OCR服务不可用]");
+    } finally {
+      setPendingImage(null);
+      setPendingImagePreview(null);
+      setOcrLoading(false);
+    }
+  };
+
+  const removePendingImage = () => {
+    setPendingImage(null);
+    setPendingImagePreview(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -706,7 +757,7 @@ export default function ChatPage() {
         </div>
 
         <div className="shrink-0 border-t bg-white px-4 py-4">
-          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-2">
+          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto space-y-2 relative">
             {availableModels.length > 0 && (
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">模型:</span>
@@ -725,6 +776,44 @@ export default function ChatPage() {
               </div>
             )}
             <div className="flex gap-3">
+              {pendingImagePreview && (
+                <div className="absolute bottom-20 left-4 bg-white border rounded-lg p-2 shadow-lg z-10">
+                  <div className="relative">
+                    <img src={pendingImagePreview} alt="preview" className="w-32 h-32 object-cover rounded" />
+                    <button
+                      type="button"
+                      onClick={removePendingImage}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                    >
+                      x
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleOcrAndSend}
+                    disabled={ocrLoading}
+                    className="mt-2 w-full bg-blue-600 text-white text-xs py-1 rounded hover:bg-blue-700 disabled:bg-gray-300"
+                  >
+                    {ocrLoading ? "OCR识别中..." : "识别并添加"}
+                  </button>
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={loading || ocrLoading}
+                className="bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-sm hover:bg-gray-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                title="上传图片"
+              >
+                📷
+              </button>
               <input
                 type="text"
                 value={input}
