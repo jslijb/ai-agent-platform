@@ -4,11 +4,14 @@ import time
 import asyncio
 import datetime
 from contextlib import asynccontextmanager
+
+os.environ.setdefault('FLAGS_enable_pir_api', '0')
+os.environ.setdefault('FLAGS_use_mkldnn', '0')
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from data_service.providers import baostock_provider, efinance_provider, mootdx_provider, tushare_provider, tickflow_provider
 from data_service.cache.local_cache import get_cache, HISTORY_TTL, FINANCIAL_TTL, REALTIME_TTL, BASIC_TTL, INDEX_TTL
@@ -568,6 +571,102 @@ async def market_minute(req: MinuteRequest):
     except Exception as e:
         logger.error(f"分钟K线请求失败: {e}", exc_info=True)
         return _make_response(False, error=str(e))
+
+
+# ==================== OCR / Vision 分析端点 ====================
+
+try:
+    _project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _model_base = os.path.join(_project_root, '.paddleocr_models')
+    os.makedirs(_model_base, exist_ok=True)
+    os.environ.setdefault('PADDLE_PDX_CACHE_HOME', _model_base)
+    from paddleocr import PaddleOCR
+    _ocr_engine = PaddleOCR(lang='ch', use_textline_orientation=True)
+    logger.info(f"PaddleOCR引擎初始化成功 (v3.6), 模型目录: {_model_base}")
+except ImportError:
+    _ocr_engine = None
+    logger.warning("PaddleOCR未安装，OCR端点不可用。安装: pip install paddlepaddle paddleocr")
+except Exception as e:
+    _ocr_engine = None
+    logger.error(f"PaddleOCR初始化失败: {type(e).__name__}: {e}", exc_info=True)
+
+
+class OCRRequest(BaseModel):
+    image: str = Field(..., description="图片Base64编码")
+    prompt: str = Field(default="", description="可选提示词")
+
+
+@app.post("/api/ocr/analyze")
+async def ocr_analyze(req: OCRRequest):
+    if _ocr_engine is None:
+        return _make_response(False, error="PaddleOCR未安装或初始化失败")
+
+    try:
+        import base64
+        import tempfile
+        import os
+
+        image_bytes = base64.b64decode(req.image)
+        with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
+            f.write(image_bytes)
+            tmp_path = f.name
+
+        try:
+            result = _ocr_engine.ocr(tmp_path)
+
+            lines = []
+            structured = []
+            if result:
+                for page in result:
+                    rec_texts = getattr(page, 'rec_texts', None) or (page.get('rec_texts') if isinstance(page, dict) else None)
+                    rec_scores = getattr(page, 'rec_scores', None) or (page.get('rec_scores') if isinstance(page, dict) else None)
+                    rec_polys = getattr(page, 'rec_polys', None) or (page.get('rec_polys') if isinstance(page, dict) else None)
+                    if rec_texts:
+                        for i, text in enumerate(rec_texts):
+                            conf = float(rec_scores[i]) if rec_scores and i < len(rec_scores) else 0.0
+                            bbox = rec_polys[i].tolist() if rec_polys and i < len(rec_polys) else []
+                            lines.append(text)
+                            structured.append({
+                                "text": text,
+                                "confidence": round(conf, 4),
+                                "bbox": bbox,
+                            })
+                    elif isinstance(page, (list, tuple)) and len(page) > 0:
+                        for line_info in page:
+                            if isinstance(line_info, (list, tuple)) and len(line_info) == 2:
+                                bbox = line_info[0]
+                                text = line_info[1][0]
+                                confidence = line_info[1][1]
+                                lines.append(text)
+                                structured.append({
+                                    "text": text,
+                                    "confidence": round(confidence, 4),
+                                    "bbox": bbox,
+                                })
+
+            full_text = "\n".join(lines)
+            return _make_response(True, data={
+                "text": full_text,
+                "markdown": full_text,
+                "structured": structured,
+                "lineCount": len(lines),
+                "engineUsed": "paddleocr_vl",
+            })
+        finally:
+            os.unlink(tmp_path)
+
+    except Exception as e:
+        logger.error(f"OCR分析失败: {e}", exc_info=True)
+        return _make_response(False, error=str(e))
+
+
+@app.get("/api/ocr/health")
+async def ocr_health():
+    return _make_response(True, data={
+        "available": _ocr_engine is not None,
+        "engine": "paddleocr" if _ocr_engine else "none",
+        "mode": "cpu",
+    })
 
 
 if __name__ == "__main__":
