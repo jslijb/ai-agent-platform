@@ -1,4 +1,4 @@
-import { callBailian, type BailianMessage } from "@/server/llm/providers/bailian";
+import { callBailian, type BailianMessage, type BailianTool, type BailianToolCall } from "@/server/llm/providers/bailian";
 import { callWithFallback } from "@/server/llm/router";
 import { saveAgentLog, saveLLMUsage } from "./agent-logger";
 import {
@@ -22,7 +22,16 @@ import {
 import { calculateVaR, calculateStressTest, checkRiskLimits, generateRiskReport } from "@/server/mcp/tools/risk_control";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
-import { createConversation, addMessage, getRecentMessages, updateConversationTitle, assembleContext, extractAndApplyPreferences, trackStockQuery } from "@/server/agents/memory";
+import { createConversation, addMessage, updateConversationTitle, assembleContext, extractAndApplyPreferences, trackStockQuery } from "@/server/agents/memory";
+import { ToolRegistry } from "@/server/tools/registry";
+import { SkillRegistry, executeSkill } from "@/server/agents/skills";
+import { registerAllSkills } from "@/server/agents/skills/definitions";
+import { RouterFacade } from "@/server/agents/routing/router-facade";
+import { ToolVectorRetriever } from "@/server/retrieval/tool-vector-retriever";
+import { toolDescriptionEnhancer } from "@/server/description/tool-description-enhancer";
+import { fewShotInjector } from "@/server/description/fewshot-injector";
+import { ToolCallValidator } from "@/server/validation/tool-call-validator";
+import { CallLimiter } from "@/server/validation/call-limiter";
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || "http://localhost:8001";
 
@@ -81,11 +90,13 @@ interface ToolDefinition {
   description: string;
   parameters: Record<string, { type: string; description: string; required?: boolean }>;
   execute: (params: Record<string, unknown>) => Promise<string> | string;
+  category?: string;
 }
 
 const tools: ToolDefinition[] = [
   {
     name: "calculateMA",
+    category: "technical-analysis",
     description: "计算移动平均线（MA）。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回结果包含最近30个有效值和最新MA值。",
     parameters: {
       data: { type: "number[]", description: "价格序列，如收盘价数组。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -135,6 +146,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateMACD",
+    category: "technical-analysis",
     description: "计算MACD指标。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回DIF、DEA、MACD柱状图的最近30个有效值。",
     parameters: {
       data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -177,6 +189,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateRSI",
+    category: "technical-analysis",
     description: "计算RSI指标（相对强弱指数）。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回最近30个有效值和最新RSI值。",
     parameters: {
       data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -248,6 +261,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateBollinger",
+    category: "technical-analysis",
     description: "计算布林带指标。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回最近30个有效值和最新上轨/中轨/下轨。",
     parameters: {
       data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -287,6 +301,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateKDJ",
+    category: "technical-analysis",
     description: "计算KDJ指标。如已调用getStockHistory获取过数据，可不传highs/lows/closes参数，自动使用缓存数据。返回最近30个有效值和最新K/D/J值。",
     parameters: {
       highs: { type: "number[]", description: "最高价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -330,6 +345,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateVWAP",
+    category: "technical-analysis",
     description: "计算VWAP（成交量加权平均价）。如已调用getStockHistory获取过数据，可不传参数，自动使用缓存的收盘价和成交量序列。",
     parameters: {
       closes: { type: "number[]", description: "收盘价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -352,6 +368,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateSharpeRatio",
+    category: "technical-analysis",
     description: "计算夏普比率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
     parameters: {
       returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
@@ -376,6 +393,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateMaxDrawdown",
+    category: "technical-analysis",
     description: "计算最大回撤。如已调用getStockHistory获取过数据，可不传values参数，自动使用缓存的收盘价序列。",
     parameters: {
       values: { type: "number[]", description: "资产净值序列。如已调用getStockHistory可不传，自动使用缓存数据" },
@@ -396,6 +414,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateVolatility",
+    category: "technical-analysis",
     description: "计算波动率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
     parameters: {
       returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
@@ -420,6 +439,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateCorrelation",
+    category: "technical-analysis",
     description: "计算两个股票的相关系数。支持两种方式：1) 传入code1和code2，自动获取数据计算；2) 传入series1和series2数组。推荐使用方式1，只需提供股票代码即可。",
     parameters: {
       code1: { type: "string", description: "第一只股票代码，如sh.600036。如已调用getStockHistory获取过数据，可不传code1，自动使用缓存数据" },
@@ -474,6 +494,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "checkTradeCompliance",
+    category: "risk-compliance",
     description: "A股交易合规检查，包括涨跌停、交易单位、T+1等规则。",
     parameters: {
       code: { type: "string", description: "股票代码", required: true },
@@ -499,6 +520,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "checkPositionLimit",
+    category: "risk-compliance",
     description: "持仓限制检查，单只股票不超过总资产30%。",
     parameters: {
       accountId: { type: "string", description: "账户ID", required: true },
@@ -518,6 +540,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "checkRestrictedStock",
+    category: "risk-compliance",
     description: "检查是否为受限股票（新股、退市整理期等）。",
     parameters: {
       code: { type: "string", description: "股票代码", required: true },
@@ -529,6 +552,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateVaR",
+    category: "risk-compliance",
     description: "计算VaR（在险价值）。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
     parameters: {
       returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
@@ -555,6 +579,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "calculateStressTest",
+    category: "risk-compliance",
     description: "压力测试，评估不同市场情景下的潜在损失。",
     parameters: {
       portfolio: { type: "object", description: "投资组合", required: true },
@@ -570,6 +595,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "checkRiskLimits",
+    category: "risk-compliance",
     description: "风险限额检查（单日2%、单周5%、单月10%）。",
     parameters: {
       accountId: { type: "string", description: "账户ID", required: true },
@@ -581,6 +607,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "getStockHistory",
+    category: "market-data",
     description: "获取A股股票历史K线数据，并自动计算常用技术指标（MA5/10/20/60、RSI14、MACD、布林带、KDJ）。返回数据中已包含计算好的指标值，无需再单独调用calculateMA/calculateRSI等工具。如果需要非标准周期（如MA30、RSI6等），则仍需单独调用计算工具。支持日K、周K、月K。返回结果中包含最新交易日日期，回答用户时必须使用该日期作为数据截止日期，不要使用end_date或其他日期。",
     parameters: {
       code: { type: "string", description: "股票代码，如 sh.600036（招商银行）、sz.000858（五粮液），baostock格式需带sh./sz.前缀", required: true },
@@ -666,6 +693,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "getStockRealtime",
+    category: "market-data",
     description: "获取A股股票实时行情快照。返回当前最新价、涨跌幅、成交量等实时数据。",
     parameters: {
       code: { type: "string", description: "股票代码，如 600036（不需要sh./sz.前缀）", required: true },
@@ -695,6 +723,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "getStockFinancial",
+    category: "market-data",
     description: "获取A股股票财务数据（盈利能力指标）。返回营收、净利润、ROE、毛利率、净利率等关键财务指标。当用户询问营收、利润、ROE等财务指标时，必须调用此工具。不指定year/quarter时自动获取最新可用财报数据。优先使用efinance数据源（数据更全面），baostock需要指定year和quarter。",
     parameters: {
       code: { type: "string", description: "股票代码。efinance格式: 600519（无前缀）；baostock格式: sh.600519（带sh./sz.前缀）", required: true },
@@ -729,6 +758,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "getFinancialReport",
+    category: "market-data",
     description: "获取A股股票详细财务报表，同时自动补充关键盈利能力指标（ROE、毛利率、净利率等）。返回利润表/资产负债表/现金流量表的详细数据，以及盈利能力指标摘要。无需再单独调用getStockFinancial。",
     parameters: {
       code: { type: "string", description: "股票代码，如 600519（不需要sh./sz.前缀）", required: true },
@@ -787,6 +817,7 @@ const tools: ToolDefinition[] = [
   },
   {
     name: "hybridSearch",
+    category: "knowledge-documents",
     description: "RAG 混合检索工具。使用稠密检索和稀疏检索的 RRF 融合方式，从知识库中检索与查询相关的文档片段。适用于查找公司财报、行业分析、政策法规等文档内容。",
     parameters: {
       query: { type: "string", description: "搜索查询文本", required: true },
@@ -812,6 +843,16 @@ const tools: ToolDefinition[] = [
   },
 ];
 
+let toolsRegistered = false;
+function ensureToolsAndSkillsRegistered(): void {
+  if (toolsRegistered) return;
+  for (const tool of tools) {
+    ToolRegistry.register(tool);
+  }
+  registerAllSkills();
+  toolsRegistered = true;
+}
+
 function getToolDescriptions(): string {
   return tools
     .map(
@@ -826,6 +867,10 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
     const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[1]);
+      if (parsed.skill) {
+        console.log("[simpleAgent] Parse skill call: skill=" + parsed.skill);
+        return { name: "__skill__", params: { skillName: parsed.skill } };
+      }
       if (parsed.tool && parsed.parameters) {
         console.log("[simpleAgent] Parse tool call success (format 1): tool=" + parsed.tool);
         return { name: parsed.tool, params: parsed.parameters };
@@ -909,6 +954,30 @@ function parseToolCalls(text: string): { name: string; params: Record<string, un
   return results;
 }
 
+function convertToBailianTools(toolsList: ToolDefinition[]): BailianTool[] {
+  return toolsList.map(t => {
+    const enhanced = toolDescriptionEnhancer.get(t.name);
+    let description = t.description;
+    if (enhanced) {
+      description = `${description}\n何时使用: ${enhanced.whenToUse}\n何时不使用: ${enhanced.whenNotToUse}`;
+    }
+    return {
+      type: "function" as const,
+      function: {
+        name: t.name,
+        description,
+        parameters: {
+          type: "object",
+          properties: Object.fromEntries(
+            Object.entries(t.parameters).map(([k, v]) => [k, { type: v.type || "string", description: v.description || "" }])
+          ),
+          required: Object.entries(t.parameters).filter(([_, v]) => v.required).map(([k]) => k),
+        }
+      }
+    };
+  });
+}
+
 export interface AgentResult {
   answer: string;
   iterations: number;
@@ -929,7 +998,7 @@ async function generateConversationTitle(query: string, answer: string, conversa
       },
     ];
     const response = await callWithFallback(titlePrompt, 0.7);
-    const title = response.content.trim().replace(/["""'']/g, "").substring(0, 20);
+    const title = (response.content ?? "").trim().replace(/["""'']/g, "").substring(0, 20);
     if (title && title.length > 0) {
       await updateConversationTitle(conversationId, title);
       console.log("[simpleAgent] Conversation title generated: " + title);
@@ -943,6 +1012,7 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   console.log("[simpleAgent] Received query: " + query + ", maxIterations: " + maxIterations + ", userId: " + userId + ", model: " + (model || "default"));
   const startTime = Date.now();
   const steps: AgentStep[] = [];
+  ensureToolsAndSkillsRegistered();
   lastStockData = getStockCache(userId);
   currentUserId = userId;
 
@@ -958,10 +1028,6 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
     needGenerateTitle = true;
   }
 
-  const historyMessages = await getRecentMessages(convId);
-  if (!needGenerateTitle && historyMessages.length <= 1) {
-    needGenerateTitle = true;
-  }
   await addMessage(convId, "user", query, userId);
 
   extractAndApplyPreferences(userId, query).catch((err) => {
@@ -1065,14 +1131,27 @@ ${getToolDescriptions()}
    - RSI(14)计算公式：RSI(14) = 100 - 100 / (1 + RS)，RS = 平均涨幅 / 平均跌幅
    - 计算过程：列出最近15日收盘价变动、每日涨跌、avgGain、avgLoss、RS、最终RSI
 
-12. 【及时输出原则】当你已经通过工具获取到足够的数据来回答用户问题时，必须立即输出最终答案，不要再调用额外的工具。例如：如果用户问'毛利率是多少'且你已经从getStockFinancial获取到了毛利率数据，就直接回答，不要再调用hybridSearch去查找年报确认。
+12. 【回答完整性原则】你的回答必须覆盖用户查询的所有方面。如果用户同时问了财务数据和行情数据，你必须两类数据都获取并回答。如果用户问了A和B的对比，你必须两家公司都分析。当你已经获取到足够覆盖查询所有方面的数据后，立即输出最终答案，不要调用与查询无关的额外工具。
 
 13. 【禁止重复调用】绝对不要重复调用已经调用过的工具！如果getStockFinancial已经返回了数据，不要再次调用它。如果getStockHistory已经返回了K线数据，不要再次调用它。重复调用相同的工具是严重错误，会浪费时间和资源。一旦获取到数据，立即基于已有数据回答问题。
 
-14. 【迭代效率】每个工具最多调用1次。如果某个工具返回了数据但你觉得不够完整，应该使用hybridSearch补充文档信息，而不是再次调用同一个工具。如果所有工具都已调用过，必须立即输出最终答案。`;
+14. 【迭代效率】每个工具最多调用1次。如果某个工具返回了数据但你觉得不够完整，应该使用hybridSearch补充文档信息，而不是再次调用同一个工具。如果所有工具都已调用过，必须立即输出最终答案。
+
+15. 【数据真实性原则】当工具调用返回错误（如"fetch failed"、"获取失败"、"Error"等）时，你绝对不能编造或幻觉该工具本应返回的数据。你必须如实告知用户该工具调用失败，无法获取相关数据。例如：如果getStockFinancial返回错误，你不能编造财务数据；如果getStockHistory返回错误，你不能编造股价数据。你只能使用工具实际成功返回的数据来回答问题。
+
+16. 【Skill能力】当用户需要进行综合分析时，以下Skill可以一次性编排多个工具：
+${SkillRegistry.listDescriptions()}
+当用户需求匹配某个Skill时，你可以在工具调用中使用 "skill" 字段指定Skill名称，格式如下：
+\`\`\`json
+{"skill": "technical-analysis"}
+\`\`\`
+系统会自动执行该Skill包含的所有工具步骤。你也可以继续使用单独的工具调用方式。`;
+
+  const finalSystemPrompt = fewShotInjector.inject(systemPrompt);
 
   const modelMaxTokens = 32768;
   let contextMemory: string[] = [];
+  let l1Messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [];
   try {
     const assembled = await assembleContext(query, userId, convId, modelMaxTokens);
     contextMemory = [
@@ -1080,7 +1159,11 @@ ${getToolDescriptions()}
       assembled.l2Summary,
       assembled.l3Fragments,
     ].filter((s) => s.length > 0);
-    console.log(`[simpleAgent] 记忆上下文: L4=${assembled.l4Profile ? "有" : "无"}, L2=${assembled.l2Summary ? "有" : "无"}, L3=${assembled.l3Fragments ? "有" : "无"}`);
+    l1Messages = assembled.l1Messages;
+    if (!needGenerateTitle && l1Messages.length <= 1) {
+      needGenerateTitle = true;
+    }
+    console.log(`[simpleAgent] 记忆上下文: L1=${l1Messages.length}条, L4=${assembled.l4Profile ? "有" : "无"}, L2=${assembled.l2Summary ? "有" : "无"}, L3=${assembled.l3Fragments ? "有" : "无"}`);
   } catch (err) {
     console.error(`[simpleAgent] 记忆上下文组装失败: ${err instanceof Error ? err.message : String(err)}`);
   }
@@ -1090,12 +1173,11 @@ ${getToolDescriptions()}
     : "";
 
   const messages: BailianMessage[] = [
-    { role: "system", content: systemPrompt + memorySection },
-    ...historyMessages.filter((m) => m.role !== "system").map((m) => ({
+    { role: "system", content: finalSystemPrompt + memorySection },
+    ...l1Messages.filter((m) => m.role !== "system").map((m) => ({
       role: m.role as "user" | "assistant",
       content: m.content,
     })),
-    { role: "user", content: query },
   ];
 
   let iterations = 0;
@@ -1106,6 +1188,42 @@ ${getToolDescriptions()}
   let currentModel = model || "unknown";
   let toolCallHistory: string[] = [];
   let duplicateCallCount = 0;
+
+  const routerFacade = new RouterFacade();
+  const routeResult = routerFacade.route(query);
+  let activeTools = tools;
+  if (routeResult.routeType === "skill" && routeResult.matchedSkill) {
+    const skillToolNames = routeResult.availableTools;
+    activeTools = tools.filter(t => skillToolNames.includes(t.name));
+    console.log(`[simpleAgent] RouterFacade matched skill: ${routeResult.matchedSkill.name}, tools: ${activeTools.map(t => t.name).join(", ")}`);
+  } else if (routeResult.routeType === "group" && routeResult.matchedGroups && routeResult.matchedGroups.length > 0) {
+    const groupToolNames = routeResult.availableTools;
+    activeTools = tools.filter(t => groupToolNames.includes(t.name));
+    if (activeTools.length === 0) activeTools = tools;
+    console.log(`[simpleAgent] RouterFacade matched groups: ${routeResult.matchedGroups.map(g => g.groupId).join(", ")}, tools: ${activeTools.map(t => t.name).join(", ")}`);
+  } else {
+    const toolVectorRetriever = new ToolVectorRetriever();
+    if (toolVectorRetriever.isReady()) {
+      try {
+        const candidateGroups = routeResult.matchedGroups?.map(g => g.groupId);
+        const retrievedTools = await toolVectorRetriever.retrieve(query, 8, candidateGroups);
+        if (retrievedTools.length > 0) {
+          const retrievedNames = retrievedTools.map(r => r.toolName);
+          activeTools = tools.filter(t => retrievedNames.includes(t.name));
+          if (activeTools.length === 0) activeTools = tools;
+          console.log(`[simpleAgent] VectorRetriever top-${retrievedTools.length} tools: ${retrievedNames.join(", ")}`);
+        } else {
+          console.log(`[simpleAgent] VectorRetriever no results, using all ${tools.length} tools`);
+        }
+      } catch (err) {
+        console.error(`[simpleAgent] VectorRetriever error: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    } else {
+      console.log(`[simpleAgent] VectorRetriever not ready, using all ${tools.length} tools`);
+    }
+  }
+  const bailianTools = convertToBailianTools(activeTools);
+  const callLimiter = new CallLimiter({ maxToolCalls: maxIterations * 3 });
 
   for (let i = 0; i < maxIterations; i++) {
     if (Date.now() - startTime > AGENT_TIMEOUT_MS) {
@@ -1154,21 +1272,43 @@ ${getToolDescriptions()}
 
     try {
       const llmStartTime = Date.now();
-      const response = await callWithFallback(messages, undefined, true);
+      const response = await callWithFallback(messages, undefined, true, bailianTools);
       const llmMs = Date.now() - llmStartTime;
-      const assistantContent = response.content;
+      const assistantContent = response.content ?? "";
 
       if (response.usage) {
         totalPromptTokens += response.usage.prompt_tokens || 0;
         totalCompletionTokens += response.usage.completion_tokens || 0;
       }
 
+      const nativeToolCalls = response.toolCalls && response.toolCalls.length > 0 ? response.toolCalls : undefined;
+
       console.log("[simpleAgent] Round " + (i + 1) + " LLM: " + (llmMs / 1000).toFixed(2) + "s, total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
-      console.log("[simpleAgent] LLM response: " + assistantContent.substring(0, 200) + "...");
+      if (nativeToolCalls) {
+        console.log("[simpleAgent] LLM returned native tool_calls: " + nativeToolCalls.map(tc => tc.function.name).join(", "));
+      } else {
+        console.log("[simpleAgent] LLM response: " + assistantContent.substring(0, 200) + "...");
+      }
 
-      messages.push({ role: "assistant", content: assistantContent });
+      if (nativeToolCalls) {
+        messages.push({
+          role: "assistant",
+          content: null,
+          tool_calls: nativeToolCalls,
+        });
+      } else {
+        messages.push({ role: "assistant", content: assistantContent });
+      }
 
-      const toolCalls = parseToolCalls(assistantContent);
+      const toolCalls = nativeToolCalls
+        ? nativeToolCalls.map(tc => {
+            try {
+              return { name: tc.function.name, params: JSON.parse(tc.function.arguments) };
+            } catch {
+              return { name: tc.function.name, params: {} };
+            }
+          })
+        : parseToolCalls(assistantContent);
       const reasoningText = assistantContent.replace(/```json[\s\S]*?```/g, "").trim();
       const reasoning = reasoningText.substring(0, 500);
 
@@ -1351,7 +1491,76 @@ ${getToolDescriptions()}
       }
 
       const toolCallsList = toolCalls;
-      const invalidTools = toolCallsList.filter((tc) => !tools.find((t) => t.name === tc.name));
+      const skillCalls = toolCallsList.filter((tc) => tc.name === "__skill__");
+      const regularCalls = toolCallsList.filter((tc) => tc.name !== "__skill__");
+
+      const observationParts: string[] = [];
+      let totalToolMs = 0;
+
+      if (skillCalls.length > 0) {
+        for (const skillCall of skillCalls) {
+          const skillName = skillCall.params.skillName as string;
+          const skill = SkillRegistry.get(skillName);
+          if (!skill) {
+            const errorMsg = "Skill not found: " + skillName;
+            console.error("[simpleAgent] " + errorMsg);
+            pushStep({
+              type: "tool_call",
+              round: i + 1,
+              title: "Round " + (i + 1) + " - Skill Call Failed",
+              content: errorMsg,
+              detail: { skillName, error: true },
+              timestamp: Date.now(),
+            });
+            observationParts.push(`[Skill:${skillName}] Error - ${errorMsg}`);
+            continue;
+          }
+
+          pushStep({
+            type: "tool_call",
+            round: i + 1,
+            title: "Round " + (i + 1) + " - Executing Skill: " + skillName,
+            content: `Skill "${skillName}" 包含 ${skill.steps.length} 个步骤`,
+            detail: { skillName, stepCount: skill.steps.length, reasoning },
+            timestamp: Date.now(),
+          });
+
+          const skillStartTime = Date.now();
+          try {
+            const skillResult = await executeSkill(skill, skillCall.params);
+            const skillMs = Date.now() - skillStartTime;
+            console.log(`[simpleAgent] Skill "${skillName}" completed: ${skillMs}ms, success=${skillResult.success}`);
+
+            pushStep({
+              type: "tool_result",
+              round: i + 1,
+              title: "Round " + (i + 1) + " - Skill Result: " + skillName,
+              content: skillResult.finalOutput.substring(0, 500),
+              detail: {
+                skillName,
+                success: skillResult.success,
+                stepResults: skillResult.stepResults.map((sr) => ({
+                  step: sr.step,
+                  tool: sr.tool,
+                  success: sr.success,
+                })),
+                executionTimeMs: skillMs,
+              },
+              timestamp: Date.now(),
+            });
+
+            observationParts.push(`[Skill:${skillName}] ${skillResult.finalOutput}`);
+            toolObservations.push(`[Skill:${skillName}] ${skillResult.finalOutput.substring(0, 500)}`);
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.error(`[simpleAgent] Skill "${skillName}" execution error: ${msg}`);
+            observationParts.push(`[Skill:${skillName}] Error - ${msg}`);
+            toolObservations.push(`[Skill:${skillName}] Error - ${msg}`);
+          }
+        }
+      }
+
+      const invalidTools = regularCalls.filter((tc) => !tools.find((t) => t.name === tc.name));
       if (invalidTools.length > 0) {
         const errorMsg = "Tool not found: " + invalidTools.map((t) => t.name).join(", ");
         console.error("[simpleAgent] " + errorMsg);
@@ -1369,11 +1578,26 @@ ${getToolDescriptions()}
         continue;
       }
 
-      const observationParts: string[] = [];
-      let totalToolMs = 0;
+      const toolCallValidator = new ToolCallValidator();
 
-      for (const toolCall of toolCallsList) {
+      for (const toolCall of regularCalls) {
         const tool = tools.find((t) => t.name === toolCall.name)!;
+
+        const validation = toolCallValidator.validate(toolCall.name, toolCall.params);
+        if (!validation.valid) {
+          const valError = `工具调用校验失败: ${validation.errors.map(e => e.message).join("; ")}`;
+          console.warn("[simpleAgent] " + valError + (validation.suggestion ? `, suggestion: ${validation.suggestion}` : ""));
+          pushStep({
+            type: "tool_call",
+            round: i + 1,
+            title: "Round " + (i + 1) + " - Validation Failed: " + toolCall.name,
+            content: valError,
+            detail: { toolName: toolCall.name, params: toolCall.params, validationErrors: validation.errors, suggestion: validation.suggestion },
+            timestamp: Date.now(),
+          });
+          observationParts.push(`[${toolCall.name}] Validation Error - ${valError}${validation.suggestion ? ` Suggestion: ${validation.suggestion}` : ""}`);
+          continue;
+        }
 
         console.log("[simpleAgent] Calling tool: " + toolCall.name + ", params: " + JSON.stringify(toolCall.params).substring(0, 100));
 
@@ -1387,10 +1611,24 @@ ${getToolDescriptions()}
         });
 
         const toolStartTime = Date.now();
-        const toolResult = await tool.execute(toolCall.params);
+        if (!callLimiter.canCall()) {
+          const limitMsg = `工具调用次数已达上限(${callLimiter.getConfig().maxToolCalls})，停止调用`;
+          console.warn("[simpleAgent] " + limitMsg);
+          observationParts.push(`[${toolCall.name}] ${limitMsg}`);
+          break;
+        }
+        const execResult = await callLimiter.executeWithLimit(toolCall.name, toolCall.params, () => Promise.resolve(tool.execute(toolCall.params)));
+        if (execResult.limitReached) {
+          const limitMsg = "工具调用次数已达上限，停止调用";
+          console.warn("[simpleAgent] " + limitMsg);
+          observationParts.push(`[${toolCall.name}] ${limitMsg}`);
+          break;
+        }
+        const toolResult = String(execResult.result);
         const toolMs = Date.now() - toolStartTime;
         totalToolMs += toolMs;
-        console.log("[simpleAgent] Round " + (i + 1) + " tool " + toolCall.name + ": " + (toolMs / 1000).toFixed(2) + "s, total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
+        const cacheInfo = execResult.fromCache ? " (cached)" : "";
+        console.log("[simpleAgent] Round " + (i + 1) + " tool " + toolCall.name + ": " + (toolMs / 1000).toFixed(2) + "s" + cacheInfo + ", total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
         console.log("[simpleAgent] Tool result: " + toolResult.substring(0, 200) + "...");
 
         toolObservations.push(`[${toolCall.name}] ${toolResult.substring(0, 500)}`);
@@ -1425,32 +1663,57 @@ ${getToolDescriptions()}
         observationParts.push(`[${toolCall.name}] ${toolResult}`);
       }
 
-      const MAX_OBSERVATION_LENGTH = 8000;
-      let observationContent = `Observation:\n${observationParts.join("\n\n")}`;
-      if (observationContent.length > MAX_OBSERVATION_LENGTH) {
-        const truncated = observationContent.substring(0, MAX_OBSERVATION_LENGTH);
-        observationContent = truncated + "\n\n[Result truncated, original length: " + observationContent.length + " chars]";
-        console.log("[simpleAgent] Multi-tool result truncated: original " + observationContent.length + " chars -> " + MAX_OBSERVATION_LENGTH + " chars");
-      }
-
-      const currentToolNames = toolCallsList.map((tc) => tc.name);
-      const prevSet = new Set(toolCallHistory);
-      const duplicates = currentToolNames.filter((name) => prevSet.has(name));
-      toolCallHistory.push(...currentToolNames);
-
-      if (duplicates.length > 0) {
-        duplicateCallCount++;
-        console.log("[simpleAgent] Duplicate tool calls detected: " + duplicates.join(", ") + " (count: " + duplicateCallCount + ")");
+      if (nativeToolCalls && nativeToolCalls.length > 0) {
+        for (let ti = 0; ti < regularCalls.length && ti < observationParts.length; ti++) {
+          const tc = nativeToolCalls[skillCalls.length + ti];
+          if (tc) {
+            const MAX_OBSERVATION_LENGTH = 8000;
+            let obsContent = observationParts[ti];
+            if (obsContent.length > MAX_OBSERVATION_LENGTH) {
+              obsContent = obsContent.substring(0, MAX_OBSERVATION_LENGTH) + "\n\n[Result truncated]";
+            }
+            messages.push({
+              role: "tool",
+              content: obsContent,
+              tool_call_id: tc.id,
+            });
+          }
+        }
+        if (observationParts.length > regularCalls.length) {
+          const skillObsParts = observationParts.slice(0, skillCalls.length);
+          const toolObsParts = observationParts.slice(skillCalls.length);
+          for (const part of skillObsParts) {
+            messages.push({ role: "user", content: part });
+          }
+        }
       } else {
-        duplicateCallCount = 0;
-      }
+        const MAX_OBSERVATION_LENGTH = 8000;
+        let observationContent = `Observation:\n${observationParts.join("\n\n")}`;
+        if (observationContent.length > MAX_OBSERVATION_LENGTH) {
+          const truncated = observationContent.substring(0, MAX_OBSERVATION_LENGTH);
+          observationContent = truncated + "\n\n[Result truncated, original length: " + observationContent.length + " chars]";
+          console.log("[simpleAgent] Multi-tool result truncated: original " + observationContent.length + " chars -> " + MAX_OBSERVATION_LENGTH + " chars");
+        }
 
-      if (duplicateCallCount >= 2) {
-        observationContent += "\n\n[IMPORTANT] You have already called these tools before and received results. You MUST NOT call the same tools again. Instead, you MUST immediately output your final answer based on the data you have already collected. Do not call any more tools!";
-        console.log("[simpleAgent] Force output: duplicate call count >= 2, appending force-output instruction");
-      }
+        const currentToolNames = toolCallsList.map((tc) => tc.name);
+        const prevSet = new Set(toolCallHistory);
+        const duplicates = currentToolNames.filter((name) => prevSet.has(name));
+        toolCallHistory.push(...currentToolNames);
 
-      messages.push({ role: "user", content: observationContent });
+        if (duplicates.length > 0) {
+          duplicateCallCount++;
+          console.log("[simpleAgent] Duplicate tool calls detected: " + duplicates.join(", ") + " (count: " + duplicateCallCount + ")");
+        } else {
+          duplicateCallCount = 0;
+        }
+
+        if (duplicateCallCount >= 2) {
+          observationContent += "\n\n[IMPORTANT] You have already called these tools before and received results. You MUST NOT call the same tools again. Instead, you MUST immediately output your final answer based on the data you have already collected. Do not call any more tools!";
+          console.log("[simpleAgent] Force output: duplicate call count >= 2, appending force-output instruction");
+        }
+
+        messages.push({ role: "user", content: observationContent });
+      }
 
       const roundMs = Date.now() - roundStartTime;
       const toolNames = toolCallsList.map((tc) => tc.name).join("+");
@@ -1459,34 +1722,51 @@ ${getToolDescriptions()}
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("[simpleAgent] Iteration error: " + errorMsg);
 
+      const isNonRetryable = errorMsg.includes("不可重试") || errorMsg.includes("认证失败") || errorMsg.includes("401") || errorMsg.includes("403");
+      if (isNonRetryable || i >= maxIterations - 1) {
+        pushStep({
+          type: "answer",
+          round: i + 1,
+          title: "Agent Error",
+          content: "Agent execution error: " + errorMsg,
+          timestamp: Date.now(),
+        });
+
+        await addMessage(convId, "assistant", "Agent execution error: " + errorMsg);
+
+        const latencyMs = Date.now() - startTime;
+        saveAgentLog({
+          userId,
+          conversationId: convId,
+          query,
+          answer: "Agent execution error: " + errorMsg,
+          model: currentModel,
+          iterations: i + 1,
+          steps,
+          promptTokens: totalPromptTokens,
+          completionTokens: totalCompletionTokens,
+          totalTokens: totalPromptTokens + totalCompletionTokens,
+          latencyMs,
+          status: "error",
+          errorMessage: errorMsg,
+        }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
+        if (needGenerateTitle) await generateConversationTitle(query, "Execution error: " + errorMsg, convId, model);
+        return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps };
+      }
+
       pushStep({
-        type: "answer",
+        type: "tool_call",
         round: i + 1,
-        title: "Agent Error",
-        content: "Agent execution error: " + errorMsg,
+        title: "Round " + (i + 1) + " - Error Recovery",
+        content: "Error occurred, feeding back to LLM: " + errorMsg.substring(0, 200),
         timestamp: Date.now(),
       });
 
-      await addMessage(convId, "assistant", "Agent execution error: " + errorMsg);
-
-      const latencyMs = Date.now() - startTime;
-      saveAgentLog({
-        userId,
-        conversationId: convId,
-        query,
-        answer: "Agent execution error: " + errorMsg,
-        model: currentModel,
-        iterations: i + 1,
-        steps,
-        promptTokens: totalPromptTokens,
-        completionTokens: totalCompletionTokens,
-        totalTokens: totalPromptTokens + totalCompletionTokens,
-        latencyMs,
-        status: "error",
-        errorMessage: errorMsg,
-      }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
-      if (needGenerateTitle) await generateConversationTitle(query, "Execution error: " + errorMsg, convId, model);
-      return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps };
+      messages.push({
+        role: "user",
+        content: `Observation: Tool execution error - ${errorMsg}\n\n请根据此错误信息决定下一步：可以尝试其他工具、修改参数重试，或者直接基于已有信息回答用户问题。`,
+      });
+      console.log("[simpleAgent] Error recovery: feeding error to LLM, continuing iteration");
     }
   }
 
