@@ -88,3 +88,17 @@ evaluation-reports/
 
 # Test reports (generated)
 tests/reports/
+
+# PaddleOCR models (large binary)
+.paddleocr_models/
+
+# Temp files
+.tmp/
+*.txt
+!tsconfig.txt
+
+# Test output files
+tsc_out.txt
+vitest_out.txt
+test.txt
+check-docker.mjs
