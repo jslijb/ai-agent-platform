@@ -126,6 +126,13 @@ export async function callBailian(
             `百炼 API 请求失败(不可重试): ${response.status} ${errorText}`
           );
         }
+        // 304 表示额度耗尽，标记为 QuotaError 触发熔断器
+        if (response.status === 304) {
+          console.error(`[bailian] HTTP 304 额度耗尽，模型 ${useModel} 不可用`);
+          throw new Error(
+            `AllocationQuota exhausted: 模型 ${useModel} 额度耗尽 (HTTP 304)`
+          );
+        }
         if (attempt < MAX_RETRIES) {
           await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
           continue;

@@ -1,0 +1,52 @@
+# 服务器生产环境覆盖配置
+# 使用方式：docker compose -f docker-compose.yml -f docker-compose.override.server.yml up -d
+
+services:
+  embedding:
+    volumes:
+      - ${MODEL_BASE_PATH}/bge-m3-GGUF:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  reranker:
+    volumes:
+      - ${MODEL_BASE_PATH}/bge-reranker-v2-m3-GGUF:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # PaddleOCR GPU 容器（仅服务器启用）
+  paddleocr:
+    image: ${PADDLEOCR_IMAGE:-paddlepaddle/paddleocr:latest-gpu}
+    container_name: aiagent_paddleocr
+    ports:
+      - "${PADDLEOCR_PORT:-8020}:8020"
+    volumes:
+      - ./.paddleocr_models:/root/.paddleocr:ro
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    networks:
+      - aiagent_net
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8020/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s

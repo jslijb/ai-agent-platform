@@ -12,7 +12,7 @@ import {
 
 export const dynamic = "force-dynamic";
 
-const CONFIG_PATH = path.resolve(process.cwd(), "evaluation-config.yaml");
+const CONFIG_PATH = path.resolve(process.cwd(), "config/evaluation-config.yaml");
 
 function loadConfig(): EvaluationConfig {
   console.log("[evaluation-config] 加载评估配置文件");

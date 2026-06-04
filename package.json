@@ -2,6 +2,10 @@
   "name": "ai-agent-platform",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*",
+    "services/*"
+  ],
   "scripts": {
     "dev": "next dev",
     "dev:clean": "if exist .next rmdir /s /q .next && next dev",
@@ -16,6 +20,7 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.11.2",
+    "@fastify/cors": "^11.2.0",
     "@langchain/community": "^1.1.28",
     "@langchain/core": "^1.1.48",
     "@langchain/langgraph": "^1.3.2",
@@ -28,7 +33,9 @@
     "@trpc/react-query": "^10.45.4",
     "@trpc/server": "^10.45.2",
     "bcryptjs": "^2.4.3",
+    "bullmq": "^5.77.6",
     "drizzle-orm": "^0.45.2",
+    "fastify": "^5.8.5",
     "langchain": "^1.4.2",
     "llamaindex": "^0.12.1",
     "neo4j-driver": "^6.0.1",

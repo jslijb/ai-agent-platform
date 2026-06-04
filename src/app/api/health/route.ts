@@ -53,8 +53,9 @@ export async function GET() {
   }
 
   try {
+    const embeddingUrl = process.env.EMBEDDING_SERVICE_URL || "http://localhost:8011";
     const start = Date.now();
-    const response = await fetch("http://localhost:8011/v1/models", {
+    const response = await fetch(`${embeddingUrl}/v1/models`, {
       signal: AbortSignal.timeout(5000),
     });
     if (response.ok) {
@@ -70,7 +71,7 @@ export async function GET() {
 
   try {
     const start = Date.now();
-    const rerankerUrl = process.env.RERANKER_URL || "http://localhost:8010";
+    const rerankerUrl = process.env.RERANKER_SERVICE_URL || "http://localhost:8010";
     const response = await fetch(`${rerankerUrl}/health`, {
       signal: AbortSignal.timeout(5000),
     });

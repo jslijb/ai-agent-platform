@@ -48,9 +48,6 @@ export default async function DashboardPage() {
       color: "purple",
       href: "/dashboard/logs",
     },
-  ];
-
-  const userCards = [
     {
       title: "Token 用量",
       desc: "模型消耗统计",

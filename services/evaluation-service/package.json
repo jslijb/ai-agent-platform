@@ -1,0 +1,26 @@
+{
+  "name": "@ai-agent/evaluation-service",
+  "version": "1.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-agent/shared-types": "*",
+    "@ai-agent/shared-utils": "*",
+    "@ai-agent/rag-client": "*",
+    "@ai-agent/llm-client": "*",
+    "fastify": "^5.2.0",
+    "@fastify/cors": "^10.0.0",
+    "bullmq": "^5.30.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.7"
+  }
+}

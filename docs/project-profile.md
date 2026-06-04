@@ -99,6 +99,9 @@ ai-agent-platform/
 ├── drizzle.config.ts                 # ORM 配置
 ├── next.config.ts                    # Next.js 配置
 ├── package.json                      # 依赖管理
+├── data_service/                    # Python 数据服务（Baostock、mootdx 等数据源）
+├── tests/                           # 测试代码和测试报告
+├── config/                          # 配置文件（API Keys 等）
 └── tsconfig.json                     # TypeScript 配置
 ```
 

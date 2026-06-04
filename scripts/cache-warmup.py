@@ -299,7 +299,7 @@ def main():
             if d["status"] == "FAIL":
                 logger.info(f"  ❌ {d['name']}: {d['detail']}")
 
-    report_dir = Path(__file__).parent.parent / "test-reports"
+    report_dir = Path(__file__).parent.parent / "tests" / "reports" / "test"
     report_dir.mkdir(exist_ok=True)
     report_path = report_dir / f"cache-warmup-{int(time.time())}.json"
     report = {

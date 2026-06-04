@@ -34,7 +34,7 @@ import {
 } from "../src/server/evaluation/regression-tester";
 
 const QA_GOLDEN_PATH = path.resolve(__dirname, "qa-golden.json");
-const REPORT_DIR = path.resolve(__dirname, "..", "evaluation-reports");
+const REPORT_DIR = path.resolve(__dirname, "..", "tests/reports/evaluation");
 
 const THRESHOLD = parseFloat(process.env.REGRESSION_THRESHOLD ?? "5") || 5;
 const EVALUATION_LEVEL = (process.env.EVALUATION_LEVEL ?? "standard") as "daily" | "standard" | "full";

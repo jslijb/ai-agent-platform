@@ -1,0 +1,51 @@
+{
+  "test_time": "2026-05-30 14:44:19",
+  "total": 8,
+  "passed": 8,
+  "failed": 0,
+  "results": [
+    {
+      "test": "data_service_health",
+      "pass": true
+    },
+    {
+      "test": "stock_history_中国长城",
+      "pass": true,
+      "records": 37
+    },
+    {
+      "test": "stock_history_格力电器",
+      "pass": true,
+      "records": 37
+    },
+    {
+      "test": "stock_history_五粮液",
+      "pass": true,
+      "records": 37
+    },
+    {
+      "test": "stock_realtime_中国长城",
+      "pass": true,
+      "name": "中国长城",
+      "price": 17.8
+    },
+    {
+      "test": "stock_realtime_格力电器",
+      "pass": true,
+      "name": "格力电器",
+      "price": 39.17
+    },
+    {
+      "test": "stock_realtime_五粮液",
+      "pass": true,
+      "name": "五 粮 液",
+      "price": 84.89
+    },
+    {
+      "test": "model_config_no_bailian",
+      "pass": true,
+      "env_has_bailian": false,
+      "yaml_has_bailian": false
+    }
+  ]
+}

@@ -7,7 +7,7 @@ import { saveEvaluationVersion } from "@/server/evaluation/evaluation-history";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { callWithFallback } from "@/server/llm/router";
 
-const CONFIG_PATH = path.resolve(process.cwd(), "evaluation-config.yaml");
+const CONFIG_PATH = path.resolve(process.cwd(), "config/evaluation-config.yaml");
 
 type TriggerMode = "manual" | "auto";
 type EvaluationLevel = "daily" | "standard" | "full";

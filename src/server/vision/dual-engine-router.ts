@@ -29,10 +29,11 @@ export class DualEngineRouter {
       }
 
       console.warn(
-        `[DualEngineRouter] PaddleOCR失败: ${result.error}，尝试降级`
+        `[DualEngineRouter] PaddleOCR失败: ${result.error}，尝试降级到Vision`
       );
 
-      if (this.visionFallback.isFallbackEnabled()) {
+      // PaddleOCR 失败时降级到 Vision 模型
+      if (this.visionFallback.isAvailable()) {
         const degradationTimeMs = Date.now() - startTime;
         const fallbackResult = await this.visionFallback.analyze(
           imageBase64,
@@ -43,7 +44,7 @@ export class DualEngineRouter {
           return {
             success: true,
             result: fallbackResult,
-            engineUsed: "qwen3.5-plus",
+            engineUsed: "vision-fallback",
             degraded: true,
             degradationReason: result.error,
             degradationTimeMs,
@@ -53,7 +54,7 @@ export class DualEngineRouter {
         return {
           success: false,
           result: fallbackResult,
-          engineUsed: "qwen3.5-plus",
+          engineUsed: "vision-fallback",
           degraded: true,
           degradationReason: `PaddleOCR: ${result.error}; Vision: ${fallbackResult.error}`,
           degradationTimeMs,
@@ -69,14 +70,15 @@ export class DualEngineRouter {
       };
     }
 
-    if (this.visionFallback.isFallbackEnabled() && this.visionFallback.isAvailable()) {
+    // PaddleOCR 未启用时直接使用 Vision 模型
+    if (this.visionFallback.isAvailable()) {
       const result = await this.visionFallback.analyze(imageBase64, prompt);
       return {
         success: result.success,
         result,
-        engineUsed: "qwen3.5-plus",
+        engineUsed: "vision-fallback",
         degraded: true,
-        degradationReason: "PaddleOCR未启用，直接使用Vision降级",
+        degradationReason: "PaddleOCR未启用，直接使用Vision模型",
       };
     }
 
@@ -90,7 +92,7 @@ export class DualEngineRouter {
       },
       engineUsed: "paddleocr_vl",
       degraded: false,
-      degradationReason: "PaddleOCR未启用且Vision降级不可用",
+      degradationReason: "PaddleOCR未启用且Vision模型不可用",
     };
   }
 }

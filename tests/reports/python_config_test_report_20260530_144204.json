@@ -1,0 +1,138 @@
+{
+  "test_time": "2026-05-30 14:42:04",
+  "total": 26,
+  "passed": 26,
+  "failed": 0,
+  "results": [
+    {
+      "name": "全大写+下划线匹配",
+      "pass": true,
+      "detail": "DASHSCOPE_API_KEY"
+    },
+    {
+      "name": "全大写+下划线匹配",
+      "pass": true,
+      "detail": "DATABASE_URL"
+    },
+    {
+      "name": "数字开头不匹配",
+      "pass": true,
+      "detail": "1M"
+    },
+    {
+      "name": "小写+点号不匹配",
+      "pass": true,
+      "detail": "qwen3.6-max-preview"
+    },
+    {
+      "name": "小写+下划线不匹配",
+      "pass": true,
+      "detail": "tick_flow_key"
+    },
+    {
+      "name": "数字开头不匹配",
+      "pass": true,
+      "detail": "256K"
+    },
+    {
+      "name": "空字符串不匹配",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "环境变量名被解析为实际值",
+      "pass": true,
+      "detail": "结果: test_value_123"
+    },
+    {
+      "name": "非环境变量名保持原值",
+      "pass": true,
+      "detail": "结果: qwen3.6-max-preview"
+    },
+    {
+      "name": "数字+字母格式保持原值",
+      "pass": true,
+      "detail": "结果: 256K"
+    },
+    {
+      "name": "数字值保持不变",
+      "pass": true,
+      "detail": "结果: 4096"
+    },
+    {
+      "name": "嵌套环境变量解析",
+      "pass": true,
+      "detail": "结果: nested_py_value"
+    },
+    {
+      "name": "数组内非环境变量保持原值",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "数组内256K保持原值",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "数组内1M保持原值",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "未设置的环境变量返回None",
+      "pass": true,
+      "detail": "结果: None"
+    },
+    {
+      "name": "列表中环境变量解析",
+      "pass": true,
+      "detail": "结果: list_value"
+    },
+    {
+      "name": "列表中非环境变量保持原值",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "列表中数字保持不变",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "config模块导入成功",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_config返回字典",
+      "pass": true,
+      "detail": "类型: <class 'dict'>"
+    },
+    {
+      "name": "配置包含llm模块",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "配置包含tushare顶层节点",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "配置包含tickflow顶层节点",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "YAML配置中llm.bailian无BAILIAN_MODEL",
+      "pass": true,
+      "detail": "bailian keys: ['DASHSCOPE_API_KEY']"
+    },
+    {
+      "name": ".env.local 不包含 BAILIAN_MODEL",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

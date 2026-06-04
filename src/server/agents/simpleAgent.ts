@@ -35,7 +35,7 @@ import { CallLimiter } from "@/server/validation/call-limiter";
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || "http://localhost:8001";
 
-const AGENT_TIMEOUT_MS = 240000;
+const AGENT_TIMEOUT_MS = 300000;
 
 interface CachedStockData {
   closes: number[];
@@ -50,6 +50,7 @@ interface CachedStockData {
 }
 
 let lastStockData: CachedStockData | null = null;
+const stockDataByCode = new Map<string, CachedStockData>();
 
 let currentUserId: string = "default-user";
 
@@ -415,26 +416,30 @@ const tools: ToolDefinition[] = [
   {
     name: "calculateVolatility",
     category: "technical-analysis",
-    description: "计算波动率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
+    description: "计算波动率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。当同一轮调用了多只股票的getStockHistory时，需传入code参数指定使用哪只股票的数据。",
     parameters: {
       returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
       annualize: { type: "boolean", description: "是否年化，默认true" },
+      code: { type: "string", description: "指定使用哪只股票的缓存数据（如sz.000858）。同一轮调用多只股票时必传，否则使用最近一次getStockHistory的数据" },
     },
     execute: (params) => {
       let returns = params.returns as number[] | undefined;
+      // 优先使用code参数指定的股票数据
+      const codeKey = params.code as string | undefined;
+      const targetData: CachedStockData | null = (codeKey ? stockDataByCode.get(codeKey) : null) || lastStockData;
       if (!returns || !Array.isArray(returns) || returns.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 1) {
-          returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
-          console.log("[calculateVolatility] Using cached data for returns: " + lastStockData.code);
+        if (targetData && targetData.closes.length > 1) {
+          returns = targetData.closes.slice(1).map((c, i) => (c - targetData.closes[i]) / targetData.closes[i]);
+          console.log("[calculateVolatility] Using cached data for returns: " + targetData.code);
         } else {
           return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
         }
       }
       const result = calculateVolatility(
-        returns,
+        returns!,
         params.annualize as boolean | undefined
       );
-      return JSON.stringify({ volatility: result, latestTradeDate: lastStockData?.latestTradeDate || null });
+      return JSON.stringify({ volatility: result, code: targetData?.code, latestTradeDate: targetData?.latestTradeDate || null });
     },
   },
   {
@@ -452,14 +457,24 @@ const tools: ToolDefinition[] = [
       let series2 = params.series2 as number[] | undefined;
 
       if (!series1 || !Array.isArray(series1) || series1.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 0) {
-          series1 = lastStockData.closes;
-          console.log("[calculateCorrelation] Using cached data as series1: " + lastStockData.code);
+        // 优先使用code1从多股票缓存查找
+        const code1Key = params.code1 as string | undefined;
+        const code1Data: CachedStockData | null = (code1Key ? stockDataByCode.get(code1Key) : null) || lastStockData;
+        if (code1Data && code1Data.closes.length > 0) {
+          series1 = code1Data.closes;
+          console.log("[calculateCorrelation] Using cached data as series1: " + code1Data.code);
         }
       }
 
       if ((!series2 || !Array.isArray(series2) || series2.length === 0) && params.code2) {
-        try {
+        // 优先从多股票缓存查找
+        const code2Data = stockDataByCode.get(params.code2 as string);
+        if (code2Data && code2Data.closes.length > 0) {
+          series2 = code2Data.closes;
+          console.log("[calculateCorrelation] Using cached data as series2: " + code2Data.code);
+        } else {
+          // 缓存中没有，从数据服务获取
+          try {
           const endDate = new Date().toISOString().split("T")[0];
           const oneYearAgo = new Date();
           oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
@@ -479,6 +494,7 @@ const tools: ToolDefinition[] = [
         } catch (err) {
           console.error("[calculateCorrelation] Fetch code2 data failed: " + (err instanceof Error ? err.message : String(err)));
         }
+        } // end of else (cache miss, fetch from data service)
       }
 
       if (!series1 || !series2) {
@@ -671,6 +687,8 @@ const tools: ToolDefinition[] = [
           rowCount: rows.length,
         };
         setStockCache(currentUserId, lastStockData);
+        // 同时存储到多股票缓存，支持同一轮调用多只股票后分别计算
+        stockDataByCode.set(params.code as string, lastStockData);
         console.log("[getStockHistory] Data cached: code=" + params.code + ", " + rows.length + " rows, date range=" + startDate + "~" + endDate + ", latestTradeDate=" + latestTradeDate);
 
         trackStockQuery(currentUserId, params.code as string, "").catch(() => {});
@@ -862,6 +880,27 @@ function getToolDescriptions(): string {
     .join("\n\n");
 }
 
+function extractBalancedJson(text: string, startIndex: number): string | null {
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = startIndex; i < text.length; i++) {
+    const ch = text[i];
+    if (escape) { escape = false; continue; }
+    if (ch === '\\') { escape = true; continue; }
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '{') depth++;
+    if (ch === '}') {
+      depth--;
+      if (depth === 0) {
+        return text.substring(startIndex, i + 1);
+      }
+    }
+  }
+  return null;
+}
+
 function parseSingleToolCall(text: string): { name: string; params: Record<string, unknown> } | null {
   try {
     const jsonMatch = text.match(/```json\s*([\s\S]*?)```/);
@@ -914,6 +953,43 @@ function parseSingleToolCall(text: string): { name: string; params: Record<strin
       if (tools.some(t => t.name === name)) {
         console.log("[simpleAgent] Parse tool call success (format 4-inline): tool=" + name);
         return { name, params };
+      }
+    }
+
+    // Format 5: 鲁棒JSON提取 - 处理缺少闭合```或格式混乱的情况
+    const toolKeyPattern = /\{\s*"tool"\s*:\s*"(\w+)"/g;
+    let toolMatch;
+    while ((toolMatch = toolKeyPattern.exec(text)) !== null) {
+      const startIndex = toolMatch.index;
+      const jsonStr = extractBalancedJson(text, startIndex);
+      if (jsonStr) {
+        try {
+          const parsed = JSON.parse(jsonStr);
+          if (parsed.tool && parsed.parameters && tools.some(t => t.name === parsed.tool)) {
+            console.log("[simpleAgent] Parse tool call success (format 5-robust): tool=" + parsed.tool);
+            return { name: parsed.tool, params: parsed.parameters };
+          }
+        } catch { /* continue trying */ }
+      }
+    }
+
+    // Format 6: ```json缺少闭合```的情况
+    const unclosedJsonMatch = text.match(/```json\s*([\s\S]+)$/);
+    if (unclosedJsonMatch) {
+      let jsonStr = unclosedJsonMatch[1].trim();
+      // 去除尾部可能的非JSON字符
+      const firstBrace = jsonStr.indexOf('{');
+      if (firstBrace >= 0) {
+        const extracted = extractBalancedJson(jsonStr, firstBrace);
+        if (extracted) {
+          try {
+            const parsed = JSON.parse(extracted);
+            if (parsed.tool && parsed.parameters && tools.some(t => t.name === parsed.tool)) {
+              console.log("[simpleAgent] Parse tool call success (format 6-unclosed): tool=" + parsed.tool);
+              return { name: parsed.tool, params: parsed.parameters };
+            }
+          } catch { /* ignore */ }
+        }
       }
     }
   } catch (e) {
@@ -1014,6 +1090,7 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   const steps: AgentStep[] = [];
   ensureToolsAndSkillsRegistered();
   lastStockData = getStockCache(userId);
+  stockDataByCode.clear();
   currentUserId = userId;
 
   const pushStep = (step: AgentStep) => {
@@ -1074,13 +1151,24 @@ ${getToolDescriptions()}
    - 用户要求计算两只股票相关系数 → 同时调用 getStockHistory + calculateCorrelation（见规则9）
 
 3. 【工具选择优先级】当用户询问财务数据时：
-   - 首选 getStockFinancial（efinance数据源，无需指定year/quarter，自动获取最新）
-   - 如果需要更详细的报表数据，使用 getFinancialReport
+   - 首选 getFinancialReport（返回完整利润表/资产负债表/现金流量表数据，同时自动补充盈利能力指标）
+   - 如果只需要关键财务指标（ROE、毛利率等），使用 getStockFinancial（efinance数据源，无需指定year/quarter）
    - 不要使用 hybridSearch 来查找财务数字（hybridSearch是检索文档的，不是获取实时财务数据的）
+   - 不要同时调用 getStockFinancial 和 getFinancialReport，它们有重叠，选一个即可
+   - 当用户问利润表中的具体项目（营业利润、利润总额、净利润等），必须用 getFinancialReport 而不是 getStockFinancial
 
-4. 【股票代码格式】：
-   - efinance/getStockFinancial/getFinancialReport/getStockRealtime: 不需要前缀，如 600519、000858
-   - baostock/getStockHistory: 需要 sh./sz. 前缀，如 sh.600519、sz.000858
+4. 【股票代码格式 - 必须严格遵守】：
+   - efinance/getStockFinancial/getFinancialReport/getStockRealtime: 不需要前缀，如 600519、000858、000066、000651
+   - baostock/getStockHistory/getStockFinancial(baostock): 需要 sh./sz. 前缀
+     * 沪市（6开头）: sh.600519、sh.600036
+     * 深市（0开头）: sz.000858、sz.000066、sz.000651
+     * 绝对不能把深市股票用sh.前缀！000066是深市，必须用sz.000066，不能用sh.000066
+     * 绝对不能把沪市股票用sz.前缀！600519是沪市，必须用sh.600519，不能用sz.600519
+   - 常见股票代码对照：
+     * 中国长城 000066 → baostock: sz.000066, efinance: 000066
+     * 五粮液 000858 → baostock: sz.000858, efinance: 000858
+     * 格力电器 000651 → baostock: sz.000651, efinance: 000651
+     * 贵州茅台 600519 → baostock: sh.600519, efinance: 600519
 
 5. 【数据来源说明】所有数据工具调用的是真实的金融数据接口（baostock/efinance），返回的是实时或历史真实数据，数据会自动缓存到本地。
 
@@ -1103,7 +1191,7 @@ ${getToolDescriptions()}
    注意：不要在工具调用中传入大量价格数据数组，系统会自动从缓存中读取
    - 如果用户指定了某个日期（如"2026-05-06的MA20"），getStockHistory需传入 start_date 和 end_date 参数
 
-8. 【重要】计算技术指标时，必须在同一次响应中同时输出 getStockHistory 和计算工具的调用（见规则7）。对于多公司查询，也应在同一轮中同时调用多家公司的工具，以减少迭代轮次。
+8. 【重要】计算技术指标时，必须在同一次响应中同时输出 getStockHistory 和计算工具的调用（见规则7）。对于多公司查询，也应在同一轮中同时调用多家公司的工具，以减少迭代轮次。当同一轮调用多只股票的getStockHistory后，计算波动率时必须传入code参数指定使用哪只股票的数据，例如：calculateVolatility(code="sz.000858")。
 
 9. 【相关系数计算流程】当用户要求计算两只股票的相关系数时，你必须在同一次响应中同时输出 getStockHistory 和 calculateCorrelation 的调用，格式如下：
 
@@ -1119,11 +1207,15 @@ ${getToolDescriptions()}
 
    注意：calculateCorrelation 只需传 code2 参数（第二只股票代码），code1 会自动使用 getStockHistory 缓存的数据。不要传 series1/series2 数组，系统会自动获取。
 
-10. 【回答格式要求 - 时间相关数据必须标注日期】当你回答涉及股价、技术指标、财务数据等与时间相关的数据时，必须在回答中明确标注数据的查询日期或截止日期。例如：
-   - "截至2026-05-29（最新交易日），招商银行MA20为37.92"
+10. 【回答格式要求 - 时间相关数据必须标注日期（最高优先级规则）】当你回答涉及股价、技术指标、财务数据等与时间相关的数据时，必须在回答中明确标注数据的查询日期或截止日期。这是最高优先级规则，不可违反！
+   - 股价数据："截至2026-06-03（最新交易日），格力电器最新价为39.50元"
+   - 财务数据："根据2025年年报（报告期：2025-12-31，发布日期：2026-04-30），五粮液营业收入为405.29亿元"
+   - 技术指标："截至2026-06-03（最新交易日），MA20为86.23"
    - 如果用户指定了日期，回答中使用用户指定的日期
-   - 如果用户未指定日期，回答中必须使用工具返回的latestTradeDate（最新交易日）作为数据截止日期，不要使用当前日期或end_date参数
-   - 例如：getStockHistory返回latestTradeDate=2026-05-29，则回答中写"截至2026-05-29（最新交易日）"，而不是"截至2026-05-30（今天）"
+   - 如果用户未指定日期，回答中必须使用工具返回的latestTradeDate或报告期日期作为数据截止日期
+   - 实时行情必须标注"数据时间：YYYY-MM-DD"
+   - 财报数据必须标注"报告期"和"发布日期"
+   - 违反此规则视为严重错误
 
 11. 【计算公式和验证数据】当计算MA、RSI等技术指标时，工具返回结果中包含formula（计算公式）和calcDetail（计算过程和中间数据）。你必须在回答中输出这些信息，让用户可以手动验证计算结果是否正确。格式示例：
    - MA20计算公式：MA20 = (最近20个交易日收盘价之和) / 20
@@ -1133,13 +1225,39 @@ ${getToolDescriptions()}
 
 12. 【回答完整性原则】你的回答必须覆盖用户查询的所有方面。如果用户同时问了财务数据和行情数据，你必须两类数据都获取并回答。如果用户问了A和B的对比，你必须两家公司都分析。当你已经获取到足够覆盖查询所有方面的数据后，立即输出最终答案，不要调用与查询无关的额外工具。
 
-13. 【禁止重复调用】绝对不要重复调用已经调用过的工具！如果getStockFinancial已经返回了数据，不要再次调用它。如果getStockHistory已经返回了K线数据，不要再次调用它。重复调用相同的工具是严重错误，会浪费时间和资源。一旦获取到数据，立即基于已有数据回答问题。
+13. 【禁止重复调用 - 严重错误】绝对不要重复调用已经调用过的工具！
+   - 如果getStockFinancial已经返回了数据，不要再次调用它（即使数据不完整），也不要改用baostock源再调一次
+   - 如果getStockHistory已经返回了K线数据，不要再次调用它
+   - 如果getFinancialReport已经返回了报表数据，不要再次调用它，也不要再调getStockFinancial（它们有重叠）
+   - 如果calculateVolatility已经返回了波动率，不要再次调用它
+   - 不要对同一个工具用不同参数重复调用（如checkTradeCompliance用不同价格调两次）
+   - 重复调用相同的工具是严重错误，会浪费时间和资源
+   - 一旦获取到数据，立即基于已有数据回答问题
+   - 如果某个工具调用失败，不要用相同参数重试，应该换数据源或换工具
 
 14. 【迭代效率】每个工具最多调用1次。如果某个工具返回了数据但你觉得不够完整，应该使用hybridSearch补充文档信息，而不是再次调用同一个工具。如果所有工具都已调用过，必须立即输出最终答案。
 
 15. 【数据真实性原则】当工具调用返回错误（如"fetch failed"、"获取失败"、"Error"等）时，你绝对不能编造或幻觉该工具本应返回的数据。你必须如实告知用户该工具调用失败，无法获取相关数据。例如：如果getStockFinancial返回错误，你不能编造财务数据；如果getStockHistory返回错误，你不能编造股价数据。你只能使用工具实际成功返回的数据来回答问题。
 
-16. 【Skill能力】当用户需要进行综合分析时，以下Skill可以一次性编排多个工具：
+16. 【工具失败处理】如果某个工具调用失败或返回空数据，不要用相同参数重复调用该工具！你应该：
+   - 换一个数据源（如从efinance切换到baostock）
+   - 或者换一个工具（如从getStockFinancial切换到getFinancialReport）
+   - 如果没有替代方案，直接告知用户该数据暂时无法获取，不要浪费轮次重试
+
+17. 【立即回答原则 - 最高优先级】当你在某一轮中成功获取了用户所需的数据后，必须立即输出最终答案，不要进入下一轮！
+   - 如果getFinancialReport返回了利润表数据，不要再去调hybridSearch或getStockFinancial补充，直接基于已有数据回答
+   - 如果getStockHistory+calculateMA返回了MA值，直接回答，不要再调其他工具
+   - 如果getStockRealtime返回了实时行情，直接回答，不要再调getStockFinancial
+   - 不要为了"补充信息"或"验证数据"而额外调用工具，除非用户明确要求了该信息
+   - 每多一轮迭代都是浪费时间和资源
+   - 第一轮获取到数据后，第二轮必须输出最终答案，绝不允许第三轮
+
+18. 【数据已足够判断】当工具返回了数据，即使你觉得数据可能不够完整，也必须基于已有数据直接回答。不要因为"想获取更多信息"而继续迭代。例如：
+   - getFinancialReport返回了利润表，其中包含营业利润和利润总额，直接计算差额回答，不要再调hybridSearch
+   - getStockHistory+calculateVolatility返回了波动率，直接比较回答，不要再调其他工具验证
+   - 你的目标是：用最少的工具调用、最少的迭代轮次，给出准确的答案
+
+19. 【Skill能力】当用户需要进行综合分析时，以下Skill可以一次性编排多个工具：
 ${SkillRegistry.listDescriptions()}
 当用户需求匹配某个Skill时，你可以在工具调用中使用 "skill" 字段指定Skill名称，格式如下：
 \`\`\`json
@@ -1300,7 +1418,7 @@ ${SkillRegistry.listDescriptions()}
         messages.push({ role: "assistant", content: assistantContent });
       }
 
-      const toolCalls = nativeToolCalls
+      let toolCalls = nativeToolCalls
         ? nativeToolCalls.map(tc => {
             try {
               return { name: tc.function.name, params: JSON.parse(tc.function.arguments) };
@@ -1313,7 +1431,13 @@ ${SkillRegistry.listDescriptions()}
       const reasoning = reasoningText.substring(0, 500);
 
       if (toolCalls.length === 0) {
-        if (toolObservations.length > 0) {
+        // 安全网：检查答案中是否包含未解析的工具调用JSON
+        const missedToolCall = parseSingleToolCall(assistantContent);
+        if (missedToolCall && tools.some(t => t.name === missedToolCall.name)) {
+          console.log("[simpleAgent] 检测到答案中包含未解析的工具调用: " + missedToolCall.name + "，转为执行工具");
+          toolCalls = [missedToolCall];
+          // 不走return路径，继续执行工具调用
+        } else if (toolObservations.length > 0) {
           const roundMs = Date.now() - roundStartTime;
           console.log("[simpleAgent] Has tool results and LLM final answer, done. Round: " + (roundMs / 1000).toFixed(2) + "s");
 
@@ -1398,7 +1522,7 @@ ${SkillRegistry.listDescriptions()}
 
             messages.push({
               role: "user",
-              content: "[Important] Your previous answer contains specific numbers without tool call support, which may be fabricated. Reflection suggestion: " + reflection.refinedQuery + "\n\nPlease call the corresponding tools as suggested to get real data, then re-answer the user's question with the real data. Never use numbers without tool support!",
+              content: "[Important] Your previous answer contains specific numbers without tool call support, which may be fabricated. Reflection suggestion: " + reflection.refinedQuery + "\n\nPlease call the corresponding tools as suggested to get real data, then re-answer the user's question with the real data. Never use numbers without tool support!\n\n[CRITICAL] Do NOT retry the same tool with the same parameters if it already failed. Try a different data source or a different tool instead. If no alternative exists, tell the user the data is unavailable.",
             });
           } else {
             pushStep({
@@ -1707,9 +1831,40 @@ ${SkillRegistry.listDescriptions()}
           duplicateCallCount = 0;
         }
 
-        if (duplicateCallCount >= 2) {
-          observationContent += "\n\n[IMPORTANT] You have already called these tools before and received results. You MUST NOT call the same tools again. Instead, you MUST immediately output your final answer based on the data you have already collected. Do not call any more tools!";
-          console.log("[simpleAgent] Force output: duplicate call count >= 2, appending force-output instruction");
+        if (duplicateCallCount >= 1) {
+          observationContent += "\n\n[IMPORTANT] You have already called these tools before and received results: " + duplicates.join(", ") + ". You MUST NOT call the same tools again. Instead, you MUST immediately output your final answer based on the data you have already collected. Do not call any more tools!";
+          console.log("[simpleAgent] Force output: duplicate call detected, appending force-output instruction");
+        }
+
+        // 如果已获取关键数据，强制要求立即回答
+        const hasFinancialData = toolObservations.some(o =>
+          o.includes('[getFinancialReport]') || o.includes('[getStockFinancial]')
+        );
+        const hasHistoryData = toolObservations.some(o =>
+          o.includes('[getStockHistory]')
+        );
+        const hasRealtimeData = toolObservations.some(o =>
+          o.includes('[getStockRealtime]')
+        );
+        const hasSuccessfulToolData = toolObservations.some(o =>
+          !o.includes('Error') && !o.includes('未查询到') && !o.includes('fetch error')
+        );
+
+        // 场景1: 已获取财报数据，不需要再调hybridSearch补充
+        if (hasFinancialData && iterations >= 1) {
+          observationContent += "\n\n[SYSTEM CRITICAL] You have already obtained financial report data from getFinancialReport/getStockFinancial. This data is SUFFICIENT to answer the user's question. Do NOT call hybridSearch or any other tools. Output your final answer NOW based on the financial data you have.";
+        }
+        // 场景2: 已获取历史数据+计算工具结果，不需要再调其他工具
+        else if (hasHistoryData && hasSuccessfulToolData && iterations >= 1) {
+          observationContent += "\n\n[SYSTEM CRITICAL] You have already obtained stock history data and calculation results. This data is SUFFICIENT. Do NOT call any more tools. Output your final answer NOW.";
+        }
+        // 场景3: 已获取实时行情数据
+        else if (hasRealtimeData && hasSuccessfulToolData && iterations >= 1) {
+          observationContent += "\n\n[SYSTEM CRITICAL] You have already obtained realtime stock data. Output your final answer NOW.";
+        }
+        // 场景4: 通用 - 已有多轮工具结果
+        else if (toolObservations.length >= 2 && hasSuccessfulToolData && iterations >= 2) {
+          observationContent += "\n\n[SYSTEM CRITICAL] You have already obtained sufficient data from tool calls. You MUST output your final answer NOW. Do NOT call any more tools.";
         }
 
         messages.push({ role: "user", content: observationContent });

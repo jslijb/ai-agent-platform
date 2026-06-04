@@ -169,6 +169,17 @@ def _guess_latest_quarter():
         return year, 3
 
 
+def _ensure_baostock_code(code: str) -> str:
+    """确保股票代码格式为 baostock 格式（sh./sz. 前缀）"""
+    if code.startswith("sh.") or code.startswith("sz."):
+        return code
+    # 6开头=沪市(sh), 0/3开头=深市(sz)
+    if code.startswith("6"):
+        return f"sh.{code}"
+    else:
+        return f"sz.{code}"
+
+
 @app.get("/health")
 async def health_check():
     cache = get_cache()
@@ -213,9 +224,10 @@ async def market_history(req: HistoryRequest):
             return _make_response(True, data=cached, from_cache=True)
 
         if req.source == "baostock":
+            bs_code = _ensure_baostock_code(req.code)
             data = await asyncio.to_thread(
                 baostock_provider.get_stock_history,
-                req.code, req.start_date, req.end_date, req.frequency
+                bs_code, req.start_date, req.end_date, req.frequency
             )
         elif req.source == "efinance":
             data = efinance_provider.get_stock_history(
@@ -288,6 +300,8 @@ async def market_financial(req: FinancialRequest):
         _validate_source(req.source, _FINANCIAL_SOURCES)
 
         if req.source == "baostock":
+            # 确保 baostock 格式的股票代码（sh./sz. 前缀）
+            bs_code = _ensure_baostock_code(req.code)
             year = req.year
             quarter = req.quarter
             if year is None or quarter is None:
@@ -295,27 +309,27 @@ async def market_financial(req: FinancialRequest):
                 logger.info(f"baostock 未指定 year/quarter，自动推断: year={year}, quarter={quarter}")
 
             cache = get_cache()
-            cache_params = {"source": "baostock", "code": req.code, "year": year, "quarter": quarter}
+            cache_params = {"source": "baostock", "code": bs_code, "year": year, "quarter": quarter}
             cached = cache.get("financial", cache_params)
             if cached is not None:
                 elapsed = time.time() - start_time
-                logger.info(f"财务数据缓存命中: code={req.code}, year={year}, quarter={quarter}, 耗时={elapsed:.2f}s")
+                logger.info(f"财务数据缓存命中: code={bs_code}, year={year}, quarter={quarter}, 耗时={elapsed:.2f}s")
                 return _make_response(True, data=cached, from_cache=True)
 
             data = await asyncio.to_thread(
-                baostock_provider.get_financial_data, req.code, year, quarter
+                baostock_provider.get_financial_data, bs_code, year, quarter
             )
 
             if not data and quarter > 1:
                 logger.info(f"Q{quarter}无数据，尝试Q{quarter-1}")
                 data = await asyncio.to_thread(
-                    baostock_provider.get_financial_data, req.code, year, quarter - 1
+                    baostock_provider.get_financial_data, bs_code, year, quarter - 1
                 )
                 if data:
                     quarter = quarter - 1
 
             if data:
-                save_params = {"source": "baostock", "code": req.code, "year": year, "quarter": quarter}
+                save_params = {"source": "baostock", "code": bs_code, "year": year, "quarter": quarter}
                 cache.set("financial", save_params, data, ttl=FINANCIAL_TTL, source="baostock")
 
         elif req.source == "efinance":
@@ -327,7 +341,30 @@ async def market_financial(req: FinancialRequest):
                 logger.info(f"财务数据缓存命中: code={req.code}, 耗时={elapsed:.2f}s")
                 return _make_response(True, data=cached, from_cache=True)
 
-            data = efinance_provider.get_financial_data(req.code, req.count or 1)
+            try:
+                data = efinance_provider.get_financial_data(req.code, req.count or 1)
+            except Exception as e:
+                logger.warning(f"efinance 财务数据获取失败，自动切换baostock: {e}")
+                data = None
+
+            if not data:
+                # efinance 失败，自动 fallback 到 baostock
+                bs_code = _ensure_baostock_code(req.code)
+                logger.info(f"efinance 无数据，自动切换baostock: code={req.code} -> {bs_code}")
+                year, quarter = _guess_latest_quarter()
+                try:
+                    data = await asyncio.to_thread(
+                        baostock_provider.get_financial_data, bs_code, year, quarter
+                    )
+                    if not data and quarter > 1:
+                        data = await asyncio.to_thread(
+                            baostock_provider.get_financial_data, bs_code, year, quarter - 1
+                        )
+                    if data:
+                        elapsed = time.time() - start_time
+                        logger.info(f"baostock fallback 成功: code={bs_code}, 耗时={elapsed:.2f}s")
+                except Exception as e2:
+                    logger.warning(f"baostock fallback 也失败: {e2}")
 
             if data:
                 cache.set("financial", cache_params, data, ttl=FINANCIAL_TTL, source="efinance")
@@ -365,7 +402,31 @@ async def market_financial_report(req: FinancialReportRequest):
             logger.info(f"详细财报缓存命中: code={req.code}, 耗时={elapsed:.2f}s")
             return _make_response(True, data=cached, from_cache=True)
 
-        data = efinance_provider.get_financial_report(req.code, req.report_type)
+        try:
+            data = efinance_provider.get_financial_report(req.code, req.report_type)
+        except Exception as e:
+            logger.warning(f"efinance 财报获取失败: {e}")
+            data = None
+
+        if not data:
+            # efinance 失败，尝试 baostock 作为 fallback（仅利润表）
+            if req.report_type == "income":
+                bs_code = _ensure_baostock_code(req.code)
+                logger.info(f"efinance 财报无数据，尝试baostock fallback: code={req.code} -> {bs_code}")
+                year, quarter = _guess_latest_quarter()
+                try:
+                    data = await asyncio.to_thread(
+                        baostock_provider.get_financial_data, bs_code, year, quarter
+                    )
+                    if not data and quarter > 1:
+                        data = await asyncio.to_thread(
+                            baostock_provider.get_financial_data, bs_code, year, quarter - 1
+                        )
+                    if data:
+                        elapsed = time.time() - start_time
+                        logger.info(f"baostock 财报 fallback 成功: code={bs_code}, 耗时={elapsed:.2f}s")
+                except Exception as e2:
+                    logger.warning(f"baostock 财报 fallback 也失败: {e2}")
 
         if data:
             cache.set("financial_report", cache_params, data, ttl=FINANCIAL_TTL, source="efinance")

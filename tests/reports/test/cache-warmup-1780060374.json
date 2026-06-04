@@ -1,0 +1,353 @@
+{
+  "timestamp": "2026-05-29 21:12:54",
+  "stocks": [
+    "五粮液",
+    "中国长城",
+    "格力电器"
+  ],
+  "date_range": "2025-05-29 ~ 2026-05-29",
+  "elapsed_seconds": 234.7,
+  "summary": {
+    "total": 67,
+    "pass": 40,
+    "fail": 2,
+    "warn": 25
+  },
+  "details": [
+    {
+      "name": "历史行情 五粮液 (efinance)",
+      "status": "PASS",
+      "detail": "0 条记录 (缓存命中)"
+    },
+    {
+      "name": "历史行情 五粮液 (mootdx)",
+      "status": "PASS",
+      "detail": "0 条记录 (缓存命中)"
+    },
+    {
+      "name": "历史行情 五粮液 (baostock)",
+      "status": "PASS",
+      "detail": "242 条记录 (缓存命中)"
+    },
+    {
+      "name": "历史行情 中国长城 (efinance)",
+      "status": "FAIL",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=20250529&end=20260529&rtntype=6&secid=0.000066&klt=101&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "历史行情 中国长城 (mootdx)",
+      "status": "PASS",
+      "detail": "0 条记录 (缓存命中)"
+    },
+    {
+      "name": "历史行情 中国长城 (baostock)",
+      "status": "PASS",
+      "detail": "243 条记录 (缓存命中)"
+    },
+    {
+      "name": "历史行情 格力电器 (efinance)",
+      "status": "FAIL",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=20250529&end=20260529&rtntype=6&secid=0.000651&klt=101&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "历史行情 格力电器 (mootdx)",
+      "status": "PASS",
+      "detail": "0 条记录 (缓存命中)"
+    },
+    {
+      "name": "历史行情 格力电器 (baostock)",
+      "status": "PASS",
+      "detail": "243 条记录 (缓存命中)"
+    },
+    {
+      "name": "实时行情 五粮液 (efinance)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "实时行情 五粮液 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "实时行情 中国长城 (efinance)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "实时行情 中国长城 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "实时行情 格力电器 (efinance)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "实时行情 格力电器 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "财务数据 五粮液 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "财务数据 五粮液 (baostock)",
+      "status": "PASS",
+      "detail": "1 条记录"
+    },
+    {
+      "name": "财务数据 中国长城 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "财务数据 中国长城 (baostock)",
+      "status": "PASS",
+      "detail": "1 条记录"
+    },
+    {
+      "name": "财务数据 格力电器 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "财务数据 格力电器 (baostock)",
+      "status": "PASS",
+      "detail": "1 条记录"
+    },
+    {
+      "name": "财报 五粮液 (income)",
+      "status": "PASS",
+      "detail": "0 条记录"
+    },
+    {
+      "name": "财报 五粮液 (balance)",
+      "status": "PASS",
+      "detail": "5 条记录"
+    },
+    {
+      "name": "财报 五粮液 (cashflow)",
+      "status": "PASS",
+      "detail": "5 条记录"
+    },
+    {
+      "name": "财报 中国长城 (income)",
+      "status": "PASS",
+      "detail": "0 条记录"
+    },
+    {
+      "name": "财报 中国长城 (balance)",
+      "status": "PASS",
+      "detail": "5 条记录"
+    },
+    {
+      "name": "财报 中国长城 (cashflow)",
+      "status": "PASS",
+      "detail": "5 条记录"
+    },
+    {
+      "name": "财报 格力电器 (income)",
+      "status": "PASS",
+      "detail": "0 条记录"
+    },
+    {
+      "name": "财报 格力电器 (balance)",
+      "status": "PASS",
+      "detail": "5 条记录"
+    },
+    {
+      "name": "财报 格力电器 (cashflow)",
+      "status": "PASS",
+      "detail": "5 条记录"
+    },
+    {
+      "name": "指数 上证指数 (efinance)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=20250529&end=20260529&rtntype=6&secid=&klt=101&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "指数 上证指数 (mootdx)",
+      "status": "PASS",
+      "detail": "0 条记录"
+    },
+    {
+      "name": "指数 上证指数 (baostock)",
+      "status": "PASS",
+      "detail": "243 条记录"
+    },
+    {
+      "name": "指数 深证成指 (efinance)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=20250529&end=20260529&rtntype=6&secid=&klt=101&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "指数 深证成指 (mootdx)",
+      "status": "PASS",
+      "detail": "0 条记录"
+    },
+    {
+      "name": "指数 深证成指 (baostock)",
+      "status": "PASS",
+      "detail": "243 条记录"
+    },
+    {
+      "name": "指数 创业板指 (efinance)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=20250529&end=20260529&rtntype=6&secid=&klt=101&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "指数 创业板指 (mootdx)",
+      "status": "PASS",
+      "detail": "0 条记录"
+    },
+    {
+      "name": "指数 创业板指 (baostock)",
+      "status": "PASS",
+      "detail": "243 条记录"
+    },
+    {
+      "name": "行业分类 五粮液 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "行业分类 五粮液 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "行业分类 中国长城 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "行业分类 中国长城 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "行业分类 格力电器 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "行业分类 格力电器 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "概念板块 五粮液 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "概念板块 五粮液 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "概念板块 中国长城 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "概念板块 中国长城 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "概念板块 格力电器 (efinance)",
+      "status": "WARN",
+      "detail": "('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))"
+    },
+    {
+      "name": "概念板块 格力电器 (mootdx)",
+      "status": "PASS",
+      "detail": "获取成功"
+    },
+    {
+      "name": "分钟K线 五粮液 (5min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000858&klt=5&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 五粮液 (15min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000858&klt=15&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 五粮液 (30min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000858&klt=30&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 五粮液 (60min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000858&klt=60&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 中国长城 (5min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000066&klt=5&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 中国长城 (15min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000066&klt=15&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 中国长城 (30min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000066&klt=30&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 中国长城 (60min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000066&klt=60&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 格力电器 (5min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000651&klt=5&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 格力电器 (15min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000651&klt=15&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 格力电器 (30min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000651&klt=30&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "分钟K线 格力电器 (60min)",
+      "status": "WARN",
+      "detail": "HTTPSConnectionPool(host='push2his.eastmoney.com', port=443): Max retries exceeded with url: /api/qt/stock/kline/get?fields1=f1%2Cf2%2Cf3%2Cf4%2Cf5%2Cf6%2Cf7%2Cf8%2Cf9%2Cf10%2Cf11%2Cf12%2Cf13&fields2=f51%2Cf52%2Cf53%2Cf54%2Cf55%2Cf56%2Cf57%2Cf58%2Cf59%2Cf60%2Cf61&beg=19000101&end=20500101&rtntype=6&secid=0.000651&klt=60&fqt=1 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "股票列表 (efinance)",
+      "status": "WARN",
+      "detail": "HTTPConnectionPool(host='push2.eastmoney.com', port=80): Max retries exceeded with url: /api/qt/clist/get?pn=1&pz=200&po=1&np=1&fltt=2&invt=2&fid=f12&fs=m%3A0+t%3A6%2Cm%3A0+t%3A80%2Cm%3A1+t%3A2%2Cm%3A1+t%3A23%2Cm%3A0+t%3A81+s%3A2048&fields=f12%2Cf14%2Cf3%2Cf2%2Cf15%2Cf16%2Cf17%2Cf4%2Cf8%2Cf10%2Cf9%2Cf5%2Cf6%2Cf18%2Cf20%2Cf21%2Cf13%2Cf124%2Cf297 (Caused by ProtocolError('Connection aborted.', RemoteDisconnected('Remote end closed connection without response')))"
+    },
+    {
+      "name": "股票列表 (mootdx)",
+      "status": "PASS",
+      "detail": "27165 条记录"
+    },
+    {
+      "name": "股票列表 (baostock)",
+      "status": "PASS",
+      "detail": "8766 条记录"
+    },
+    {
+      "name": "交易日历",
+      "status": "PASS",
+      "detail": "243 条记录"
+    }
+  ]
+}

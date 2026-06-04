@@ -14,55 +14,68 @@ def _df_to_dict(df: pd.DataFrame) -> list[dict]:
 def get_stock_realtime(code: str) -> list[dict]:
     logger.info(f"efinance 获取实时行情: code={code}")
 
-    try:
-        import requests
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            import requests
 
-        url = "https://push2.eastmoney.com/api/qt/stock/get"
-        params = {
-            "secid": f"1.{code}" if code.startswith("6") else f"0.{code}",
-            "fields": "f43,f44,f45,f46,f47,f48,f50,f51,f52,f55,f57,f58,f60,f116,f117,f162,f167,f168,f169,f170,f171,f292",
-            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-            "fltt": "2",
-            "invt": "2",
-        }
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Referer": "https://quote.eastmoney.com/",
-        }
+            url = "https://push2.eastmoney.com/api/qt/stock/get"
+            params = {
+                "secid": f"1.{code}" if code.startswith("6") else f"0.{code}",
+                "fields": "f43,f44,f45,f46,f47,f48,f50,f51,f52,f55,f57,f58,f60,f116,f117,f162,f167,f168,f169,f170,f171,f292",
+                "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                "fltt": "2",
+                "invt": "2",
+            }
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Referer": "https://quote.eastmoney.com/",
+            }
 
-        resp = requests.get(url, params=params, headers=headers, timeout=15)
-        data = resp.json()
+            resp = requests.get(url, params=params, headers=headers, timeout=15)
+            data = resp.json()
 
-        if data.get("data") is None:
-            logger.warning(f"efinance 未查询到实时行情: code={code}")
-            return []
+            if data.get("data") is None:
+                logger.warning(f"efinance 未查询到实时行情: code={code}")
+                break  # No point retrying if data is None
 
-        d = data["data"]
-        result = [{
-            "股票代码": d.get("f57", code),
-            "股票名称": d.get("f58", ""),
-            "最新价": d.get("f43"),
-            "最高价": d.get("f44"),
-            "最低价": d.get("f45"),
-            "开盘价": d.get("f46"),
-            "成交量": d.get("f47"),
-            "成交额": d.get("f48"),
-            "涨跌额": d.get("f169"),
-            "涨跌幅": d.get("f170"),
-            "换手率": d.get("f168"),
-            "市盈率": d.get("f162"),
-            "市净率": d.get("f167"),
-            "总市值": d.get("f116"),
-            "流通市值": d.get("f117"),
-            "振幅": d.get("f171"),
-            "量比": d.get("f50"),
-        }]
+            d = data["data"]
+            result = [{
+                "股票代码": d.get("f57", code),
+                "股票名称": d.get("f58", ""),
+                "最新价": d.get("f43"),
+                "最高价": d.get("f44"),
+                "最低价": d.get("f45"),
+                "开盘价": d.get("f46"),
+                "成交量": d.get("f47"),
+                "成交额": d.get("f48"),
+                "涨跌额": d.get("f169"),
+                "涨跌幅": d.get("f170"),
+                "换手率": d.get("f168"),
+                "市盈率": d.get("f162"),
+                "市净率": d.get("f167"),
+                "总市值": d.get("f116"),
+                "流通市值": d.get("f117"),
+                "振幅": d.get("f171"),
+                "量比": d.get("f50"),
+            }]
 
-        logger.info(f"efinance 获取实时行情成功: code={code}")
-        return result
+            logger.info(f"efinance 获取实时行情成功: code={code}")
+            return result
 
-    except Exception as e:
-        logger.warning(f"efinance 获取实时行情失败，尝试腾讯接口 fallback: {e}")
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, ConnectionResetError) as e:
+            logger.warning(f"efinance 获取实时行情连接失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(2 * (attempt + 1))
+            else:
+                logger.warning(f"efinance 获取实时行情重试耗尽，尝试腾讯接口 fallback: {e}")
+                break  # Fall through to Tencent fallback
+        except Exception as e:
+            logger.warning(f"efinance 获取实时行情失败，尝试腾讯接口 fallback: {e}")
+            break  # Fall through to Tencent fallback
+
+    # Tencent fallback
 
     try:
         import urllib.request
@@ -174,56 +187,66 @@ def get_stock_basic() -> list[dict]:
 def get_financial_data(code: str, count: int = 1) -> list[dict]:
     logger.info(f"efinance 获取财务数据: code={code}, count={count}")
 
-    try:
-        import requests
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            import requests
 
-        secid = f"1.{code}" if code.startswith("6") else f"0.{code}"
-        url = "https://push2.eastmoney.com/api/qt/stock/get"
-        params = {
-            "secid": secid,
-            "fields": "f57,f58,f162,f167,f168,f169,f170,f171,f173,f183,f184,f185,f186,f187,f188,f190,f192",
-            "ut": "fa5fd1943c7b386f172d6893dbfba10b",
-            "fltt": "2",
-            "invt": "2",
-        }
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Referer": "https://quote.eastmoney.com/",
-        }
+            secid = f"1.{code}" if code.startswith("6") else f"0.{code}"
+            url = "https://push2.eastmoney.com/api/qt/stock/get"
+            params = {
+                "secid": secid,
+                "fields": "f57,f58,f116,f117,f162,f167,f168,f169,f170,f171,f173,f183,f184,f185,f186,f187,f188,f190,f192",
+                "ut": "fa5fd1943c7b386f172d6893dbfba10b",
+                "fltt": "2",
+                "invt": "2",
+            }
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Referer": "https://quote.eastmoney.com/",
+            }
 
-        resp = requests.get(url, params=params, headers=headers, timeout=15)
-        data = resp.json()
+            resp = requests.get(url, params=params, headers=headers, timeout=15)
+            data = resp.json()
 
-        if data.get("data") is None:
-            logger.warning(f"efinance 未查询到财务数据: code={code}")
-            return []
+            if data.get("data") is None:
+                logger.warning(f"efinance 未查询到财务数据: code={code}")
+                return []
 
-        d = data["data"]
-        result = [{
-            "股票代码": d.get("f57", code),
-            "股票名称": d.get("f58", ""),
-            "市盈率": d.get("f162"),
-            "市净率": d.get("f167"),
-            "换手率": d.get("f168"),
-            "涨跌额": d.get("f169"),
-            "涨跌幅": d.get("f170"),
-            "振幅": d.get("f171"),
-            "ROE": d.get("f173"),
-            "总市值": d.get("f116"),
-            "流通市值": d.get("f117"),
-            "毛利率": d.get("f186"),
-            "净利率": d.get("f187"),
-            "净利润": d.get("f188"),
-            "营收": d.get("f183"),
-            "营收同比": d.get("f185"),
-        }]
+            d = data["data"]
+            result = [{
+                "股票代码": d.get("f57", code),
+                "股票名称": d.get("f58", ""),
+                "市盈率": d.get("f162"),
+                "市净率": d.get("f167"),
+                "换手率": d.get("f168"),
+                "涨跌额": d.get("f169"),
+                "涨跌幅": d.get("f170"),
+                "振幅": d.get("f171"),
+                "ROE": d.get("f173"),
+                "总市值": d.get("f116"),
+                "流通市值": d.get("f117"),
+                "毛利率": d.get("f186"),
+                "净利率": d.get("f187"),
+                "净利润": d.get("f188"),
+                "营收": d.get("f183"),
+                "营收同比": d.get("f185"),
+            }]
 
-        logger.info(f"efinance 获取财务数据成功，共 {len(result)} 条记录")
-        return result
+            logger.info(f"efinance 获取财务数据成功，共 {len(result)} 条记录")
+            return result
 
-    except Exception as e:
-        logger.error(f"efinance 获取财务数据异常: {e}", exc_info=True)
-        raise
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+            logger.warning(f"efinance 获取财务数据连接失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(2 * (attempt + 1))  # 递增等待
+            else:
+                logger.error(f"efinance 获取财务数据重试耗尽: {e}", exc_info=True)
+                raise
+        except Exception as e:
+            logger.error(f"efinance 获取财务数据异常: {e}", exc_info=True)
+            raise
 
 
 def get_index_history(code: str, start_date: str, end_date: str) -> list[dict]:
@@ -362,57 +385,73 @@ def get_concept(code: str) -> list[dict]:
 def get_financial_report(code: str, report_type: str = "income") -> list[dict]:
     logger.info(f"efinance 获取详细财报: code={code}, report_type={report_type}")
 
-    try:
-        import requests
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            import requests
 
-        secid = f"1.{code}" if code.startswith("6") else f"0.{code}"
+            secid = f"1.{code}" if code.startswith("6") else f"0.{code}"
 
-        type_map = {
-            "income": "RPT_LICO_FN_CPD",
-            "balance": "RPT_DMSK_FN_BALANCE",
-            "cashflow": "RPT_DMSK_FN_CASHFLOW",
-        }
-        report_code = type_map.get(report_type, "RPT_LICO_FN_CPD")
+            type_map = {
+                "income": "RPT_LICO_FN_CPD",
+                "balance": "RPT_DMSK_FN_BALANCE",
+                "cashflow": "RPT_DMSK_FN_CASHFLOW",
+            }
+            sort_col_map = {
+                "income": "NOTICE_DATE",
+                "balance": "NOTICE_DATE",
+                "cashflow": "NOTICE_DATE",
+            }
+            report_code = type_map.get(report_type, "RPT_LICO_FN_CPD")
+            sort_col = sort_col_map.get(report_type, "REPORT_DATE")
 
-        url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
-        params = {
-            "reportName": report_code,
-            "columns": "ALL",
-            "filter": f'(SECURITY_CODE="{code}")',
-            "pageNumber": 1,
-            "pageSize": 5,
-            "sortColumns": "REPORT_DATE",
-            "sortTypes": -1,
-            "source": "HSF10",
-            "client": "PC",
-        }
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-            "Referer": "https://data.eastmoney.com/",
-        }
+            url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+            params = {
+                "reportName": report_code,
+                "columns": "ALL",
+                "filter": f'(SECURITY_CODE="{code}")',
+                "pageNumber": 1,
+                "pageSize": 5,
+                "sortColumns": sort_col,
+                "sortTypes": -1,
+                "source": "HSF10",
+                "client": "PC",
+            }
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Referer": "https://data.eastmoney.com/",
+            }
 
-        resp = requests.get(url, params=params, headers=headers, timeout=30)
-        data = resp.json()
+            resp = requests.get(url, params=params, headers=headers, timeout=30)
+            data = resp.json()
 
-        if data.get("result") is None or data["result"].get("data") is None:
-            logger.warning(f"efinance 未查询到详细财报: code={code}, type={report_type}")
-            return []
+            if data.get("result") is None or data["result"].get("data") is None:
+                logger.warning(f"efinance 未查询到详细财报: code={code}, type={report_type}")
+                return []
 
-        items = data["result"]["data"]
-        result = []
-        for item in items:
-            row = {}
-            for k, v in item.items():
-                if v is not None:
-                    row[k] = v
-            result.append(row)
+            items = data["result"]["data"]
+            result = []
+            for item in items:
+                row = {}
+                for k, v in item.items():
+                    if v is not None:
+                        row[k] = v
+                result.append(row)
 
-        logger.info(f"efinance 获取详细财报成功: code={code}, type={report_type}, 共 {len(result)} 条记录")
-        return result
+            logger.info(f"efinance 获取详细财报成功: code={code}, type={report_type}, 共 {len(result)} 条记录")
+            return result
 
-    except Exception as e:
-        logger.error(f"efinance 获取详细财报异常: {e}", exc_info=True)
-        raise
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout, ConnectionResetError) as e:
+            logger.warning(f"efinance 获取详细财报连接失败 (尝试 {attempt + 1}/{max_retries}): {e}")
+            if attempt < max_retries - 1:
+                import time
+                time.sleep(2 * (attempt + 1))  # 递增等待
+            else:
+                logger.error(f"efinance 获取详细财报重试耗尽: {e}", exc_info=True)
+                raise
+        except Exception as e:
+            logger.error(f"efinance 获取详细财报异常: {e}", exc_info=True)
+            raise
 
 
 def get_minute_data(code: str, frequency: str = "5") -> list[dict]:

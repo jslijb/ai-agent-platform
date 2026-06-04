@@ -29,10 +29,19 @@ import {
   type EvaluationWeights,
   DEFAULT_RAG_WEIGHTS,
 } from "../src/server/evaluation/rag-evaluator";
+import {
+  runOpenDatasetEvaluation,
+  DATASET_ADAPTERS,
+  type OpenDatasetEvaluationOptions,
+} from "../src/server/evaluation/open-dataset-evaluator";
 
 const QA_GOLDEN_PATH = path.resolve(__dirname, "qa-golden.json");
-const REPORT_DIR = path.resolve(__dirname, "..", "evaluation-reports");
-const CONFIG_PATH = path.resolve(__dirname, "..", "evaluation-config.yaml");
+const REPORT_DIR = path.resolve(__dirname, "..", "tests/reports/evaluation");
+const CONFIG_PATH = path.resolve(__dirname, "..", "config/evaluation-config.yaml");
+
+const OPEN_DATASET_BASE_PATH = "D:\\data\\modelscope";
+const OPEN_DATASET_MAX_SAMPLES = 200;
+const OPEN_DATASET_NAMES = ["fineval", "cflue", "finqa"];
 
 interface ParsedYamlConfig {
   rag_weights?: Record<string, number>;
@@ -240,6 +249,8 @@ interface CliArgs {
   type: "rag" | "agent";
   milestone?: string;
   preset?: string;
+  datasets?: string;
+  maxSamples?: number;
 }
 
 function parseCliArgs(): CliArgs {
@@ -271,6 +282,17 @@ function parseCliArgs(): CliArgs {
       i++;
     } else if (args[i] === "--preset" && args[i + 1]) {
       result.preset = args[i + 1];
+      i++;
+    } else if (args[i] === "--datasets" && args[i + 1]) {
+      result.datasets = args[i + 1];
+      i++;
+    } else if (args[i] === "--max-samples" && args[i + 1]) {
+      const n = parseInt(args[i + 1], 10);
+      if (n > 0) {
+        result.maxSamples = n;
+      } else {
+        console.warn(`[run-evaluation] 无效的 --max-samples: ${args[i + 1]}`);
+      }
       i++;
     }
   }
@@ -377,6 +399,8 @@ function printReport(report: EvaluationReport & {
   financialOverallScore?: number;
   evaluationLevel?: string;
   milestone?: string;
+  dataSource?: string;
+  dataSourceDetail?: string;
 }): void {
   console.log("\n" + "=".repeat(80));
   console.log("                    RAG 评估报告");
@@ -388,6 +412,12 @@ function printReport(report: EvaluationReport & {
   }
   if (report.milestone) {
     console.log(`里程碑: ${report.milestone}`);
+  }
+  if (report.dataSource) {
+    console.log(`数据来源: ${report.dataSource}`);
+  }
+  if (report.dataSourceDetail) {
+    console.log(`数据来源详情: ${report.dataSourceDetail}`);
   }
   console.log("-".repeat(80));
   console.log("  综合指标:");
@@ -443,21 +473,49 @@ function printReport(report: EvaluationReport & {
   console.log("=".repeat(80) + "\n");
 }
 
-async function main(): Promise<void> {
-  const cliArgs = parseCliArgs();
-  const config = loadYamlConfig();
+function checkOpenDatasetPath(): boolean {
+  console.log(`[run-evaluation] 检查开源数据集路径: ${OPEN_DATASET_BASE_PATH}`);
+  if (!fs.existsSync(OPEN_DATASET_BASE_PATH)) {
+    console.warn(`[run-evaluation] 开源数据集路径不存在: ${OPEN_DATASET_BASE_PATH}`);
+    console.warn("[run-evaluation] full 模式将跳过开源数据集评估，仅运行黄金测试集");
+    return false;
+  }
 
-  console.log(`[run-evaluation] 开始运行 RAG 评估`);
-  console.log(`[run-evaluation] 评估级别: ${cliArgs.level}, 评估类型: ${cliArgs.type}${cliArgs.milestone ? `, 里程碑: ${cliArgs.milestone}` : ""}${cliArgs.preset ? `, 预设: ${cliArgs.preset}` : ""}`);
-  console.log(`[run-evaluation] 黄金测试集路径: ${QA_GOLDEN_PATH}`);
+  const availableDatasets: string[] = [];
+  for (const name of OPEN_DATASET_NAMES) {
+    const adapter = DATASET_ADAPTERS[name];
+    if (adapter) {
+      const adapterPath = adapter.basePath;
+      if (fs.existsSync(adapterPath)) {
+        availableDatasets.push(name);
+      } else {
+        console.warn(`[run-evaluation] 数据集 ${name} 路径不存在: ${adapterPath}`);
+      }
+    }
+  }
+
+  if (availableDatasets.length === 0) {
+    console.warn("[run-evaluation] 没有可用的开源数据集，将跳过开源数据集评估");
+    return false;
+  }
+
+  console.log(`[run-evaluation] 可用数据集: [${availableDatasets.join(", ")}]`);
+  return true;
+}
+
+async function runGoldenEvaluation(
+  cliArgs: CliArgs,
+  config: ParsedYamlConfig,
+  weights: EvaluationWeights
+): Promise<EvaluationReport & Record<string, unknown>> {
+  console.log("[run-evaluation] ========== 黄金测试集评估 ==========");
 
   if (!fs.existsSync(QA_GOLDEN_PATH)) {
-    console.error(`[run-evaluation] 黄金测试集文件不存在: ${QA_GOLDEN_PATH}`);
-    process.exit(1);
+    throw new Error(`黄金测试集文件不存在: ${QA_GOLDEN_PATH}`);
   }
 
   const qaData = JSON.parse(fs.readFileSync(QA_GOLDEN_PATH, "utf-8"));
-  console.log(`[run-evaluation] 加载测试集, 共 ${qaData.length} 条`);
+  console.log(`[run-evaluation] 加载黄金测试集, 共 ${qaData.length} 条`);
 
   let testSet = qaData.map(
     (item: {
@@ -480,6 +538,94 @@ async function main(): Promise<void> {
     console.log(`[run-evaluation] daily 模式，截取前 ${testSet.length} 条测试用例`);
   }
 
+  const report = await runFinancialEvaluation(testSet, searchFn, answerFn, {
+    evaluationLevel: cliArgs.level,
+    triggerMode: "manual",
+    milestone: cliArgs.milestone,
+    dataSource: "golden",
+    weights,
+  });
+
+  return report;
+}
+
+async function runOpenDatasetPhase(
+  cliArgs: CliArgs,
+  maxSamples: number
+): Promise<EvaluationReport & Record<string, unknown> | null> {
+  console.log("[run-evaluation] ========== 开源数据集评估 ==========");
+
+  const datasetNames = cliArgs.datasets
+    ? cliArgs.datasets.split(",").map(s => s.trim().toLowerCase())
+    : OPEN_DATASET_NAMES;
+
+  const validDatasets = datasetNames.filter(name => {
+    if (!DATASET_ADAPTERS[name]) {
+      console.warn(`[run-evaluation] 未知数据集: ${name}, 可用: [${Object.keys(DATASET_ADAPTERS).join(",")}]`);
+      return false;
+    }
+    return true;
+  });
+
+  if (validDatasets.length === 0) {
+    console.error("[run-evaluation] 没有有效的数据集名称");
+    return null;
+  }
+
+  console.log(`[run-evaluation] 将评估数据集: [${validDatasets.join(", ")}], 最大样本数: ${maxSamples}`);
+
+  const perDatasetSamples = Math.ceil(maxSamples / validDatasets.length);
+  console.log(`[run-evaluation] 每个数据集最大样本数: ${perDatasetSamples}`);
+
+  try {
+    const report = await runOpenDatasetEvaluation(
+      validDatasets,
+      searchFn,
+      answerFn,
+      {
+        maxSamples: perDatasetSamples,
+        evaluationLevel: cliArgs.level,
+        triggerMode: "manual",
+        milestone: cliArgs.milestone,
+      }
+    );
+
+    return report;
+  } catch (error) {
+    console.error("[run-evaluation] 开源数据集评估失败:", error);
+    return null;
+  }
+}
+
+function saveReport(report: Record<string, unknown>, level: string, suffix?: string): string {
+  if (!fs.existsSync(REPORT_DIR)) {
+    fs.mkdirSync(REPORT_DIR, { recursive: true });
+    console.log(`[run-evaluation] 创建报告目录: ${REPORT_DIR}`);
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const fileName = suffix
+    ? `eval-report-${level}-${suffix}-${timestamp}.json`
+    : `eval-report-${level}-${timestamp}.json`;
+  const reportPath = path.join(REPORT_DIR, fileName);
+
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), "utf-8");
+  console.log(`[run-evaluation] 评估报告已保存: ${reportPath}`);
+
+  const latestReportPath = path.join(REPORT_DIR, "latest.json");
+  fs.writeFileSync(latestReportPath, JSON.stringify(report, null, 2), "utf-8");
+  console.log(`[run-evaluation] 最新报告已更新: ${latestReportPath}`);
+
+  return reportPath;
+}
+
+async function main(): Promise<void> {
+  const cliArgs = parseCliArgs();
+  const config = loadYamlConfig();
+
+  console.log(`[run-evaluation] 开始运行 RAG 评估`);
+  console.log(`[run-evaluation] 评估级别: ${cliArgs.level}, 评估类型: ${cliArgs.type}${cliArgs.milestone ? `, 里程碑: ${cliArgs.milestone}` : ""}${cliArgs.preset ? `, 预设: ${cliArgs.preset}` : ""}`);
+
   const weights = buildWeightsFromConfig(config, cliArgs.preset);
   console.log(`[run-evaluation] 权重配置: ${JSON.stringify(weights)}`);
 
@@ -487,34 +633,56 @@ async function main(): Promise<void> {
     console.log(`[run-evaluation] 阈值配置: ${JSON.stringify(config.thresholds)}`);
   }
 
-  const report = await runFinancialEvaluation(testSet, searchFn, answerFn, {
-    evaluationLevel: cliArgs.level,
-    triggerMode: "manual",
-    milestone: cliArgs.milestone,
-    dataSource: cliArgs.level === "full" ? "mixed" : "golden",
-    weights,
-  });
+  const maxSamples = cliArgs.maxSamples ?? OPEN_DATASET_MAX_SAMPLES;
 
-  printReport(report);
+  if (cliArgs.level === "daily") {
+    console.log("\n[run-evaluation] >>> daily 模式: 仅黄金测试集（10条），快速验证");
+    const report = await runGoldenEvaluation(cliArgs, config, weights);
+    printReport(report);
+    saveReport(report, cliArgs.level);
 
-  if (!fs.existsSync(REPORT_DIR)) {
-    fs.mkdirSync(REPORT_DIR, { recursive: true });
-    console.log(`[run-evaluation] 创建报告目录: ${REPORT_DIR}`);
+  } else if (cliArgs.level === "standard") {
+    console.log("\n[run-evaluation] >>> standard 模式: 黄金测试集（103条），标准评估");
+    const report = await runGoldenEvaluation(cliArgs, config, weights);
+    printReport(report);
+    saveReport(report, cliArgs.level);
+
+  } else if (cliArgs.level === "full") {
+    console.log("\n[run-evaluation] >>> full 模式: 黄金测试集 + 开源数据集，全面评估");
+
+    console.log("\n[run-evaluation] 阶段 1/2: 黄金测试集评估（103条）");
+    const goldenReport = await runGoldenEvaluation(cliArgs, config, weights);
+    printReport(goldenReport);
+    saveReport(goldenReport, cliArgs.level, "golden");
+
+    const datasetPathExists = checkOpenDatasetPath();
+
+    if (datasetPathExists) {
+      console.log(`\n[run-evaluation] 阶段 2/2: 开源数据集评估（最大 ${maxSamples} 条）`);
+      const openReport = await runOpenDatasetPhase(cliArgs, maxSamples);
+
+      if (openReport) {
+        printReport(openReport);
+        saveReport(openReport, cliArgs.level, "opendataset");
+
+        console.log("\n" + "=".repeat(80));
+        console.log("                    全面评估汇总");
+        console.log("=".repeat(80));
+        console.log(`黄金测试集 (${goldenReport.totalTests} 条):`);
+        console.log(`  Overall Score:       ${goldenReport.overallScore.toFixed(4)}`);
+        console.log(`  Financial Overall:   ${(goldenReport as Record<string, unknown>).financialOverallScore ?? "N/A"}`);
+        console.log(`开源数据集 (${openReport.totalTests} 条):`);
+        console.log(`  Overall Score:       ${openReport.overallScore.toFixed(4)}`);
+        console.log(`  Financial Overall:   ${(openReport as Record<string, unknown>).financialOverallScore ?? "N/A"}`);
+        console.log("=".repeat(80) + "\n");
+      } else {
+        console.warn("[run-evaluation] 开源数据集评估失败，仅保存黄金测试集报告");
+      }
+    } else {
+      console.warn("\n[run-evaluation] 开源数据集路径不可用，跳过阶段 2");
+      console.warn("[run-evaluation] 如需开源数据集评估，请确保数据已下载到: " + OPEN_DATASET_BASE_PATH);
+    }
   }
-
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const reportPath = path.join(REPORT_DIR, `eval-report-${cliArgs.level}-${timestamp}.json`);
-
-  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), "utf-8");
-  console.log(`[run-evaluation] 评估报告已保存: ${reportPath}`);
-
-  const latestReportPath = path.join(REPORT_DIR, "latest.json");
-  fs.writeFileSync(
-    latestReportPath,
-    JSON.stringify(report, null, 2),
-    "utf-8"
-  );
-  console.log(`[run-evaluation] 最新报告已更新: ${latestReportPath}`);
 
   console.log("[run-evaluation] 评估运行完成");
 

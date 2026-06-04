@@ -1,0 +1,251 @@
+{
+  "test_time": "2026-05-30T07:28:42.596Z",
+  "total": 36,
+  "passed": 36,
+  "failed": 0,
+  "suites": [
+    {
+      "name": "text-cleaner",
+      "total": 11,
+      "passed": 11
+    },
+    {
+      "name": "dense-retriever",
+      "total": 5,
+      "passed": 5
+    },
+    {
+      "name": "sparse-retriever",
+      "total": 8,
+      "passed": 8
+    },
+    {
+      "name": "config-resolution",
+      "total": 9,
+      "passed": 9
+    },
+    {
+      "name": "chunker-integration",
+      "total": 3,
+      "passed": 3
+    }
+  ],
+  "results": [
+    {
+      "suite": "text-cleaner",
+      "name": "控制字符移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "零宽字符移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "CRLF转换",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "连续空行合并",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "Markdown URL移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "水平分隔线移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "HTML标签移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "全角数字转半角",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "重复页眉去重",
+      "pass": true,
+      "detail": "Header出现1次"
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "开头标点修正",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "text-cleaner",
+      "name": "结尾左括号修正",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "dense-retriever",
+      "name": "短文本不截断",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "dense-retriever",
+      "name": "恰好2000不截断",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "dense-retriever",
+      "name": "截断后不超过MAX",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "dense-retriever",
+      "name": "句子边界截断",
+      "pass": true,
+      "detail": "末尾: 。"
+    },
+    {
+      "suite": "dense-retriever",
+      "name": "无边界硬切",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "中文标点移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "正常文本保留",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "英文标点移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "英文转小写",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "数字逗号移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "数字逗号移除2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "括号内数字保留",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "sparse-retriever",
+      "name": "括号移除",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "全大写匹配",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "数字开头不匹配",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "小写不匹配",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "数字字母不匹配",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "环境变量解析",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "非环境变量保持原值",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "256K保持原值",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": "YAML无BAILIAN_MODEL",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "config-resolution",
+      "name": ".env.local无BAILIAN_MODEL",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "chunker-integration",
+      "name": "chunkDocument经过cleanText",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "chunker-integration",
+      "name": "切片无开头标点",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "suite": "chunker-integration",
+      "name": "无空切片",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

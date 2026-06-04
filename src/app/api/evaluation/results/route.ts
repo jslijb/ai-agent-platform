@@ -4,7 +4,7 @@ import * as path from "path";
 
 export const dynamic = "force-dynamic";
 
-const REPORT_DIR = path.resolve(process.cwd(), "evaluation-reports");
+const REPORT_DIR = path.resolve(process.cwd(), "tests/reports/evaluation");
 
 export async function GET() {
   console.log("[evaluation-results] 获取评估结果");

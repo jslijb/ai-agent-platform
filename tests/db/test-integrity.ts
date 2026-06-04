@@ -236,8 +236,8 @@ function generateReport() {
 
   const fs = require("fs");
   const path = require("path");
-  const reportPath = path.join(process.cwd(), "test-reports", `integrity-test-${Date.now()}.json`);
-  fs.mkdirSync(path.join(process.cwd(), "test-reports"), { recursive: true });
+  const reportPath = path.join(process.cwd(), "tests/reports/test", `integrity-test-${Date.now()}.json`);
+  fs.mkdirSync(path.join(process.cwd(), "tests/reports/test"), { recursive: true });
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), "utf-8");
   console.log(`\n测试报告已保存: ${reportPath}`);
 

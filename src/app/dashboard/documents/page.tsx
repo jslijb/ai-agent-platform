@@ -343,7 +343,7 @@ export default function DocumentsPage() {
           <div className="text-center py-16 bg-white rounded-lg shadow-sm">
             <div className="text-4xl mb-3">📁</div>
             <div className="text-gray-500">暂无上传文档</div>
-            <div className="text-gray-400 text-sm mt-1">点击上方"上传文档"按钮添加</div>
+            <div className="text-gray-400 text-sm mt-1">点击上方&ldquo;上传文档&rdquo;按钮添加</div>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">

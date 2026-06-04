@@ -4,7 +4,6 @@ export class VisionFallbackClient {
   private visionModel: string;
   private apiKey: string;
   private baseUrl: string;
-  private fallbackEnabled: boolean;
 
   constructor() {
     this.visionModel = process.env.VISION_MODEL || "qwen3.5-plus";
@@ -12,16 +11,10 @@ export class VisionFallbackClient {
     this.baseUrl =
       process.env.DASHSCOPE_BASE_URL ||
       "https://dashscope.aliyuncs.com/compatible-mode/v1";
-    this.fallbackEnabled =
-      process.env.VISION_FALLBACK_ENABLED !== "false";
   }
 
   isAvailable(): boolean {
     return !!this.apiKey && !!this.visionModel;
-  }
-
-  isFallbackEnabled(): boolean {
-    return this.fallbackEnabled;
   }
 
   async analyze(
@@ -34,16 +27,7 @@ export class VisionFallbackClient {
       return {
         success: false,
         error: "Vision模型未配置（缺少DASHSCOPE_API_KEY或VISION_MODEL）",
-        engineUsed: "qwen3.5-plus",
-        executionTimeMs: Date.now() - startTime,
-      };
-    }
-
-    if (!this.fallbackEnabled) {
-      return {
-        success: false,
-        error: "Vision降级未启用（VISION_FALLBACK_ENABLED=false）",
-        engineUsed: "qwen3.5-plus",
+        engineUsed: this.visionModel,
         executionTimeMs: Date.now() - startTime,
       };
     }
@@ -81,7 +65,7 @@ export class VisionFallbackClient {
         return {
           success: false,
           error: `Vision API返回错误: ${response.status}`,
-          engineUsed: "qwen3.5-plus",
+          engineUsed: this.visionModel,
           executionTimeMs: Date.now() - startTime,
         };
       }
@@ -92,7 +76,7 @@ export class VisionFallbackClient {
       return {
         success: true,
         description,
-        engineUsed: "qwen3.5-plus",
+        engineUsed: this.visionModel,
         tokenUsage: data.usage?.total_tokens,
         executionTimeMs: Date.now() - startTime,
       };
@@ -100,7 +84,7 @@ export class VisionFallbackClient {
       return {
         success: false,
         error: err instanceof Error ? err.message : String(err),
-        engineUsed: "qwen3.5-plus",
+        engineUsed: this.visionModel,
         executionTimeMs: Date.now() - startTime,
       };
     }

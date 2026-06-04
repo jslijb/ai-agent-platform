@@ -37,7 +37,7 @@ export async function ensureUserExists(userId: string, userName?: string, userEm
   }
 
   const name = userName || (userId === DEFAULT_USER_ID ? "Default User" : `User-${userId.substring(0, 8)}`);
-  const email = userEmail || (userId === DEFAULT_USER_ID ? "default@agent.local" : `${userId.substring(0, 8)}@agent.local`);
+  const email = userEmail || (userId === DEFAULT_USER_ID ? "default@agent.local" : `${userId}@agent.local`);
 
   console.log(`[memory] 创建用户: ${userId}, name: ${name}`);
   try {

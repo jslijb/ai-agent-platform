@@ -73,20 +73,8 @@ describe("VisionFallbackClient", () => {
     expect(result.error).toContain("未配置");
   });
 
-  it("analyze returns error when fallback disabled", async () => {
+  it("analyze calls fetch and returns success when available", async () => {
     process.env.DASHSCOPE_API_KEY = "test-key";
-    process.env.VISION_FALLBACK_ENABLED = "false";
-    const client = new VisionFallbackClient();
-    const result = await client.analyze("img");
-    expect(result.success).toBe(false);
-    expect(result.error).toContain("未启用");
-    delete process.env.DASHSCOPE_API_KEY;
-    delete process.env.VISION_FALLBACK_ENABLED;
-  });
-
-  it("analyze calls fetch and returns success", async () => {
-    process.env.DASHSCOPE_API_KEY = "test-key";
-    process.env.VISION_FALLBACK_ENABLED = "true";
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -100,7 +88,19 @@ describe("VisionFallbackClient", () => {
     expect(result.description).toBe("图片描述");
     expect(result.tokenUsage).toBe(100);
     delete process.env.DASHSCOPE_API_KEY;
-    delete process.env.VISION_FALLBACK_ENABLED;
+  });
+
+  it("analyze returns error on API failure", async () => {
+    process.env.DASHSCOPE_API_KEY = "test-key";
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+    });
+    const client = new VisionFallbackClient();
+    const result = await client.analyze("base64img");
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("500");
+    delete process.env.DASHSCOPE_API_KEY;
   });
 });
 
@@ -108,11 +108,9 @@ describe("DualEngineRouter", () => {
   it("returns error when both engines unavailable", async () => {
     delete process.env.PADDLEOCR_MCP_ENABLED;
     delete process.env.DASHSCOPE_API_KEY;
-    process.env.VISION_FALLBACK_ENABLED = "true";
     const router = new DualEngineRouter();
     const result = await router.analyze("img");
     expect(result.success).toBe(false);
     expect(result.degradationReason).toContain("不可用");
-    delete process.env.VISION_FALLBACK_ENABLED;
   });
 });

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>金融 AI Agent 平台 — 微服务架构图</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Microsoft YaHei', sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
+  h1 { text-align: center; font-size: 24px; margin-bottom: 8px; color: #38bdf8; }
+  h2 { text-align: center; font-size: 14px; font-weight: normal; color: #94a3b8; margin-bottom: 24px; }
+  .container { max-width: 1400px; margin: 0 auto; }
+  .diagram-card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #334155; }
+  .diagram-card h3 { color: #38bdf8; margin-bottom: 16px; font-size: 16px; }
+  .mermaid { display: flex; justify-content: center; }
+  .legend { display: flex; gap: 24px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
+  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
+  .meta { text-align: center; margin-top: 20px; font-size: 11px; color: #475569; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>金融行业 AI Agent 全栈平台</h1>
+  <h2>微服务架构图 — Phase 6 升级后</h2>
+
+  <!-- 主架构图 -->
+  <div class="diagram-card">
+    <h3>整体架构（2 服务方案 + LLM Gateway Dev Only）</h3>
+    <div class="mermaid">
+graph TB
+    subgraph Client["👤 客户端"]
+        Browser["浏览器"]
+        API_Client["API 调用方"]
+    end
+
+    subgraph Gateway["🔀 Nginx API Gateway :80"]
+        Nginx["Nginx 反向代理<br/>负载均衡 + 路由"]
+    end
+
+    subgraph Services["☁️ 微服务层"]
+        direction TB
+        Main["🖥️ Main Service<br/>Next.js :3000<br/>──────────<br/>前端 SSR / API<br/>认证 / 对话<br/>service-adapter.ts"]
+        RAG["🔍 RAG Service<br/>Fastify :3001<br/>──────────<br/>检索 / 嵌入 / 重排<br/>分块 / 评估<br/>BullMQ Worker"]
+        LLM["🤖 LLM Gateway<br/>Fastify :3002<br/>──────────<br/>模型路由 / 熔断<br/>缓存 / 限流<br/><i>仅 dev profile</i>"]
+        Data["📊 Data Service<br/>FastAPI :8001<br/>──────────<br/>数据管理<br/>文件上传"]
+    end
+
+    subgraph AI["🧠 AI 推理服务"]
+        Embedding["Embedding Service<br/>:8011<br/>bge-m3 GGUF"]
+        Reranker["Reranker Service<br/>:8010<br/>bge-reranker-v2-m3 GGUF"]
+    end
+
+    subgraph Storage["💾 数据存储层"]
+        PG["PostgreSQL<br/>:5432<br/>业务数据 + 向量"]
+        Redis["Redis<br/>:6379<br/>缓存 + BullMQ 队列"]
+        Neo4j["Neo4j<br/>:7687<br/>知识图谱"]
+    end
+
+    Browser --> Nginx
+    API_Client --> Nginx
+
+    Nginx -->|"/* /api/auth/*<br/>/api/health"| Main
+    Nginx -->|"/api/evaluation/*"| RAG
+    Nginx -->|"/api/data/*"| Data
+    Nginx -->|"🔒 /internal/* → 403"| Nginx
+
+    Main -->|"HTTP fetch<br/>USE_MICROSERVICE=true"| RAG
+    Main -->|"HTTP fetch<br/>USE_MICROSERVICE=true"| LLM
+    Main -->|"单体模式<br/>USE_MICROSERVICE=false"| Main
+
+    RAG -->|"嵌入请求"| Embedding
+    RAG -->|"重排请求"| Reranker
+    RAG -->|"BullMQ 任务"| Redis
+    RAG -->|"SQL + 向量查询"| PG
+    RAG -->|"图查询"| Neo4j
+
+    LLM -->|"模型 API<br/>qwen-max/plus/turbo"| LLM
+
+    Data -->|"SQL"| PG
+
+    Main -.->|"X-Trace-Id"| RAG
+    Main -.->|"X-Trace-Id"| LLM
+
+    style Client fill:#1e3a5f,stroke:#38bdf8,color:#e2e8f0
+    style Gateway fill:#3b1764,stroke:#a78bfa,color:#e2e8f0
+    style Services fill:#1a2744,stroke:#38bdf8,color:#e2e8f0
+    style AI fill:#2d1a3e,stroke:#c084fc,color:#e2e8f0
+    style Storage fill:#1a2e1a,stroke:#4ade80,color:#e2e8f0
+    style Main fill:#1e40af,stroke:#60a5fa,color:#fff
+    style RAG fill:#065f46,stroke:#34d399,color:#fff
+    style LLM fill:#7c2d12,stroke:#fb923c,color:#fff
+    style Data fill:#4a1d6e,stroke:#c084fc,color:#fff
+    style Nginx fill:#5b21b6,stroke:#a78bfa,color:#fff
+    style PG fill:#15803d,stroke:#4ade80,color:#fff
+    style Redis fill:#dc2626,stroke:#f87171,color:#fff
+    style Neo4j fill:#1d4ed8,stroke:#60a5fa,color:#fff
+    style Embedding fill:#6b21a8,stroke:#c084fc,color:#fff
+    style Reranker fill:#6b21a8,stroke:#c084fc,color:#fff
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#1e40af"></div>Main Service (Next.js)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#065f46"></div>RAG Service (Fastify)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#7c2d12"></div>LLM Gateway (Dev Only)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#4a1d6e"></div>Data Service (FastAPI)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#15803d"></div>PostgreSQL</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Redis</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div>Neo4j</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6b21a8"></div>AI 推理</div>
+    </div>
+  </div>
+
+  <!-- 服务间通信 -->
+  <div class="diagram-card">
+    <h3>服务间通信协议</h3>
+    <div class="mermaid">
+sequenceDiagram
+    participant C as 浏览器
+    participant N as Nginx :80
+    participant M as Main Service :3000
+    participant R as RAG Service :3001
+    participant L as LLM Gateway :3002
+    participant E as Embedding :8011
+    participant DB as PostgreSQL
+    participant MQ as Redis/BullMQ
+
+    C->>N: POST /api/chat {message}
+    N->>M: 转发请求
+    Note over M: 生成 traceId<br/>X-Trace-Id: uuid-v4
+
+    M->>R: POST /api/retrieve {query, topK}<br/>X-Trace-Id: xxx
+    R->>E: 嵌入请求
+    E-->>R: embeddings
+    R->>DB: 向量 + 关键词混合检索
+    DB-->>R: 检索结果
+    R-->>M: {success, results, latencyMs}<br/>X-Trace-Id: xxx
+
+    M->>L: POST /api/llm/chat {messages}<br/>X-Trace-Id: xxx
+    Note over L: 熔断器检查<br/>qwen-max → qwen-plus → qwen-turbo
+    L-->>M: {content, model, usage}<br/>X-Trace-Id: xxx
+
+    M-->>N: 聊天响应
+    N-->>C: 流式/完整响应
+
+    Note over M,R: 降级开关: USE_MICROSERVICE=false<br/>→ 直接进程内调用 hybridSearch()
+    Note over R,MQ: 评估任务: POST /api/evaluation/run<br/>→ BullMQ 异步执行
+    </div>
+  </div>
+
+  <!-- Docker 部署 -->
+  <div class="diagram-card">
+    <h3>Docker Compose 部署架构</h3>
+    <div class="mermaid">
+graph LR
+    subgraph Production["生产模式 (9 容器)"]
+        direction TB
+        P1["aiagent_postgres"]
+        P2["aiagent_redis"]
+        P3["aiagent_neo4j"]
+        P4["aiagent_embedding"]
+        P5["aiagent_reranker"]
+        P6["aiagent_rag_service"]
+        P7["aiagent_main_service"]
+        P8["aiagent_data_service"]
+        P9["aiagent_nginx"]
+    end
+
+    subgraph DevOnly["开发模式额外 (1 容器)"]
+        D1["aiagent_llm_gateway<br/>profiles: dev"]
+    end
+
+    subgraph Network["Docker Network: aiagent_net"]
+        N["容器间 DNS 解析<br/>rag-service:3001<br/>main-service:3000"]
+    end
+
+    subgraph Volumes["持久化数据卷"]
+        V1["postgres_data"]
+        V2["redis_data"]
+        V3["neo4j_data"]
+    end
+
+    subgraph Host["宿主机挂载"]
+        H1["D:/models/modelscope/<br/>bge-m3-GGUF"]
+        H2["D:/models/modelscope/<br/>bge-reranker-v2-m3-GGUF"]
+    end
+
+    P4 -.->|"模型文件"| H1
+    P5 -.->|"模型文件"| H2
+    P1 -.-> V1
+    P2 -.-> V2
+    P3 -.-> V3
+
+    style Production fill:#1a2744,stroke:#38bdf8,color:#e2e8f0
+    style DevOnly fill:#3b1764,stroke:#a78bfa,color:#e2e8f0
+    style Network fill:#1a2e1a,stroke:#4ade80,color:#e2e8f0
+    style Volumes fill:#2d1a3e,stroke:#c084fc,color:#e2e8f0
+    style Host fill:#3b1764,stroke:#f472b6,color:#e2e8f0
+    </div>
+  </div>
+
+  <!-- 部署模式切换 -->
+  <div class="diagram-card">
+    <h3>部署模式切换（非降级）</h3>
+    <div class="mermaid">
+flowchart TD
+    Start["API 请求到达 Main Service"] --> Check{"USE_MICROSERVICE<br/>== true?"}
+
+    Check -->|"true"| MicroService["微服务模式<br/>HTTP fetch → RAG Service :3001"]
+    Check -->|"false"| InProcess["单体模式<br/>进程内调用 hybridSearch()"]
+
+    MicroService --> Success{"响应成功?"}
+    Success -->|"是"| Return["返回结果"]
+    Success -->|"否"| Error["抛出错误<br/>由上层处理"]
+
+    InProcess --> Direct["直接调用<br/>hybridSearch()"]
+    Direct --> Return
+
+    style Check fill:#7c2d12,stroke:#fb923c,color:#fff
+    style MicroService fill:#1e40af,stroke:#60a5fa,color:#fff
+    style InProcess fill:#065f46,stroke:#34d399,color:#fff
+    style Error fill:#dc2626,stroke:#f87171,color:#fff
+    style Return fill:#15803d,stroke:#4ade80,color:#fff
+    </div>
+    <p style="color:#94a3b8;font-size:12px;margin-top:12px;">
+      注意：这不是降级机制，而是部署模式切换。服务失败时直接抛错，不做进程内降级（同一依赖链，挂了一样挂）。
+    </p>
+  </div>
+
+  <!-- LLM 模型降级链 -->
+  <div class="diagram-card">
+    <h3>LLM 模型降级链 + 熔断器</h3>
+    <div class="mermaid">
+flowchart LR
+    subgraph Models["模型降级链"]
+        M1["kimi-k2.6<br/>主力模型"]
+        M2["qwen3.5-plus<br/>第一备选"]
+        M3["qwen3.6-plus<br/>第二备选"]
+    end
+
+    subgraph CB["熔断器 (Circuit Breaker)"]
+        Closed["Closed<br/>正常调用"]
+        Open["Open<br/>拒绝请求"]
+    end
+
+    M1 -->|"304 额度耗尽<br/>429 限流<br/>503 不可用"| CB
+    CB -->|"forceOpen"| Open
+    Open -->|"30s 冷却"| Closed
+    Closed -->|"尝试下一模型"| M2
+    M2 -->|"失败"| M3
+
+    subgraph Excluded["已耗尽模型(不参与调度)"]
+        EX["记录在熔断器中<br/>不再尝试"]
+    end
+
+    Open -.->|"永久标记"| EX
+
+    style M1 fill:#1e40af,stroke:#60a5fa,color:#fff
+    style M2 fill:#065f46,stroke:#34d399,color:#fff
+    style M3 fill:#4a1d6e,stroke:#c084fc,color:#fff
+    style CB fill:#7c2d12,stroke:#fb923c,color:#fff
+    style Closed fill:#15803d,stroke:#4ade80,color:#fff
+    style Open fill:#dc2626,stroke:#f87171,color:#fff
+    style Excluded fill:#1a1a1a,stroke:#64748b,color:#94a3b8
+    </div>
+    <p style="color:#94a3b8;font-size:12px;margin-top:12px;">
+      304 额度耗尽 → 熔断器 forceOpen → 模型永久排除调度 → 自动切换下一模型。<br/>
+      429/503 → 熔断器临时打开 → 30s 冷却后自动恢复。
+    </p>
+  </div>
+
+  <!-- 降级逻辑总览 -->
+  <div class="diagram-card">
+    <h3>系统降级逻辑总览</h3>
+    <div class="mermaid">
+graph TD
+    subgraph Valid["✅ 有意义的降级"]
+        V1["LLM 模型降级链<br/>qwen-max → plus → turbo"]
+        V2["熔断器模式<br/>防止持续请求已失败模型"]
+        V3["429/503 重试<br/>临时限流可恢复"]
+        V4["向量索引 → 顺序扫描<br/>索引损坏时仍可工作"]
+        V5["RouterFacade 初始化失败<br/>降级到传统路由"]
+        V6["Skill 错误恢复策略<br/>retry/fallback/abort"]
+        V7["Vision PaddleOCR → Vision模型<br/>双引擎降级"]
+    end
+
+    subgraph Removed["❌ 已移除的无意义降级"]
+        R1["searchRAG 微服务→进程内<br/>同一依赖链，挂了一样挂"]
+        R2["fallbackToInProcess 返回空<br/>静默失败掩盖错误"]
+        R3["VisionFallbackClient 开关<br/>fallbackEnabled=false直接失败"]
+    end
+
+    style Valid fill:#1a2e1a,stroke:#4ade80,color:#e2e8f0
+    style Removed fill:#2d1a1a,stroke:#f87171,color:#e2e8f0
+    style V1 fill:#15803d,stroke:#4ade80,color:#fff
+    style V2 fill:#15803d,stroke:#4ade80,color:#fff
+    style V3 fill:#15803d,stroke:#4ade80,color:#fff
+    style V4 fill:#15803d,stroke:#4ade80,color:#fff
+    style V5 fill:#15803d,stroke:#4ade80,color:#fff
+    style V6 fill:#15803d,stroke:#4ade80,color:#fff
+    style V7 fill:#15803d,stroke:#4ade80,color:#fff
+    style R1 fill:#7f1d1d,stroke:#f87171,color:#94a3b8
+    style R2 fill:#7f1d1d,stroke:#f87171,color:#94a3b8
+    style R3 fill:#7f1d1d,stroke:#f87171,color:#94a3b8
+    </div>
+  </div>
+
+  <div class="meta">
+    生成时间: 2026-06-04 | 项目: 金融行业 AI Agent 全栈平台 | 阶段: Phase 6 微服务架构升级<br/>
+    架构方案: 2 服务 (Main + RAG) + LLM Gateway (Dev Only) | 测试结果: 181/189 通过 (8 skip)
+  </div>
+</div>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    primaryColor: '#1e40af',
+    primaryTextColor: '#e2e8f0',
+    primaryBorderColor: '#60a5fa',
+    lineColor: '#64748b',
+    secondaryColor: '#1e293b',
+    tertiaryColor: '#0f172a',
+    fontFamily: 'Microsoft YaHei, sans-serif',
+    fontSize: '13px'
+  },
+  flowchart: { htmlLabels: true, curve: 'basis', padding: 16 },
+  sequence: { actorMargin: 80, messageMargin: 40 }
+});
+</script>
+</body>
+</html>

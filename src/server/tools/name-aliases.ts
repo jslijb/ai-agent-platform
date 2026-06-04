@@ -19,15 +19,15 @@ export function resolveToolName(
   name: string,
   registry: { has: (n: string) => boolean }
 ): string {
-  if (registry.has(name)) {
-    return name;
-  }
   const alias = TOOL_NAME_ALIASES[name];
   if (alias && registry.has(alias)) {
     console.warn(
       `[NameAliases] 工具名 "${name}" 已废弃，请使用 "${alias}"`
     );
     return alias;
+  }
+  if (registry.has(name)) {
+    return name;
   }
   return name;
 }

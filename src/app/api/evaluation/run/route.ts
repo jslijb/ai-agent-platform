@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { triggerEvaluation } from "@/server/evaluation/evaluation-trigger";
+import { pushEvaluationTask, isMicroserviceMode } from "@/server/lib/service-adapter";
 
 export const maxDuration = 300;
 
@@ -22,8 +23,10 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { evaluationLevel, evaluationType, milestone } = body;
 
+    const traceId = request.headers.get("x-trace-id") || undefined;
+
     console.log(
-      `[evaluation-run] 请求参数 - 级别: ${evaluationLevel}, 类型: ${evaluationType}, 里程碑: ${milestone ?? "无"}`
+      `[evaluation-run] 请求参数 - 级别: ${evaluationLevel}, 类型: ${evaluationType}, 里程碑: ${milestone ?? "无"}, 微服务模式: ${isMicroserviceMode()}`
     );
 
     if (!evaluationLevel || !["daily", "standard", "full"].includes(evaluationLevel)) {
@@ -50,7 +53,27 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log(`[evaluation-run] 开始触发评估, 级别: ${evaluationLevel}, 类型: ${evaluationType}`);
+    if (isMicroserviceMode() && evaluationType === "rag") {
+      console.log(`[evaluation-run] 微服务模式，通过 service-adapter 推送评估任务, 级别: ${evaluationLevel}`);
+
+      const taskResult = await pushEvaluationTask(
+        evaluationLevel as "standard" | "full",
+        milestone,
+        undefined,
+        undefined,
+        traceId
+      );
+
+      console.log(`[evaluation-run] 评估任务已推送, taskId: ${taskResult.taskId}, status: ${taskResult.status}`);
+      return NextResponse.json({
+        success: true,
+        taskId: taskResult.taskId,
+        status: taskResult.status,
+        message: "评估任务已推送至队列",
+      });
+    }
+
+    console.log(`[evaluation-run] 进程内模式，直接触发评估, 级别: ${evaluationLevel}, 类型: ${evaluationType}`);
 
     const result = await triggerEvaluation(
       evaluationLevel,

@@ -76,16 +76,7 @@ Desktop.ini
 
 # IDE / Tools
 .arts/
-
-# Infrastructure
-postgres/
-nginx/
-
-# Evaluation reports (generated)
-evaluation-reports/
-
-# Test reports (generated)
-tests/reports/
+.trae
 
 # PaddleOCR models (large binary)
 .paddleocr_models/
@@ -96,7 +87,19 @@ tests/reports/
 !tsconfig.txt
 
 # Test output files
-tsc_out.txt
 vitest_out.txt
 test.txt
-check-docker.mjs
+
+# Reports (generated, but kept in git for tracking)
+# tests/reports/ is tracked in git
+
+# Docker override files (environment-specific, not committed)
+docker-compose.override.local.yml
+
+# Settings (IDE-specific)
+settings.json
+
+# Old test files
+test_cache.py
+gguf_meta_output.txt
+evaluation-config.yaml

@@ -7,6 +7,25 @@ let cachedRawConfig: Record<string, any> | null = null;
 
 const ENV_VAR_PATTERN = /^[A-Z][A-Z0-9_]*$/;
 
+/**
+ * 查找项目根目录（包含 config/api_keys.yaml 的目录）
+ * 从当前模块目录向上查找，最多 5 层
+ */
+function findProjectRoot(): string {
+  let dir = __dirname;
+  for (let i = 0; i < 5; i++) {
+    const configPath = path.join(dir, "config/api_keys.yaml");
+    if (fs.existsSync(configPath)) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  // 回退到 process.cwd()
+  return process.cwd();
+}
+
 function resolveEnvVars(obj: any): any {
   if (typeof obj === "string") {
     if (ENV_VAR_PATTERN.test(obj)) {
@@ -32,7 +51,7 @@ export function loadConfig(): Record<string, any> {
     return cachedConfig;
   }
 
-  const configPath = path.resolve(process.cwd(), "config/api_keys.yaml");
+  const configPath = path.resolve(findProjectRoot(), "config/api_keys.yaml");
 
   if (!fs.existsSync(configPath)) {
     console.warn(`[config] 配置文件不存在: ${configPath}, 使用环境变量`);
@@ -77,7 +96,7 @@ export function loadRawConfig(): Record<string, any> {
     return cachedRawConfig;
   }
 
-  const configPath = path.resolve(process.cwd(), "config/api_keys.yaml");
+  const configPath = path.resolve(findProjectRoot(), "config/api_keys.yaml");
 
   if (!fs.existsSync(configPath)) {
     console.warn(`[config] 配置文件不存在: ${configPath}`);

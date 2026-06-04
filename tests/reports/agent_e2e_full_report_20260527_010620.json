@@ -1,0 +1,263 @@
+{
+  "test_time": "2026-05-27 01:06:20",
+  "results": {
+    "realtime": {
+      "error": "HTTPConnectionPool(host='localhost', port=8002): Max retries exceeded with url: /api/data/realtime (Caused by NewConnectionError(\"HTTPConnection(host='localhost', port=8002): Failed to establish a new connection: [WinError 10061] 由于目标计算机积极拒绝，无法连接。\"))"
+    },
+    "agent": {
+      "name": "行情+指标+实时+合规",
+      "query": "获取招商银行(600036)最近30天的日K线数据，计算20日移动均线MA20和14日RSI指标，同时获取实时行情，并进行交易合规检查（单只股票仓位不超过20%），最后给出完整的技术分析和合规结论",
+      "http_status": 200,
+      "elapsed_seconds": 50.9,
+      "success": true,
+      "iterations": 10,
+      "conversation_id": "d7351fa8-cc76-461d-9314-08cefd7f080e",
+      "tool_chain": [
+        "getStockHistory",
+        "getStockRealtime"
+      ],
+      "step_count": 34,
+      "answer": "Agent 超过最大迭代次数，未能得出结论。",
+      "steps": [
+        {
+          "round": 0,
+          "type": "thinking",
+          "title": "接收用户查询",
+          "tool": "",
+          "content_preview": "获取招商银行(600036)最近30天的日K线数据，计算20日移动均线MA20和14日RSI指标，同时获取实时行情，并进行交易合规检查（单只股票仓位不超过20%），最后给出完整的技术分析和合规结论"
+        },
+        {
+          "round": 1,
+          "type": "thinking",
+          "title": "第 1 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 1,
+          "type": "tool_call",
+          "title": "第 1 轮 — 调用工具: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "参数: {\n  \"code\": \"sh.600036\",\n  \"start_date\": \"2026-04-26\",\n  \"end_date\": \"2026-05-26\",\n  \"frequency\": \"d\"\n}"
+        },
+        {
+          "round": 1,
+          "type": "tool_result",
+          "title": "第 1 轮 — 工具结果: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "获取历史行情异常: fetch failed"
+        },
+        {
+          "round": 2,
+          "type": "thinking",
+          "title": "第 2 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 2,
+          "type": "tool_call",
+          "title": "第 2 轮 — 调用工具: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "参数: {\n  \"code\": \"sh.600036\",\n  \"start_date\": \"2026-04-26\",\n  \"end_date\": \"2026-05-26\",\n  \"frequency\": \"d\",\n  \"source\": \"efinance\"\n}"
+        },
+        {
+          "round": 2,
+          "type": "tool_result",
+          "title": "第 2 轮 — 工具结果: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "获取历史行情异常: fetch failed"
+        },
+        {
+          "round": 3,
+          "type": "thinking",
+          "title": "第 3 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 3,
+          "type": "tool_call",
+          "title": "第 3 轮 — 调用工具: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "参数: {\n  \"code\": \"sh.600036\",\n  \"start_date\": \"2026-04-26\",\n  \"end_date\": \"2026-05-26\",\n  \"frequency\": \"d\",\n  \"source\": \"mootdx\"\n}"
+        },
+        {
+          "round": 3,
+          "type": "tool_result",
+          "title": "第 3 轮 — 工具结果: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "获取历史行情异常: fetch failed"
+        },
+        {
+          "round": 4,
+          "type": "thinking",
+          "title": "第 4 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 4,
+          "type": "tool_call",
+          "title": "第 4 轮 — 调用工具: getStockRealtime",
+          "tool": "getStockRealtime",
+          "content_preview": "参数: {\n  \"code\": \"600036\"\n}"
+        },
+        {
+          "round": 4,
+          "type": "tool_result",
+          "title": "第 4 轮 — 工具结果: getStockRealtime",
+          "tool": "getStockRealtime",
+          "content_preview": "获取实时行情异常: fetch failed"
+        },
+        {
+          "round": 5,
+          "type": "thinking",
+          "title": "第 5 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 5,
+          "type": "reflection",
+          "title": "第 5 轮 — 反思评估",
+          "tool": "",
+          "content_preview": "LLM 未调用工具，评估答案是否充分..."
+        },
+        {
+          "round": 5,
+          "type": "reflection",
+          "title": "第 5 轮 — 反思决定：需要调用数据工具",
+          "tool": "",
+          "content_preview": "当前答案不够充分，答案中的数据可能来自LLM编造，需要调用数据工具获取真实数据"
+        },
+        {
+          "round": 5,
+          "type": "tool_call",
+          "title": "第 5 轮 — 反思触发数据工具调用",
+          "tool": "",
+          "content_preview": "建议: 重新尝试调用getStockHistory工具获取招商银行(600036)最近30天的日K线数据（source=efinance），同时调用getStockRealtime获取实时行情。如果仍失败，建议用户确认数据源可用性或稍后重试。"
+        },
+        {
+          "round": 6,
+          "type": "thinking",
+          "title": "第 6 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 6,
+          "type": "tool_call",
+          "title": "第 6 轮 — 调用工具: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "参数: {\n  \"code\": \"sh.600036\",\n  \"start_date\": \"2026-04-26\",\n  \"end_date\": \"2026-05-26\",\n  \"frequency\": \"d\",\n  \"source\": \"efinance\"\n}"
+        },
+        {
+          "round": 6,
+          "type": "tool_result",
+          "title": "第 6 轮 — 工具结果: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "获取历史行情异常: fetch failed"
+        },
+        {
+          "round": 7,
+          "type": "thinking",
+          "title": "第 7 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 7,
+          "type": "tool_call",
+          "title": "第 7 轮 — 调用工具: getStockRealtime",
+          "tool": "getStockRealtime",
+          "content_preview": "参数: {\n  \"code\": \"600036\"\n}"
+        },
+        {
+          "round": 7,
+          "type": "tool_result",
+          "title": "第 7 轮 — 工具结果: getStockRealtime",
+          "tool": "getStockRealtime",
+          "content_preview": "获取实时行情异常: fetch failed"
+        },
+        {
+          "round": 8,
+          "type": "thinking",
+          "title": "第 8 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 8,
+          "type": "reflection",
+          "title": "第 8 轮 — 反思评估",
+          "tool": "",
+          "content_preview": "LLM 未调用工具，评估答案是否充分..."
+        },
+        {
+          "round": 8,
+          "type": "reflection",
+          "title": "第 8 轮 — 反思决定：需要调用数据工具",
+          "tool": "",
+          "content_preview": "当前答案不够充分，答案中的数据可能来自LLM编造，需要调用数据工具获取真实数据"
+        },
+        {
+          "round": 8,
+          "type": "tool_call",
+          "title": "第 8 轮 — 反思触发数据工具调用",
+          "tool": "",
+          "content_preview": "建议: 重新调用 getStockHistory 工具获取招商银行(600036)最近30天的日K线数据（code=600036, source=efinance 或 baostock），同时调用 getStockRealtime 获取实时行情。如果 efinance 失败，尝试使用 baostock 或 mootdx 数据源。获取数据后，计算 MA20 和 RSI(14)，再进行交易合规检查和完整技术分析。"
+        },
+        {
+          "round": 9,
+          "type": "thinking",
+          "title": "第 9 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 9,
+          "type": "tool_call",
+          "title": "第 9 轮 — 调用工具: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "参数: {\n  \"code\": \"600036\",\n  \"start_date\": \"2026-04-26\",\n  \"end_date\": \"2026-05-26\",\n  \"frequency\": \"d\",\n  \"source\": \"efinance\"\n}"
+        },
+        {
+          "round": 9,
+          "type": "tool_result",
+          "title": "第 9 轮 — 工具结果: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "获取历史行情异常: fetch failed"
+        },
+        {
+          "round": 10,
+          "type": "thinking",
+          "title": "第 10 轮 — LLM 推理",
+          "tool": "",
+          "content_preview": "正在调用大模型进行推理..."
+        },
+        {
+          "round": 10,
+          "type": "tool_call",
+          "title": "第 10 轮 — 调用工具: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "参数: {\n  \"code\": \"sh.600036\",\n  \"start_date\": \"2026-04-26\",\n  \"end_date\": \"2026-05-26\",\n  \"frequency\": \"d\",\n  \"source\": \"baostock\"\n}"
+        },
+        {
+          "round": 10,
+          "type": "tool_result",
+          "title": "第 10 轮 — 工具结果: getStockHistory",
+          "tool": "getStockHistory",
+          "content_preview": "获取历史行情异常: fetch failed"
+        },
+        {
+          "round": 10,
+          "type": "answer",
+          "title": "超过最大迭代次数",
+          "tool": "",
+          "content_preview": "Agent 超过最大迭代次数，未能得出结论。"
+        }
+      ]
+    }
+  }
+}
