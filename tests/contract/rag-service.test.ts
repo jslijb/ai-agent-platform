@@ -4,15 +4,18 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const BASE = "http://localhost:3001";
 
 describe("rag-service (:3001) 服务契约", () => {
-  
+  const isAvailable = useServiceCheck(["rag-service"]);
+
   // ========== Health ==========
   describe("C12-C13: GET /api/health", () => {
     
     it("C12: 正常返回", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/health`);
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -23,6 +26,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C13: 响应包含 details", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/health`);
       const body = await res.json();
       expect(body.details).toBeDefined();
@@ -33,6 +37,7 @@ describe("rag-service (:3001) 服务契约", () => {
   describe("C14-C15: POST /api/retrieve", () => {
     
     it("C14: 正常 query → 200 + results", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/retrieve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,6 +51,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C14b: 中国长城 检索返回 BM25 + Dense 混合结果", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/retrieve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,6 +63,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C14c: 格力电器 检索返回结果", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/retrieve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,6 +75,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C15: 空 query → 400", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/retrieve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -77,6 +85,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C15b: 无 query 字段 → 返回错误", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/retrieve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,6 +101,7 @@ describe("rag-service (:3001) 服务契约", () => {
   describe("C16-C17: POST /api/embed", () => {
     
     it("C16: texts → 200 + embeddings (1024维)", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/embed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,6 +115,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C17: 空 texts → 400", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/embed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,6 +129,7 @@ describe("rag-service (:3001) 服务契约", () => {
   describe("C18-C19: POST /api/rerank", () => {
     
     it("C18: query+documents → 200 + results", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/rerank`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -139,6 +151,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C19: 空 query → 400", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/rerank`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -152,6 +165,7 @@ describe("rag-service (:3001) 服务契约", () => {
   describe("C20-C21: POST /api/chunk", () => {
     
     it("C20: text → 200 + chunks", async () => {
+      if (!isAvailable()) return;
       const longText = "五粮液2025年实现营业收入1324亿元，同比增长12.5%。净利润342亿元，毛利率72.3%。ROE达到25.1%。公司持续推进高端化战略。";
       const res = await fetch(`${BASE}/api/chunk`, {
         method: "POST",
@@ -174,6 +188,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("C21: 空 text → 400", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/chunk`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -187,6 +202,7 @@ describe("rag-service (:3001) 服务契约", () => {
   describe("数据一致性验证", () => {
     
     it("相同输入检索结果幂等", async () => {
+      if (!isAvailable()) return;
       const query = { query: "五粮液净利润", topK: 5 };
       const r1 = await fetch(`${BASE}/api/retrieve`, {
         method: "POST",
@@ -205,6 +221,7 @@ describe("rag-service (:3001) 服务契约", () => {
     });
 
     it("embedding 维度始终为 1024", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/embed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

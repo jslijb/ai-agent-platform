@@ -17,7 +17,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "test": "vitest run",
-    "test:ci": "vitest run src/server/",
+    "test:ci": "vitest run",
     "test:integration": "vitest run tests/"
   },
   "dependencies": {

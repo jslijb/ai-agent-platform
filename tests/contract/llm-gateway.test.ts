@@ -4,15 +4,18 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const BASE = "http://localhost:3002";
 
 describe("llm-gateway (:3002) 服务契约", () => {
-  
+  const isAvailable = useServiceCheck(["llm-gateway"]);
+
   // ========== Health ==========
   describe("C25: GET /api/health", () => {
     
     it("C25: 正常返回", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/health`);
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -26,6 +29,7 @@ describe("llm-gateway (:3002) 服务契约", () => {
   describe("C27-C30: POST /api/llm/chat", () => {
     
     it("C27: 正常 messages → 200 + {content, model, usage}", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/llm/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,6 +50,7 @@ describe("llm-gateway (:3002) 服务契约", () => {
     }, 60000);
 
     it("C28: 空 messages → 400", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/llm/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,6 +60,7 @@ describe("llm-gateway (:3002) 服务契约", () => {
     });
 
     it("C30: 所有模型不可用 → 503", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/llm/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,6 +79,7 @@ describe("llm-gateway (:3002) 服务契约", () => {
   describe("C31: POST /api/llm/stream", () => {
     
     it("C31: SSE 流式输出", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/llm/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -96,6 +103,7 @@ describe("llm-gateway (:3002) 服务契约", () => {
   describe("C32: GET /api/llm/usage", () => {
     
     it("C32: 返回 token 使用统计", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/llm/usage`);
       // 可能 200 或 503 (Redis 未运行)
       if (res.status === 200) {

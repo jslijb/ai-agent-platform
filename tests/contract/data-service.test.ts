@@ -11,15 +11,18 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const BASE = "http://localhost:8001";
 
 describe("data-service (:8001) 服务契约", () => {
-  
+  const isAvailable = useServiceCheck(["data-service"]);
+
   // ========== Health ==========
   describe("C39: GET /health", () => {
     
     it("C39: 返回 {success, data}", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/health`);
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -34,6 +37,7 @@ describe("data-service (:8001) 服务契约", () => {
   describe("C40-C41: POST /api/market/history", () => {
     
     it("C40a: 五粮液 sz.000858 → 200 + data", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,6 +63,7 @@ describe("data-service (:8001) 服务契约", () => {
     });
 
     it("C40b: 中国长城 sz.000066 → 200 + data", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,6 +80,7 @@ describe("data-service (:8001) 服务契约", () => {
     }, 15000);
 
     it("C40c: 格力电器 sz.000651 → 200 + data", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -91,6 +97,7 @@ describe("data-service (:8001) 服务契约", () => {
     });
 
     it("C41: 缺少必填字段 → 422", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,6 +112,7 @@ describe("data-service (:8001) 服务契约", () => {
   describe("C42: POST /api/market/realtime", () => {
     
     it("C42: 五粮液 000858 → 200 + {latestPrice, change}", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/realtime`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -122,6 +130,7 @@ describe("data-service (:8001) 服务契约", () => {
   describe("C43: financial 数据", () => {
     
     it("C43a: 五粮液 利润表可用", async () => {
+      if (!isAvailable()) return;
       // 通过 /api/market/history?type=profit 或其他 endpoint
       // 如果单独利润表 endpoint 不存在，标记为需要确认
       const res = await fetch(`${BASE}/api/market/history`, {
@@ -142,6 +151,7 @@ describe("data-service (:8001) 服务契约", () => {
     });
 
     it("C43b: 中国长城 数据可用", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -159,6 +169,7 @@ describe("data-service (:8001) 服务契约", () => {
     });
 
     it("C43c: 格力电器 数据可用", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

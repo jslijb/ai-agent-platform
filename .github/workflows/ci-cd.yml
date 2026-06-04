@@ -59,7 +59,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check Docker secrets
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.DOCKER_REGISTRY }}" ]; then
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+            echo "::notice::Docker secrets not configured, skipping build & push"
+          fi
+
       - name: Login to Container Registry
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
@@ -67,6 +78,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and push Next.js
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -76,6 +88,7 @@ jobs:
             ${{ secrets.DOCKER_REGISTRY }}/ai-agent-platform:${{ github.sha }}
 
       - name: Build and push Data Service
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: docker/build-push-action@v6
         with:
           context: ./data_service
@@ -90,7 +103,18 @@ jobs:
     needs: build-and-push
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+      - name: Check Deploy secrets
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.DEPLOY_HOST }}" ]; then
+            echo "has_secrets=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_secrets=false" >> $GITHUB_OUTPUT
+            echo "::notice::Deploy secrets not configured, skipping deployment"
+          fi
+
       - name: Deploy via SSH
+        if: steps.check_secrets.outputs.has_secrets == 'true'
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.DEPLOY_HOST }}

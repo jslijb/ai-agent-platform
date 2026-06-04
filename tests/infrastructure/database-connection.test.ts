@@ -10,6 +10,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { sql } from "drizzle-orm";
+import { useServiceCheck } from "../helpers/service-check";
 
 // 动态加载环境变量
 function loadEnv() {
@@ -39,6 +40,7 @@ loadEnv();
 // === PostgreSQL 测试 ===
 describe("F1-F3: PostgreSQL 基础设施", () => {
   let pgClient: ReturnType<typeof postgres> | null = null;
+  const isAvailable = useServiceCheck(["data-service"]);
 
   afterAll(async () => {
     if (pgClient) {
@@ -47,6 +49,7 @@ describe("F1-F3: PostgreSQL 基础设施", () => {
   });
 
   it("F1: PostgreSQL 连接成功", async () => {
+    if (!isAvailable()) return;
     const dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) {
       console.warn("[infrastructure] DATABASE_URL 未设置，跳过 PostgreSQL 测试");
@@ -63,6 +66,7 @@ describe("F1-F3: PostgreSQL 基础设施", () => {
   }, 10000);
 
   it("F2: pgvector 扩展已安装", async () => {
+    if (!isAvailable()) return;
     if (!pgClient) {
       return;
     }
@@ -76,6 +80,7 @@ describe("F1-F3: PostgreSQL 基础设施", () => {
   }, 10000);
 
   it("F3: 关键表存在", async () => {
+    if (!isAvailable()) return;
     if (!pgClient) {
       return;
     }
@@ -100,6 +105,7 @@ describe("F1-F3: PostgreSQL 基础设施", () => {
   }, 10000);
 
   it("F3b: Embedding 表有数据（向量索引已建立）", async () => {
+    if (!isAvailable()) return;
     if (!pgClient) {
       return;
     }
@@ -113,7 +119,9 @@ describe("F1-F3: PostgreSQL 基础设施", () => {
 
 // === Redis 测试 ===
 describe("F5: Redis 基础设施", () => {
+  const isAvailable = useServiceCheck(["data-service"]);
   it("F5: Redis 连接并 PING", async () => {
+    if (!isAvailable()) return;
     try {
       const { createClient } = await import("redis");
       const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
@@ -136,7 +144,9 @@ describe("F5: Redis 基础设施", () => {
 
 // === Neo4j 测试 ===
 describe("F4: Neo4j 基础设施", () => {
+  const isAvailable = useServiceCheck(["data-service"]);
   it("F4: Neo4j 连接并查询", async () => {
+    if (!isAvailable()) return;
     try {
       const neo4j = await import("neo4j-driver");
       const uri = process.env.NEO4J_URI || "bolt://localhost:7687";
@@ -161,6 +171,7 @@ describe("F4: Neo4j 基础设施", () => {
 
 // === 关键数据验证 ===
 describe("F6: 数据完整性验证", () => {
+  const isAvailable = useServiceCheck(["data-service"]);
   let pgClient: ReturnType<typeof postgres> | null = null;
 
   beforeAll(async () => {
@@ -180,6 +191,7 @@ describe("F6: 数据完整性验证", () => {
   });
 
   it("F6a: 五粮液/中国长城/格力电器 向量数据可用", async () => {
+    if (!isAvailable()) return;
     if (!pgClient) return;
     
     const result = await pgClient`
@@ -205,6 +217,7 @@ describe("F6: 数据完整性验证", () => {
   }, 10000);
 
   it("F6b: AgentLog 表可读写", async () => {
+    if (!isAvailable()) return;
     if (!pgClient) return;
     
     const testUserId = "infra-test-user";

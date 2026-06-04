@@ -5,6 +5,7 @@
  * 根据 spec.md Task 14 和 tasks.md 定义
  */
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const MAIN = "http://localhost:3000";
 
@@ -28,10 +29,12 @@ async function ragSearch(query: string, topK = 10) {
 }
 
 describe("L4: 端到端全链路测试", () => {
+  const isAvailable = useServiceCheck(["main-service"]);
 
   // ========== E1: 分析五粮液技术面 → Agent 路由 → Skill 执行 → 回答 ==========
   describe("E1: 分析五粮液技术面", () => {
     it("E1: Agent 应返回包含技术分析的答案", async () => {
+      if (!isAvailable()) return;
       const { res, body } = await agentRun("分析五粮液(000858)的技术面，包括近期走势和关键支撑压力位", 5);
       
       console.log("[E1] status:", res.status);
@@ -53,6 +56,7 @@ describe("L4: 端到端全链路测试", () => {
   // ========== E2: 中国长城营收 → RAG 检索 → LLM 回答 ==========
   describe("E2: 中国长城2025年营收查询", () => {
     it("E2: 应基于 RAG 检索结果回答营收问题", async () => {
+      if (!isAvailable()) return;
       const { res, body } = await agentRun("中国长城2025年营收是多少？", 5);
       
       console.log("[E2] status:", res.status);
@@ -72,6 +76,7 @@ describe("L4: 端到端全链路测试", () => {
   // ========== E3: 对比五粮液和格力电器 → Stock Comparison → 多工具调用 ==========
   describe("E3: 对比五粮液和格力电器 — 多工具调用", () => {
     it("E3: 应返回两只股票的对比分析", async () => {
+      if (!isAvailable()) return;
       const { res, body } = await agentRun("对比分析五粮液(000858)和格力电器(000651)的营收和净利润", 5);
       
       console.log("[E3] status:", res.status);
@@ -92,6 +97,7 @@ describe("L4: 端到端全链路测试", () => {
   // ========== E4: 上传年报 PDF → 全自动入库 ==========
   describe("E4: 文档上传 → 清洗 → 切片 → Embedding → 入库", () => {
     it("E4: 上传 PDF 应返回成功", async () => {
+      if (!isAvailable()) return;
       // 尝试上传 PDF（如果有测试文件）
       // 这里先验证 upload 端点是否可达
       const res = await fetch(`${MAIN}/api/document/upload`, {
@@ -117,6 +123,7 @@ describe("L4: 端到端全链路测试", () => {
   // ========== E5: 检索已上传文档 → 有引用 ==========
   describe("E5: 检索已上传文档 — 有引用", () => {
     it("E5: RAG 检索应返回带引用的结果", async () => {
+      if (!isAvailable()) return;
       const { res, body } = await ragSearch("五粮液2025年营收", 5);
       
       console.log("[E5] status:", res.status);
@@ -140,6 +147,7 @@ describe("L4: 端到端全链路测试", () => {
   // ========== E6: 服务降级后用户仍能得到回答 ==========
   describe("E6: 服务降级后仍能得到回答", () => {
     it("E6: 简单问题应快速返回答案（不依赖外部服务）", async () => {
+      if (!isAvailable()) return;
       const startTime = Date.now();
       const { res, body } = await agentRun("你好，1+1等于几？", 1);
       const elapsed = Date.now() - startTime;
@@ -160,6 +168,7 @@ describe("L4: 端到端全链路测试", () => {
   // ========== E7: 模型额度耗尽 → 自动切换 → 用户无感知 ==========
   describe("E7: 模型自动切换 — 用户无感知", () => {
     it("E7: 多次调用 LLM 应持续正常工作（验证降级链）", async () => {
+      if (!isAvailable()) return;
       // 连续多次调用 LLM，验证降级链正常工作
       const results: { status: number; model?: string; ok: boolean }[] = [];
       

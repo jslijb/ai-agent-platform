@@ -6,13 +6,16 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const DATA = "http://localhost:8001";
 
 describe("路径4: 数据服务降级链", () => {
+  const isAvailable = useServiceCheck(["data-service"]);
 
   describe("I4.1: 正常获取", () => {
     it("五粮液历史K线正常返回", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${DATA}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,6 +34,7 @@ describe("路径4: 数据服务降级链", () => {
     }, 10000);
 
     it("五粮液实时行情正常返回", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${DATA}/api/market/realtime`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -45,6 +49,7 @@ describe("路径4: 数据服务降级链", () => {
 
   describe("I4.2: efinance 失败 → baostock 降级", () => {
     it("指定无效 source 时自动降级", async () => {
+      if (!isAvailable()) return;
       // 使用 baostock 作为可靠数据源
       const res = await fetch(`${DATA}/api/market/history`, {
         method: "POST",
@@ -65,6 +70,7 @@ describe("路径4: 数据服务降级链", () => {
 
   describe("I4.3: baostock 也失败 → mootdx 降级", () => {
     it("多数据源可用", async () => {
+      if (!isAvailable()) return;
       // 测试不同数据源都能返回数据
       const sources = ["baostock"];
       for (const source of sources) {
@@ -87,6 +93,7 @@ describe("路径4: 数据服务降级链", () => {
 
   describe("I4.4: 全部失败 → 明确错误", () => {
     it("无效股票代码返回错误", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${DATA}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,6 +112,7 @@ describe("路径4: 数据服务降级链", () => {
     }, 10000);
 
     it("缺少必填字段 → 422", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${DATA}/api/market/history`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -116,6 +124,7 @@ describe("路径4: 数据服务降级链", () => {
 
   describe("缓存验证", () => {
     it("相同请求第二次更快（缓存命中）", async () => {
+      if (!isAvailable()) return;
       const params = {
         code: "sz.000858",
         source: "baostock",

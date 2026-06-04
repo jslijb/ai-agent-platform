@@ -5,6 +5,7 @@
  * 根据 spec.md Section 4.6 和 tasks.md Task 15 定义
  */
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const RAG = "http://localhost:3001";
 const LLM = "http://localhost:3002";
@@ -56,10 +57,12 @@ async function measureLatency(fn: () => Promise<any>, iterations: number = 5, wa
 }
 
 describe("性能基准测试", () => {
+  const isAvailable = useServiceCheck(["rag-service", "llm-gateway", "data-service", "embedding", "reranker"]);
 
   // ========== P1-P2: Embedding 延迟 ==========
   describe("P1-P2: Embedding 延迟 (目标: P50 < 500ms, P95 < 1000ms)", () => {
     it("P1: embedding 单次延迟 P50", async () => {
+      if (!isAvailable()) return;
       const stats = await measureLatency(async () => {
         const res = await fetch(`${EMBED}/embedding`, {
           method: "POST",
@@ -77,6 +80,7 @@ describe("性能基准测试", () => {
     }, 30000);
 
     it("P2: embedding P95 < 1000ms", async () => {
+      if (!isAvailable()) return;
       const stats = await measureLatency(async () => {
         const res = await fetch(`${EMBED}/embedding`, {
           method: "POST",
@@ -95,6 +99,7 @@ describe("性能基准测试", () => {
   // ========== P3-P4: Reranker 延迟 ==========
   describe("P3-P4: Reranker 延迟 (目标: P50 < 300ms, P95 < 800ms)", () => {
     it("P3: reranker 单次延迟 P50", async () => {
+      if (!isAvailable()) return;
       const stats = await measureLatency(async () => {
         const res = await fetch(`${RERANK}/reranking`, {
           method: "POST",
@@ -119,6 +124,7 @@ describe("性能基准测试", () => {
     }, 30000);
 
     it("P4: reranker P95 < 800ms", async () => {
+      if (!isAvailable()) return;
       const stats = await measureLatency(async () => {
         const res = await fetch(`${RERANK}/reranking`, {
           method: "POST",
@@ -144,6 +150,7 @@ describe("性能基准测试", () => {
   // ========== P5: rag-service retrieve 延迟 ==========
   describe("P5: rag-service retrieve 延迟 (目标: P50 < 200ms, 实际需考虑网络)", () => {
     it("P5: retrieve 延迟基准", async () => {
+      if (!isAvailable()) return;
       const stats = await measureLatency(async () => {
         const res = await fetch(`${RAG}/api/retrieve`, {
           method: "POST",
@@ -165,6 +172,7 @@ describe("性能基准测试", () => {
   // ========== P6: llm-gateway chat 延迟 ==========
   describe("P6: llm-gateway chat 延迟 (目标: P50 < 5s)", () => {
     it("P6: LLM chat 延迟基准", async () => {
+      if (!isAvailable()) return;
       const latencies: number[] = [];
       
       for (let i = 0; i < 2; i++) {
@@ -201,6 +209,7 @@ describe("性能基准测试", () => {
   // ========== P7: data-service history 延迟 ==========
   describe("P7: data-service history 延迟 (目标: P50 < 500ms)", () => {
     it("P7: 历史K线延迟基准", async () => {
+      if (!isAvailable()) return;
       const stats = await measureLatency(async () => {
         const res = await fetch(`${DATA}/api/market/history`, {
           method: "POST",

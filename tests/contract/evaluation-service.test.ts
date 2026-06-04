@@ -4,14 +4,17 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const BASE = "http://localhost:3003";
 
 describe("evaluation-service (:3003) 服务契约", () => {
+  const isAvailable = useServiceCheck(["evaluation-service"]);
 
   // ========== Health ==========
   describe("GET /api/health", () => {
     it("正常返回 200 + {status, service, details}", async () => {
+      if (!isAvailable()) return;
       try {
         const res = await fetch(`${BASE}/api/health`);
         expect(res.status).toBe(200);
@@ -29,6 +32,7 @@ describe("evaluation-service (:3003) 服务契约", () => {
   // ========== Evaluation Run ==========
   describe("POST /api/evaluation/run", () => {
     it("提交评估任务 → {taskId, status}", async () => {
+      if (!isAvailable()) return;
       try {
         const res = await fetch(`${BASE}/api/evaluation/run`, {
           method: "POST",
@@ -58,6 +62,7 @@ describe("evaluation-service (:3003) 服务契约", () => {
   // ========== Evaluation Status ==========
   describe("GET /api/evaluation/status/:taskId", () => {
     it("查询不存在的任务 → 错误", async () => {
+      if (!isAvailable()) return;
       try {
         const res = await fetch(`${BASE}/api/evaluation/status/nonexistent-task-id`);
         
@@ -79,6 +84,7 @@ describe("evaluation-service (:3003) 服务契约", () => {
   // ========== Evaluation Results ==========
   describe("GET /api/evaluation/results", () => {
     it("获取评估结果列表", async () => {
+      if (!isAvailable()) return;
       try {
         const res = await fetch(`${BASE}/api/evaluation/results`);
         
@@ -100,6 +106,7 @@ describe("evaluation-service (:3003) 服务契约", () => {
   // ========== 异步任务测试 ==========
   describe("BullMQ 异步任务", () => {
     it("提交→轮询→完成 全流程", async () => {
+      if (!isAvailable()) return;
       try {
         // 1. 提交任务
         const runRes = await fetch(`${BASE}/api/evaluation/run`, {

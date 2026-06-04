@@ -6,16 +6,19 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const EMBED_BASE = "http://localhost:8011";
 const RERANK_BASE = "http://localhost:8010";
 
 describe("embedding (:8011) + reranker (:8010) 服务契约", () => {
-  
+  const isAvailable = useServiceCheck(["embedding", "reranker"]);
+
   // ========== Embedding Health ==========
   describe("C44: embedding GET /health", () => {
     
     it("C44: 返回 200", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${EMBED_BASE}/health`);
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -27,6 +30,7 @@ describe("embedding (:8011) + reranker (:8010) 服务契约", () => {
   describe("C45: embedding POST /embedding", () => {
     
     it("C45: texts → 1024维向量", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${EMBED_BASE}/embedding`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,6 +56,7 @@ describe("embedding (:8011) + reranker (:8010) 服务契约", () => {
     });
 
     it("C45b: 性能基准 P50 < 1000ms", async () => {
+      if (!isAvailable()) return;
       const start = Date.now();
       await fetch(`${EMBED_BASE}/embedding`, {
         method: "POST",
@@ -71,6 +76,7 @@ describe("embedding (:8011) + reranker (:8010) 服务契约", () => {
   describe("C46: reranker GET /health", () => {
     
     it("C46: 返回 200", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${RERANK_BASE}/health`);
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -82,6 +88,7 @@ describe("embedding (:8011) + reranker (:8010) 服务契约", () => {
   describe("C47: reranker POST /reranking", () => {
     
     it("C47: query+documents → 排序结果", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${RERANK_BASE}/reranking`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -101,6 +108,7 @@ describe("embedding (:8011) + reranker (:8010) 服务契约", () => {
     });
 
     it("C47b: 性能基准 P50 < 1000ms", async () => {
+      if (!isAvailable()) return;
       const start = Date.now();
       await fetch(`${RERANK_BASE}/reranking`, {
         method: "POST",

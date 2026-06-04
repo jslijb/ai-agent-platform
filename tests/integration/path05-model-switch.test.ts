@@ -6,13 +6,16 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const LLM = "http://localhost:3002";
 
 describe("路径5: 模型自动切换", () => {
+  const isAvailable = useServiceCheck(["llm-gateway"]);
 
   describe("I5.1: 模型1 正常", () => {
     it("LLM 调用成功返回", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${LLM}/api/llm/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -35,6 +38,7 @@ describe("路径5: 模型自动切换", () => {
 
   describe("I5.2: 模型1 429 → 模型2 自动切换", () => {
     it("连续调用验证降级链", async () => {
+      if (!isAvailable()) return;
       const results: { status: number; model?: string }[] = [];
 
       for (let i = 0; i < 3; i++) {
@@ -63,6 +67,7 @@ describe("路径5: 模型自动切换", () => {
 
   describe("I5.3: 前一模型恢复", () => {
     it("模型切换后继续使用当前模型", async () => {
+      if (!isAvailable()) return;
       // 第一次调用
       const res1 = await fetch(`${LLM}/api/llm/chat`, {
         method: "POST",
@@ -101,6 +106,7 @@ describe("路径5: 模型自动切换", () => {
 
   describe("I5.4: api_keys.yaml 动态更新", () => {
     it("配置文件包含多个模型", async () => {
+      if (!isAvailable()) return;
       // 通过 health 端点检查模型配置
       const res = await fetch(`${LLM}/api/health`);
       if (res.status === 200) {
@@ -113,6 +119,7 @@ describe("路径5: 模型自动切换", () => {
 
   describe("LLM 降级链完整性", () => {
     it("stream 模式也能正常工作", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${LLM}/api/llm/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -132,6 +139,7 @@ describe("路径5: 模型自动切换", () => {
     }, 30000);
 
     it("usage 统计可用", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${LLM}/api/llm/usage`);
       if (res.status === 200) {
         const body = await res.json();

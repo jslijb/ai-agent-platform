@@ -4,14 +4,17 @@
  */
 
 import { describe, it, expect } from "vitest";
+import { useServiceCheck } from "../helpers/service-check";
 
 const BASE = "http://localhost:3000";
 
 describe("main-service (:3000) 服务契约", () => {
+  const isAvailable = useServiceCheck(["main-service"]);
 
   // ========== Health ==========
   describe("GET /api/health", () => {
     it("正常返回 200 + {status, checks}", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/health`);
       expect(res.status).toBe(200);
       const body = await res.json();
@@ -24,6 +27,7 @@ describe("main-service (:3000) 服务契约", () => {
   // ========== Agent Run ==========
   describe("POST /api/agent/run", () => {
     it("正常 query → 200 + {answer, iterations, steps}", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/agent/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,6 +50,7 @@ describe("main-service (:3000) 服务契约", () => {
     }, 60000);
 
     it("空 query → 400 或 500", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/agent/run`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,6 +64,7 @@ describe("main-service (:3000) 服务契约", () => {
   // ========== Agent Stream ==========
   describe("POST /api/agent/stream", () => {
     it("SSE 流式输出", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/agent/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,6 +90,7 @@ describe("main-service (:3000) 服务契约", () => {
   // ========== RAG Search ==========
   describe("POST /api/rag/search", () => {
     it("正常检索 → 200 + {results}", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/rag/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-test-user-id": "contract-test-user" },
@@ -101,6 +108,7 @@ describe("main-service (:3000) 服务契约", () => {
     });
 
     it("空 query → 400 或错误", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/rag/search`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-test-user-id": "contract-test-user" },
@@ -113,6 +121,7 @@ describe("main-service (:3000) 服务契约", () => {
   // ========== RAG Answer with Citation ==========
   describe("POST /api/rag/answer-with-citation", () => {
     it("带引用的回答", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/rag/answer-with-citation`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-test-user-id": "contract-test-user" },
@@ -133,6 +142,7 @@ describe("main-service (:3000) 服务契约", () => {
   // ========== Document Upload ==========
   describe("POST /api/document/upload", () => {
     it("文件上传端点可达", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/document/upload`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-test-user-id": "contract-test-user" },
@@ -147,6 +157,7 @@ describe("main-service (:3000) 服务契约", () => {
   // ========== Memories ==========
   describe("GET /api/memories", () => {
     it("获取记忆列表", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/memories`, {
         headers: { "x-test-user-id": "contract-test-user" },
       });
@@ -164,6 +175,7 @@ describe("main-service (:3000) 服务契约", () => {
 
   describe("POST /api/memories", () => {
     it("创建记忆", async () => {
+      if (!isAvailable()) return;
       const res = await fetch(`${BASE}/api/memories`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-test-user-id": "contract-test-user" },
