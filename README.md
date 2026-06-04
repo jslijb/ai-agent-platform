@@ -2,6 +2,10 @@
 
 基于 Next.js 14 全栈架构的金融行业 AI 智能体平台，集成 RAG 检索增强生成、GraphRAG 知识图谱推理、多 Agent 协作、MCP 工具协议等核心能力，为金融行业提供智能投研、量化分析、合规审查等解决方案。
 
+> **当前阶段**: Phase 6 微服务架构升级 | **测试覆盖**: 181/189 通过 (8 skip) | **RAG+Agent 测评**: 20/20 通过 (100%)
+
+![架构图](architecture-diagram.png)
+
 ---
 
 ## 架构演变
@@ -54,12 +58,21 @@
 
 ### 稳定性保障
 
+| 措施 | 实现 | 说明 |
+|------|------|------|
+| 确定性输出 | temperature=0 + seed=42 | 相同输入产生相同输出 |
+| LLM 缓存 | MemoryCache | temperature=0 时启用，TTL 30分钟 |
+| 限流 | RateLimiter | 每IP每分钟20次请求 |
+| 整体超时 | 240秒 | Agent 执行超时强制终止 |
+| 健康检查 | /api/health | 检测数据库、Embedding服务、LLM服务 |
+| 多级降级 | Reranker失败→原始排序，图谱失败→跳过，Redis不可用→内存缓存 | |
+
 | 阶段 | 之前 | 之后 | 驱动原因 |
 |------|------|------|---------|
 | LLM 调用 | 单模型，额度耗尽即瘫痪 | 多模型降级链（api_keys.yaml 驱动，自动切换） | 单点故障，qwen-max 挂了整个系统瘫痪 |
 | 模型概念 | `BAILIAN_MODEL` 硬编码主模型 | models 列表驱动，列表顺序即优先级 | 主模型概念与降级链功能重叠，配置混乱 |
 | 熔断器 | ❌ 无 | 三状态熔断器（closed → open → half-open），3 次失败触发，60 秒后半开 | LLM 持续不可用时重试加剧压力 |
-| 强制熔断 | ❌ 无 | 403 额度耗尽立即强制熔断（5 倍半开周期） | 额度耗尽仍重试 3 次浪费请求 |
+| 强制熔断 | ❌ 无 | 304/403 额度耗尽立即强制熔断（永久排除调度） | 额度耗尽仍重试浪费请求，304为百炼额度耗尽专用码 |
 | LLM 缓存 | ❌ 无 | 语义缓存（temperature=0 时启用，TTL 30 分钟，最大 500 条） | 相同查询重复调用 LLM 浪费 Token |
 | 确定性输出 | temperature=0.7 | temperature=0 + seed=42 | 金融分析对结果一致性要求极高 |
 | 重试策略 | 固定 1 秒间隔 | 指数退避（1s → 2s → 4s） | 固定间隔在服务恢复初期造成压力集中 |
@@ -326,85 +339,106 @@ ai-agent-platform/
 
 ## 测试
 
+### 测试金字塔
+
+| 层级 | 文件数 | 测试数 | 说明 |
+|------|--------|--------|------|
+| L1 单元测试 | 17 | 138 | Vitest + vi.mock，覆盖路由/注册/编排/执行/检索/描述/验证 |
+| L2 契约测试 | 6 | 45 | 验证微服务 API 输入/输出/错误处理 |
+| L3 集成测试 | 14 | 86 | 跨模块路径（Skill→Agent/工具路由/数据降级/模型切换/LLM配置） |
+| L4 E2E 测试 | 2 | 14 | 全链路 + 性能基准（含预热） |
+| 基础设施 | 2 | 21 | Docker 健康检查 + 数据库连接 |
+| **总计** | **22** | **181** | 8 个 LLM 测试跳过 |
+
 ### 测试目录结构
 
 ```
 tests/
-├── rag/                              # RAG 检索测试
-│   ├── test-rag.ts                   #   10个Query测试（3份年报，含详细日志+MD报告）
-│   └── reports/                      #   RAG 测试报告（自动生成）
-│       ├── rag-test-report-*.md      #     完整测试报告（步骤耗时/Chunk详情/精排排名/回答内容）
-│       └── rag-retrieval-test-report-*.md  #  早期检索测试报告
-├── tools/                            # 金融工具测试
-│   ├── test-21-tools.ts              #   21个MCP工具功能测试
-│   ├── test-llm-router.ts            #   LLM模型降级链测试
-│   ├── test-isolated.ts              #   隔离环境单Query测试
-│   └── reports/                      #   工具测试报告（自动生成）
-│       ├── tool-test-*.json          #     测试原始数据（JSON）
-│       └── tool-test-summary-*.md    #     测试汇总报告
-├── agent/                            # Agent 端到端测试
-│   ├── test-agent-tools.ts           #   Agent 多工具联合查询测试（14个Query）
-│   ├── test_agent_e2e.py             #   Agent全流程测试
-│   └── reports/                      #   Agent 测试报告（自动生成）
-├── db/                               # 数据库测试
-│   ├── test-db-insert.ts             #   数据库插入测试
-│   └── test-integrity.ts            #   数据完整性测试
-├── pdf/                              # PDF 解析测试
-│   └── test-pdf-parse.ts             #   PDF解析功能测试
-├── unit/                             # 单元测试
-│   ├── test-semantic-chunker-integration.ts  # 切片集成测试
-│   ├── test-sparse-retriever-preprocess.ts   # BM25预处理测试
-│   ├── test-dense-retriever-truncation.ts    # Embedding截断测试
-│   ├── test-drizzle-runtime.ts               # Drizzle运行时测试
-│   ├── test-memory-system.ts                 # 记忆系统测试
-│   ├── test-skill-system.ts                  # Skill系统测试
-│   └── test-config-resolution.ts/py          # 配置解析测试
-├── data-service/                     # 数据服务测试
-│   └── test_baostock_direct.py       #   Baostock直连测试
-├── scenario/                         # 场景测试
-│   ├── test_day2.py                  #   Day2：百炼模型+Agent工具
-│   ├── test_day3_4_5_6.py            #   Day3-6：RAG管道
-│   └── test_day7_8.py                #   Day7-8：增量索引+评估
-└── run_all_tests.ts                  #   全量测试运行器
+├── infrastructure/                   # 基础设施测试
+│   ├── database-connection.test.ts   #   PostgreSQL/Redis/Neo4j 连接
+│   └── docker-health.test.ts         #   Docker Compose 服务健康检查
+├── contract/                         # L2 服务契约测试
+│   ├── data-service.test.ts          #   数据服务 API 契约
+│   ├── rag-service.test.ts           #   RAG 服务 API 契约
+│   ├── llm-gateway.test.ts           #   LLM 网关 API 契约
+│   ├── embedding-reranker.test.ts    #   Embedding/Reranker 契约
+│   ├── main-service.test.ts          #   主服务 API 契约
+│   └── evaluation-service.test.ts    #   评估服务 API 契约
+├── integration/                      # L3 跨模块集成测试
+│   ├── path01-memory-agent.test.ts   #   路径1: 记忆→Agent
+│   ├── path02-skill-agent.test.ts    #   路径2: Skill执行→Agent回退
+│   ├── path03-tool-routing.test.ts   #   路径3: 工具注册→动态路由
+│   ├── path04-data-fallback.test.ts  #   路径4: 数据服务降级链
+│   ├── path05-model-switch.test.ts   #   路径5: 模型自动切换
+│   ├── path06-llm-config.test.ts     #   路径6: 配置→LLM路由降级
+│   ├── path12-execution-facade.test.ts # 路径12: ExecutionFacade统一入口
+│   ├── path14-description-llm.test.ts  # 路径14: 描述增强→LLM精度
+│   ├── path15-description-enhancer.test.ts # 路径15: 描述增强逻辑
+│   ├── path16-validation.test.ts     #   路径16: 验证逻辑
+│   ├── path17-name-aliases.test.ts   #   路径17: 别名解析
+│   └── service-adapter.test.ts       #   服务适配器测试
+├── e2e/                              # L4 端到端测试
+│   ├── full-chain.test.ts            #   全链路 E2E
+│   └── performance-benchmark.test.ts #   性能基准（含预热）
+└── reports/                          # 测试报告（自动生成）
+
+src/server/                           # L1 单元测试（与源码同目录）
+├── agents/__tests__/                 #   Agent 核心测试
+├── agents/routing/__tests__/         #   路由测试
+├── agents/skills/__tests__/          #   Skill 测试
+├── description/__tests__/            #   描述增强测试
+├── lib/__tests__/                    #   通用库测试
+├── retrieval/__tests__/              #   检索测试
+├── routing/__tests__/                #   路由配置测试
+└── __tests__/                        #   其他测试（vision/validation/routing等）
 ```
 
 ### 运行测试
 
 ```bash
-# RAG 检索测试（10个Query，生成MD测试报告）
-npx tsx tests/rag/test-rag.ts
+# 运行全部单元测试
+npx vitest run src/server/
 
-# 21个金融工具测试
-npx tsx tests/tools/test-21-tools.ts
+# 运行微服务测试（需要 Docker 服务运行中）
+npx vitest run tests/infrastructure/ tests/contract/ tests/integration/ tests/e2e/
 
-# LLM 模型降级链测试
-npx tsx tests/tools/test-llm-router.ts
+# 运行 RAG+Agent 测评（20个query，需要全部服务运行中）
+npx tsx scripts/rag-agent-eval.ts
 
-# Agent 多工具联合查询测试（14个Query）
-npx tsx tests/agent/test-agent-tools.ts
-
-# Agent 端到端测试
-conda activate agent
-python tests/agent/test_agent_e2e.py
-
-# Day 2 测试：百炼模型调用 + Agent 工具
-python tests/scenario/test_day2.py
-
-# Day 3-6 测试：RAG 管道（检索、图谱、重排、多模态）
-python tests/scenario/test_day3_4_5_6.py
-
-# Day 7-8 测试：增量索引 + 评估体系
-python tests/scenario/test_day7_8.py
+# 运行单个测试文件
+npx vitest run tests/contract/data-service.test.ts
 ```
 
-### 测试报告说明
+---
 
-| 报告类型 | 路径 | 内容 |
-|----------|------|------|
-| RAG 测试报告 | `tests/rag/reports/rag-test-report-*.md` | 文档状态、总体结果、按难度统计、检索步骤耗时、精排前/后Chunk详情和排名、最终回答内容 |
-| 工具测试报告 | `tests/tools/reports/tool-test-summary-*.md` | 21个工具的调用结果、参数、响应时间 |
-| Agent 测试报告 | `tests/agent/reports/agent_tool_test_*.md` | 14个Query的多工具联合测试结果、工具调用过程、成功/失败标记 |
-| 工具测试原始数据 | `tests/tools/reports/tool-test-*.json` | 完整的工具调用请求和响应JSON |
+## RAG + Agent 测评
+
+最新测评报告：[eval-report-2026-06-04.md](evaluation-reports/eval-report-2026-06-04.md)
+
+### 测评数据
+
+- 年报数据：五粮液/格力电器/中国长城 2025年年报 + 2026年一季度报
+- 行情数据：近一年交易数据（baostock + efinance 双源）
+- 财务数据：利润表/资产负债表/现金流量表（efinance 源）
+
+### 测评结果
+
+| 类别 | Query数 | 通过率 | 平均耗时 | 典型工具组合 |
+|------|---------|--------|---------|-------------|
+| 1个tool | 5 | 100% | 13.2秒 | getStockRealtime / hybridSearch |
+| 2个tools | 5 | 100% | 19.3秒 | getStockHistory+calculateMA |
+| 3个tools | 5 | 100% | 28.9秒 | getStockFinancial+hybridSearch+calculateRSI |
+| 3+个tools | 5 | 100% | 36.6秒 | 6~10个工具联合调用 |
+| **总计** | **20** | **100%** | **24.5秒** | 工具匹配率85% |
+
+### 财报表格专项测试
+
+| Query | 考察点 | 结果 |
+|-------|--------|------|
+| Q5: 搜索五粮液2025年报中的营收数据 | RAG检索财报核心数据 | ✅ 成功 |
+| Q9: 五粮液2025年营收同比增长率 | 财务数据+计算 | ✅ 成功 |
+| Q14: 五粮液利润表营业利润+营业利润率 | 利润表取值+计算 | ✅ 成功 |
+| Q19: 五粮液利润表营收/成本/净利润+毛利率+净利率 | 多指标取值+多步计算 | ✅ 成功 |
 
 ---
 
@@ -641,20 +675,25 @@ npm run dev
 | 风控评估 | getStockHistory → [calculateVaR + calculateMaxDrawdown + calculateVolatility](并行) → checkRiskLimits → 风控报告 | 风险量化评估 |
 | 综合诊断 | [技术分析 + 合规检查 + 风控评估](并行) → 综合诊断报告 | 全面投资分析 |
 
-### 稳定性保障
+### 降级与熔断机制
 
-| 措施 | 实现 | 说明 |
-|------|------|------|
-| 模型降级链 | api_keys.yaml models 列表驱动 | 主模型403/401时自动切换下一个模型 |
-| 熔断器 | CircuitBreaker + forceOpenCircuit | 连续3次失败后熔断；403额度耗尽立即强制熔断（5倍半开周期） |
-| 向量索引降级 | HNSW → 顺序扫描 | HNSW索引异常时自动降级为 ORDER BY score |
-| 确定性输出 | temperature=0 + seed=42 | 相同输入产生相同输出 |
-| LLM 缓存 | MemoryCache | temperature=0 时启用，TTL 30分钟 |
-| 指数退避 | 1s → 2s → 4s | LLM 调用失败时指数退避重试 |
-| 限流 | RateLimiter | 每IP每分钟20次请求 |
-| 整体超时 | 240秒 | Agent 执行超时强制终止 |
-| 健康检查 | /api/health | 检测数据库、Embedding服务、LLM服务 |
-| 多级降级 | Reranker失败→原始排序，图谱失败→跳过，Redis不可用→内存缓存 | |
+系统采用**有意义的降级**策略，已移除无意义的降级（如微服务→进程内降级、静默返回空结果）。
+
+| 降级类型 | 位置 | 触发条件 | 行为 |
+|----------|------|---------|------|
+| 模型降级链 | `llm/router.ts` | 当前模型不可用 | 按优先级切换下一模型 (kimi→qwen3.5-plus→qwen3.6-plus) |
+| 熔断器 | `circuit-breaker.ts` | 3次连续失败 | 60s后半开，探测恢复 |
+| 强制熔断 | `llm/router.ts` | 304/403 额度耗尽 | 永久排除调度，不参与降级链 |
+| 429/503 重试 | `llm/providers/bailian.ts` | 临时限流 | 指数退避重试 |
+| 向量→顺序扫描 | `rag/retrieval/dense-retriever.ts` | 索引损坏/无结果 | 退化为全量扫描 |
+| 路由初始化降级 | `agents/orchestrator.ts` | RouterFacade 初始化失败 | 降级到传统路由 |
+| Skill 错误恢复 | `agents/skills/enhanced-orchestrator.ts` | 工具执行失败 | retry/fallback/abort 策略 |
+| Vision 双引擎 | `vision/dual-engine-router.ts` | PaddleOCR 失败 | 降级到 Vision 模型 |
+
+**已移除的无意义降级**：
+- ~~searchRAG 微服务→进程内降级~~（同一依赖链，挂了一样挂）
+- ~~fallbackToInProcess 返回空结果~~（静默失败掩盖错误）
+- ~~VisionFallbackClient fallbackEnabled 开关~~（关闭时直接失败，不是降级）
 
 ### 已知问题与修复记录
 
