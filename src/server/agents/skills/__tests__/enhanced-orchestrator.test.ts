@@ -150,7 +150,7 @@ describe("EnhancedOrchestrator", () => {
     // 让 getStockHistory 抛出异常
     const mockTool = ToolRegistry.get("getStockHistory");
     const originalExecute = mockTool!.execute;
-    (mockTool as { execute: ReturnType<typeof vi.fn> }).execute = vi.fn(async () => {
+    (mockTool as unknown as { execute: ReturnType<typeof vi.fn> }).execute = vi.fn(async () => {
       throw new Error("模拟执行失败");
     });
 
@@ -174,7 +174,7 @@ describe("EnhancedOrchestrator", () => {
   it("abort strategy stops on error", async () => {
     const mockTool = ToolRegistry.get("getStockHistory");
     const originalExecute = mockTool!.execute;
-    (mockTool as { execute: ReturnType<typeof vi.fn> }).execute = vi.fn(async () => {
+    (mockTool as unknown as { execute: ReturnType<typeof vi.fn> }).execute = vi.fn(async () => {
       throw new Error("模拟执行失败");
     });
 
@@ -200,7 +200,7 @@ describe("EnhancedOrchestrator", () => {
     let callCount = 0;
     const mockTool = ToolRegistry.get("getStockHistory");
     const originalExecute = mockTool!.execute;
-    (mockTool as { execute: ReturnType<typeof vi.fn> }).execute = vi.fn(async () => {
+    (mockTool as unknown as { execute: ReturnType<typeof vi.fn> }).execute = vi.fn(async () => {
       callCount++;
       if (callCount < 3) throw new Error("暂时失败");
       return "成功结果";

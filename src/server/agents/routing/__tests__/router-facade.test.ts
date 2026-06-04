@@ -95,7 +95,7 @@ describe("RouterFacade", () => {
       relatedTools: ["analyzeImage"],
       skillCategory: "vision_analysis" as const,
     };
-    mockListByCategory.mockReturnValue([visionSkill]);
+    mockListByCategory.mockReturnValue([visionSkill] as any);
 
     const result = facade.route("分析这个K线图截图", ["base64image"]);
     expect(result.routeType).toBe("skill");
@@ -126,7 +126,7 @@ describe("MultiSkillMatcher", () => {
         steps: [{ tool: "t1", params: {} }],
         triggerKeywords: ["关键词A"],
       },
-    ]);
+    ] as any);
 
     const matcher = new MultiSkillMatcher();
     const result = matcher.match("关键词A查询");
@@ -151,7 +151,7 @@ describe("MultiSkillMatcher", () => {
         relatedGroups: ["technical-analysis"],
         relatedTools: ["calculateMA"],
       },
-    ]);
+    ] as any);
 
     const matcher = new MultiSkillMatcher();
     const result = matcher.match("分析偿债能力和技术面");
@@ -177,7 +177,7 @@ describe("MultiSkillMatcher", () => {
         triggerKeywords: ["分析"],
         relatedGroups: ["group-b"],
       },
-    ]);
+    ] as any);
 
     const matcher = new MultiSkillMatcher();
     const result = matcher.match("分析");
@@ -194,7 +194,7 @@ describe("MultiSkillMatcher", () => {
         steps: [{ tool: "t1", params: {} }],
         triggerKeywords: ["特定关键词"],
       },
-    ]);
+    ] as any);
 
     const matcher = new MultiSkillMatcher();
     const result = matcher.match("完全不相关的查询");
