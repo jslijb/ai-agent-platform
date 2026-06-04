@@ -48,8 +48,8 @@ jobs:
         run: npm config set registry https://registry.npmmirror.com
 
       - run: npm install
-      - name: Run Vitest
-        run: npm run test
+      - name: Run Unit Tests
+        run: npm run test:ci
 
   build-and-push:
     name: Build & Push Docker Images
