@@ -1,0 +1,17 @@
+# api_keys.yaml 配置示例
+# 复制此文件为 api_keys.yaml 并填入实际值
+# cp config/api_keys.yaml.example config/api_keys.yaml
+
+llm:
+  DASHSCOPE_API_KEY: YOUR_DASHSCOPE_API_KEY
+  DASHSCOPE_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
+  models:
+    - id: qwen-plus
+      functionCalling: true
+    - id: qwen-turbo
+      functionCalling: true
+
+vision:
+  VISION_MODEL: qwen-vl-plus
+  DASHSCOPE_API_KEY: YOUR_DASHSCOPE_API_KEY
+  DASHSCOPE_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1

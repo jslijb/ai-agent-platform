@@ -1,4 +1,5 @@
 import type { VisionResult } from "./types";
+import { getConfigValue } from "@/server/lib/config";
 
 export class VisionFallbackClient {
   private visionModel: string;
@@ -6,9 +7,10 @@ export class VisionFallbackClient {
   private baseUrl: string;
 
   constructor() {
-    this.visionModel = process.env.VISION_MODEL || "qwen3.5-plus";
-    this.apiKey = process.env.DASHSCOPE_API_KEY || "";
+    this.visionModel = getConfigValue("vision", "VISION_MODEL") || process.env.VISION_MODEL || "";
+    this.apiKey = getConfigValue("vision", "DASHSCOPE_API_KEY") || process.env.DASHSCOPE_API_KEY || "";
     this.baseUrl =
+      getConfigValue("vision", "DASHSCOPE_BASE_URL") ||
       process.env.DASHSCOPE_BASE_URL ||
       "https://dashscope.aliyuncs.com/compatible-mode/v1";
   }

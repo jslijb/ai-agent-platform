@@ -1,4 +1,4 @@
-export type VisionEngine = "paddleocr_vl" | "qwen3.5-plus" | "vision-fallback" | "mineru";
+export type VisionEngine = "paddleocr_vl" | "vision-fallback" | "mineru" | (string & {});
 
 export interface PaddleOCRResult {
   success: boolean;

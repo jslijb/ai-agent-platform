@@ -3,6 +3,18 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockFetch = vi.fn();
 vi.stubGlobal("fetch", mockFetch);
 
+vi.mock("@/server/lib/config", () => ({
+  getConfigValue: (section: string, key: string) => {
+    if (section === "vision" && key === "VISION_MODEL") return process.env.VISION_MODEL || "";
+    if (section === "vision" && key === "DASHSCOPE_API_KEY") return process.env.DASHSCOPE_API_KEY || "";
+    if (section === "vision" && key === "DASHSCOPE_BASE_URL") return process.env.DASHSCOPE_BASE_URL || "";
+    return "";
+  },
+  getRawSection: () => ({}),
+  loadConfig: () => ({}),
+  reloadConfig: () => ({}),
+}));
+
 import { PaddleOCRMcpClient } from "../vision/paddleocr-mcp-client";
 import { VisionFallbackClient } from "../vision/vision-fallback-client";
 import { DualEngineRouter } from "../vision/dual-engine-router";
@@ -75,6 +87,7 @@ describe("VisionFallbackClient", () => {
 
   it("analyze calls fetch and returns success when available", async () => {
     process.env.DASHSCOPE_API_KEY = "test-key";
+    process.env.VISION_MODEL = "qwen-vl-plus";
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
@@ -88,10 +101,12 @@ describe("VisionFallbackClient", () => {
     expect(result.description).toBe("图片描述");
     expect(result.tokenUsage).toBe(100);
     delete process.env.DASHSCOPE_API_KEY;
+    delete process.env.VISION_MODEL;
   });
 
   it("analyze returns error on API failure", async () => {
     process.env.DASHSCOPE_API_KEY = "test-key";
+    process.env.VISION_MODEL = "qwen-vl-plus";
     mockFetch.mockResolvedValueOnce({
       ok: false,
       status: 500,
@@ -101,6 +116,7 @@ describe("VisionFallbackClient", () => {
     expect(result.success).toBe(false);
     expect(result.error).toContain("500");
     delete process.env.DASHSCOPE_API_KEY;
+    delete process.env.VISION_MODEL;
   });
 });
 
