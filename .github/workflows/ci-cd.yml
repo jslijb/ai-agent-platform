@@ -23,6 +23,9 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
 
+      - name: Configure npm registry
+        run: npm config set registry https://registry.npmmirror.com
+
       - run: npm ci
       - run: npm run lint
       - name: TypeCheck
@@ -40,6 +43,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+
+      - name: Configure npm registry
+        run: npm config set registry https://registry.npmmirror.com
 
       - run: npm ci
       - name: Run Vitest
