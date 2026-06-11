@@ -2,7 +2,7 @@
 
 基于 Next.js 14 全栈架构的金融行业 AI 智能体平台，集成 RAG 检索增强生成、GraphRAG 知识图谱推理、多 Agent 协作、MCP 工具协议等核心能力，为金融行业提供智能投研、量化分析、合规审查等解决方案。
 
-> **当前阶段**: Phase 6 微服务架构升级 | **测试覆盖**: 181/189 通过 (8 skip) | **RAG+Agent 测评**: 20/20 通过 (100%)
+> **当前阶段**: Phase 6 微服务架构升级 | **测试覆盖**: 325/333 通过 (8 skip) | **CI/CD**: 4 流程全部通过
 
 ![架构图](architecture-diagram.png)
 
@@ -171,11 +171,17 @@
 │  │ RateLimiter  │  │ /api/health  │  │ HNSW→顺序扫描 │             │
 │  └──────────────┘  └──────────────┘  └──────────────┘             │
 ├─────────────────────────────────────────────────────────────────────┤
-│                     LLM 调用层 (模型路由 + 语义缓存)                  │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌────────────────┐   │
-│  │ 阿里百炼 (qwen)   │  │ 本地模型 (BGE-M3) │  │ Redis 语义缓存 │   │
-│  │ 多模型降级链      │  │ Embedding :8011   │  │                │   │
-│  └──────────────────┘  └──────────────────┘  └────────────────┘   │
+│                  微服务层 (ServiceAdapter 路由)                       │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐             │
+│  │ LLM Gateway   │  │  RAG Service  │  │  Data Service │             │
+│  │ :3002         │  │  :3001        │  │  :8001(Python)│             │
+│  │ 模型路由+降级  │  │  检索+评估    │  │  行情+财务    │             │
+│  └──────────────┘  └──────────────┘  └──────────────┘             │
+│  ┌──────────────┐  ┌──────────────┐                                │
+│  │ Evaluation Svc│  │ Embedding Svc │                                │
+│  │ :3003         │  │ :8011         │                                │
+│  │ Agent评估     │  │ BGE-M3向量化  │                                │
+│  └──────────────┘  └──────────────┘                                │
 ├─────────────────────────────────────────────────────────────────────┤
 │                     数据层                                           │
 │  ┌──────────────┐  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
@@ -327,6 +333,8 @@ ai-agent-platform/
 │       ├── tushare_provider.py       #   Tushare（综合数据）
 │       └── tickflow_provider.py      #   逐笔数据
 ├── tests/                            # 测试代码与报告（详见下方）
+│   ├── helpers/                      #   测试工具（服务可用性检查等）
+│   └── datasets/                     #   测试数据集（CFLUE/FinQA/FinEval/ConvFinQA）
 ├── scripts/                          # 运维/工具脚本（详见下方）
 ├── docs/                             # 项目文档
 ├── config/                           # 配置文件
@@ -344,11 +352,11 @@ ai-agent-platform/
 | 层级 | 文件数 | 测试数 | 说明 |
 |------|--------|--------|------|
 | L1 单元测试 | 17 | 138 | Vitest + vi.mock，覆盖路由/注册/编排/执行/检索/描述/验证 |
-| L2 契约测试 | 6 | 45 | 验证微服务 API 输入/输出/错误处理 |
+| L2 契约测试 | 6 | 45 | 验证微服务 API 输入/输出/错误处理（服务不可用时自动跳过） |
 | L3 集成测试 | 14 | 86 | 跨模块路径（Skill→Agent/工具路由/数据降级/模型切换/LLM配置） |
 | L4 E2E 测试 | 2 | 14 | 全链路 + 性能基准（含预热） |
 | 基础设施 | 2 | 21 | Docker 健康检查 + 数据库连接 |
-| **总计** | **22** | **181** | 8 个 LLM 测试跳过 |
+| **总计** | **40** | **325** | 8 个 LLM 测试跳过，CI 全量通过 |
 
 ### 测试目录结构
 
@@ -380,6 +388,13 @@ tests/
 ├── e2e/                              # L4 端到端测试
 │   ├── full-chain.test.ts            #   全链路 E2E
 │   └── performance-benchmark.test.ts #   性能基准（含预热）
+├── helpers/                          # 测试工具
+│   └── service-check.ts              #   服务可用性检查（CI 中自动跳过不可达服务）
+├── datasets/                         # 测试数据集
+│   ├── CFLUE/                        #   CFLUE 金融理解评测
+│   ├── ConvFinQA/                    #   ConvFinQA 对话式数值推理
+│   ├── FinEval/                      #   FinEval 金融评测
+│   └── FinQA/                        #   FinQA 数值推理
 └── reports/                          # 测试报告（自动生成）
 
 src/server/                           # L1 单元测试（与源码同目录）
@@ -396,7 +411,10 @@ src/server/                           # L1 单元测试（与源码同目录）
 ### 运行测试
 
 ```bash
-# 运行全部单元测试
+# 运行全部测试（CI 使用同一命令）
+npx vitest run
+
+# 运行仅 src/server/ 单元测试
 npx vitest run src/server/
 
 # 运行微服务测试（需要 Docker 服务运行中）
@@ -408,6 +426,20 @@ npx tsx scripts/rag-agent-eval.ts
 # 运行单个测试文件
 npx vitest run tests/contract/data-service.test.ts
 ```
+
+### CI/CD
+
+GitHub Actions 自动运行 4 个流程：
+
+| 流程 | 说明 | 触发条件 |
+|------|------|---------|
+| Lint & TypeCheck | ESLint + TypeScript 类型检查 | push/PR |
+| Unit Tests | Vitest 全量测试（325 用例） | push/PR |
+| Build & Push Docker Images | 构建并推送 Docker 镜像 | push to main（需配置 secrets） |
+| Deploy to Server | SSH 部署到服务器 | push to main（需配置 secrets） |
+
+- 契约/集成/E2E 测试在 CI 中自动检测服务可用性，不可达时优雅跳过
+- 支持手动触发：Actions → CI/CD Pipeline → Run workflow
 
 ---
 

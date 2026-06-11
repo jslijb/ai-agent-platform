@@ -2,331 +2,718 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>金融 AI Agent 平台 — 微服务架构图</title>
-<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金融行业智能体平台 — 系统架构图</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha384-ZZ1pncU3bQe8y31yfZdMFdSpttDoPmOZg2wguVK9almUodir1PghgT0eY7Mrty8H" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" integrity="sha384-en/ztfPSRkGfME4KIm05joYXynqzUgbsG5nMrj/xEFAHXkeZfO3yMK8QQ+mP7p1/" crossorigin="anonymous"></script>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Microsoft YaHei', sans-serif; background: #0f172a; color: #e2e8f0; padding: 20px; }
-  h1 { text-align: center; font-size: 24px; margin-bottom: 8px; color: #38bdf8; }
-  h2 { text-align: center; font-size: 14px; font-weight: normal; color: #94a3b8; margin-bottom: 24px; }
-  .container { max-width: 1400px; margin: 0 auto; }
-  .diagram-card { background: #1e293b; border-radius: 12px; padding: 24px; margin-bottom: 20px; border: 1px solid #334155; }
-  .diagram-card h3 { color: #38bdf8; margin-bottom: 16px; font-size: 16px; }
-  .mermaid { display: flex; justify-content: center; }
-  .legend { display: flex; gap: 24px; justify-content: center; margin-top: 16px; flex-wrap: wrap; }
-  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8; }
-  .legend-dot { width: 12px; height: 12px; border-radius: 3px; }
-  .meta { text-align: center; margin-top: 20px; font-size: 11px; color: #475569; }
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: #020617;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1160px;
+    width: 100%;
+  }
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding: 0 4px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .pulse-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: #22d3ee;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34,211,238,0.4); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 8px rgba(34,211,238,0); }
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f1f5f9;
+    letter-spacing: -0.5px;
+  }
+  .header .subtitle {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .toolbar-toggle {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background: rgba(30,41,59,0.6);
+    color: #94a3b8;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .toolbar-toggle:hover { border-color: #64748b; color: #e2e8f0; }
+  .toolbar-actions {
+    display: none;
+    gap: 6px;
+  }
+  .toolbar-actions.visible { display: flex; }
+  .toolbar-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid #334155;
+    background: rgba(30,41,59,0.6);
+    color: #94a3b8;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .toolbar-btn:hover { border-color: #64748b; color: #e2e8f0; background: rgba(30,41,59,0.9); }
+  @media print { .toolbar { display: none !important; } }
+  /* Diagram card */
+  .diagram-card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 16px;
+    overflow: hidden;
+  }
+  .diagram-card svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  /* Summary cards */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .card {
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .card-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .card-dot.cyan { background: #22d3ee; }
+  .card-dot.emerald { background: #34d399; }
+  .card-dot.violet { background: #a78bfa; }
+  .card h3 {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e2e8f0;
+  }
+  .card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .card li {
+    font-size: 10px;
+    color: #94a3b8;
+    padding: 3px 0;
+    line-height: 1.5;
+  }
+  .card li strong {
+    color: #cbd5e1;
+    font-weight: 500;
+  }
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 9px;
+    color: #475569;
+    padding: 0 4px;
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <h1>金融行业 AI Agent 全栈平台</h1>
-  <h2>微服务架构图 — Phase 6 升级后</h2>
-
-  <!-- 主架构图 -->
-  <div class="diagram-card">
-    <h3>整体架构（2 服务方案 + LLM Gateway Dev Only）</h3>
-    <div class="mermaid">
-graph TB
-    subgraph Client["👤 客户端"]
-        Browser["浏览器"]
-        API_Client["API 调用方"]
-    end
-
-    subgraph Gateway["🔀 Nginx API Gateway :80"]
-        Nginx["Nginx 反向代理<br/>负载均衡 + 路由"]
-    end
-
-    subgraph Services["☁️ 微服务层"]
-        direction TB
-        Main["🖥️ Main Service<br/>Next.js :3000<br/>──────────<br/>前端 SSR / API<br/>认证 / 对话<br/>service-adapter.ts"]
-        RAG["🔍 RAG Service<br/>Fastify :3001<br/>──────────<br/>检索 / 嵌入 / 重排<br/>分块 / 评估<br/>BullMQ Worker"]
-        LLM["🤖 LLM Gateway<br/>Fastify :3002<br/>──────────<br/>模型路由 / 熔断<br/>缓存 / 限流<br/><i>仅 dev profile</i>"]
-        Data["📊 Data Service<br/>FastAPI :8001<br/>──────────<br/>数据管理<br/>文件上传"]
-    end
-
-    subgraph AI["🧠 AI 推理服务"]
-        Embedding["Embedding Service<br/>:8011<br/>bge-m3 GGUF"]
-        Reranker["Reranker Service<br/>:8010<br/>bge-reranker-v2-m3 GGUF"]
-    end
-
-    subgraph Storage["💾 数据存储层"]
-        PG["PostgreSQL<br/>:5432<br/>业务数据 + 向量"]
-        Redis["Redis<br/>:6379<br/>缓存 + BullMQ 队列"]
-        Neo4j["Neo4j<br/>:7687<br/>知识图谱"]
-    end
-
-    Browser --> Nginx
-    API_Client --> Nginx
-
-    Nginx -->|"/* /api/auth/*<br/>/api/health"| Main
-    Nginx -->|"/api/evaluation/*"| RAG
-    Nginx -->|"/api/data/*"| Data
-    Nginx -->|"🔒 /internal/* → 403"| Nginx
-
-    Main -->|"HTTP fetch<br/>USE_MICROSERVICE=true"| RAG
-    Main -->|"HTTP fetch<br/>USE_MICROSERVICE=true"| LLM
-    Main -->|"单体模式<br/>USE_MICROSERVICE=false"| Main
-
-    RAG -->|"嵌入请求"| Embedding
-    RAG -->|"重排请求"| Reranker
-    RAG -->|"BullMQ 任务"| Redis
-    RAG -->|"SQL + 向量查询"| PG
-    RAG -->|"图查询"| Neo4j
-
-    LLM -->|"模型 API<br/>qwen-max/plus/turbo"| LLM
-
-    Data -->|"SQL"| PG
-
-    Main -.->|"X-Trace-Id"| RAG
-    Main -.->|"X-Trace-Id"| LLM
-
-    style Client fill:#1e3a5f,stroke:#38bdf8,color:#e2e8f0
-    style Gateway fill:#3b1764,stroke:#a78bfa,color:#e2e8f0
-    style Services fill:#1a2744,stroke:#38bdf8,color:#e2e8f0
-    style AI fill:#2d1a3e,stroke:#c084fc,color:#e2e8f0
-    style Storage fill:#1a2e1a,stroke:#4ade80,color:#e2e8f0
-    style Main fill:#1e40af,stroke:#60a5fa,color:#fff
-    style RAG fill:#065f46,stroke:#34d399,color:#fff
-    style LLM fill:#7c2d12,stroke:#fb923c,color:#fff
-    style Data fill:#4a1d6e,stroke:#c084fc,color:#fff
-    style Nginx fill:#5b21b6,stroke:#a78bfa,color:#fff
-    style PG fill:#15803d,stroke:#4ade80,color:#fff
-    style Redis fill:#dc2626,stroke:#f87171,color:#fff
-    style Neo4j fill:#1d4ed8,stroke:#60a5fa,color:#fff
-    style Embedding fill:#6b21a8,stroke:#c084fc,color:#fff
-    style Reranker fill:#6b21a8,stroke:#c084fc,color:#fff
+<div class="container" id="report-container">
+  <div class="header">
+    <div class="header-left">
+      <div class="pulse-dot"></div>
+      <div>
+        <h1>金融行业智能体平台</h1>
+        <div class="subtitle">AI Agent Platform — Full-Stack Architecture</div>
+      </div>
     </div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-dot" style="background:#1e40af"></div>Main Service (Next.js)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#065f46"></div>RAG Service (Fastify)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#7c2d12"></div>LLM Gateway (Dev Only)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#4a1d6e"></div>Data Service (FastAPI)</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#15803d"></div>PostgreSQL</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#dc2626"></div>Redis</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div>Neo4j</div>
-      <div class="legend-item"><div class="legend-dot" style="background:#6b21a8"></div>AI 推理</div>
+    <div class="toolbar">
+      <button class="toolbar-toggle" onclick="toggleToolbar()">⋯</button>
+      <div class="toolbar-actions" id="toolbarActions">
+        <button class="toolbar-btn" onclick="copyAsImage()">📋 Copy</button>
+        <button class="toolbar-btn" onclick="downloadPNG()">🖼️ PNG</button>
+        <button class="toolbar-btn" onclick="downloadPDF()">📄 PDF</button>
+      </div>
     </div>
   </div>
 
-  <!-- 服务间通信 -->
   <div class="diagram-card">
-    <h3>服务间通信协议</h3>
-    <div class="mermaid">
-sequenceDiagram
-    participant C as 浏览器
-    participant N as Nginx :80
-    participant M as Main Service :3000
-    participant R as RAG Service :3001
-    participant L as LLM Gateway :3002
-    participant E as Embedding :8011
-    participant DB as PostgreSQL
-    participant MQ as Redis/BullMQ
+    <svg viewBox="0 0 1100 1340" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+        </pattern>
+        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#475569"/>
+        </marker>
+        <marker id="arrowhead-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee"/>
+        </marker>
+        <marker id="arrowhead-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#34d399"/>
+        </marker>
+        <marker id="arrowhead-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24"/>
+        </marker>
+        <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feFlood flood-color="#22d3ee" flood-opacity="0.15"/>
+          <feComposite in2="blur" operator="in"/>
+          <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feFlood flood-color="#34d399" flood-opacity="0.15"/>
+          <feComposite in2="blur" operator="in"/>
+          <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
 
-    C->>N: POST /api/chat {message}
-    N->>M: 转发请求
-    Note over M: 生成 traceId<br/>X-Trace-Id: uuid-v4
+      <!-- Background -->
+      <rect width="1100" height="1340" fill="#020617"/>
+      <rect width="1100" height="1340" fill="url(#grid)"/>
 
-    M->>R: POST /api/retrieve {query, topK}<br/>X-Trace-Id: xxx
-    R->>E: 嵌入请求
-    E-->>R: embeddings
-    R->>DB: 向量 + 关键词混合检索
-    DB-->>R: 检索结果
-    R-->>M: {success, results, latencyMs}<br/>X-Trace-Id: xxx
+      <!-- ===== ARROWS (drawn first, behind boxes) ===== -->
+      <!-- Frontend → API -->
+      <line x1="550" y1="155" x2="550" y2="178" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead-cyan)" opacity="0.6"/>
+      <!-- API → Agent -->
+      <line x1="550" y1="262" x2="550" y2="288" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead-emerald)" opacity="0.6"/>
+      <!-- Agent → RAG -->
+      <line x1="550" y1="523" x2="550" y2="548" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead-emerald)" opacity="0.6"/>
+      <!-- Agent → MCP (side arrow) -->
+      <path d="M 960 420 L 990 420 L 990 730 L 960 730" fill="none" stroke="#34d399" stroke-width="1.2" marker-end="url(#arrowhead-emerald)" opacity="0.4" stroke-dasharray="4,3"/>
+      <text x="998" y="575" fill="#34d399" font-size="7" opacity="0.5" transform="rotate(90,998,575)">tool calls</text>
+      <!-- RAG → MCP -->
+      <line x1="550" y1="708" x2="550" y2="728" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead-emerald)" opacity="0.6"/>
+      <!-- MCP → Stability -->
+      <line x1="550" y1="853" x2="550" y2="873" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.5"/>
+      <!-- Stability → Microservice -->
+      <line x1="550" y1="983" x2="550" y2="1003" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowhead-amber)" opacity="0.6"/>
+      <!-- Microservice → Data -->
+      <line x1="550" y1="1123" x2="550" y2="1143" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowhead)" opacity="0.6"/>
 
-    M->>L: POST /api/llm/chat {messages}<br/>X-Trace-Id: xxx
-    Note over L: 熔断器检查<br/>qwen-max → qwen-plus → qwen-turbo
-    L-->>M: {content, model, usage}<br/>X-Trace-Id: xxx
+      <!-- ===== LAYER 1: Frontend (cyan) ===== -->
+      <rect x="30" y="60" width="1040" height="95" rx="8" fill="rgba(8,51,68,0.15)" stroke="#22d3ee" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="82" fill="#22d3ee" font-size="10" font-weight="600" opacity="0.8">FRONTEND LAYER</text>
 
-    M-->>N: 聊天响应
-    N-->>C: 流式/完整响应
+      <!-- 登录/注册 -->
+      <rect x="80" y="90" width="210" height="55" rx="6" fill="#0f172a"/>
+      <rect x="80" y="90" width="210" height="55" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-cyan)"/>
+      <text x="185" y="115" fill="white" font-size="11" font-weight="600" text-anchor="middle">登录 / 注册</text>
+      <text x="185" y="132" fill="#94a3b8" font-size="8" text-anchor="middle">Auth &amp; User Management</text>
 
-    Note over M,R: 降级开关: USE_MICROSERVICE=false<br/>→ 直接进程内调用 hybridSearch()
-    Note over R,MQ: 评估任务: POST /api/evaluation/run<br/>→ BullMQ 异步执行
+      <!-- 对话界面 -->
+      <rect x="310" y="90" width="210" height="55" rx="6" fill="#0f172a"/>
+      <rect x="310" y="90" width="210" height="55" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-cyan)"/>
+      <text x="415" y="115" fill="white" font-size="11" font-weight="600" text-anchor="middle">对话界面</text>
+      <text x="415" y="132" fill="#94a3b8" font-size="8" text-anchor="middle">Chat Interface / SSE Stream</text>
+
+      <!-- 控制台 -->
+      <rect x="540" y="90" width="210" height="55" rx="6" fill="#0f172a"/>
+      <rect x="540" y="90" width="210" height="55" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-cyan)"/>
+      <text x="645" y="115" fill="white" font-size="11" font-weight="600" text-anchor="middle">控制台</text>
+      <text x="645" y="132" fill="#94a3b8" font-size="8" text-anchor="middle">Dashboard &amp; Monitoring</text>
+
+      <!-- 文档管理/图谱预览 -->
+      <rect x="770" y="90" width="210" height="55" rx="6" fill="#0f172a"/>
+      <rect x="770" y="90" width="210" height="55" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5" filter="url(#glow-cyan)"/>
+      <text x="875" y="115" fill="white" font-size="11" font-weight="600" text-anchor="middle">文档管理 / 图谱预览</text>
+      <text x="875" y="132" fill="#94a3b8" font-size="8" text-anchor="middle">Docs &amp; Knowledge Graph</text>
+
+      <!-- Next.js label -->
+      <rect x="440" y="60" width="120" height="18" rx="4" fill="rgba(8,51,68,0.6)" stroke="#22d3ee" stroke-width="0.8"/>
+      <text x="500" y="73" fill="#22d3ee" font-size="8" font-weight="600" text-anchor="middle">Next.js 14 App Router</text>
+
+      <!-- ===== LAYER 2: API (cyan) ===== -->
+      <rect x="30" y="178" width="1040" height="84" rx="8" fill="rgba(8,51,68,0.15)" stroke="#22d3ee" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="200" fill="#22d3ee" font-size="10" font-weight="600" opacity="0.8">API LAYER</text>
+
+      <rect x="440" y="178" width="150" height="18" rx="4" fill="rgba(8,51,68,0.6)" stroke="#22d3ee" stroke-width="0.8"/>
+      <text x="515" y="191" fill="#22d3ee" font-size="8" font-weight="600" text-anchor="middle">Route Handlers + SSE</text>
+
+      <!-- /auth/* -->
+      <rect x="80" y="206" width="210" height="48" rx="6" fill="#0f172a"/>
+      <rect x="80" y="206" width="210" height="48" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+      <text x="185" y="227" fill="white" font-size="11" font-weight="600" text-anchor="middle">/auth/*</text>
+      <text x="185" y="243" fill="#94a3b8" font-size="8" text-anchor="middle">认证 &amp; 授权路由</text>
+
+      <!-- /agent/run -->
+      <rect x="310" y="206" width="210" height="48" rx="6" fill="#0f172a"/>
+      <rect x="310" y="206" width="210" height="48" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+      <text x="415" y="227" fill="white" font-size="11" font-weight="600" text-anchor="middle">/agent/run</text>
+      <text x="415" y="243" fill="#94a3b8" font-size="8" text-anchor="middle">Agent 执行流</text>
+
+      <!-- /rag/* -->
+      <rect x="540" y="206" width="210" height="48" rx="6" fill="#0f172a"/>
+      <rect x="540" y="206" width="210" height="48" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+      <text x="645" y="227" fill="white" font-size="11" font-weight="600" text-anchor="middle">/rag/*</text>
+      <text x="645" y="243" fill="#94a3b8" font-size="8" text-anchor="middle">检索增强路由</text>
+
+      <!-- /document/* -->
+      <rect x="770" y="206" width="210" height="48" rx="6" fill="#0f172a"/>
+      <rect x="770" y="206" width="210" height="48" rx="6" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+      <text x="875" y="227" fill="white" font-size="11" font-weight="600" text-anchor="middle">/document/*</text>
+      <text x="875" y="243" fill="#94a3b8" font-size="8" text-anchor="middle">文档管理路由</text>
+
+      <!-- ===== LAYER 3: Agent (emerald) ===== -->
+      <rect x="30" y="288" width="1040" height="235" rx="8" fill="rgba(6,78,59,0.1)" stroke="#34d399" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="310" fill="#34d399" font-size="10" font-weight="600" opacity="0.8">AGENT LAYER</text>
+
+      <rect x="410" y="288" width="160" height="18" rx="4" fill="rgba(6,78,59,0.6)" stroke="#34d399" stroke-width="0.8"/>
+      <text x="490" y="301" fill="#34d399" font-size="8" font-weight="600" text-anchor="middle">ReAct + Skill + Memory</text>
+
+      <!-- Row 1: 4 Agents -->
+      <!-- SimpleAgent -->
+      <rect x="60" y="318" width="230" height="55" rx="6" fill="#0f172a"/>
+      <rect x="60" y="318" width="230" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5" filter="url(#glow-emerald)"/>
+      <text x="175" y="342" fill="white" font-size="11" font-weight="600" text-anchor="middle">SimpleAgent</text>
+      <text x="175" y="358" fill="#94a3b8" font-size="8" text-anchor="middle">ReAct 主 Agent · 任务编排</text>
+
+      <!-- Researcher -->
+      <rect x="310" y="318" width="230" height="55" rx="6" fill="#0f172a"/>
+      <rect x="310" y="318" width="230" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5" filter="url(#glow-emerald)"/>
+      <text x="425" y="342" fill="white" font-size="11" font-weight="600" text-anchor="middle">Researcher</text>
+      <text x="425" y="358" fill="#94a3b8" font-size="8" text-anchor="middle">深度研究 · 信息聚合</text>
+
+      <!-- Quant -->
+      <rect x="560" y="318" width="230" height="55" rx="6" fill="#0f172a"/>
+      <rect x="560" y="318" width="230" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5" filter="url(#glow-emerald)"/>
+      <text x="675" y="342" fill="white" font-size="11" font-weight="600" text-anchor="middle">Quant</text>
+      <text x="675" y="358" fill="#94a3b8" font-size="8" text-anchor="middle">量化分析 · 策略回测</text>
+
+      <!-- Compliance -->
+      <rect x="810" y="318" width="230" height="55" rx="6" fill="#0f172a"/>
+      <rect x="810" y="318" width="230" height="55" rx="6" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.5" filter="url(#glow-emerald)"/>
+      <text x="925" y="342" fill="white" font-size="11" font-weight="600" text-anchor="middle">Compliance</text>
+      <text x="925" y="358" fill="#94a3b8" font-size="8" text-anchor="middle">合规审查 · 风险评估</text>
+
+      <!-- Row 2: Skill 技能层 -->
+      <rect x="60" y="388" width="980" height="45" rx="6" fill="#0f172a"/>
+      <rect x="60" y="388" width="980" height="45" rx="6" fill="rgba(6,78,59,0.25)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="80" y="407" fill="#34d399" font-size="9" font-weight="600">SKILL 技能层</text>
+      <text x="240" y="407" fill="#94a3b8" font-size="8">技术分析</text>
+      <text x="370" y="407" fill="#94a3b8" font-size="8">合规检查</text>
+      <text x="500" y="407" fill="#94a3b8" font-size="8">风控预警</text>
+      <text x="630" y="407" fill="#94a3b8" font-size="8">综合诊断</text>
+      <text x="760" y="407" fill="#94a3b8" font-size="8">研报生成</text>
+      <text x="890" y="407" fill="#94a3b8" font-size="8">...可扩展</text>
+      <!-- Separator dots -->
+      <circle cx="320" cy="404" r="1.5" fill="#475569"/>
+      <circle cx="450" cy="404" r="1.5" fill="#475569"/>
+      <circle cx="580" cy="404" r="1.5" fill="#475569"/>
+      <circle cx="710" cy="404" r="1.5" fill="#475569"/>
+      <circle cx="840" cy="404" r="1.5" fill="#475569"/>
+
+      <!-- Row 3: Memory + ToolRegistry -->
+      <!-- Memory -->
+      <rect x="60" y="448" width="580" height="55" rx="6" fill="#0f172a"/>
+      <rect x="60" y="448" width="580" height="55" rx="6" fill="rgba(6,78,59,0.25)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="80" y="470" fill="#34d399" font-size="9" font-weight="600">MEMORY</text>
+      <text x="80" y="490" fill="#94a3b8" font-size="8">L1 工作记忆</text>
+      <text x="210" y="490" fill="#94a3b8" font-size="8">L2 短期记忆</text>
+      <text x="340" y="490" fill="#94a3b8" font-size="8">L3 长期记忆</text>
+      <text x="470" y="490" fill="#94a3b8" font-size="8">L4 知识库</text>
+      <circle cx="185" cy="487" r="1.5" fill="#475569"/>
+      <circle cx="315" cy="487" r="1.5" fill="#475569"/>
+      <circle cx="445" cy="487" r="1.5" fill="#475569"/>
+
+      <!-- ToolRegistry -->
+      <rect x="660" y="448" width="380" height="55" rx="6" fill="#0f172a"/>
+      <rect x="660" y="448" width="380" height="55" rx="6" fill="rgba(6,78,59,0.25)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="680" y="470" fill="#34d399" font-size="9" font-weight="600">TOOL REGISTRY</text>
+      <text x="680" y="490" fill="#94a3b8" font-size="8">21+ 金融工具注册 · 动态发现 · 权限管控</text>
+
+      <!-- ===== LAYER 4: RAG Pipeline (emerald) ===== -->
+      <rect x="30" y="548" width="1040" height="160" rx="8" fill="rgba(6,78,59,0.1)" stroke="#34d399" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="570" fill="#34d399" font-size="10" font-weight="600" opacity="0.8">RAG PIPELINE</text>
+
+      <!-- Stage 1: 文档处理 -->
+      <rect x="50" y="580" width="320" height="115" rx="6" fill="#0f172a"/>
+      <rect x="50" y="580" width="320" height="115" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="210" y="602" fill="white" font-size="11" font-weight="600" text-anchor="middle">文档处理</text>
+      <text x="210" y="620" fill="#94a3b8" font-size="8" text-anchor="middle">文档解析 · PDF/Word/Excel</text>
+      <text x="210" y="636" fill="#94a3b8" font-size="8" text-anchor="middle">文本清洗 · 去噪/去重/格式化</text>
+      <text x="210" y="652" fill="#94a3b8" font-size="8" text-anchor="middle">智能切片 · 语义边界感知</text>
+      <text x="210" y="668" fill="#94a3b8" font-size="8" text-anchor="middle">增量索引 · 知识过期标记</text>
+      <text x="210" y="684" fill="#64748b" font-size="7" text-anchor="middle">Document Processing Pipeline</text>
+
+      <!-- Stage 2: 检索增强 -->
+      <rect x="390" y="580" width="320" height="115" rx="6" fill="#0f172a"/>
+      <rect x="390" y="580" width="320" height="115" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="550" y="602" fill="white" font-size="11" font-weight="600" text-anchor="middle">检索增强</text>
+      <text x="550" y="620" fill="#94a3b8" font-size="8" text-anchor="middle">混合检索 · 向量 + BM25</text>
+      <text x="550" y="636" fill="#94a3b8" font-size="8" text-anchor="middle">HyDE 改写 · 假设文档扩展</text>
+      <text x="550" y="652" fill="#94a3b8" font-size="8" text-anchor="middle">分离精排 · Re-ranker 重排</text>
+      <text x="550" y="668" fill="#94a3b8" font-size="8" text-anchor="middle">答案溯源 · Source Attribution</text>
+      <text x="550" y="684" fill="#64748b" font-size="7" text-anchor="middle">Retrieval Augmented Generation</text>
+
+      <!-- Stage 3: 高级特性 -->
+      <rect x="730" y="580" width="320" height="115" rx="6" fill="#0f172a"/>
+      <rect x="730" y="580" width="320" height="115" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.5"/>
+      <text x="890" y="602" fill="white" font-size="11" font-weight="600" text-anchor="middle">高级特性</text>
+      <text x="890" y="620" fill="#94a3b8" font-size="8" text-anchor="middle">GraphRAG · 多跳推理</text>
+      <text x="890" y="636" fill="#94a3b8" font-size="8" text-anchor="middle">知识过期 · 版本管理</text>
+      <text x="890" y="652" fill="#94a3b8" font-size="8" text-anchor="middle">增量索引 · 实时更新</text>
+      <text x="890" y="668" fill="#94a3b8" font-size="8" text-anchor="middle">多模态 · 图表/表格理解</text>
+      <text x="890" y="684" fill="#64748b" font-size="7" text-anchor="middle">Advanced RAG Features</text>
+
+      <!-- Pipeline arrows between stages -->
+      <line x1="370" y1="637" x2="390" y2="637" stroke="#34d399" stroke-width="1.2" marker-end="url(#arrowhead-emerald)" opacity="0.5"/>
+      <line x1="710" y1="637" x2="730" y2="637" stroke="#34d399" stroke-width="1.2" marker-end="url(#arrowhead-emerald)" opacity="0.5"/>
+
+      <!-- ===== LAYER 5: MCP Tools (emerald) ===== -->
+      <rect x="30" y="728" width="1040" height="125" rx="8" fill="rgba(6,78,59,0.1)" stroke="#34d399" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="750" fill="#34d399" font-size="10" font-weight="600" opacity="0.8">MCP TOOLS — 21+ 金融工具</text>
+
+      <!-- Row 1: 5 tool categories -->
+      <rect x="50" y="760" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="50" y="760" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="145" y="777" fill="white" font-size="9" font-weight="500" text-anchor="middle">市场数据</text>
+      <text x="145" y="791" fill="#64748b" font-size="7" text-anchor="middle">行情 · K线 · 涨跌</text>
+
+      <rect x="255" y="760" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="255" y="760" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="350" y="777" fill="white" font-size="9" font-weight="500" text-anchor="middle">量化分析</text>
+      <text x="350" y="791" fill="#64748b" font-size="7" text-anchor="middle">指标 · 回测 · 策略</text>
+
+      <rect x="460" y="760" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="460" y="760" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="555" y="777" fill="white" font-size="9" font-weight="500" text-anchor="middle">模拟交易</text>
+      <text x="555" y="791" fill="#64748b" font-size="7" text-anchor="middle">下单 · 持仓 · 盈亏</text>
+
+      <rect x="665" y="760" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="665" y="760" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="760" y="777" fill="white" font-size="9" font-weight="500" text-anchor="middle">风控合规</text>
+      <text x="760" y="791" fill="#64748b" font-size="7" text-anchor="middle">预警 · 审查 · 限制</text>
+
+      <rect x="870" y="760" width="180" height="38" rx="6" fill="#0f172a"/>
+      <rect x="870" y="760" width="180" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="960" y="777" fill="white" font-size="9" font-weight="500" text-anchor="middle">图谱查询</text>
+      <text x="960" y="791" fill="#64748b" font-size="7" text-anchor="middle">关联 · 路径 · 聚类</text>
+
+      <!-- Row 2: 4 tool categories -->
+      <rect x="120" y="808" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="120" y="808" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="215" y="825" fill="white" font-size="9" font-weight="500" text-anchor="middle">文档分析</text>
+      <text x="215" y="839" fill="#64748b" font-size="7" text-anchor="middle">解析 · 摘要 · 对比</text>
+
+      <rect x="325" y="808" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="325" y="808" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="420" y="825" fill="white" font-size="9" font-weight="500" text-anchor="middle">计算器</text>
+      <text x="420" y="839" fill="#64748b" font-size="7" text-anchor="middle">估值 · 收益 · 风险</text>
+
+      <rect x="530" y="808" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="530" y="808" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="625" y="825" fill="white" font-size="9" font-weight="500" text-anchor="middle">Web 搜索</text>
+      <text x="625" y="839" fill="#64748b" font-size="7" text-anchor="middle">实时 · 新闻 · 公告</text>
+
+      <rect x="735" y="808" width="190" height="38" rx="6" fill="#0f172a"/>
+      <rect x="735" y="808" width="190" height="38" rx="6" fill="rgba(6,78,59,0.3)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="830" y="825" fill="white" font-size="9" font-weight="500" text-anchor="middle">DeepWiki</text>
+      <text x="830" y="839" fill="#64748b" font-size="7" text-anchor="middle">知识 · 百科 · 术语</text>
+
+      <!-- ===== LAYER 6: Stability (slate) ===== -->
+      <rect x="30" y="873" width="1040" height="110" rx="8" fill="rgba(30,41,59,0.15)" stroke="#94a3b8" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="895" fill="#94a3b8" font-size="10" font-weight="600" opacity="0.8">STABILITY LAYER</text>
+
+      <!-- Row 1: 3 items -->
+      <rect x="50" y="905" width="310" height="32" rx="5" fill="#0f172a"/>
+      <rect x="50" y="905" width="310" height="32" rx="5" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="205" y="925" fill="white" font-size="9" font-weight="500" text-anchor="middle">熔断器 CircuitBreaker</text>
+
+      <rect x="380" y="905" width="310" height="32" rx="5" fill="#0f172a"/>
+      <rect x="380" y="905" width="310" height="32" rx="5" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="535" y="925" fill="white" font-size="9" font-weight="500" text-anchor="middle">模型降级链 api_keys.yaml</text>
+
+      <rect x="710" y="905" width="340" height="32" rx="5" fill="#0f172a"/>
+      <rect x="710" y="905" width="340" height="32" rx="5" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="880" y="925" fill="white" font-size="9" font-weight="500" text-anchor="middle">LLM 语义缓存 Semantic Cache</text>
+
+      <!-- Row 2: 3 items -->
+      <rect x="50" y="945" width="310" height="32" rx="5" fill="#0f172a"/>
+      <rect x="50" y="945" width="310" height="32" rx="5" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="205" y="965" fill="white" font-size="9" font-weight="500" text-anchor="middle">限流 RateLimiter</text>
+
+      <rect x="380" y="945" width="310" height="32" rx="5" fill="#0f172a"/>
+      <rect x="380" y="945" width="310" height="32" rx="5" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="535" y="965" fill="white" font-size="9" font-weight="500" text-anchor="middle">健康检查 /api/health</text>
+
+      <rect x="710" y="945" width="340" height="32" rx="5" fill="#0f172a"/>
+      <rect x="710" y="945" width="340" height="32" rx="5" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="880" y="965" fill="white" font-size="9" font-weight="500" text-anchor="middle">向量索引降级 Fallback</text>
+
+      <!-- ===== LAYER 7: Microservice (amber) ===== -->
+      <rect x="30" y="1003" width="1040" height="120" rx="8" fill="rgba(120,53,15,0.1)" stroke="#fbbf24" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="1025" fill="#fbbf24" font-size="10" font-weight="600" opacity="0.8">MICROSERVICE LAYER — ServiceAdapter Routes</text>
+
+      <!-- 5 services -->
+      <!-- LLM Gateway -->
+      <rect x="45" y="1035" width="195" height="68" rx="6" fill="#0f172a"/>
+      <rect x="45" y="1035" width="195" height="68" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="142" y="1057" fill="white" font-size="10" font-weight="600" text-anchor="middle">LLM Gateway</text>
+      <text x="142" y="1073" fill="#fbbf24" font-size="8" text-anchor="middle">:3002</text>
+      <text x="142" y="1089" fill="#94a3b8" font-size="7" text-anchor="middle">模型路由 + 降级</text>
+
+      <!-- RAG Service -->
+      <rect x="255" y="1035" width="195" height="68" rx="6" fill="#0f172a"/>
+      <rect x="255" y="1035" width="195" height="68" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="352" y="1057" fill="white" font-size="10" font-weight="600" text-anchor="middle">RAG Service</text>
+      <text x="352" y="1073" fill="#fbbf24" font-size="8" text-anchor="middle">:3001</text>
+      <text x="352" y="1089" fill="#94a3b8" font-size="7" text-anchor="middle">检索 + 评估</text>
+
+      <!-- Data Service -->
+      <rect x="465" y="1035" width="195" height="68" rx="6" fill="#0f172a"/>
+      <rect x="465" y="1035" width="195" height="68" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="562" y="1057" fill="white" font-size="10" font-weight="600" text-anchor="middle">Data Service</text>
+      <text x="562" y="1073" fill="#fbbf24" font-size="8" text-anchor="middle">:8001 Python FastAPI</text>
+      <text x="562" y="1089" fill="#94a3b8" font-size="7" text-anchor="middle">行情 + 财务</text>
+
+      <!-- Evaluation Service -->
+      <rect x="675" y="1035" width="195" height="68" rx="6" fill="#0f172a"/>
+      <rect x="675" y="1035" width="195" height="68" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="772" y="1057" fill="white" font-size="10" font-weight="600" text-anchor="middle">Evaluation Service</text>
+      <text x="772" y="1073" fill="#fbbf24" font-size="8" text-anchor="middle">:3003</text>
+      <text x="772" y="1089" fill="#94a3b8" font-size="7" text-anchor="middle">Agent 评估</text>
+
+      <!-- Embedding Service -->
+      <rect x="885" y="1035" width="170" height="68" rx="6" fill="#0f172a"/>
+      <rect x="885" y="1035" width="170" height="68" rx="6" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="970" y="1057" fill="white" font-size="10" font-weight="600" text-anchor="middle">Embedding Svc</text>
+      <text x="970" y="1073" fill="#fbbf24" font-size="8" text-anchor="middle">:8011</text>
+      <text x="970" y="1089" fill="#94a3b8" font-size="7" text-anchor="middle">BGE-M3 向量化</text>
+
+      <!-- ===== LAYER 8: Data (violet) ===== -->
+      <rect x="30" y="1143" width="1040" height="110" rx="8" fill="rgba(76,29,149,0.1)" stroke="#a78bfa" stroke-width="0.8" stroke-opacity="0.4"/>
+      <text x="50" y="1165" fill="#a78bfa" font-size="10" font-weight="600" opacity="0.8">DATA LAYER</text>
+
+      <!-- PostgreSQL -->
+      <rect x="50" y="1175" width="220" height="60" rx="6" fill="#0f172a"/>
+      <rect x="50" y="1175" width="220" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="160" y="1198" fill="white" font-size="10" font-weight="600" text-anchor="middle">PostgreSQL</text>
+      <text x="160" y="1214" fill="#a78bfa" font-size="8" text-anchor="middle">+ pgvector HNSW</text>
+      <text x="160" y="1228" fill="#64748b" font-size="7" text-anchor="middle">业务数据 + 向量索引</text>
+
+      <!-- Neo4j -->
+      <rect x="290" y="1175" width="220" height="60" rx="6" fill="#0f172a"/>
+      <rect x="290" y="1175" width="220" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="400" y="1198" fill="white" font-size="10" font-weight="600" text-anchor="middle">Neo4j</text>
+      <text x="400" y="1214" fill="#a78bfa" font-size="8" text-anchor="middle">知识图谱</text>
+      <text x="400" y="1228" fill="#64748b" font-size="7" text-anchor="middle">实体 · 关系 · 多跳推理</text>
+
+      <!-- Redis -->
+      <rect x="530" y="1175" width="220" height="60" rx="6" fill="#0f172a"/>
+      <rect x="530" y="1175" width="220" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="640" y="1198" fill="white" font-size="10" font-weight="600" text-anchor="middle">Redis</text>
+      <text x="640" y="1214" fill="#a78bfa" font-size="8" text-anchor="middle">缓存 + BullMQ 队列</text>
+      <text x="640" y="1228" fill="#64748b" font-size="7" text-anchor="middle">会话 · 语义缓存 · 任务</text>
+
+      <!-- Python Data Service -->
+      <rect x="770" y="1175" width="280" height="60" rx="6" fill="#0f172a"/>
+      <rect x="770" y="1175" width="280" height="60" rx="6" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="910" y="1198" fill="white" font-size="10" font-weight="600" text-anchor="middle">Python 数据服务</text>
+      <text x="910" y="1214" fill="#a78bfa" font-size="8" text-anchor="middle">FastAPI + PgCache</text>
+      <text x="910" y="1228" fill="#64748b" font-size="7" text-anchor="middle">行情数据 · 财务数据 · 因子库</text>
+
+      <!-- ===== LEGEND ===== -->
+      <rect x="30" y="1273" width="1040" height="50" rx="8" fill="rgba(15,23,42,0.8)" stroke="#1e293b" stroke-width="1"/>
+
+      <!-- Frontend -->
+      <rect x="55" y="1290" width="14" height="14" rx="3" fill="rgba(8,51,68,0.4)" stroke="#22d3ee" stroke-width="1.2"/>
+      <text x="75" y="1301" fill="#94a3b8" font-size="9">Frontend</text>
+
+      <!-- Backend -->
+      <rect x="155" y="1290" width="14" height="14" rx="3" fill="rgba(6,78,59,0.4)" stroke="#34d399" stroke-width="1.2"/>
+      <text x="175" y="1301" fill="#94a3b8" font-size="9">Backend / Agent</text>
+
+      <!-- Microservice -->
+      <rect x="295" y="1290" width="14" height="14" rx="3" fill="rgba(120,53,15,0.3)" stroke="#fbbf24" stroke-width="1.2"/>
+      <text x="315" y="1301" fill="#94a3b8" font-size="9">Microservice</text>
+
+      <!-- Database -->
+      <rect x="420" y="1290" width="14" height="14" rx="3" fill="rgba(76,29,149,0.4)" stroke="#a78bfa" stroke-width="1.2"/>
+      <text x="440" y="1301" fill="#94a3b8" font-size="9">Database</text>
+
+      <!-- Stability -->
+      <rect x="530" y="1290" width="14" height="14" rx="3" fill="rgba(30,41,59,0.5)" stroke="#94a3b8" stroke-width="1.2"/>
+      <text x="550" y="1301" fill="#94a3b8" font-size="9">Stability</text>
+
+      <!-- Data flow -->
+      <line x1="640" y1="1297" x2="680" y2="1297" stroke="#475569" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+      <text x="690" y="1301" fill="#94a3b8" font-size="9">Data Flow</text>
+
+      <!-- Side connection -->
+      <line x1="780" y1="1297" x2="820" y2="1297" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrowhead-emerald)" opacity="0.5"/>
+      <text x="830" y="1301" fill="#94a3b8" font-size="9">Tool Calls</text>
+
+      <!-- Version -->
+      <text x="1055" y="1301" fill="#475569" font-size="7" text-anchor="end">v6.0</text>
+
+    </svg>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-grid">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot cyan"></div>
+        <h3>Agent &amp; RAG 核心</h3>
+      </div>
+      <ul>
+        <li>• <strong>4 专业 Agent</strong> — SimpleAgent / Researcher / Quant / Compliance</li>
+        <li>• <strong>ReAct 推理</strong> — 观察-思考-行动循环</li>
+        <li>• <strong>L1-L4 分层记忆</strong> — 工作→短期→长期→知识库</li>
+        <li>• <strong>混合检索</strong> — 向量 + BM25 + HyDE + GraphRAG</li>
+        <li>• <strong>21+ MCP 工具</strong> — 市场数据/量化/交易/风控/图谱</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot emerald"></div>
+        <h3>稳定性保障</h3>
+      </div>
+      <ul>
+        <li>• <strong>熔断器</strong> — CircuitBreaker 防止级联故障</li>
+        <li>• <strong>模型降级链</strong> — kimi-k2.6 → qwen3.5-plus → qwen3.6-plus</li>
+        <li>• <strong>LLM 语义缓存</strong> — 相似请求直接命中</li>
+        <li>• <strong>限流 + 健康检查</strong> — RateLimiter + /api/health</li>
+        <li>• <strong>向量索引降级</strong> — HNSW → 顺序扫描 Fallback</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot violet"></div>
+        <h3>微服务 &amp; 数据</h3>
+      </div>
+      <ul>
+        <li>• <strong>5 微服务</strong> — LLM/RAG/Data/Eval/Embedding</li>
+        <li>• <strong>ServiceAdapter</strong> — 统一路由 + 降级切换</li>
+        <li>• <strong>PostgreSQL + pgvector</strong> — HNSW 向量索引</li>
+        <li>• <strong>Neo4j</strong> — 知识图谱多跳推理</li>
+        <li>• <strong>Redis</strong> — 缓存 + BullMQ 异步任务队列</li>
+      </ul>
     </div>
   </div>
 
-  <!-- Docker 部署 -->
-  <div class="diagram-card">
-    <h3>Docker Compose 部署架构</h3>
-    <div class="mermaid">
-graph LR
-    subgraph Production["生产模式 (9 容器)"]
-        direction TB
-        P1["aiagent_postgres"]
-        P2["aiagent_redis"]
-        P3["aiagent_neo4j"]
-        P4["aiagent_embedding"]
-        P5["aiagent_reranker"]
-        P6["aiagent_rag_service"]
-        P7["aiagent_main_service"]
-        P8["aiagent_data_service"]
-        P9["aiagent_nginx"]
-    end
-
-    subgraph DevOnly["开发模式额外 (1 容器)"]
-        D1["aiagent_llm_gateway<br/>profiles: dev"]
-    end
-
-    subgraph Network["Docker Network: aiagent_net"]
-        N["容器间 DNS 解析<br/>rag-service:3001<br/>main-service:3000"]
-    end
-
-    subgraph Volumes["持久化数据卷"]
-        V1["postgres_data"]
-        V2["redis_data"]
-        V3["neo4j_data"]
-    end
-
-    subgraph Host["宿主机挂载"]
-        H1["D:/models/modelscope/<br/>bge-m3-GGUF"]
-        H2["D:/models/modelscope/<br/>bge-reranker-v2-m3-GGUF"]
-    end
-
-    P4 -.->|"模型文件"| H1
-    P5 -.->|"模型文件"| H2
-    P1 -.-> V1
-    P2 -.-> V2
-    P3 -.-> V3
-
-    style Production fill:#1a2744,stroke:#38bdf8,color:#e2e8f0
-    style DevOnly fill:#3b1764,stroke:#a78bfa,color:#e2e8f0
-    style Network fill:#1a2e1a,stroke:#4ade80,color:#e2e8f0
-    style Volumes fill:#2d1a3e,stroke:#c084fc,color:#e2e8f0
-    style Host fill:#3b1764,stroke:#f472b6,color:#e2e8f0
-    </div>
-  </div>
-
-  <!-- 部署模式切换 -->
-  <div class="diagram-card">
-    <h3>部署模式切换（非降级）</h3>
-    <div class="mermaid">
-flowchart TD
-    Start["API 请求到达 Main Service"] --> Check{"USE_MICROSERVICE<br/>== true?"}
-
-    Check -->|"true"| MicroService["微服务模式<br/>HTTP fetch → RAG Service :3001"]
-    Check -->|"false"| InProcess["单体模式<br/>进程内调用 hybridSearch()"]
-
-    MicroService --> Success{"响应成功?"}
-    Success -->|"是"| Return["返回结果"]
-    Success -->|"否"| Error["抛出错误<br/>由上层处理"]
-
-    InProcess --> Direct["直接调用<br/>hybridSearch()"]
-    Direct --> Return
-
-    style Check fill:#7c2d12,stroke:#fb923c,color:#fff
-    style MicroService fill:#1e40af,stroke:#60a5fa,color:#fff
-    style InProcess fill:#065f46,stroke:#34d399,color:#fff
-    style Error fill:#dc2626,stroke:#f87171,color:#fff
-    style Return fill:#15803d,stroke:#4ade80,color:#fff
-    </div>
-    <p style="color:#94a3b8;font-size:12px;margin-top:12px;">
-      注意：这不是降级机制，而是部署模式切换。服务失败时直接抛错，不做进程内降级（同一依赖链，挂了一样挂）。
-    </p>
-  </div>
-
-  <!-- LLM 模型降级链 -->
-  <div class="diagram-card">
-    <h3>LLM 模型降级链 + 熔断器</h3>
-    <div class="mermaid">
-flowchart LR
-    subgraph Models["模型降级链"]
-        M1["kimi-k2.6<br/>主力模型"]
-        M2["qwen3.5-plus<br/>第一备选"]
-        M3["qwen3.6-plus<br/>第二备选"]
-    end
-
-    subgraph CB["熔断器 (Circuit Breaker)"]
-        Closed["Closed<br/>正常调用"]
-        Open["Open<br/>拒绝请求"]
-    end
-
-    M1 -->|"304 额度耗尽<br/>429 限流<br/>503 不可用"| CB
-    CB -->|"forceOpen"| Open
-    Open -->|"30s 冷却"| Closed
-    Closed -->|"尝试下一模型"| M2
-    M2 -->|"失败"| M3
-
-    subgraph Excluded["已耗尽模型(不参与调度)"]
-        EX["记录在熔断器中<br/>不再尝试"]
-    end
-
-    Open -.->|"永久标记"| EX
-
-    style M1 fill:#1e40af,stroke:#60a5fa,color:#fff
-    style M2 fill:#065f46,stroke:#34d399,color:#fff
-    style M3 fill:#4a1d6e,stroke:#c084fc,color:#fff
-    style CB fill:#7c2d12,stroke:#fb923c,color:#fff
-    style Closed fill:#15803d,stroke:#4ade80,color:#fff
-    style Open fill:#dc2626,stroke:#f87171,color:#fff
-    style Excluded fill:#1a1a1a,stroke:#64748b,color:#94a3b8
-    </div>
-    <p style="color:#94a3b8;font-size:12px;margin-top:12px;">
-      304 额度耗尽 → 熔断器 forceOpen → 模型永久排除调度 → 自动切换下一模型。<br/>
-      429/503 → 熔断器临时打开 → 30s 冷却后自动恢复。
-    </p>
-  </div>
-
-  <!-- 降级逻辑总览 -->
-  <div class="diagram-card">
-    <h3>系统降级逻辑总览</h3>
-    <div class="mermaid">
-graph TD
-    subgraph Valid["✅ 有意义的降级"]
-        V1["LLM 模型降级链<br/>qwen-max → plus → turbo"]
-        V2["熔断器模式<br/>防止持续请求已失败模型"]
-        V3["429/503 重试<br/>临时限流可恢复"]
-        V4["向量索引 → 顺序扫描<br/>索引损坏时仍可工作"]
-        V5["RouterFacade 初始化失败<br/>降级到传统路由"]
-        V6["Skill 错误恢复策略<br/>retry/fallback/abort"]
-        V7["Vision PaddleOCR → Vision模型<br/>双引擎降级"]
-    end
-
-    subgraph Removed["❌ 已移除的无意义降级"]
-        R1["searchRAG 微服务→进程内<br/>同一依赖链，挂了一样挂"]
-        R2["fallbackToInProcess 返回空<br/>静默失败掩盖错误"]
-        R3["VisionFallbackClient 开关<br/>fallbackEnabled=false直接失败"]
-    end
-
-    style Valid fill:#1a2e1a,stroke:#4ade80,color:#e2e8f0
-    style Removed fill:#2d1a1a,stroke:#f87171,color:#e2e8f0
-    style V1 fill:#15803d,stroke:#4ade80,color:#fff
-    style V2 fill:#15803d,stroke:#4ade80,color:#fff
-    style V3 fill:#15803d,stroke:#4ade80,color:#fff
-    style V4 fill:#15803d,stroke:#4ade80,color:#fff
-    style V5 fill:#15803d,stroke:#4ade80,color:#fff
-    style V6 fill:#15803d,stroke:#4ade80,color:#fff
-    style V7 fill:#15803d,stroke:#4ade80,color:#fff
-    style R1 fill:#7f1d1d,stroke:#f87171,color:#94a3b8
-    style R2 fill:#7f1d1d,stroke:#f87171,color:#94a3b8
-    style R3 fill:#7f1d1d,stroke:#f87171,color:#94a3b8
-    </div>
-  </div>
-
-  <div class="meta">
-    生成时间: 2026-06-04 | 项目: 金融行业 AI Agent 全栈平台 | 阶段: Phase 6 微服务架构升级<br/>
-    架构方案: 2 服务 (Main + RAG) + LLM Gateway (Dev Only) | 测试结果: 181/189 通过 (8 skip)
+  <div class="footer">
+    金融行业智能体平台 · AI Agent Platform &nbsp;|&nbsp; Phase 6 微服务架构 &nbsp;|&nbsp; Generated 2026-06-11
   </div>
 </div>
 
 <script>
-mermaid.initialize({
-  startOnLoad: true,
-  theme: 'dark',
-  themeVariables: {
-    primaryColor: '#1e40af',
-    primaryTextColor: '#e2e8f0',
-    primaryBorderColor: '#60a5fa',
-    lineColor: '#64748b',
-    secondaryColor: '#1e293b',
-    tertiaryColor: '#0f172a',
-    fontFamily: 'Microsoft YaHei, sans-serif',
-    fontSize: '13px'
-  },
-  flowchart: { htmlLabels: true, curve: 'basis', padding: 16 },
-  sequence: { actorMargin: 80, messageMargin: 40 }
-});
+function toggleToolbar() {
+  const actions = document.getElementById('toolbarActions');
+  actions.classList.toggle('visible');
+}
+
+async function captureDiagram() {
+  const container = document.getElementById('report-container');
+  const rect = container.getBoundingClientRect();
+  const padding = 32;
+  const canvas = await html2canvas(document.body, {
+    x: rect.left - padding,
+    y: rect.top - padding,
+    width: rect.width + padding * 2,
+    height: rect.height + padding * 2,
+    scale: 2,
+    backgroundColor: '#020617',
+    ignoreElements: (el) => el.classList && el.classList.contains('toolbar'),
+    useCORS: true
+  });
+  return canvas;
+}
+
+async function copyAsImage() {
+  try {
+    const canvas = await captureDiagram();
+    canvas.toBlob(async (blob) => {
+      try {
+        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+        alert('Copied to clipboard!');
+      } catch (e) {
+        console.error('Clipboard error:', e);
+        alert('Clipboard API requires HTTPS or localhost.');
+      }
+    }, 'image/png');
+  } catch (e) {
+    console.error('Capture error:', e);
+  }
+}
+
+async function downloadPNG() {
+  try {
+    const canvas = await captureDiagram();
+    const link = document.createElement('a');
+    link.download = 'architecture-diagram.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (e) {
+    console.error('PNG export error:', e);
+  }
+}
+
+async function downloadPDF() {
+  try {
+    const canvas = await captureDiagram();
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const imgWidth = canvas.width;
+    const imgHeight = canvas.height;
+    const pdfWidth = 297;
+    const pdfHeight = (imgHeight * pdfWidth) / imgWidth;
+    const pdf = new jsPDF({ orientation: pdfHeight > pdfWidth ? 'p' : 'l', unit: 'mm', format: [pdfWidth, pdfHeight] });
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('architecture-diagram.pdf');
+  } catch (e) {
+    console.error('PDF export error:', e);
+  }
+}
 </script>
 </body>
 </html>

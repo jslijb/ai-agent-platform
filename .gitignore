@@ -89,6 +89,7 @@ Desktop.ini
 # Test output files
 vitest_out.txt
 test.txt
+vitest-result.json
 
 # Reports (generated, but kept in git for tracking)
 # tests/reports/ is tracked in git

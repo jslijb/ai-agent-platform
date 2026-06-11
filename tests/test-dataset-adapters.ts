@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const TEST_DATA_DIR = path.resolve(__dirname, "..", "test-dataset-data");
+const TEST_DATA_DIR = path.resolve(__dirname, "datasets");
 
 function setupTestData() {
   if (!fs.existsSync(TEST_DATA_DIR)) {
