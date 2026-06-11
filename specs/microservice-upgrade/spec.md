@@ -18,7 +18,6 @@
 - 新增 Nginx API Gateway 路由规则
 - 新增 traceId 分布式追踪
 - 新增服务健康检查与优雅降级
-- 新增降级开关（`USE_MICROSERVICE=false` 可回退到进程内调用）
 - 保持数据库共享（PostgreSQL 不拆分）
 - 保持前端 SSR 在主服务中（不拆分）
 
@@ -207,21 +206,6 @@ Nginx SHALL 作为 API Gateway 统一路由外部请求：
 - **WHEN** 评估服务写入 evaluation_versions 记录
 - **THEN** 主服务可以立即查询到该记录
 - **AND** 无需分布式事务（同一数据库，单事务保证）
-
-### Requirement: 降级开关
-
-系统 SHALL 提供降级开关，允许回退到进程内调用模式：
-
-1. 环境变量 `USE_MICROSERVICE` 控制调用方式
-2. `USE_MICROSERVICE=true`（默认）：通过 Client SDK 跨服务调用
-3. `USE_MICROSERVICE=false`：回退到进程内直接调用（等同于升级前）
-4. 切换只需重启主服务，其他服务不受影响
-
-#### Scenario: 紧急回退
-- **WHEN** 微服务架构出现未知问题
-- **THEN** 设置 `USE_MICROSERVICE=false` 并重启主服务
-- **AND** 系统回退到进程内调用模式，所有功能正常
-- **AND** 不需要停止 RAG/LLM/评估服务
 
 ---
 
