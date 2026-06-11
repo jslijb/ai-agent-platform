@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "text": "央行宣布下调MLF利率10个基点",
+    "label": "monetary_policy",
+    "task_type": "classification"
+  },
+  {
+    "id": 2,
+    "text": "今日A股市场大涨，投资者情绪高涨",
+    "label": "positive",
+    "task_type": "sentiment"
+  },
+  {
+    "id": 3,
+    "text": "张三是某公司的董事长，该公司与李四控制的企业存在关联交易",
+    "label": "company_news",
+    "task_type": "relation_extraction"
+  }
+]

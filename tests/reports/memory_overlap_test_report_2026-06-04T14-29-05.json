@@ -1,0 +1,223 @@
+{
+  "test_time": "2026-06-04T14:29:05.213Z",
+  "total": 43,
+  "passed": 43,
+  "failed": 0,
+  "results": [
+    {
+      "name": "L4画像包含白酒偏好",
+      "pass": true,
+      "detail": "[用户画像]\n- 关注板块：白酒\n- 风险偏好：稳健型\n- 投资风格：价值投资\n- 常用股票：五粮液(000858,查询12次)、贵州茅台(600519,查询8次)"
+    },
+    {
+      "name": "L4画像包含五粮液",
+      "pass": true,
+      "detail": "[用户画像]\n- 关注板块：白酒\n- 风险偏好：稳健型\n- 投资风格：价值投资\n- 常用股票：五粮液(000858,查询12次)、贵州茅台(600519,查询8次)"
+    },
+    {
+      "name": "L4画像包含贵州茅台",
+      "pass": true,
+      "detail": "[用户画像]\n- 关注板块：白酒\n- 风险偏好：稳健型\n- 投资风格：价值投资\n- 常用股票：五粮液(000858,查询12次)、贵州茅台(600519,查询8次)"
+    },
+    {
+      "name": "L1短期上下文包含板块关键词",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4+L1组合: 同时包含白酒偏好和板块上下文",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含科技偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含海康威视",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含激进风险偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含成长投资风格",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L3历史片段包含ROE下降结论",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L1短期上下文引用上次分析",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L3+L1组合: 同时包含历史ROE数据和当前趋势查询",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含价值投资偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含保守风险偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L3历史片段包含五粮液分析",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L3历史片段包含PE数据",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4+L3组合: 同时包含价值投资偏好和五粮液分析",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含白酒偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含价值投资风格",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含五粮液常用股",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像包含止损线注意事项",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L3历史片段包含五粮液分析",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L2摘要包含白酒关键词",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L1短期上下文引用偏好和上次分析",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "三层重合: 包含L4偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "三层重合: 包含L3历史数据",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "三层重合: 包含L1当前查询",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "修正前画像包含白酒",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "修正后画像包含科技",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "修正后画像包含科技股",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "修正前后画像不同",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "32K: 四层预算总和不超过inputBudget",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "128K: 四层预算总和不超过inputBudget",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "1M: 四层预算总和不超过inputBudget",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "32K: 所有层预算>0",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "128K L1预算 > 32K L1预算",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "1M L1预算 > 128K L1预算",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L1消息数量=3",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L2摘要非空",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L3历史片段非空",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "L4画像非空",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "预算结构完整",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "四层记忆全部有数据（重合场景）",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

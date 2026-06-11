@@ -1,0 +1,153 @@
+{
+  "test_time": "2026-06-04T14:27:24.730Z",
+  "total": 29,
+  "passed": 29,
+  "failed": 0,
+  "results": [
+    {
+      "name": "inputBudget = 75% of 32768",
+      "pass": true,
+      "detail": "24576"
+    },
+    {
+      "name": "L1预算 > 0",
+      "pass": true,
+      "detail": "6922"
+    },
+    {
+      "name": "L2预算 > 0",
+      "pass": true,
+      "detail": "5769"
+    },
+    {
+      "name": "L3预算 > 0",
+      "pass": true,
+      "detail": "5769"
+    },
+    {
+      "name": "L4预算 > 0",
+      "pass": true,
+      "detail": "2307"
+    },
+    {
+      "name": "Buffer预算 > 0",
+      "pass": true,
+      "detail": "2307"
+    },
+    {
+      "name": "总预算不超过inputBudget+overhead",
+      "pass": true,
+      "detail": "total: 24574, inputBudget: 24576"
+    },
+    {
+      "name": "inputBudget = 75% of 131072",
+      "pass": true,
+      "detail": "98304"
+    },
+    {
+      "name": "L1预算 > L4预算(32K模型)",
+      "pass": true,
+      "detail": "29041 vs 9680"
+    },
+    {
+      "name": "总分配不超过inputBudget-overhead",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "1M模型inputBudget > 700K",
+      "pass": true,
+      "detail": "786432"
+    },
+    {
+      "name": "1M模型L1预算 > 200K",
+      "pass": true,
+      "detail": "235479"
+    },
+    {
+      "name": "L1比例约30%",
+      "pass": true,
+      "detail": "30.0%"
+    },
+    {
+      "name": "L2比例约25%",
+      "pass": true,
+      "detail": "25.0%"
+    },
+    {
+      "name": "L3比例约25%",
+      "pass": true,
+      "detail": "25.0%"
+    },
+    {
+      "name": "L4比例约10%",
+      "pass": true,
+      "detail": "10.0%"
+    },
+    {
+      "name": "Buffer比例约10%",
+      "pass": true,
+      "detail": "10.0%"
+    },
+    {
+      "name": "空画像返回空字符串",
+      "pass": true,
+      "detail": "结果: \"\""
+    },
+    {
+      "name": "包含画像标题",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含关注板块",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含风险偏好(中文映射)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含投资风格(中文映射)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含常用股票",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含常用股票2",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含注意事项",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含风险偏好",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "无投资风格时不显示",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "包含常用股票",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "最多显示5只股票",
+      "pass": true,
+      "detail": "显示5只"
+    }
+  ]
+}

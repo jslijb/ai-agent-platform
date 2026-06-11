@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "conversation": [
+      {
+        "question": "What is the revenue for 2023?",
+        "answer": "1505.6 billion"
+      },
+      {
+        "question": "What about the net profit?",
+        "answer": "747.3 billion"
+      }
+    ],
+    "category": "multi_turn_reasoning"
+  },
+  {
+    "id": 2,
+    "conversation": [
+      {
+        "question": "What was the total assets in 2022?",
+        "answer": "2000 billion"
+      },
+      {
+        "question": "How much did it increase in 2023?",
+        "answer": "150 billion"
+      },
+      {
+        "question": "What is the growth rate?",
+        "answer": "7.5%"
+      }
+    ]
+  }
+]

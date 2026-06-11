@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "question": "What is the gross margin for 2023?",
+    "table": [
+      [
+        "Year",
+        "Revenue",
+        "COGS"
+      ],
+      [
+        "2023",
+        "1505.6",
+        "1265.9"
+      ]
+    ],
+    "answer": "15.92%",
+    "steps": [
+      "Gross margin = (Revenue - COGS) / Revenue",
+      "(1505.6 - 1265.9) / 1505.6 = 15.92%"
+    ]
+  },
+  {
+    "id": 2,
+    "question": "What is the net profit for 2023?",
+    "table": [
+      [
+        "Year",
+        "Revenue",
+        "Expenses"
+      ],
+      [
+        "2023",
+        "1505.6",
+        "758.3"
+      ]
+    ],
+    "answer": "747.3",
+    "steps": [
+      "Net profit = Revenue - Expenses",
+      "1505.6 - 758.3 = 747.3"
+    ]
+  }
+]
