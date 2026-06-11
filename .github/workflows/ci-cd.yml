@@ -48,6 +48,8 @@ jobs:
         run: npm config set registry https://registry.npmmirror.com
 
       - run: npm install
+      - name: Prepare config for tests
+        run: test -f config/api_keys.yaml || cp config/api_keys.yaml.example config/api_keys.yaml
       - name: Run Unit Tests
         run: npm run test:ci
 

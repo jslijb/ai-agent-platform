@@ -84,9 +84,16 @@ describe("U11: 服务适配器 ServiceAdapter", () => {
     it("U11.5: USE_MICROSERVICE=false → 直接进程内调用", async () => {
       process.env.USE_MICROSERVICE = "false";
 
+      // Mock hybridSearch 避免真实服务调用（CI 中无 embedding/DB 服务）
+      vi.doMock("@/server/rag/retrieval/hybrid-retriever", () => ({
+        hybridSearch: vi.fn().mockResolvedValue([
+          { id: "1", chunkText: "五粮液2025年营收1324亿元", score: 0.95 },
+        ]),
+      }));
+
       vi.resetModules();
       const { searchRAG } = await import("@/server/lib/service-adapter");
-      
+
       const result = await searchRAG("五粮液", 10);
       expect(result.success).toBe(true);
       expect(Array.isArray(result.results)).toBe(true);
