@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { runAgent } from "@/server/agents/simpleAgent";
 import { checkRateLimit } from "@/server/lib/rate-limiter";
 import { auth } from "@/lib/auth";
+import { formatErrorResponse, getUserMessage } from "@/server/lib/user-errors";
 
 export const maxDuration = 300;
 
@@ -14,9 +15,8 @@ export async function POST(request: Request) {
     const { query, maxIterations, conversationId, userId: bodyUserId, model } = body;
 
     if (!query || typeof query !== "string") {
-      console.error("[agent/run] 缺少 query 参数或类型错误");
       return NextResponse.json(
-        { success: false, answer: "", error: "缺少 query 参数或类型错误" },
+        { success: false, answer: "", error: getUserMessage("INVALID_REQUEST") },
         { status: 400 }
       );
     }
@@ -24,7 +24,6 @@ export async function POST(request: Request) {
     const clientId = request.headers.get("x-forwarded-for") || "unknown";
     const rateLimitResult = checkRateLimit(clientId);
     if (!rateLimitResult.allowed) {
-      console.warn(`[agent/run] 请求被限流: ${clientId}`);
       return NextResponse.json(
         { success: false, answer: "", error: `请求过于频繁，请 ${Math.ceil(rateLimitResult.resetIn / 1000)} 秒后重试` },
         { status: 429 }
@@ -54,9 +53,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[agent/run] Agent 执行异常: ${message}`);
-    return NextResponse.json(
-      { success: false, answer: "", error: message, iterations: 0 },
-      { status: 500 }
-    );
+    const errorResponse = formatErrorResponse(error);
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }

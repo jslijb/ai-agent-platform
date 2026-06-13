@@ -58,7 +58,7 @@ describe("U11: 服务适配器 ServiceAdapter", () => {
       }) as any;
 
       const { searchRAG } = await import("@/server/lib/service-adapter");
-      await expect(searchRAG("xyz不存在的查询", 5)).rejects.toThrow("RAG service business error");
+      await expect(searchRAG("xyz不存在的查询", 5)).rejects.toThrow("RAG_SEARCH_FAILED");
     });
 
     it("U11.3: 微服务 HTTP 500 → 抛出错误", async () => {
@@ -69,7 +69,7 @@ describe("U11: 服务适配器 ServiceAdapter", () => {
       }) as any;
 
       const { searchRAG } = await import("@/server/lib/service-adapter");
-      await expect(searchRAG("格力电器")).rejects.toThrow("RAG service returned 500");
+      await expect(searchRAG("格力电器")).rejects.toThrow("RAG_SERVICE_UNAVAILABLE");
     });
 
     it("U11.4: 微服务超时/不可达 → 抛出错误", async () => {
@@ -78,7 +78,7 @@ describe("U11: 服务适配器 ServiceAdapter", () => {
       ) as any;
 
       const { searchRAG } = await import("@/server/lib/service-adapter");
-      await expect(searchRAG("五粮液")).rejects.toThrow("ECONNREFUSED");
+      await expect(searchRAG("五粮液")).rejects.toThrow("RAG_SERVICE_UNAVAILABLE");
     });
 
     it("U11.5: USE_MICROSERVICE=false → 直接进程内调用", async () => {

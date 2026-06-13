@@ -46,23 +46,31 @@ export async function searchRAG(query: string, topK?: number, traceId?: string) 
     logger.info('通过 RAG 微服务检索', { query: query.slice(0, 50), topK }, traceId);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (traceId) headers['X-Trace-Id'] = traceId;
-    const res = await fetch(`${RAG_SERVICE_URL}/api/retrieve`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ query, topK }),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(30000),
-    });
-    if (!res.ok) {
-      logger.error('RAG 微服务检索失败', { status: res.status }, traceId);
-      throw new Error(`RAG service returned ${res.status}`);
+    try {
+      const res = await fetch(`${RAG_SERVICE_URL}/api/retrieve`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ query, topK }),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(30000),
+      });
+      if (!res.ok) {
+        logger.error('RAG 微服务检索失败', { status: res.status }, traceId);
+        throw new Error('RAG_SERVICE_UNAVAILABLE');
+      }
+      const data = await res.json();
+      if (!data.success) {
+        logger.error('RAG 微服务返回业务失败', { error: data.error }, traceId);
+        throw new Error('RAG_SEARCH_FAILED');
+      }
+      return data;
+    } catch (err) {
+      if (err instanceof Error && err.message === 'RAG_SERVICE_UNAVAILABLE') throw err;
+      if (err instanceof Error && err.message === 'RAG_SEARCH_FAILED') throw err;
+      // 网络超时/连接拒绝等
+      logger.error('RAG 微服务连接异常', { error: err instanceof Error ? err.message : String(err) }, traceId);
+      throw new Error('RAG_SERVICE_UNAVAILABLE');
     }
-    const data = await res.json();
-    if (!data.success) {
-      logger.error('RAG 微服务返回业务失败', { error: data.error }, traceId);
-      throw new Error(`RAG service business error: ${data.error || 'unknown'}`);
-    }
-    return data;
   }
 
   logger.info('通过进程内调用检索（单体模式）', { query: query.slice(0, 50), topK }, traceId);
@@ -87,23 +95,32 @@ export async function callLLM(
     logger.info('通过 LLM Gateway 调用', { messageCount: messages.length }, traceId);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (traceId) headers['X-Trace-Id'] = traceId;
-    const res = await fetch(`${LLM_GATEWAY_URL}/api/llm/chat`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ messages, options }),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(120000),
-    });
-    if (!res.ok) {
-      logger.error('LLM Gateway 调用失败', { status: res.status }, traceId);
-      throw new Error(`LLM Gateway returned ${res.status}`);
+    try {
+      const res = await fetch(`${LLM_GATEWAY_URL}/api/llm/chat`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ messages, options }),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(120000),
+      });
+      if (!res.ok) {
+        logger.error('LLM Gateway 调用失败', { status: res.status }, traceId);
+        if (res.status === 429) throw new Error('LLM_RATE_LIMITED');
+        throw new Error('LLM_SERVICE_UNAVAILABLE');
+      }
+      const data = await res.json();
+      if (data.content === null && data.error) {
+        logger.error('LLM Gateway 返回业务失败', { error: data.error }, traceId);
+        throw new Error('LLM_CALL_FAILED');
+      }
+      return data;
+    } catch (err) {
+      if (err instanceof Error && [
+        'LLM_SERVICE_UNAVAILABLE', 'LLM_CALL_FAILED', 'LLM_RATE_LIMITED'
+      ].includes(err.message)) throw err;
+      logger.error('LLM Gateway 连接异常', { error: err instanceof Error ? err.message : String(err) }, traceId);
+      throw new Error('LLM_SERVICE_UNAVAILABLE');
     }
-    const data = await res.json();
-    if (data.content === null && data.error) {
-      logger.error('LLM Gateway 返回业务失败', { error: data.error }, traceId);
-      throw new Error(`LLM Gateway business error: ${data.error}`);
-    }
-    return data;
   }
 
   logger.info('通过进程内调用 LLM（单体模式）', { messageCount: messages.length }, traceId);
@@ -139,20 +156,26 @@ export async function pushEvaluationTask(
     logger.info('通过 RAG 微服务推送评估任务', { level, milestone }, traceId);
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (traceId) headers['X-Trace-Id'] = traceId;
-    const res = await fetch(`${EVALUATION_SERVICE_URL}/api/evaluation/run`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ level, milestone, datasets, maxSamples }),
-      cache: 'no-store',
-      signal: AbortSignal.timeout(10000),
-    });
-    if (!res.ok) {
-      logger.error('评估任务推送失败', { status: res.status }, traceId);
-      throw new Error(`Evaluation service returned ${res.status}`);
+    try {
+      const res = await fetch(`${EVALUATION_SERVICE_URL}/api/evaluation/run`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ level, milestone, datasets, maxSamples }),
+        cache: 'no-store',
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) {
+        logger.error('评估任务推送失败', { status: res.status }, traceId);
+        throw new Error('EVALUATION_SERVICE_UNAVAILABLE');
+      }
+      const data = await res.json();
+      logger.info('评估任务推送成功', { taskId: data.taskId, level }, traceId);
+      return { taskId: data.taskId, status: data.status };
+    } catch (err) {
+      if (err instanceof Error && err.message === 'EVALUATION_SERVICE_UNAVAILABLE') throw err;
+      logger.error('评估服务连接异常', { error: err instanceof Error ? err.message : String(err) }, traceId);
+      throw new Error('EVALUATION_SERVICE_UNAVAILABLE');
     }
-    const data = await res.json();
-    logger.info('评估任务推送成功', { taskId: data.taskId, level }, traceId);
-    return { taskId: data.taskId, status: data.status };
   }
 
   logger.info('通过进程内调用评估（单体模式）', { level, milestone }, traceId);

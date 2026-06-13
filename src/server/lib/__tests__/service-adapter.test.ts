@@ -106,6 +106,6 @@ describe('service-adapter', () => {
     globalThis.fetch = mockFetch;
 
     const { searchRAG } = await import('../service-adapter');
-    await expect(searchRAG('降级测试', 5, 'trace-5')).rejects.toThrow('RAG service business error');
+    await expect(searchRAG('降级测试', 5, 'trace-5')).rejects.toThrow('RAG_SEARCH_FAILED');
   });
 });

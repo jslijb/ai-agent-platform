@@ -1,6 +1,8 @@
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
+import { decryptApiKey, isEncrypted } from "@/server/lib/crypto";
+import { maskApiKey } from "@/server/lib/data-mask";
 
 let cachedConfig: Record<string, any> | null = null;
 let cachedRawConfig: Record<string, any> | null = null;
@@ -24,6 +26,31 @@ function findProjectRoot(): string {
   }
   // 回退到 process.cwd()
   return process.cwd();
+}
+
+/** 递归解密配置中的 enc: 值 */
+function decryptConfigValues(obj: any): any {
+  if (typeof obj === "string") {
+    if (isEncrypted(obj)) {
+      const decrypted = decryptApiKey(obj);
+      if (!decrypted) {
+        console.warn(`[config] 解密失败，值已被脱敏: ${maskApiKey(obj)}`);
+      }
+      return decrypted || obj;
+    }
+    return obj;
+  }
+  if (typeof obj !== "object" || obj === null) {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(decryptConfigValues);
+  }
+  const result: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    result[key] = decryptConfigValues(value);
+  }
+  return result;
 }
 
 function resolveEnvVars(obj: any): any {
@@ -61,9 +88,11 @@ export function loadConfig(): Record<string, any> {
 
   const raw = fs.readFileSync(configPath, "utf-8");
   const parsed = yaml.load(raw) as Record<string, any>;
-  cachedConfig = resolveEnvVars(parsed);
+  const resolved = resolveEnvVars(parsed);
+  // 解密 enc: 前缀的值
+  cachedConfig = decryptConfigValues(resolved);
 
-  console.log("[config] 配置加载完成");
+  console.log("[config] 配置加载完成（含解密）");
   return cachedConfig!;
 }
 

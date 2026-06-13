@@ -1,0 +1,41 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # 主服务 metrics
+  - job_name: "main-service"
+    metrics_path: "/api/metrics"
+    static_configs:
+      - targets: ["host.docker.internal:3000"]
+        labels:
+          service: "main"
+
+  # RAG 服务 health
+  - job_name: "rag-service"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["host.docker.internal:3001"]
+        labels:
+          service: "rag"
+
+  # LLM Gateway health
+  - job_name: "llm-gateway"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["host.docker.internal:3002"]
+        labels:
+          service: "llm-gateway"
+
+  # 评估服务 health
+  - job_name: "evaluation-service"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["host.docker.internal:3003"]
+        labels:
+          service: "evaluation"
+
+  # Prometheus 自身
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
