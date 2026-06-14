@@ -13,6 +13,7 @@ const nextConfig = {
   },
   experimental: {
     optimisticClientCache: true,
+    instrumentationHook: true,
   },
 };
 
