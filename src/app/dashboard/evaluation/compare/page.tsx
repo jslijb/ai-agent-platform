@@ -2,16 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
 
 interface VersionItem {
   id: number;
@@ -38,6 +28,262 @@ interface MetricComparison {
   metricLabel: string;
   values: MetricComparisonValue[];
 }
+
+/* ─── Metric Thresholds for Color Coding ─── */
+
+const METRIC_THRESHOLDS: Record<string, { excellent: number; passing: number; invert?: boolean }> = {
+  overallScore: { excellent: 0.80, passing: 0.60 },
+  avgHitsAtK: { excellent: 0.80, passing: 0.60 },
+  avgContextRelevance: { excellent: 0.75, passing: 0.55 },
+  avgContextRecall: { excellent: 0.80, passing: 0.60 },
+  avgFaithfulness: { excellent: 0.85, passing: 0.65 },
+  avgAnswerRelevance: { excellent: 0.80, passing: 0.60 },
+  avgNumericalAccuracy: { excellent: 0.85, passing: 0.70 },
+  avgComplianceScore: { excellent: 0.90, passing: 0.80 },
+  avgHallucinationRate: { excellent: 0.10, passing: 0.20, invert: true },
+  avgRiskDisclosureScore: { excellent: 0.80, passing: 0.60 },
+  avgTimelinessScore: { excellent: 0.70, passing: 0.50 },
+  avgToolSelectionScore: { excellent: 0.80, passing: 0.60 },
+  avgPlanningScore: { excellent: 0.75, passing: 0.55 },
+  avgAgentComplianceScore: { excellent: 0.90, passing: 0.80 },
+  avgConsistencyScore: { excellent: 0.80, passing: 0.60 },
+  avgEfficiencyScore: { excellent: 0.70, passing: 0.50 },
+};
+
+function getCellColor(metricName: string, value: number | null): string {
+  if (value === null) return "bg-gray-50 text-gray-400";
+  const threshold = METRIC_THRESHOLDS[metricName];
+  if (!threshold) return "";
+  const { excellent, passing, invert } = threshold;
+  if (invert) {
+    if (value <= excellent) return "bg-green-50 text-green-700";
+    if (value <= passing) return "bg-yellow-50 text-yellow-700";
+    return "bg-red-50 text-red-700";
+  }
+  if (value >= excellent) return "bg-green-50 text-green-700";
+  if (value >= passing) return "bg-yellow-50 text-yellow-700";
+  return "bg-red-50 text-red-700";
+}
+
+/* ─── SVG Line Chart ─── */
+
+function SvgLineChart({
+  data,
+  metrics,
+}: {
+  data: Array<Record<string, number | string | null>>;
+  metrics: Array<{ key: string; label: string; color: string }>;
+}) {
+  const width = 700;
+  const height = 320;
+  const padding = { top: 20, right: 30, bottom: 40, left: 55 };
+  const chartW = width - padding.left - padding.right;
+  const chartH = height - padding.top - padding.bottom;
+
+  if (data.length === 0) {
+    return <div className="text-center py-8 text-gray-400">暂无数据</div>;
+  }
+
+  const xLabels = data.map((d) => d.name as string);
+  const xStep = data.length > 1 ? chartW / (data.length - 1) : chartW;
+
+  const toX = (i: number) => padding.left + (data.length > 1 ? i * xStep : chartW / 2);
+  const toY = (v: number) => padding.top + chartH - (v / 100) * chartH;
+
+  return (
+    <svg viewBox={`0 0 ${width} ${height}`} className="w-full">
+      {/* Grid lines */}
+      {[0, 20, 40, 60, 80, 100].map((v) => (
+        <g key={`grid-${v}`}>
+          <line
+            x1={padding.left}
+            y1={toY(v)}
+            x2={width - padding.right}
+            y2={toY(v)}
+            stroke="#e5e7eb"
+            strokeWidth="1"
+          />
+          <text
+            x={padding.left - 8}
+            y={toY(v)}
+            textAnchor="end"
+            dominantBaseline="middle"
+            fontSize="10"
+            fill="#9ca3af"
+          >
+            {v}%
+          </text>
+        </g>
+      ))}
+
+      {/* X-axis labels */}
+      {xLabels.map((label, i) => (
+        <text
+          key={`x-${i}`}
+          x={toX(i)}
+          y={height - padding.bottom + 20}
+          textAnchor="middle"
+          fontSize="11"
+          fill="#6b7280"
+        >
+          {label}
+        </text>
+      ))}
+
+      {/* Lines */}
+      {metrics.map((metric) => {
+        const points = data
+          .map((d, i) => {
+            const val = d[metric.key];
+            if (val === null || val === undefined) return null;
+            return { x: toX(i), y: toY(val as number) };
+          })
+          .filter(Boolean) as Array<{ x: number; y: number }>;
+
+        if (points.length === 0) return null;
+
+        const pathD = points
+          .map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`))
+          .join(" ");
+
+        return (
+          <g key={metric.key}>
+            <path d={pathD} fill="none" stroke={metric.color} strokeWidth="2" />
+            {points.map((p, i) => (
+              <circle key={i} cx={p.x} cy={p.y} r="4" fill={metric.color} />
+            ))}
+          </g>
+        );
+      })}
+
+      {/* Legend */}
+      {metrics.map((metric, i) => (
+        <g key={`legend-${metric.key}`}>
+          <rect
+            x={padding.left + i * 120}
+            y={height - 14}
+            width="12"
+            height="12"
+            fill={metric.color}
+            rx="2"
+          />
+          <text
+            x={padding.left + i * 120 + 16}
+            y={height - 4}
+            fontSize="10"
+            fill="#374151"
+          >
+            {metric.label}
+          </text>
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+/* ─── Optimization Timeline ─── */
+
+function OptimizationTimeline({
+  versions,
+  comparisons,
+}: {
+  versions: VersionItem[];
+  comparisons: MetricComparison[];
+}) {
+  const sortedVersions = [...versions].sort((a, b) => a.version - b.version);
+
+  if (sortedVersions.length === 0) {
+    return <div className="text-center py-8 text-gray-400">暂无版本数据</div>;
+  }
+
+  return (
+    <div className="relative">
+      {/* Vertical line */}
+      <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-200" />
+
+      {sortedVersions.map((v, idx) => {
+        const compValues: Array<{ label: string; value: number | null; delta: number | null; trend: string | null }> = [];
+        comparisons.forEach((comp) => {
+          const val = comp.values.find((cv) => cv.versionId === v.id);
+          if (val) {
+            compValues.push({
+              label: comp.metricLabel,
+              value: val.value,
+              delta: val.delta,
+              trend: val.trend,
+            });
+          }
+        });
+
+        const keyChanges = compValues
+          .filter((c) => c.delta !== null && Math.abs(c.delta!) >= 0.03)
+          .slice(0, 3);
+
+        return (
+          <div key={v.id} className="relative pl-16 pb-8 last:pb-0">
+            {/* Dot on timeline */}
+            <div className={`absolute left-4 top-1 w-5 h-5 rounded-full border-2 ${
+              idx === sortedVersions.length - 1
+                ? "bg-blue-500 border-blue-500"
+                : "bg-white border-gray-300"
+            }`} />
+
+            {/* Content */}
+            <div className="bg-white border border-gray-200 rounded-lg p-4">
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-sm font-bold text-gray-800">v{v.version}</span>
+                <span className="text-xs text-gray-400">
+                  {new Date(v.timestamp).toLocaleString("zh-CN")}
+                </span>
+                {v.milestone && (
+                  <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">
+                    {v.milestone}
+                  </span>
+                )}
+                <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
+                  {v.evaluationLevel}
+                </span>
+              </div>
+
+              {v.milestone ? (
+                <p className="text-sm text-gray-600 mb-2">{v.milestone}</p>
+              ) : (
+                <p className="text-sm text-gray-400 mb-2">常规评估</p>
+              )}
+
+              {keyChanges.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {keyChanges.map((c) => (
+                    <span
+                      key={c.label}
+                      className={`inline-flex items-center text-xs px-2 py-0.5 rounded ${
+                        c.trend === "↑"
+                          ? "bg-green-50 text-green-700"
+                          : c.trend === "↓"
+                            ? "bg-red-50 text-red-700"
+                            : "bg-gray-50 text-gray-600"
+                      }`}
+                    >
+                      {c.label} {c.trend} {c.delta !== null ? `${c.delta > 0 ? "+" : ""}${(c.delta * 100).toFixed(1)}%` : ""}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {compValues.length > 0 && (
+                <div className="mt-2 text-xs text-gray-400">
+                  综合评分: {v.overallScore ? `${(parseFloat(v.overallScore) * 100).toFixed(1)}%` : "-"}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ─── Main Component ─── */
 
 export default function EvaluationComparePage() {
   const [versions, setVersions] = useState<VersionItem[]>([]);
@@ -112,36 +358,57 @@ export default function EvaluationComparePage() {
     selectedIds.includes(v.id)
   );
 
-  const trendChartData = comparisons.length > 0 && selectedVersions.length > 0
-    ? selectedVersions
-        .sort((a, b) => a.version - b.version)
-        .map((v) => {
-          const point: Record<string, number | string | null> = {
-            name: `v${v.version}`,
-          };
-          comparisons.forEach((comp) => {
-            const val = comp.values.find((cv) => cv.versionId === v.id);
-            point[comp.metricName] =
-              val && val.value !== null
-                ? parseFloat((val.value * 100).toFixed(1))
-                : null;
-          });
-          return point;
-        })
+  const sortedSelectedVersions = [...selectedVersions].sort((a, b) => a.version - b.version);
+
+  const trendChartData = comparisons.length > 0 && sortedSelectedVersions.length > 0
+    ? sortedSelectedVersions.map((v) => {
+        const point: Record<string, number | string | null> = {
+          name: `v${v.version}`,
+        };
+        comparisons.forEach((comp) => {
+          const val = comp.values.find((cv) => cv.versionId === v.id);
+          point[comp.metricName] =
+            val && val.value !== null
+              ? parseFloat((val.value * 100).toFixed(1))
+              : null;
+        });
+        return point;
+      })
     : [];
 
-  const trendMetricOptions = comparisons.map((c) => ({
+  const LINE_COLORS = [
+    "#3b82f6", "#22c55e", "#f59e0b", "#ef4444", "#8b5cf6",
+    "#06b6d4", "#ec4899", "#14b8a6", "#f97316", "#6366f1",
+    "#84cc16", "#e11d48", "#0ea5e9", "#a855f7", "#10b981", "#f43f5e",
+  ];
+
+  const trendMetricOptions = comparisons.map((c, i) => ({
     value: c.metricName,
     label: c.metricLabel,
+    color: LINE_COLORS[i % LINE_COLORS.length],
   }));
 
-  const [trendMetric, setTrendMetric] = useState<string>("overallScore");
+  const [selectedTrendMetrics, setSelectedTrendMetrics] = useState<string[]>([]);
 
   useEffect(() => {
-    if (comparisons.length > 0 && !comparisons.find((c) => c.metricName === trendMetric)) {
-      setTrendMetric(comparisons[0].metricName);
+    if (comparisons.length > 0 && selectedTrendMetrics.length === 0) {
+      setSelectedTrendMetrics(comparisons.slice(0, 3).map((c) => c.metricName));
     }
-  }, [comparisons, trendMetric]);
+  }, [comparisons, selectedTrendMetrics.length]);
+
+  const handleToggleTrendMetric = (metricName: string) => {
+    setSelectedTrendMetrics((prev) => {
+      if (prev.includes(metricName)) {
+        return prev.filter((m) => m !== metricName);
+      }
+      if (prev.length >= 5) return prev;
+      return [...prev, metricName];
+    });
+  };
+
+  const activeTrendMetrics = trendMetricOptions.filter((opt) =>
+    selectedTrendMetrics.includes(opt.value)
+  );
 
   const formatValue = (value: number | null) => {
     if (value === null) return "-";
@@ -294,6 +561,7 @@ export default function EvaluationComparePage() {
 
         {comparisons.length > 0 && (
           <>
+            {/* Version Comparison Table with Color Coding */}
             <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4">
                 逐指标数值对比
@@ -305,16 +573,14 @@ export default function EvaluationComparePage() {
                       <th className="text-left py-3 px-3 text-gray-600 sticky left-0 bg-gray-50">
                         指标
                       </th>
-                      {selectedVersions
-                        .sort((a, b) => a.version - b.version)
-                        .map((v) => (
-                          <th
-                            key={v.id}
-                            className="text-center py-3 px-3 text-gray-600"
-                          >
-                            v{v.version}
-                          </th>
-                        ))}
+                      {sortedSelectedVersions.map((v) => (
+                        <th
+                          key={v.id}
+                          className="text-center py-3 px-3 text-gray-600"
+                        >
+                          v{v.version}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
@@ -324,8 +590,11 @@ export default function EvaluationComparePage() {
                           {comp.metricLabel}
                         </td>
                         {comp.values.map((val) => (
-                          <td key={val.versionId} className="py-2 px-3 text-center">
-                            <div>{formatValue(val.value)}</div>
+                          <td
+                            key={val.versionId}
+                            className={`py-2 px-3 text-center ${getCellColor(comp.metricName, val.value)}`}
+                          >
+                            <div className="font-medium">{formatValue(val.value)}</div>
                             {val.delta !== null && (
                               <div
                                 className={`text-xs ${trendColor(val.trend)}`}
@@ -340,66 +609,78 @@ export default function EvaluationComparePage() {
                   </tbody>
                 </table>
               </div>
+              <div className="mt-3 flex items-center gap-4 text-xs text-gray-400">
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded bg-green-50 border border-green-200" />
+                  优秀
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded bg-yellow-50 border border-yellow-200" />
+                  合格
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded bg-red-50 border border-red-200" />
+                  不合格
+                </span>
+              </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
+            {/* SVG Metric Trend Chart */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-gray-800">
                   指标变化趋势
                 </h3>
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm text-gray-600">指标:</label>
-                  <select
-                    className="border rounded-md px-3 py-1.5 text-sm bg-white"
-                    value={trendMetric}
-                    onChange={(e) => setTrendMetric(e.target.value)}
-                  >
-                    {trendMetricOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </div>
 
-              {trendChartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trendChartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" fontSize={12} />
-                    <YAxis
-                      domain={[0, 100]}
-                      fontSize={12}
-                      tickFormatter={(v: number) => `${v}%`}
-                    />
-                    <Tooltip
-                      formatter={(value: unknown) => {
-                        const v = value as number | null | undefined;
-                        return v !== null && v !== undefined ? [`${v}%`] : ["-"];
-                      }}
-                    />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey={trendMetric}
-                      stroke="#3b82f6"
-                      strokeWidth={2}
-                      dot={{ r: 5 }}
-                      activeDot={{ r: 7 }}
-                      name={
-                        trendMetricOptions.find((o) => o.value === trendMetric)
-                          ?.label || trendMetric
-                      }
-                      connectNulls={false}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+              {/* Metric selector chips */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {trendMetricOptions.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => handleToggleTrendMetric(opt.value)}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border transition-colors ${
+                      selectedTrendMetrics.includes(opt.value)
+                        ? "border-blue-400 bg-blue-50 text-blue-700"
+                        : "border-gray-200 text-gray-500 hover:border-gray-300"
+                    }`}
+                  >
+                    {selectedTrendMetrics.includes(opt.value) && (
+                      <span
+                        className="inline-block w-2.5 h-2.5 rounded-full"
+                        style={{ backgroundColor: opt.color }}
+                      />
+                    )}
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+
+              {trendChartData.length > 0 && activeTrendMetrics.length > 0 ? (
+                <SvgLineChart
+                  data={trendChartData}
+                  metrics={activeTrendMetrics.map((m) => ({
+                    key: m.value,
+                    label: m.label,
+                    color: m.color,
+                  }))}
+                />
               ) : (
                 <div className="text-center py-8 text-gray-400">
-                  暂无数据
+                  请选择至少一个指标查看趋势
                 </div>
               )}
+            </div>
+
+            {/* Optimization Timeline */}
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-lg font-bold text-gray-800 mb-4">
+                优化时间线
+              </h3>
+              <OptimizationTimeline
+                versions={selectedVersions}
+                comparisons={comparisons}
+              />
             </div>
           </>
         )}
