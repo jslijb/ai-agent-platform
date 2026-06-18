@@ -38,6 +38,10 @@ export const users = pgTable("User", {
   name: text("name").notNull(),
   password: text("password").notNull(),
   role: text("role").notNull().default("user"),
+  wechatOpenId: text("wechatOpenId").unique(),
+  wechatUnionId: text("wechatUnionId"),
+  wechatNickname: text("wechatNickname"),
+  wechatAvatarUrl: text("wechatAvatarUrl"),
   createdAt: timestamp("createdAt", { precision: 3 }).notNull().defaultNow(),
 });
 
