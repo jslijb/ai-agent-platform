@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import Link from "next/link";
 import {
   LineChart,
@@ -250,6 +250,575 @@ function IndustryBenchmarkCard({ report }: { report: EvaluationReport }) {
     </div>
   );
 }
+
+/* ─── New Helper Components ─── */
+
+function percentile(arr: number[], p: number): number {
+  if (arr.length === 0) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const idx = Math.ceil((p / 100) * sorted.length) - 1;
+  return sorted[Math.max(0, idx)];
+}
+
+function SystemPerformanceSection({ report }: { report: EvaluationReport }) {
+  const durations = report.results.map((r) => r.durationMs).filter((d) => d > 0);
+  const p50 = durations.length > 0 ? percentile(durations, 50) : 0;
+  const p95 = durations.length > 0 ? percentile(durations, 95) : 0;
+  const p99 = durations.length > 0 ? percentile(durations, 99) : 0;
+
+  const successCount = report.results.filter(
+    (r) => r.answer.faithfulness >= 0.5 && r.answer.answerRelevance >= 0.5
+  ).length;
+  const successRate = report.results.length > 0 ? successCount / report.results.length : 0;
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h3 className="text-lg font-bold text-gray-800 mb-1">系统性能指标</h3>
+      <p className="text-xs text-gray-400 mb-4">端到端延迟分布及成功率</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b bg-gray-50">
+                <th className="text-left py-2.5 px-3 text-gray-600">阶段</th>
+                <th className="text-right py-2.5 px-3 text-gray-600">P50</th>
+                <th className="text-right py-2.5 px-3 text-gray-600">P95</th>
+                <th className="text-right py-2.5 px-3 text-gray-600">P99</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b">
+                <td className="py-2 px-3 font-medium text-gray-700">端到端延迟</td>
+                <td className="text-right py-2 px-3">{p50}ms</td>
+                <td className="text-right py-2 px-3">{p95}ms</td>
+                <td className="text-right py-2 px-3">{p99}ms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <div className="mb-2 flex justify-between text-sm">
+            <span className="text-gray-600">成功率</span>
+            <span className="font-medium">{(successRate * 100).toFixed(1)}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-4">
+            <div
+              className={`h-4 rounded-full transition-all ${
+                successRate >= 0.9
+                  ? "bg-green-500"
+                  : successRate >= 0.7
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
+              }`}
+              style={{ width: `${Math.max(successRate * 100, 2)}%` }}
+            />
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            成功标准: 忠实度 ≥ 50% 且 答案相关性 ≥ 50%
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DiagnosticMatrixSection({ report }: { report: EvaluationReport }) {
+  const threshold = 0.7;
+
+  const quadrants = {
+    highHigh: { count: 0, label: "检索高 + 生成高", color: "bg-green-50 border-green-300", textColor: "text-green-700", desc: "优秀：检索和生成均表现良好" },
+    highLow: { count: 0, label: "检索高 + 生成低", color: "bg-yellow-50 border-yellow-300", textColor: "text-yellow-700", desc: "生成瓶颈：检索正常但生成质量不足" },
+    lowHigh: { count: 0, label: "检索低 + 生成高", color: "bg-yellow-50 border-yellow-300", textColor: "text-yellow-700", desc: "检索瓶颈：生成正常但检索召回不足" },
+    lowLow: { count: 0, label: "检索低 + 生成低", color: "bg-red-50 border-red-300", textColor: "text-red-700", desc: "严重问题：检索和生成均需改进" },
+  };
+
+  report.results.forEach((r) => {
+    const retrievalScore = (r.retrieval.hitsAtK + r.retrieval.contextRelevance + r.retrieval.contextRecall) / 3;
+    const generationScore = (r.answer.faithfulness + r.answer.answerRelevance) / 2;
+    const retrievalHigh = retrievalScore >= threshold;
+    const generationHigh = generationScore >= threshold;
+
+    if (retrievalHigh && generationHigh) quadrants.highHigh.count++;
+    else if (retrievalHigh && !generationHigh) quadrants.highLow.count++;
+    else if (!retrievalHigh && generationHigh) quadrants.lowHigh.count++;
+    else quadrants.lowLow.count++;
+  });
+
+  const total = report.results.length;
+  const bottleneck =
+    quadrants.lowLow.count > quadrants.highLow.count && quadrants.lowLow.count > quadrants.lowHigh.count
+      ? "检索和生成模块均需优化"
+      : quadrants.highLow.count > quadrants.lowHigh.count
+        ? "生成模块为主要瓶颈"
+        : quadrants.lowHigh.count > quadrants.highLow.count
+          ? "检索模块为主要瓶颈"
+          : "系统表现良好，无明显瓶颈";
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h3 className="text-lg font-bold text-gray-800 mb-1">诊断矩阵</h3>
+      <p className="text-xs text-gray-400 mb-4">基于检索和生成得分的 2×2 分类诊断（阈值: {threshold}）</p>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        {Object.values(quadrants).map((q) => (
+          <div key={q.label} className={`border rounded-lg p-4 ${q.color}`}>
+            <div className={`font-bold text-sm ${q.textColor}`}>{q.label}</div>
+            <div className={`text-2xl font-bold mt-1 ${q.textColor}`}>{q.count}</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {total > 0 ? `${((q.count / total) * 100).toFixed(1)}%` : "0%"}
+            </div>
+            <div className="text-xs text-gray-600 mt-2">{q.desc}</div>
+          </div>
+        ))}
+      </div>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        <span className="text-sm font-medium text-blue-700">瓶颈识别: </span>
+        <span className="text-sm text-blue-600">{bottleneck}</span>
+      </div>
+    </div>
+  );
+}
+
+function TopFailureCasesSection({ report }: { report: EvaluationReport }) {
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const scored = report.results.map((r) => {
+    const retrievalScore = (r.retrieval.hitsAtK + r.retrieval.contextRelevance + r.retrieval.contextRecall) / 3;
+    const generationScore = (r.answer.faithfulness + r.answer.answerRelevance) / 2;
+    const combinedScore = (retrievalScore + generationScore) / 2;
+
+    let failureReason = "";
+    let category = "";
+    if (retrievalScore < 0.5 && generationScore < 0.5) {
+      failureReason = "检索和生成均失败";
+      category = "双重失败";
+    } else if (retrievalScore < 0.5) {
+      failureReason = "检索召回不足";
+      category = "检索失败";
+    } else if (generationScore < 0.5) {
+      failureReason = "生成质量不足";
+      category = "生成失败";
+    } else {
+      failureReason = "整体表现偏低";
+      category = "表现不佳";
+    }
+
+    return { ...r, combinedScore, failureReason, category };
+  });
+
+  const top5 = scored.sort((a, b) => a.combinedScore - b.combinedScore).slice(0, 5);
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h3 className="text-lg font-bold text-gray-800 mb-1">Top 5 失败案例</h3>
+      <p className="text-xs text-gray-400 mb-4">综合得分最低的 5 个查询案例</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-gray-50">
+              <th className="text-left py-2.5 px-3 text-gray-600">查询</th>
+              <th className="text-left py-2.5 px-3 text-gray-600">期望答案</th>
+              <th className="text-left py-2.5 px-3 text-gray-600">实际答案</th>
+              <th className="text-left py-2.5 px-3 text-gray-600">失败原因</th>
+              <th className="text-left py-2.5 px-3 text-gray-600">分类</th>
+              <th className="text-center py-2.5 px-3 text-gray-600">详情</th>
+            </tr>
+          </thead>
+          <tbody>
+            {top5.map((r) => (
+              <Fragment key={r.id}>
+                <tr
+                  className="border-b hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setExpandedId(expandedId === r.id ? null : r.id)}
+                >
+                  <td className="py-2 px-3 max-w-[200px] truncate" title={r.query}>{r.query}</td>
+                  <td className="py-2 px-3 max-w-[150px] truncate" title={r.expectedAnswer}>{r.expectedAnswer}</td>
+                  <td className="py-2 px-3 max-w-[150px] truncate" title={r.actualAnswer}>{r.actualAnswer}</td>
+                  <td className="py-2 px-3">
+                    <span className="text-red-600 text-xs">{r.failureReason}</span>
+                  </td>
+                  <td className="py-2 px-3">
+                    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${
+                      r.category === "双重失败"
+                        ? "bg-red-100 text-red-700"
+                        : r.category === "检索失败"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : r.category === "生成失败"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-gray-100 text-gray-700"
+                    }`}>
+                      {r.category}
+                    </span>
+                  </td>
+                  <td className="text-center py-2 px-3">
+                    <span className="text-blue-500 text-xs">
+                      {expandedId === r.id ? "▲ 收起" : "▼ 展开"}
+                    </span>
+                  </td>
+                </tr>
+                {expandedId === r.id && (
+                  <tr>
+                    <td colSpan={6} className="bg-gray-50 px-6 py-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Hits@K:</span>{" "}
+                          <span className="font-medium">{(r.retrieval.hitsAtK * 100).toFixed(1)}%</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">上下文相关性:</span>{" "}
+                          <span className="font-medium">{(r.retrieval.contextRelevance * 100).toFixed(1)}%</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">上下文召回率:</span>{" "}
+                          <span className="font-medium">{(r.retrieval.contextRecall * 100).toFixed(1)}%</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">忠实度:</span>{" "}
+                          <span className="font-medium">{(r.answer.faithfulness * 100).toFixed(1)}%</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">答案相关性:</span>{" "}
+                          <span className="font-medium">{(r.answer.answerRelevance * 100).toFixed(1)}%</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">耗时:</span>{" "}
+                          <span className="font-medium">{r.durationMs}ms</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">分类:</span>{" "}
+                          <span className="font-medium">{r.category}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">难度:</span>{" "}
+                          <span className="font-medium">{r.difficulty}</span>
+                        </div>
+                      </div>
+                      <div className="mt-3 text-sm">
+                        <span className="text-gray-500">完整查询:</span>
+                        <p className="text-gray-700 mt-1">{r.query}</p>
+                      </div>
+                      <div className="mt-2 text-sm">
+                        <span className="text-gray-500">期望答案:</span>
+                        <p className="text-gray-700 mt-1">{r.expectedAnswer}</p>
+                      </div>
+                      <div className="mt-2 text-sm">
+                        <span className="text-gray-500">实际答案:</span>
+                        <p className="text-gray-700 mt-1">{r.actualAnswer}</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function SvgRadarChart({
+  data,
+}: {
+  data: Array<{
+    label: string;
+    current: number;
+    ragas: number;
+    finance: number;
+  }>;
+}) {
+  const centerX = 180;
+  const centerY = 160;
+  const radius = 120;
+  const numAxes = data.length;
+  if (numAxes < 3) return <div className="text-center py-8 text-gray-400">数据不足，至少需要 3 个维度</div>;
+
+  const angleStep = (2 * Math.PI) / numAxes;
+
+  const getPoint = (index: number, value: number) => {
+    const angle = angleStep * index - Math.PI / 2;
+    return {
+      x: centerX + radius * value * Math.cos(angle),
+      y: centerY + radius * value * Math.sin(angle),
+    };
+  };
+
+  const gridLevels = [0.2, 0.4, 0.6, 0.8, 1.0];
+
+  return (
+    <svg viewBox="0 0 360 340" className="w-full max-w-lg mx-auto">
+      {gridLevels.map((level) => (
+        <polygon
+          key={level}
+          points={Array.from({ length: numAxes }, (_, i) => {
+            const p = getPoint(i, level);
+            return `${p.x},${p.y}`;
+          }).join(" ")}
+          fill="none"
+          stroke="#e5e7eb"
+          strokeWidth="1"
+        />
+      ))}
+
+      {data.map((_, i) => {
+        const p = getPoint(i, 1);
+        return (
+          <line
+            key={`axis-${i}`}
+            x1={centerX}
+            y1={centerY}
+            x2={p.x}
+            y2={p.y}
+            stroke="#d1d5db"
+            strokeWidth="1"
+          />
+        );
+      })}
+
+      <polygon
+        points={data.map((d, i) => {
+          const p = getPoint(i, d.finance);
+          return `${p.x},${p.y}`;
+        }).join(" ")}
+        fill="rgba(251, 146, 60, 0.08)"
+        stroke="#fb923c"
+        strokeWidth="1.5"
+        strokeDasharray="4 2"
+      />
+
+      <polygon
+        points={data.map((d, i) => {
+          const p = getPoint(i, d.ragas);
+          return `${p.x},${p.y}`;
+        }).join(" ")}
+        fill="rgba(34, 197, 94, 0.08)"
+        stroke="#22c55e"
+        strokeWidth="1.5"
+        strokeDasharray="6 3"
+      />
+
+      <polygon
+        points={data.map((d, i) => {
+          const p = getPoint(i, d.current);
+          return `${p.x},${p.y}`;
+        }).join(" ")}
+        fill="rgba(59, 130, 246, 0.15)"
+        stroke="#3b82f6"
+        strokeWidth="2"
+      />
+
+      {data.map((d, i) => {
+        const p = getPoint(i, d.current);
+        return <circle key={`dot-${i}`} cx={p.x} cy={p.y} r="3.5" fill="#3b82f6" />;
+      })}
+
+      {data.map((d, i) => {
+        const p = getPoint(i, 1.18);
+        return (
+          <text
+            key={`lbl-${i}`}
+            x={p.x}
+            y={p.y}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            fontSize="11"
+            fill="#374151"
+          >
+            {d.label}
+          </text>
+        );
+      })}
+
+      <rect x="30" y="305" width="12" height="12" fill="#3b82f6" rx="2" />
+      <text x="46" y="315" fontSize="11" fill="#374151">当前系统</text>
+      <rect x="120" y="305" width="12" height="12" fill="#22c55e" rx="2" />
+      <text x="136" y="315" fontSize="11" fill="#374151">RAGAS标准</text>
+      <rect x="220" y="305" width="12" height="12" fill="#fb923c" rx="2" />
+      <text x="236" y="315" fontSize="11" fill="#374151">金融行业基准</text>
+    </svg>
+  );
+}
+
+const METRIC_DEFINITIONS = [
+  {
+    key: "overallScore",
+    name: "综合评分",
+    definition: "所有指标加权平均后的整体表现评分",
+    excellent: 0.80,
+    passing: 0.60,
+    calculation: "各指标加权平均，权重: Hits@K(20%), Context Relevance(15%), Context Recall(15%), Faithfulness(25%), Answer Relevance(25%)",
+    failureReason: "整体系统表现不达标，需逐项排查各子指标",
+  },
+  {
+    key: "avgHitsAtK",
+    name: "检索命中率 (Hits@K)",
+    definition: "检索结果中包含正确文档的比例",
+    excellent: 0.80,
+    passing: 0.60,
+    calculation: "正确文档出现在 Top-K 结果中的查询数 / 总查询数",
+    failureReason: "检索模块未能召回相关文档，可能原因：索引质量差、查询理解不准确、分块策略不当",
+  },
+  {
+    key: "avgContextRelevance",
+    name: "上下文相关性",
+    definition: "检索到的上下文与查询的相关程度",
+    excellent: 0.75,
+    passing: 0.55,
+    calculation: "相关上下文片段数 / 检索到的总上下文片段数",
+    failureReason: "检索返回了大量无关内容，可能原因：检索策略过于宽泛、缺少重排序",
+  },
+  {
+    key: "avgContextRecall",
+    name: "上下文召回率",
+    definition: "期望答案所需信息在检索上下文中被覆盖的比例",
+    excellent: 0.80,
+    passing: 0.60,
+    calculation: "上下文覆盖的期望信息片段数 / 期望答案所需的总信息片段数",
+    failureReason: "检索上下文未覆盖回答所需的关键信息，可能原因：分块过细、检索深度不足",
+  },
+  {
+    key: "avgFaithfulness",
+    name: "忠实度",
+    definition: "生成答案与检索上下文的一致性",
+    excellent: 0.85,
+    passing: 0.65,
+    calculation: "与上下文一致的声明数 / 生成答案中的总声明数",
+    failureReason: "生成内容偏离了检索上下文，可能原因：模型幻觉、指令遵循不足",
+  },
+  {
+    key: "avgAnswerRelevance",
+    name: "答案相关性",
+    definition: "生成答案与原始查询的相关程度",
+    excellent: 0.80,
+    passing: 0.60,
+    calculation: "与原查询相关的答案片段数 / 答案总片段数",
+    failureReason: "生成答案未直接回应查询，可能原因：查询理解偏差、生成策略不当",
+  },
+  {
+    key: "avgNumericalAccuracy",
+    name: "数值精确度",
+    definition: "金融数据中数值信息的准确程度",
+    excellent: 0.85,
+    passing: 0.70,
+    calculation: "正确数值数 / 答案中涉及的总数值数",
+    failureReason: "数值信息不准确，可能原因：检索文档版本过时、模型数值推理能力不足",
+  },
+  {
+    key: "avgComplianceScore",
+    name: "合规性评分",
+    definition: "答案符合金融监管要求的程度",
+    excellent: 0.90,
+    passing: 0.80,
+    calculation: "合规声明数 / 需要合规声明的总场景数",
+    failureReason: "合规性不足，可能原因：缺少合规知识库、合规规则未注入提示词",
+  },
+  {
+    key: "avgHallucinationRate",
+    name: "幻觉率",
+    definition: "生成内容中无依据信息的比例（越低越好）",
+    excellent: 0.10,
+    passing: 0.20,
+    calculation: "无依据声明数 / 生成答案中的总声明数",
+    failureReason: "幻觉率过高，可能原因：模型过度推理、检索上下文不足、缺少事实约束",
+    invert: true,
+  },
+  {
+    key: "avgRiskDisclosureScore",
+    name: "风险披露评分",
+    definition: "答案中适当披露风险提示的程度",
+    excellent: 0.80,
+    passing: 0.60,
+    calculation: "包含风险提示的回答数 / 需要风险提示的总场景数",
+    failureReason: "风险披露不足，可能原因：缺少风险提示模板、风险场景识别不全",
+  },
+  {
+    key: "avgTimelinessScore",
+    name: "时效性评分",
+    definition: "答案引用信息的时效性程度",
+    excellent: 0.70,
+    passing: 0.50,
+    calculation: "引用时效信息的回答数 / 涉及时效性的总场景数",
+    failureReason: "时效性不足，可能原因：知识库更新不及时、缺少时间感知检索",
+  },
+];
+
+function MetricDetailsSection({ report }: { report: EvaluationReport }) {
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+
+  return (
+    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+      <h3 className="text-lg font-bold text-gray-800 mb-1">指标详情</h3>
+      <p className="text-xs text-gray-400 mb-4">各指标定义、当前值、阈值及状态</p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-gray-50">
+              <th className="text-left py-2.5 px-3 text-gray-600">指标名称</th>
+              <th className="text-left py-2.5 px-3 text-gray-600">定义</th>
+              <th className="text-right py-2.5 px-3 text-gray-600">当前值</th>
+              <th className="text-right py-2.5 px-3 text-gray-600">优秀阈值</th>
+              <th className="text-center py-2.5 px-3 text-gray-600">状态</th>
+              <th className="text-center py-2.5 px-3 text-gray-600">详情</th>
+            </tr>
+          </thead>
+          <tbody>
+            {METRIC_DEFINITIONS.map((m) => {
+              const currentValue = report[m.key as keyof EvaluationReport] as number | undefined;
+              const invert = "invert" in m && m.invert;
+              const status = getBenchmarkStatus(currentValue, m.excellent, m.passing, !!invert);
+              return (
+                <Fragment key={m.key}>
+                  <tr
+                    className="border-b hover:bg-gray-50 cursor-pointer"
+                    onClick={() => setExpandedKey(expandedKey === m.key ? null : m.key)}
+                  >
+                    <td className="py-2 px-3 font-medium text-gray-700">{m.name}</td>
+                    <td className="py-2 px-3 text-gray-500 max-w-[200px] truncate" title={m.definition}>{m.definition}</td>
+                    <td className="text-right py-2 px-3">
+                      {currentValue !== undefined && currentValue !== null
+                        ? `${(currentValue * 100).toFixed(1)}%`
+                        : "-"}
+                    </td>
+                    <td className="text-right py-2 px-3 text-green-600">
+                      {invert ? `≤${(m.excellent * 100).toFixed(0)}%` : `≥${(m.excellent * 100).toFixed(0)}%`}
+                    </td>
+                    <td className="text-center py-2 px-3">
+                      <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${status.color} ${status.bgColor}`}>
+                        {status.label}
+                      </span>
+                    </td>
+                    <td className="text-center py-2 px-3">
+                      <span className="text-blue-500 text-xs">
+                        {expandedKey === m.key ? "▲" : "▼"}
+                      </span>
+                    </td>
+                  </tr>
+                  {expandedKey === m.key && (
+                    <tr>
+                      <td colSpan={6} className="bg-gray-50 px-6 py-4">
+                        <div className="text-sm space-y-2">
+                          <div>
+                            <span className="text-gray-500 font-medium">计算方法:</span>
+                            <p className="text-gray-700 mt-0.5">{m.calculation}</p>
+                          </div>
+                          <div>
+                            <span className="text-gray-500 font-medium">失败原因分析:</span>
+                            <p className="text-gray-700 mt-0.5">{m.failureReason}</p>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* ─── End New Helper Components ─── */
 
 export default function EvaluationPage() {
   const [data, setData] = useState<ApiResponse | null>(null);
@@ -702,7 +1271,16 @@ export default function EvaluationPage() {
               )}
             </div>
 
+            {/* System Performance Metrics */}
+            <SystemPerformanceSection report={displayReport} />
+
+            {/* Diagnostic Matrix */}
+            <DiagnosticMatrixSection report={displayReport} />
+
             <IndustryBenchmarkCard report={displayReport} />
+
+            {/* Metric Details */}
+            <MetricDetailsSection report={displayReport} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <div className="bg-white rounded-lg shadow-md p-6">
@@ -904,8 +1482,11 @@ export default function EvaluationPage() {
               </div>
             </div>
 
+            {/* Top 5 Failure Cases */}
+            <TopFailureCasesSection report={displayReport} />
+
             {data?.reports && data.reports.length > 1 && (
-              <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">
                   历史评估记录
                 </h3>
@@ -1058,6 +1639,25 @@ export default function EvaluationPage() {
                   </ResponsiveContainer>
                 )}
               </div>
+            </div>
+
+            {/* Industry Benchmark Radar Chart (SVG) */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+              <h3 className="text-lg font-bold text-gray-800 mb-1">
+                行业基准雷达图
+              </h3>
+              <p className="text-xs text-gray-400 mb-4">
+                当前系统 vs RAGAS 标准 vs 金融行业基准
+              </p>
+              <SvgRadarChart
+                data={[
+                  { label: "Hits@K", current: displayReport.avgHitsAtK, ragas: 0.80, finance: 0.85 },
+                  { label: "上下文相关性", current: displayReport.avgContextRelevance, ragas: 0.75, finance: 0.80 },
+                  { label: "上下文召回率", current: displayReport.avgContextRecall, ragas: 0.80, finance: 0.85 },
+                  { label: "忠实度", current: displayReport.avgFaithfulness, ragas: 0.85, finance: 0.90 },
+                  { label: "答案相关性", current: displayReport.avgAnswerRelevance, ragas: 0.80, finance: 0.85 },
+                ]}
+              />
             </div>
           </>
         )}
