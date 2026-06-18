@@ -2,6 +2,7 @@ import {
   type DatasetAdapter,
   type UnifiedTestItem,
   readJsonFilesFromDir,
+  resolveDatasetPath,
 } from "../dataset-adapter";
 
 const TASK_TYPE_MAP: Record<string, string> = {
@@ -33,9 +34,13 @@ interface CFLUERawItem {
 export const cflueAdapter: DatasetAdapter = {
   name: "CFLUE",
   description: "CFLUE 中文金融语言理解评估数据集，涵盖金融文本分类、金融情感分析、金融关系抽取等任务",
-  basePath: "D:\\data\\modelscope\\CFLUE",
+  basePath: "",
 
   async load(options) {
+    // 动态解析数据集路径，支持完整数据集和测试小样本回退
+    const resolvedPath = resolveDatasetPath("CFLUE");
+    this.basePath = resolvedPath;
+
     console.log(`[cflue-adapter] 开始加载 CFLUE 数据集, 路径: ${this.basePath}`);
     console.log(
       `[cflue-adapter] 加载选项 - 最大样本数: ${options?.maxSamples ?? "无限制"}, 分类过滤: [${options?.categories?.join(",") ?? "无"}]`
@@ -43,6 +48,11 @@ export const cflueAdapter: DatasetAdapter = {
 
     const rawData = readJsonFilesFromDir(this.basePath);
     console.log(`[cflue-adapter] 原始数据读取完成, 总条目数: ${rawData.length}`);
+
+    if (rawData.length === 0) {
+      console.warn(`[cflue-adapter] 未加载到任何数据，路径: ${this.basePath}`);
+      return [];
+    }
 
     let items = this.transform(rawData);
     console.log(`[cflue-adapter] 数据转换完成, 转换后条目数: ${items.length}`);

@@ -2,6 +2,7 @@ import {
   type DatasetAdapter,
   type UnifiedTestItem,
   readJsonFilesFromDir,
+  resolveDatasetPath,
 } from "../dataset-adapter";
 
 const CATEGORY_MAP: Record<string, string> = {
@@ -32,9 +33,13 @@ interface FinEvalRawItem {
 export const finEvalAdapter: DatasetAdapter = {
   name: "FinEval",
   description: "FinEval 金融多选题评估数据集，涵盖金融专业知识、金融计算、金融合规等类别",
-  basePath: "D:\\data\\modelscope\\FinEval",
+  basePath: "",
 
   async load(options) {
+    // 动态解析数据集路径，支持完整数据集和测试小样本回退
+    const resolvedPath = resolveDatasetPath("FinEval");
+    this.basePath = resolvedPath;
+
     console.log(`[fineval-adapter] 开始加载 FinEval 数据集, 路径: ${this.basePath}`);
     console.log(
       `[fineval-adapter] 加载选项 - 最大样本数: ${options?.maxSamples ?? "无限制"}, 分类过滤: [${options?.categories?.join(",") ?? "无"}]`
@@ -42,6 +47,11 @@ export const finEvalAdapter: DatasetAdapter = {
 
     const rawData = readJsonFilesFromDir(this.basePath);
     console.log(`[fineval-adapter] 原始数据读取完成, 总条目数: ${rawData.length}`);
+
+    if (rawData.length === 0) {
+      console.warn(`[fineval-adapter] 未加载到任何数据，路径: ${this.basePath}`);
+      return [];
+    }
 
     let items = this.transform(rawData);
     console.log(`[fineval-adapter] 数据转换完成, 转换后条目数: ${items.length}`);

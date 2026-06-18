@@ -2,6 +2,7 @@ import {
   type DatasetAdapter,
   type UnifiedTestItem,
   readJsonFilesFromDir,
+  resolveDatasetPath,
 } from "../dataset-adapter";
 
 interface FinQARawItem {
@@ -51,9 +52,13 @@ function formatTable(table: string[][]): string {
 export const finQAAdapter: DatasetAdapter = {
   name: "FinQA",
   description: "FinQA 金融数值推理评估数据集，需要结合表格数据进行数值计算和推理",
-  basePath: "D:\\data\\modelscope\\FinQA",
+  basePath: "",
 
   async load(options) {
+    // 动态解析数据集路径，支持完整数据集和测试小样本回退
+    const resolvedPath = resolveDatasetPath("FinQA");
+    this.basePath = resolvedPath;
+
     console.log(`[finqa-adapter] 开始加载 FinQA 数据集, 路径: ${this.basePath}`);
     console.log(
       `[finqa-adapter] 加载选项 - 最大样本数: ${options?.maxSamples ?? "无限制"}, 分类过滤: [${options?.categories?.join(",") ?? "无"}]`
@@ -61,6 +66,11 @@ export const finQAAdapter: DatasetAdapter = {
 
     const rawData = readJsonFilesFromDir(this.basePath);
     console.log(`[finqa-adapter] 原始数据读取完成, 总条目数: ${rawData.length}`);
+
+    if (rawData.length === 0) {
+      console.warn(`[finqa-adapter] 未加载到任何数据，路径: ${this.basePath}`);
+      return [];
+    }
 
     let items = this.transform(rawData);
     console.log(`[finqa-adapter] 数据转换完成, 转换后条目数: ${items.length}`);

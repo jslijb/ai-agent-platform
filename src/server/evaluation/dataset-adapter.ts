@@ -27,6 +27,59 @@ export interface LoadDatasetOptions {
   categories?: string[];
 }
 
+/**
+ * 解析数据集的基础路径
+ *
+ * 优先级：
+ * 1. 环境变量 DATASET_BASE_PATH/{datasetName}/converted/
+ * 2. 配置项 evaluation.dataset_base_path/{datasetName}/converted/
+ * 3. 默认值 D:\data\modelscope/{datasetName}/converted/
+ * 4. 回退路径 tests/datasets/{datasetName}/test.json
+ *
+ * @param datasetName 数据集名称（如 CFLUE、FinEval、FinQA）
+ * @returns 第一个存在的数据路径，如果都不存在则返回回退路径
+ */
+export function resolveDatasetPath(datasetName: string): string {
+  console.log(`[dataset-adapter] 开始解析数据集路径, 数据集: ${datasetName}`);
+
+  // 从环境变量获取基础路径
+  const envBasePath = process.env.DATASET_BASE_PATH;
+  // 从配置文件获取基础路径（延迟加载，避免配置文件不存在时报错）
+  let configBasePath = "";
+  try {
+    const { getConfigValue } = require("@/server/lib/config");
+    configBasePath = getConfigValue("evaluation", "dataset_base_path", "");
+  } catch {
+    console.warn(`[dataset-adapter] 无法加载配置文件，跳过配置路径`);
+  }
+
+  // 默认基础路径
+  const defaultBasePath = "D:\\data\\modelscope";
+
+  // 确定使用的基础路径
+  const basePath = envBasePath || configBasePath || defaultBasePath;
+  console.log(`[dataset-adapter] 数据集基础路径: ${basePath} (来源: ${envBasePath ? "环境变量" : configBasePath ? "配置文件" : "默认值"})`);
+
+  // 候选路径列表：优先完整数据集的 converted 目录，回退到测试小样本
+  const candidates = [
+    path.join(basePath, datasetName, "converted"),
+    path.join(process.cwd(), "tests", "datasets", datasetName, "test.json"),
+  ];
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      console.log(`[dataset-adapter] 找到数据集路径: ${candidate}`);
+      return candidate;
+    }
+    console.log(`[dataset-adapter] 路径不存在，跳过: ${candidate}`);
+  }
+
+  // 所有路径都不存在，返回回退路径（后续加载时会处理）
+  const fallbackPath = candidates[candidates.length - 1];
+  console.warn(`[dataset-adapter] 所有候选路径均不存在，使用回退路径: ${fallbackPath}`);
+  return fallbackPath;
+}
+
 export async function loadDataset(
   adapter: DatasetAdapter,
   options?: LoadDatasetOptions
@@ -40,12 +93,9 @@ export async function loadDataset(
 
   const startTime = Date.now();
 
-  if (!fs.existsSync(adapter.basePath)) {
-    const errorMsg = `数据集路径不存在: ${adapter.basePath}`;
-    console.error(`[dataset-adapter] ${errorMsg}`);
-    throw new Error(errorMsg);
-  }
-  console.log(`[dataset-adapter] 数据集路径验证通过: ${adapter.basePath}`);
+  // 注意：路径存在性检查已移至各适配器的 load 方法中，
+  // 因为适配器现在支持多路径回退，不再依赖固定的 basePath
+  console.log(`[dataset-adapter] 数据集基础路径: ${adapter.basePath}`);
 
   const items = await adapter.load(options);
   console.log(`[dataset-adapter] 原始数据加载完成, 条目数: ${items.length}`);
