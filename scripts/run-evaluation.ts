@@ -21,12 +21,13 @@ if (fs.existsSync(ENV_LOCAL_PATH)) {
 }
 
 import { hybridSearch } from "../src/server/rag/retrieval/hybrid-retriever";
-import { callBailian } from "../src/server/llm/providers/bailian";
+import { callWithFallback } from "../src/server/llm/router";
 import { closeDb } from "../src/server/db/client";
 import {
   runFinancialEvaluation,
   type EvaluationReport,
   type EvaluationWeights,
+  type SingleTestResult,
   DEFAULT_RAG_WEIGHTS,
 } from "../src/server/evaluation/rag-evaluator";
 import {
@@ -34,14 +35,23 @@ import {
   DATASET_ADAPTERS,
   type OpenDatasetEvaluationOptions,
 } from "../src/server/evaluation/open-dataset-evaluator";
+import { resolveDatasetPath } from "../src/server/evaluation/dataset-adapter";
 
 const QA_GOLDEN_PATH = path.resolve(__dirname, "qa-golden.json");
 const REPORT_DIR = path.resolve(__dirname, "..", "tests/reports/evaluation");
 const CONFIG_PATH = path.resolve(__dirname, "..", "config/evaluation-config.yaml");
+// 断点续传进度文件路径
+const PROGRESS_FILE_PATH = path.join(REPORT_DIR, "eval-progress.json");
 
 const OPEN_DATASET_BASE_PATH = "D:\\data\\modelscope";
 const OPEN_DATASET_MAX_SAMPLES = 200;
 const OPEN_DATASET_NAMES = ["fineval", "cflue", "finqa"];
+
+// AGNES AI 限流配置：免费用户限流严格，需要更大间隔
+// 每次查询间隔8秒
+const QUERY_DELAY_MS = 8000;
+// 同一查询内 LLM 调用间隔5秒（每个查询约5-6次LLM调用）
+const LLM_CALL_DELAY_MS = 5000;
 
 interface ParsedYamlConfig {
   rag_weights?: Record<string, number>;
@@ -228,6 +238,91 @@ function parseSimpleYaml(content: string): ParsedYamlConfig {
   return result;
 }
 
+/** 断点续传进度文件格式 */
+interface EvalProgress {
+  /** 评估唯一标识 */
+  evaluationId: string;
+  /** 评估开始时间 */
+  startTime: string;
+  /** 总查询数 */
+  totalQueries: number;
+  /** 已完成的查询ID列表 */
+  completedQueries: string[];
+  /** 已完成的结果列表 */
+  results: SingleTestResult[];
+  /** 最后更新时间 */
+  lastUpdateTime: string;
+}
+
+/** 生成评估唯一ID */
+function generateEvaluationId(): string {
+  const now = new Date();
+  return `eval-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}`;
+}
+
+/** 辅助函数：延迟指定毫秒 */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/** 加载断点续传进度文件 */
+function loadProgress(): EvalProgress | null {
+  try {
+    if (!fs.existsSync(PROGRESS_FILE_PATH)) {
+      console.log("[run-evaluation] 未发现断点续传进度文件，将从头开始评估");
+      return null;
+    }
+    const content = fs.readFileSync(PROGRESS_FILE_PATH, "utf-8");
+    const progress: EvalProgress = JSON.parse(content);
+    console.log(`[run-evaluation] 发现断点续传进度文件: evaluationId=${progress.evaluationId}, 已完成 ${progress.completedQueries.length}/${progress.totalQueries} 条`);
+    return progress;
+  } catch (error) {
+    console.error("[run-evaluation] 加载断点续传进度文件失败，将从头开始评估:", error);
+    return null;
+  }
+}
+
+/** 保存断点续传进度文件 */
+function saveProgress(progress: EvalProgress): void {
+  try {
+    // 确保目录存在
+    if (!fs.existsSync(REPORT_DIR)) {
+      fs.mkdirSync(REPORT_DIR, { recursive: true });
+    }
+    progress.lastUpdateTime = new Date().toISOString();
+    fs.writeFileSync(PROGRESS_FILE_PATH, JSON.stringify(progress, null, 2), "utf-8");
+  } catch (error) {
+    console.error("[run-evaluation] 保存断点续传进度文件失败:", error);
+  }
+}
+
+/** 创建新的断点续传进度文件 */
+function createProgress(evaluationId: string, totalQueries: number): EvalProgress {
+  const progress: EvalProgress = {
+    evaluationId,
+    startTime: new Date().toISOString(),
+    totalQueries,
+    completedQueries: [],
+    results: [],
+    lastUpdateTime: new Date().toISOString(),
+  };
+  saveProgress(progress);
+  console.log(`[run-evaluation] 已创建断点续传进度文件: ${PROGRESS_FILE_PATH}`);
+  return progress;
+}
+
+/** 计算预估剩余时间（分钟） */
+function estimateRemainingTime(
+  completedCount: number,
+  totalCount: number,
+  elapsedMs: number
+): number {
+  if (completedCount === 0) return 0;
+  const avgTimePerQuery = elapsedMs / completedCount;
+  const remainingQueries = totalCount - completedCount;
+  return (avgTimePerQuery * remainingQueries) / (1000 * 60);
+}
+
 function loadYamlConfig(): ParsedYamlConfig {
   try {
     if (!fs.existsSync(CONFIG_PATH)) {
@@ -340,6 +435,8 @@ async function searchFn(
   try {
     const results = await hybridSearch(query, 5);
     console.log(`[run-evaluation] 检索返回 ${results.length} 条结果`);
+    // AGNES 20 RPM 限流：同一查询内 LLM 调用间隔1秒
+    await sleep(LLM_CALL_DELAY_MS);
     return results.map((r) => ({
       text: r.text,
       score: r.score,
@@ -368,7 +465,11 @@ async function answerFn(
       .map((r, i) => `[文档片段${i + 1}]\n${r.text}`)
       .join("\n\n");
 
-    const response = await callBailian([
+    // AGNES 20 RPM 限流：LLM 调用前等待1秒
+    await sleep(LLM_CALL_DELAY_MS);
+
+    // 使用 LLM Router 进行多 provider 降级调用
+    const response = await callWithFallback([
       {
         role: "system",
         content:
@@ -381,9 +482,9 @@ async function answerFn(
     ]);
 
     console.log(
-      `[run-evaluation] 答案生成完成, 长度: ${response.content.length}`
+      `[run-evaluation] 答案生成完成, 模型: ${response.model}, provider: ${response.provider}, 长度: ${(response.content || "").length}`
     );
-    return response.content;
+    return response.content || "";
   } catch (error) {
     console.error("[run-evaluation] 答案生成失败:", error);
     return "答案生成失败，请稍后重试。";
@@ -485,11 +586,13 @@ function checkOpenDatasetPath(): boolean {
   for (const name of OPEN_DATASET_NAMES) {
     const adapter = DATASET_ADAPTERS[name];
     if (adapter) {
-      const adapterPath = adapter.basePath;
-      if (fs.existsSync(adapterPath)) {
+      // 使用 resolveDatasetPath 获取实际路径，而不是 adapter.basePath（load前为空）
+      const resolvedPath = resolveDatasetPath(name);
+      if (fs.existsSync(resolvedPath)) {
         availableDatasets.push(name);
+        console.log(`[run-evaluation] 数据集 ${name} 路径可用: ${resolvedPath}`);
       } else {
-        console.warn(`[run-evaluation] 数据集 ${name} 路径不存在: ${adapterPath}`);
+        console.warn(`[run-evaluation] 数据集 ${name} 路径不存在: ${resolvedPath}`);
       }
     }
   }
@@ -501,6 +604,83 @@ function checkOpenDatasetPath(): boolean {
 
   console.log(`[run-evaluation] 可用数据集: [${availableDatasets.join(", ")}]`);
   return true;
+}
+
+/** 从合并后的结果构建评估报告（避免重新运行查询） */
+function buildReportFromResults(
+  allResults: SingleTestResult[],
+  cliArgs: CliArgs,
+  weights: EvaluationWeights
+): EvaluationReport & Record<string, unknown> {
+  // 计算通用指标平均值
+  const avgHitsAtK = allResults.reduce((sum, r) => sum + r.retrieval.hitsAtK, 0) / allResults.length;
+  const avgContextRelevance = allResults.reduce((sum, r) => sum + r.retrieval.contextRelevance, 0) / allResults.length;
+  const avgContextRecall = allResults.reduce((sum, r) => sum + r.retrieval.contextRecall, 0) / allResults.length;
+  const avgFaithfulness = allResults.reduce((sum, r) => sum + r.answer.faithfulness, 0) / allResults.length;
+  const avgAnswerRelevance = allResults.reduce((sum, r) => sum + r.answer.answerRelevance, 0) / allResults.length;
+
+  const overallScore =
+    avgHitsAtK * 0.2 +
+    avgContextRelevance * 0.15 +
+    avgContextRecall * 0.15 +
+    avgFaithfulness * 0.25 +
+    avgAnswerRelevance * 0.25;
+
+  // 按分类统计
+  const resultsByCategory: EvaluationReport["resultsByCategory"] = {};
+  for (const r of allResults) {
+    if (!resultsByCategory[r.category]) {
+      resultsByCategory[r.category] = { count: 0, avgHitsAtK: 0, avgFaithfulness: 0, avgAnswerRelevance: 0 };
+    }
+    const cat = resultsByCategory[r.category];
+    cat.count++;
+    cat.avgHitsAtK += r.retrieval.hitsAtK;
+    cat.avgFaithfulness += r.answer.faithfulness;
+    cat.avgAnswerRelevance += r.answer.answerRelevance;
+  }
+  for (const cat of Object.values(resultsByCategory)) {
+    cat.avgHitsAtK = Number((cat.avgHitsAtK / cat.count).toFixed(4));
+    cat.avgFaithfulness = Number((cat.avgFaithfulness / cat.count).toFixed(4));
+    cat.avgAnswerRelevance = Number((cat.avgAnswerRelevance / cat.count).toFixed(4));
+  }
+
+  // 按难度统计
+  const resultsByDifficulty: EvaluationReport["resultsByDifficulty"] = {};
+  for (const r of allResults) {
+    if (!resultsByDifficulty[r.difficulty]) {
+      resultsByDifficulty[r.difficulty] = { count: 0, avgHitsAtK: 0, avgFaithfulness: 0, avgAnswerRelevance: 0 };
+    }
+    const diff = resultsByDifficulty[r.difficulty];
+    diff.count++;
+    diff.avgHitsAtK += r.retrieval.hitsAtK;
+    diff.avgFaithfulness += r.answer.faithfulness;
+    diff.avgAnswerRelevance += r.answer.answerRelevance;
+  }
+  for (const diff of Object.values(resultsByDifficulty)) {
+    diff.avgHitsAtK = Number((diff.avgHitsAtK / diff.count).toFixed(4));
+    diff.avgFaithfulness = Number((diff.avgFaithfulness / diff.count).toFixed(4));
+    diff.avgAnswerRelevance = Number((diff.avgAnswerRelevance / diff.count).toFixed(4));
+  }
+
+  const report: EvaluationReport & Record<string, unknown> = {
+    timestamp: new Date().toISOString(),
+    totalTests: allResults.length,
+    avgHitsAtK: Number(avgHitsAtK.toFixed(4)),
+    avgContextRelevance: Number(avgContextRelevance.toFixed(4)),
+    avgContextRecall: Number(avgContextRecall.toFixed(4)),
+    avgFaithfulness: Number(avgFaithfulness.toFixed(4)),
+    avgAnswerRelevance: Number(avgAnswerRelevance.toFixed(4)),
+    overallScore: Number(overallScore.toFixed(4)),
+    resultsByCategory,
+    resultsByDifficulty,
+    results: allResults,
+    // 附加信息
+    evaluationLevel: cliArgs.level,
+    milestone: cliArgs.milestone,
+    dataSource: "golden",
+  };
+
+  return report;
 }
 
 async function runGoldenEvaluation(
@@ -524,12 +704,16 @@ async function runGoldenEvaluation(
       expectedAnswer: string;
       category: string;
       difficulty: string;
+      // 支持 canAnswer 字段，默认 true（向后兼容）
+      canAnswer?: boolean;
     }) => ({
       id: item.id,
       query: item.query,
       expectedAnswer: item.expectedAnswer,
       category: item.category,
       difficulty: item.difficulty,
+      // 读取 canAnswer 字段，不存在则默认为 true
+      canAnswer: item.canAnswer ?? true,
     })
   );
 
@@ -538,15 +722,127 @@ async function runGoldenEvaluation(
     console.log(`[run-evaluation] daily 模式，截取前 ${testSet.length} 条测试用例`);
   }
 
-  const report = await runFinancialEvaluation(testSet, searchFn, answerFn, {
-    evaluationLevel: cliArgs.level,
-    triggerMode: "manual",
-    milestone: cliArgs.milestone,
-    dataSource: "golden",
-    weights,
-  });
+  // ===== 断点续传逻辑 =====
+  const evaluationId = generateEvaluationId();
+  const existingProgress = loadProgress();
+  let progress: EvalProgress;
+  let previousResults: SingleTestResult[] = [];
+  let remainingTestSet = testSet;
 
-  return report;
+  if (existingProgress && existingProgress.totalQueries === testSet.length) {
+    // 进度文件存在且总数匹配，尝试恢复
+    progress = existingProgress;
+    // 重新运行最后1-2条可能被中断的查询
+    const reRunCount = Math.min(2, progress.completedQueries.length);
+    const skipCount = Math.max(0, progress.completedQueries.length - reRunCount);
+    // 保留已确认完成的结果
+    previousResults = progress.results.slice(0, skipCount);
+    // 剩余需要运行的测试项（包括可能被中断的）
+    remainingTestSet = testSet.slice(skipCount);
+    console.log(`[run-evaluation] 断点续传: 已完成 ${skipCount} 条，剩余 ${remainingTestSet.length} 条（含重新运行 ${reRunCount} 条可能被中断的查询）`);
+  } else {
+    // 无进度文件或总数不匹配，从头开始
+    progress = createProgress(evaluationId, testSet.length);
+    previousResults = [];
+    console.log(`[run-evaluation] 从头开始评估，共 ${testSet.length} 条查询`);
+  }
+
+  // ===== 逐条评估（支持断点续传和限流） =====
+  const totalToRun = remainingTestSet.length;
+  const evalStartTime = Date.now();
+  let completedInThisRun = 0;
+  const newResults: SingleTestResult[] = [];
+
+  for (let i = 0; i < remainingTestSet.length; i++) {
+    const testItem = remainingTestSet[i];
+    const queryId = `L${cliArgs.level === "daily" ? "D" : cliArgs.level === "standard" ? "S" : "F"}-${String(testItem.id).padStart(3, "0")}`;
+    const itemStart = Date.now();
+
+    console.log(`[run-evaluation] 评估第 ${previousResults.length + i + 1}/${testSet.length} 条 [${queryId}], query: "${testItem.query.slice(0, 50)}...", canAnswer: ${testItem.canAnswer}`);
+
+    // AGNES 20 RPM 限流：每次查询间隔3秒（第一条不等待）
+    if (i > 0) {
+      console.log(`[run-evaluation] ⏳ 等待 ${QUERY_DELAY_MS / 1000} 秒（AGNES 20 RPM 限流）...`);
+      await sleep(QUERY_DELAY_MS);
+    }
+
+    try {
+      // 对单条测试项运行完整评估（包含所有指标计算）
+      const singleReport = await runFinancialEvaluation(
+        [testItem],
+        searchFn,
+        answerFn,
+        {
+          evaluationLevel: cliArgs.level,
+          triggerMode: "manual",
+          milestone: cliArgs.milestone,
+          dataSource: "golden",
+          weights,
+        }
+      );
+
+      const resultItem = singleReport.results[0];
+      const durationMs = Date.now() - itemStart;
+
+      // 更新耗时为实际测量值
+      if (resultItem) {
+        resultItem.durationMs = durationMs;
+        newResults.push(resultItem);
+      }
+
+      // 追加到进度文件
+      progress.completedQueries.push(queryId);
+      progress.results = [...previousResults, ...newResults];
+      saveProgress(progress);
+
+      completedInThisRun++;
+      // 进度日志：[X/total] 查询完成，耗时Yms，预估Z分钟剩余
+      const totalCompleted = previousResults.length + completedInThisRun;
+      const elapsedMs = Date.now() - evalStartTime;
+      const remainingMin = estimateRemainingTime(completedInThisRun, totalToRun, elapsedMs);
+      console.log(`[run-evaluation] [${totalCompleted}/${testSet.length}] 查询 ${queryId} 完成，耗时 ${durationMs}ms，预估剩余 ${remainingMin.toFixed(1)} 分钟`);
+    } catch (error) {
+      console.error(`[run-evaluation] 第 ${previousResults.length + i + 1} 条 [${queryId}] 评估失败:`, error);
+
+      const durationMs = Date.now() - itemStart;
+      const resultItem: SingleTestResult = {
+        id: testItem.id,
+        query: testItem.query,
+        expectedAnswer: testItem.expectedAnswer,
+        actualAnswer: "",
+        retrieval: { hitsAtK: 0, contextRelevance: 0, contextRecall: 0 },
+        answer: { faithfulness: 0, answerRelevance: 0 },
+        category: testItem.category ?? "未分类",
+        difficulty: testItem.difficulty ?? "medium",
+        canAnswer: testItem.canAnswer,
+        durationMs,
+        isError: true,
+      };
+
+      newResults.push(resultItem);
+      progress.completedQueries.push(queryId);
+      progress.results = [...previousResults, ...newResults];
+      saveProgress(progress);
+
+      completedInThisRun++;
+      const totalCompleted = previousResults.length + completedInThisRun;
+      const elapsedMs = Date.now() - evalStartTime;
+      const remainingMin = estimateRemainingTime(completedInThisRun, totalToRun, elapsedMs);
+      console.log(`[run-evaluation] [${totalCompleted}/${testSet.length}] 查询 ${queryId} 失败，耗时 ${durationMs}ms，预估剩余 ${remainingMin.toFixed(1)} 分钟`);
+    }
+  }
+
+  // ===== 合并结果并生成最终报告 =====
+  const allResults = [...previousResults, ...newResults];
+  console.log(`[run-evaluation] 所有查询评估完成，共 ${allResults.length} 条结果（其中断点续传恢复 ${previousResults.length} 条，本次运行 ${newResults.length} 条）`);
+
+  // 用合并后的结果构建最终报告
+  const report = buildReportFromResults(allResults, cliArgs, weights);
+
+  // 保留进度文件（不删除）
+  console.log(`[run-evaluation] 评估完成，保留断点续传进度文件: ${PROGRESS_FILE_PATH}`);
+
+  return report as EvaluationReport & Record<string, unknown>;
 }
 
 async function runOpenDatasetPhase(
