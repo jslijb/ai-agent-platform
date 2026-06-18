@@ -42,7 +42,16 @@ export async function GET(
       }
     }
 
-    console.log(`[evaluation-version-detail] 返回版本详情, id: ${id}, version: ${version.version}`);
+    // 确保返回完整的 ProfessionalEvaluationReport 字段
+    // 从 reportJson 中提取关键字段，确保 API 响应中明确包含这些字段
+    const metricDetails = report?.metricDetails ?? [];
+    const versionComparison = report?.versionComparison ?? undefined;
+    const performanceMetrics = report?.performanceMetrics ?? undefined;
+    const diagnosis = report?.diagnosis ?? undefined;
+    const topFailureCases = report?.topFailureCases ?? [];
+    const industryBenchmarks = report?.industryBenchmarks ?? undefined;
+
+    console.log(`[evaluation-version-detail] 返回版本详情, id: ${id}, version: ${version.version}, metricDetails: ${metricDetails.length}, hasVersionComparison: ${!!versionComparison}, hasPerformanceMetrics: ${!!performanceMetrics}, hasDiagnosis: ${!!diagnosis}, topFailureCases: ${topFailureCases.length}, hasIndustryBenchmarks: ${!!industryBenchmarks}`);
 
     return NextResponse.json({
       success: true,
@@ -61,6 +70,13 @@ export async function GET(
         financialOverallScore: version.financialOverallScore,
       },
       report,
+      // 显式返回 ProfessionalEvaluationReport 的关键字段，方便前端直接使用
+      metricDetails,
+      versionComparison,
+      performanceMetrics,
+      diagnosis,
+      topFailureCases,
+      industryBenchmarks,
     });
   } catch (error) {
     console.error("[evaluation-version-detail] 获取评估版本详情失败:", error);
