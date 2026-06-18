@@ -1,10 +1,22 @@
 # 服务器生产环境覆盖配置
 # 使用方式：docker compose -f docker-compose.yml -f docker-compose.override.server.yml up -d
+#
+# 服务器使用 GPU 运行全量参数模型（非量化），并启用 PaddleOCR GPU 容器
 
 services:
   embedding:
     volumes:
       - ${MODEL_BASE_PATH}/bge-m3-GGUF:/models:ro
+    command: >
+      --model /models/${EMBEDDING_MODEL_FILE:-bge-m3-f16.gguf}
+      --port 8011
+      --host 0.0.0.0
+      --embedding
+      --pooling cls
+      -c 8192
+      -b 1024
+      -ub 1024
+      -t ${EMBEDDING_THREADS:-4}
     deploy:
       resources:
         reservations:
@@ -16,6 +28,13 @@ services:
   reranker:
     volumes:
       - ${MODEL_BASE_PATH}/bge-reranker-v2-m3-GGUF:/models:ro
+    command: >
+      --model /models/${RERANKER_MODEL_FILE:-bge-reranker-v2-m3-F16.gguf}
+      --port 8010
+      --host 0.0.0.0
+      --reranking
+      -c 8192
+      -t ${RERANKER_THREADS:-4}
     deploy:
       resources:
         reservations:

@@ -13,7 +13,7 @@ RUN npm run build
 
 FROM base AS standalone-deps
 RUN cat > package.json << 'PKGJSON'
-{ "name": "standalone-deps", "private": true, "dependencies": { "redis": "^4.7.0", "neo4j-driver": "^5.27.0", "ioredis": "^5.6.0" } }
+{ "name": "standalone-deps", "private": true, "dependencies": { "redis": "^4.7.0", "neo4j-driver": "^5.27.0", "ioredis": "^5.6.0", "pdfjs-dist": "5.4.296" } }
 PKGJSON
 RUN npm install --omit=dev
 
@@ -27,6 +27,7 @@ RUN useradd --system --uid 1001 nextjs
 COPY --from=build /app/.next/standalone ./
 COPY --from=build /app/.next/static ./.next/static
 COPY --from=build /app/public ./public
+COPY --from=build /app/scripts ./scripts
 COPY --from=standalone-deps /app/node_modules ./node_modules
 
 RUN mkdir -p .next/cache && chown -R nextjs:nodejs .next/cache

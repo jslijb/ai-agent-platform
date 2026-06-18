@@ -3,15 +3,22 @@
 # cp config/api_keys.yaml.example config/api_keys.yaml
 
 llm:
+  provider: agnes  # 默认 provider，可选: agnes, dashscope
+  AGNES_KEY: YOUR_ANNES_KEY
+  AGNES_BASE_URL: https://apihub.agnes-ai.com/v1
   DASHSCOPE_API_KEY: YOUR_DASHSCOPE_API_KEY
   DASHSCOPE_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
   models:
+    - id: agnes-2.0-flash
+      provider: agnes
+      functionCalling: true
     - id: qwen-plus
+      provider: dashscope
       functionCalling: true
     - id: qwen-turbo
+      provider: dashscope
       functionCalling: true
 
 vision:
-  VISION_MODEL: qwen-vl-plus
   DASHSCOPE_API_KEY: YOUR_DASHSCOPE_API_KEY
-  DASHSCOPE_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
+  model: qwen-vl-plus

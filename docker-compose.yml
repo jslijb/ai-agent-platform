@@ -97,7 +97,7 @@ services:
     volumes:
       - ${MODEL_BASE_PATH:-D:/models/modelscope/models}/gpustack/bge-reranker-v2-m3-GGUF:/models:ro
     command: >
-      --model /models/bge-reranker-v2-m3-Q8_0.gguf
+      --model /models/${RERANKER_MODEL_FILE:-bge-reranker-v2-m3-Q8_0.gguf}
       --port 8010
       --host 0.0.0.0
       --reranking
