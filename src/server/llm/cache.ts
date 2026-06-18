@@ -9,15 +9,20 @@ const memoryCache = new Map<string, CacheEntry>();
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const MAX_CACHE_SIZE = 500;
 
-function generateCacheKey(messages: BailianMessage[], model?: string): string {
-  const key = messages.map((m) => `${m.role}:${m.content}`).join("|") + `|model:${model || "default"}`;
+/**
+ * 生成缓存 key，格式：llm:{provider}:{model}:{hash}
+ * 不同 provider 的结果不会混淆
+ */
+function generateCacheKey(messages: BailianMessage[], model?: string, provider?: string): string {
+  const providerPart = provider || "default";
+  const key = messages.map((m) => `${m.role}:${m.content}`).join("|") + `|provider:${providerPart}|model:${model || "default"}`;
   let hash = 0;
   for (let i = 0; i < key.length; i++) {
     const char = key.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
     hash = hash & hash;
   }
-  return hash.toString(36);
+  return `llm:${providerPart}:${model || "default"}:${hash.toString(36)}`;
 }
 
 function cleanupCache(): void {
@@ -40,14 +45,15 @@ function cleanupCache(): void {
 export async function callBailianWithCache(
   messages: BailianMessage[],
   model?: string,
-  temperature?: number
+  temperature?: number,
+  provider?: string
 ): Promise<BailianResponse> {
   const useTemperature = temperature ?? 0;
   if (useTemperature > 0) {
     return callBailian(messages, model, temperature);
   }
 
-  const cacheKey = generateCacheKey(messages, model);
+  const cacheKey = generateCacheKey(messages, model, provider);
   const cached = memoryCache.get(cacheKey);
 
   if (cached && Date.now() - cached.createdAt < CACHE_TTL_MS) {
