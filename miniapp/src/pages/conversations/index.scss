@@ -1,0 +1,88 @@
+.conversations-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.page-header {
+  padding: 24px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.page-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: #333;
+}
+
+.conversation-list {
+  flex: 1;
+  padding: 16px 20px;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 40px;
+  color: #999;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+}
+
+.empty-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+.empty-text {
+  color: #999;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.empty-hint {
+  color: #ccc;
+  font-size: 24px;
+}
+
+.conversation-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  background-color: #fff;
+  border-radius: 16px;
+  margin-bottom: 12px;
+}
+
+.conv-info {
+  flex: 1;
+}
+
+.conv-title {
+  font-size: 28px;
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.conv-date {
+  font-size: 22px;
+  color: #999;
+  margin-top: 8px;
+}
+
+.conv-arrow {
+  font-size: 40px;
+  color: #ccc;
+  margin-left: 16px;
+}
