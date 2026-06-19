@@ -433,7 +433,7 @@ async function searchFn(
   console.log(`[run-evaluation] 检索查询: "${query.slice(0, 50)}..."`);
 
   try {
-    const results = await hybridSearch(query, 5);
+    const results = await hybridSearch(query, 10);
     console.log(`[run-evaluation] 检索返回 ${results.length} 条结果`);
     // AGNES 20 RPM 限流：同一查询内 LLM 调用间隔1秒
     await sleep(LLM_CALL_DELAY_MS);
@@ -473,11 +473,11 @@ async function answerFn(
       {
         role: "system",
         content:
-          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。回答必须基于提供的文档内容，不要编造信息。如果文档中没有相关信息，请明确说明。",
+          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。\n\n重要规则：\n1. 优先从文档中提取关键数据（如营业收入、净利润、增长率等）直接回答\n2. 如果文档包含部分相关信息，请基于已有信息给出答案，并说明信息来源\n3. 只有当文档完全无关时才说明无法回答\n4. 回答要简洁直接，先给出核心数据，再补充说明\n5. 不要过度谨慎，如果文档中有相关数据就应该回答",
       },
       {
         role: "user",
-        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题。`,
+        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题，优先提取关键数据。`,
       },
     ]);
 
