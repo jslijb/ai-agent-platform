@@ -263,6 +263,9 @@ function fallbackAnswerRelevance(
 
   if (!answer || !query) return 0;
 
+  // 拒绝回答的答案相关性直接给低分
+  if (isRefusalAnswer(answer)) return 0.1;
+
   const queryTokens = tokenize(query);
   const answerTokens = tokenize(answer);
 
@@ -293,6 +296,12 @@ async function llmEvaluateFaithfulness(
   contextTexts: string[]
 ): Promise<number> {
   console.log("[rag-evaluator] 使用 LLM 评估 Faithfulness");
+
+  // 拒绝回答的faithfulness应该给高分（没有编造信息）
+  if (isRefusalAnswer(answer)) {
+    console.log("[rag-evaluator] 检测到拒绝回答，Faithfulness = 1.0（无编造）");
+    return 1.0;
+  }
 
   const contextBlock = contextTexts
     .map((t, i) => `[片段${i + 1}] ${t}`)
@@ -332,6 +341,12 @@ async function llmEvaluateAnswerRelevance(
   answer: string
 ): Promise<number> {
   console.log("[rag-evaluator] 使用 LLM 评估 Answer Relevance");
+
+  // 拒绝回答的答案相关性直接给低分，不需要LLM评估
+  if (isRefusalAnswer(answer)) {
+    console.log("[rag-evaluator] 检测到拒绝回答，Answer Relevance = 0.1");
+    return 0.1;
+  }
 
   try {
     const response = await callWithFallback([
@@ -524,7 +539,7 @@ export async function evaluateAnswer(
 
     const answerRelevance =
       llmRelevance !== null
-        ? heuristicRelevance * 0.4 + llmRelevance * 0.6
+        ? heuristicRelevance * 0.2 + llmRelevance * 0.8
         : heuristicRelevance;
 
     console.log(
@@ -557,7 +572,7 @@ export async function evaluateContextRecall(
           query,
           context: searchResults.map((r) => r.text),
           ground_truth: expectedAnswer,
-          generated_answer: "",
+          generated_answer: expectedAnswer, // Context Recall需要generated_answer非空才能正确评估
         };
 
         const contextRecallResult = await scorers.contextRecallScorer.score(sample);
