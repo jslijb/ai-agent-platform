@@ -402,7 +402,7 @@ async function llmEvaluateMerged(
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请对生成的答案进行三个维度的评估，返回JSON格式。\n\n评估维度：\n1. faithfulness（忠实度）：答案是否忠实于检索内容，有无编造信息\n   - 1.0: 所有信息都有检索内容支持\n   - 0.8: 大部分信息有支持，少量推断\n   - 0.6: 约一半信息有支持\n   - 0.4: 大部分信息缺乏依据\n   - 0.2: 几乎脱离检索内容\n   - 0.0: 完全无关\n\n2. relevance（相关性）：答案是否有效回答了用户问题\n   - 1.0: 完全回答了问题\n   - 0.8: 回答了主要部分\n   - 0.6: 部分回答\n   - 0.4: 仅部分相关\n   - 0.2: 几乎不相关\n   - 0.0: 完全无关\n   注意：如果答案说无法获取但提供了部分相关数据，给0.4-0.6分\n\n3. correctness（正确性）：答案与期望答案的语义一致性\n   - 1.0: 与期望答案完全一致\n   - 0.8: 主要信息一致\n   - 0.6: 部分信息一致\n   - 0.4: 仅部分一致\n   - 0.2: 大部分不一致\n   - 0.0: 完全不一致\n   注意：数值差异5%以内视为准确；答案比期望答案更详细但核心一致给高分\n\n只返回JSON，格式：{\"faithfulness\": 0.8, \"relevance\": 0.6, \"correctness\": 0.7}",
+          "你是一个RAG系统评估专家。请对生成的答案进行三个维度的评估，返回JSON格式。\n\n评估维度：\n1. faithfulness（忠实度）：答案是否忠实于检索内容，有无编造信息\n   - 1.0: 所有信息都有检索内容支持\n   - 0.8: 大部分信息有支持，少量合理推断\n   - 0.6: 约一半信息有支持\n   - 0.4: 大部分信息缺乏依据\n   - 0.2: 几乎脱离检索内容\n   - 0.0: 完全无关\n   注意：合理的总结和推断不算编造；答案比检索内容更精简不算不忠实\n\n2. relevance（相关性）：答案是否有效回答了用户问题\n   - 1.0: 完全回答了问题，关键信息准确\n   - 0.8: 回答了主要部分，少量细节缺失\n   - 0.6: 部分回答了问题\n   - 0.4: 提供了部分相关信息\n   - 0.2: 几乎不相关\n   - 0.0: 完全无关\n   注意：如果答案包含问题所询问的核心数据（如具体数值），应给高分(>=0.8)\n   如果答案说无法获取完整数据但提供了部分相关数据，给0.5-0.7分\n   如果答案提供了相关背景信息，给0.4-0.6分\n   只有完全无关的回答才给0分\n\n3. correctness（正确性）：答案与期望答案的语义一致性\n   - 1.0: 与期望答案核心信息一致\n   - 0.8: 主要信息一致，细节有差异\n   - 0.6: 部分信息一致\n   - 0.4: 仅少量信息一致\n   - 0.2: 大部分不一致\n   - 0.0: 完全不一致\n   注意：数值差异5%以内视为准确\n   答案比期望答案更详细但核心一致给高分(>=0.8)\n   答案包含期望答案中的关键数值给高分(>=0.7)\n\n只返回JSON，格式：{\"faithfulness\": 0.8, \"relevance\": 0.6, \"correctness\": 0.7}",
       },
       {
         role: "user",
@@ -688,13 +688,13 @@ export async function evaluateAnswer(
         : heuristicFaithfulness;
 
     // Answer Relevance融合策略：
-    // 启发式(关键词覆盖率) 20% + LLM Relevance(问题相关性) 30% + LLM Correctness(答案正确性) 50%
+    // 启发式(关键词覆盖率) 10% + LLM Relevance(问题相关性) 30% + LLM Correctness(答案正确性) 60%
     // Correctness权重最高，因为它直接衡量答案与期望答案的语义一致性
     let answerRelevance: number;
     if (llmRelevance !== null && llmCorrectness !== null) {
-      answerRelevance = heuristicRelevance * 0.2 + llmRelevance * 0.3 + llmCorrectness * 0.5;
+      answerRelevance = heuristicRelevance * 0.1 + llmRelevance * 0.3 + llmCorrectness * 0.6;
     } else if (llmRelevance !== null) {
-      answerRelevance = heuristicRelevance * 0.4 + llmRelevance * 0.6;
+      answerRelevance = heuristicRelevance * 0.3 + llmRelevance * 0.7;
     } else {
       answerRelevance = heuristicRelevance;
     }
