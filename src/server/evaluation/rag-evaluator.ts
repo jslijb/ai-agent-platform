@@ -373,6 +373,64 @@ async function llmEvaluateContextRecall(
   }
 }
 
+/**
+ * V6优化：合并3个LLM评估为1个调用，减少API请求次数
+ * 一次性评估 Faithfulness + Answer Relevance + Answer Correctness
+ */
+async function llmEvaluateMerged(
+  answer: string,
+  contextTexts: string[],
+  query: string,
+  expectedAnswer?: string
+): Promise<{ faithfulness: number; relevance: number; correctness: number }> {
+  console.log("[rag-evaluator] 使用合并LLM评估（Faithfulness+Relevance+Correctness）");
+
+  // 拒绝回答的特殊处理
+  if (isRefusalAnswer(answer)) {
+    console.log("[rag-evaluator] 检测到拒绝回答，合并评估: Faithfulness=1.0, Relevance=0.1, Correctness=0");
+    return { faithfulness: 1.0, relevance: 0.1, correctness: 0 };
+  }
+
+  const contextBlock = contextTexts
+    .map((t, i) => `[片段${i + 1}] ${t.slice(0, 500)}`)
+    .join("\n\n");
+
+  const expectedPart = expectedAnswer ? `\n\n期望答案（参考）：${expectedAnswer}` : "";
+
+  try {
+    const response = await callWithFallback([
+      {
+        role: "system",
+        content:
+          "你是一个RAG系统评估专家。请对生成的答案进行三个维度的评估，返回JSON格式。\n\n评估维度：\n1. faithfulness（忠实度）：答案是否忠实于检索内容，有无编造信息\n   - 1.0: 所有信息都有检索内容支持\n   - 0.8: 大部分信息有支持，少量推断\n   - 0.6: 约一半信息有支持\n   - 0.4: 大部分信息缺乏依据\n   - 0.2: 几乎脱离检索内容\n   - 0.0: 完全无关\n\n2. relevance（相关性）：答案是否有效回答了用户问题\n   - 1.0: 完全回答了问题\n   - 0.8: 回答了主要部分\n   - 0.6: 部分回答\n   - 0.4: 仅部分相关\n   - 0.2: 几乎不相关\n   - 0.0: 完全无关\n   注意：如果答案说无法获取但提供了部分相关数据，给0.4-0.6分\n\n3. correctness（正确性）：答案与期望答案的语义一致性\n   - 1.0: 与期望答案完全一致\n   - 0.8: 主要信息一致\n   - 0.6: 部分信息一致\n   - 0.4: 仅部分一致\n   - 0.2: 大部分不一致\n   - 0.0: 完全不一致\n   注意：数值差异5%以内视为准确；答案比期望答案更详细但核心一致给高分\n\n只返回JSON，格式：{\"faithfulness\": 0.8, \"relevance\": 0.6, \"correctness\": 0.7}",
+      },
+      {
+        role: "user",
+        content: `用户问题：${query}\n\n检索内容：\n${contextBlock}\n\n生成的答案：${answer}${expectedPart}`,
+      },
+    ]);
+
+    const content = (response.content ?? "").trim();
+    // 尝试解析JSON
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error(`[rag-evaluator] 合并评估JSON解析失败: "${content}"`);
+      return { faithfulness: 0.5, relevance: 0.5, correctness: 0.5 };
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    const faithfulness = Math.min(1, Math.max(0, Number(parsed.faithfulness) || 0));
+    const relevance = Math.min(1, Math.max(0, Number(parsed.relevance) || 0));
+    const correctness = Math.min(1, Math.max(0, Number(parsed.correctness) || 0));
+
+    console.log(`[rag-evaluator] 合并评估结果: faithfulness=${faithfulness}, relevance=${relevance}, correctness=${correctness}`);
+    return { faithfulness, relevance, correctness };
+  } catch (error) {
+    console.error("[rag-evaluator] 合并LLM评估失败:", error);
+    return { faithfulness: 0.5, relevance: 0.5, correctness: 0.5 };
+  }
+}
+
 async function llmEvaluateFaithfulness(
   answer: string,
   contextTexts: string[]
@@ -611,10 +669,11 @@ export async function evaluateAnswer(
     let llmCorrectness: number | null = null;
 
     try {
-      llmFaithfulness = await llmEvaluateFaithfulness(actualAnswer, contextForEval);
-      llmRelevance = await llmEvaluateAnswerRelevance(query, actualAnswer, expectedAnswer);
-      // 新增：评估Answer Correctness（答案与期望答案的语义一致性）
-      llmCorrectness = await evaluateAnswerCorrectness(actualAnswer, expectedAnswer);
+      // V6优化：合并3个LLM调用为1个，减少API请求次数，降低超时概率
+      const mergedResult = await llmEvaluateMerged(actualAnswer, contextForEval, query, expectedAnswer);
+      llmFaithfulness = mergedResult.faithfulness;
+      llmRelevance = mergedResult.relevance;
+      llmCorrectness = mergedResult.correctness;
 
       console.log(
         `[rag-evaluator] LLM Faithfulness: ${llmFaithfulness}, LLM Relevance: ${llmRelevance}, LLM Correctness: ${llmCorrectness}`
