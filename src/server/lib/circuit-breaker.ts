@@ -7,8 +7,8 @@ interface CircuitState {
 
 const circuits = new Map<string, CircuitState>();
 
-const FAILURE_THRESHOLD = 3;
-const OPEN_DURATION_MS = 60000;
+const FAILURE_THRESHOLD = 5;
+const OPEN_DURATION_MS = 30000;
 const HALF_OPEN_MAX_CALLS = 1;
 
 export function getCircuitState(name: string): "closed" | "open" | "half-open" {

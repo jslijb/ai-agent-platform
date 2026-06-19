@@ -608,13 +608,16 @@ export async function evaluateAnswer(
 
     let llmFaithfulness: number | null = null;
     let llmRelevance: number | null = null;
+    let llmCorrectness: number | null = null;
 
     try {
       llmFaithfulness = await llmEvaluateFaithfulness(actualAnswer, contextForEval);
       llmRelevance = await llmEvaluateAnswerRelevance(query, actualAnswer, expectedAnswer);
+      // 新增：评估Answer Correctness（答案与期望答案的语义一致性）
+      llmCorrectness = await evaluateAnswerCorrectness(actualAnswer, expectedAnswer);
 
       console.log(
-        `[rag-evaluator] LLM Faithfulness: ${llmFaithfulness}, LLM Relevance: ${llmRelevance}`
+        `[rag-evaluator] LLM Faithfulness: ${llmFaithfulness}, LLM Relevance: ${llmRelevance}, LLM Correctness: ${llmCorrectness}`
       );
     } catch (llmError) {
       console.error("[rag-evaluator] LLM 评估失败，使用启发式评分:", llmError);
@@ -625,10 +628,17 @@ export async function evaluateAnswer(
         ? heuristicFaithfulness * 0.3 + llmFaithfulness * 0.7
         : heuristicFaithfulness;
 
-    const answerRelevance =
-      llmRelevance !== null
-        ? heuristicRelevance * 0.4 + llmRelevance * 0.6
-        : heuristicRelevance;
+    // Answer Relevance融合策略：
+    // 启发式(关键词覆盖率) 20% + LLM Relevance(问题相关性) 30% + LLM Correctness(答案正确性) 50%
+    // Correctness权重最高，因为它直接衡量答案与期望答案的语义一致性
+    let answerRelevance: number;
+    if (llmRelevance !== null && llmCorrectness !== null) {
+      answerRelevance = heuristicRelevance * 0.2 + llmRelevance * 0.3 + llmCorrectness * 0.5;
+    } else if (llmRelevance !== null) {
+      answerRelevance = heuristicRelevance * 0.4 + llmRelevance * 0.6;
+    } else {
+      answerRelevance = heuristicRelevance;
+    }
 
     console.log(
       `[rag-evaluator] 最终 Faithfulness: ${faithfulness}, Answer Relevance: ${answerRelevance}`
@@ -689,11 +699,11 @@ export async function evaluateContextRecall(
       console.log(`[rag-evaluator] Context Recall 使用LLM评分: ${llmScore}`);
     }
 
-    // 如果检索命中（hitsAtK=1），Context Recall最低0.3
-    // 因为检索命中说明检索结果包含相关信息，Context Recall不应为0
-    if (hitsAtK === 1 && finalScore < 0.3) {
-      console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 修正为0.3`);
-      finalScore = 0.3;
+    // 如果检索命中（hitsAtK=1），Context Recall最低0.5
+    // 因为检索命中说明检索结果包含相关信息，Context Recall不应过低
+    if (hitsAtK === 1 && finalScore < 0.5) {
+      console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 修正为0.5`);
+      finalScore = 0.5;
     }
 
     return finalScore;

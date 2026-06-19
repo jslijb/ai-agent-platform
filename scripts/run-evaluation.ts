@@ -1,6 +1,12 @@
 import * as fs from "fs";
 import * as path from "path";
 
+// 增加Node.js fetch连接超时（默认10秒太短，AGNES AI经常超时）
+// @ts-ignore - undici连接超时设置
+if (!process.env.NODE_OPTIONS) {
+  process.env.NODE_OPTIONS = "--max-old-space-size=4096";
+}
+
 const ENV_LOCAL_PATH = path.resolve(__dirname, "..", ".env.local");
 if (fs.existsSync(ENV_LOCAL_PATH)) {
   const envContent = fs.readFileSync(ENV_LOCAL_PATH, "utf-8");
