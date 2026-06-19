@@ -291,6 +291,55 @@ function fallbackContextRecall(
   return coveredTokens.length / expectedTokens.length;
 }
 
+/**
+ * 使用LLM评估Context Recall
+ * 判断期望答案中的每个关键信息是否在检索结果中出现
+ */
+async function llmEvaluateContextRecall(
+  query: string,
+  expectedAnswer: string,
+  searchResults: Array<{ text: string; score: number }>
+): Promise<number> {
+  console.log("[rag-evaluator] 使用 LLM 评估 Context Recall");
+
+  if (searchResults.length === 0) {
+    console.log("[rag-evaluator] LLM Context Recall: 无检索结果，返回0");
+    return 0;
+  }
+
+  const contextBlock = searchResults
+    .map((t, i) => `[片段${i + 1}] ${t.text.slice(0, 500)}`)
+    .join("\n\n");
+
+  try {
+    const response = await callWithFallback([
+      {
+        role: "system",
+        content:
+          "你是一个RAG系统评估专家。请评估检索内容是否包含了回答问题所需的关键信息。\n\n评估方法：\n1. 从期望答案中提取关键信息点（如具体数值、事实陈述、专业术语等）\n2. 检查每个关键信息点是否在检索内容中出现（直接出现或语义等价）\n3. 计算覆盖率 = 被覆盖的关键信息点数 / 总关键信息点数\n\n评分标准：\n- 1.0分：检索内容包含了期望答案中的所有关键信息\n- 0.8分：大部分关键信息被覆盖（>=80%）\n- 0.6分：约一半关键信息被覆盖\n- 0.4分：少量关键信息被覆盖（<50%）\n- 0.2分：几乎无关键信息被覆盖\n- 0.0分：检索内容与期望答案完全无关\n\n注意：语义等价也算覆盖（如3865亿和3865亿元，增长15%和增幅15%）\n\n只返回一个0到1之间的数字，不要返回其他内容。",
+      },
+      {
+        role: "user",
+        content: `用户问题：${query}\n\n期望答案：${expectedAnswer}\n\n检索内容：\n${contextBlock}\n\n请评估检索内容对期望答案关键信息的覆盖度（0-1）：`,
+      },
+    ]);
+
+    const score = parseFloat((response.content ?? "").trim());
+    if (isNaN(score) || score < 0 || score > 1) {
+      console.error(
+        `[rag-evaluator] LLM Context Recall 评分解析失败: "${response.content}", 使用默认值`
+      );
+      return fallbackContextRecall(expectedAnswer, searchResults);
+    }
+
+    console.log(`[rag-evaluator] LLM Context Recall 评分: ${score}`);
+    return score;
+  } catch (error) {
+    console.error("[rag-evaluator] LLM Context Recall 评估失败:", error);
+    return fallbackContextRecall(expectedAnswer, searchResults);
+  }
+}
+
 async function llmEvaluateFaithfulness(
   answer: string,
   contextTexts: string[]
@@ -312,7 +361,7 @@ async function llmEvaluateFaithfulness(
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请评估生成的答案是否忠实于提供的检索内容。评分范围0-1，1表示完全忠实，0表示完全不一致。只返回一个0到1之间的数字，不要返回其他内容。",
+          "你是一个RAG系统评估专家。请评估生成的答案是否忠实于提供的检索内容。\n\n评估标准：\n- 1.0分：答案中所有信息都能在检索内容中找到直接支持，无任何编造\n- 0.8分：答案中大部分信息有检索内容支持，仅有少量推断\n- 0.6分：答案中约一半信息有检索内容支持，另一半缺乏依据\n- 0.4分：答案中大部分信息无法在检索内容中找到依据\n- 0.2分：答案几乎完全脱离检索内容，大量编造\n- 0.0分：答案与检索内容完全无关\n\n特别注意：\n1. 答案中的具体数值（如营业收入、增长率等）必须在检索内容中有明确来源\n2. 答案中的事实陈述必须有检索内容支持\n3. 合理的推断和总结不算编造，但必须基于检索内容\n\n只返回一个0到1之间的数字，不要返回其他内容。",
       },
       {
         role: "user",
@@ -338,7 +387,8 @@ async function llmEvaluateFaithfulness(
 
 async function llmEvaluateAnswerRelevance(
   query: string,
-  answer: string
+  answer: string,
+  expectedAnswer?: string
 ): Promise<number> {
   console.log("[rag-evaluator] 使用 LLM 评估 Answer Relevance");
 
@@ -349,15 +399,20 @@ async function llmEvaluateAnswerRelevance(
   }
 
   try {
+    // 构建评估prompt，包含期望答案作为参考
+    const expectedPart = expectedAnswer
+      ? `\n\n期望答案（仅供参考，不要求完全一致）：${expectedAnswer}`
+      : "";
+
     const response = await callWithFallback([
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请评估生成的答案是否与用户问题相关。评分范围0-1，1表示完全相关，0表示完全不相关。只返回一个0到1之间的数字，不要返回其他内容。",
+          "你是一个RAG系统评估专家。请评估生成的答案是否有效回答了用户的问题。\n\n评估维度（各占权重）：\n1. 关键信息覆盖度（40%）：答案是否涵盖了问题所询问的关键信息\n2. 直接性（30%）：答案是否直接回应了问题，而非绕弯子\n3. 准确性（30%）：答案中的具体数据和信息是否准确\n\n评分标准：\n- 1.0分：完全回答了问题，关键信息准确完整\n- 0.8分：回答了问题的主要部分，少量细节缺失\n- 0.6分：部分回答了问题，但缺少重要信息\n- 0.4分：仅部分相关，未有效回答核心问题\n- 0.2分：几乎不相关，未回答问题\n- 0.0分：完全无关\n\n特别注意：\n1. 如果问题询问具体数值，答案必须包含该数值才算是有效回答\n2. 如果答案说无法获取但问题本应能被回答，应给低分\n3. 如果答案提供了相关但非核心的信息，给中等分数\n\n只返回一个0到1之间的数字，不要返回其他内容。",
       },
       {
         role: "user",
-        content: `用户问题：${query}\n\n生成的答案：${answer}\n\n请评估答案与问题的相关性（0-1）：`,
+        content: `用户问题：${query}\n\n生成的答案：${answer}${expectedPart}\n\n请评估答案对问题的回答有效性（0-1）：`,
       },
     ]);
 
@@ -523,7 +578,7 @@ export async function evaluateAnswer(
 
     try {
       llmFaithfulness = await llmEvaluateFaithfulness(actualAnswer, contextForEval);
-      llmRelevance = await llmEvaluateAnswerRelevance(query, actualAnswer);
+      llmRelevance = await llmEvaluateAnswerRelevance(query, actualAnswer, expectedAnswer);
 
       console.log(
         `[rag-evaluator] LLM Faithfulness: ${llmFaithfulness}, LLM Relevance: ${llmRelevance}`
@@ -534,12 +589,12 @@ export async function evaluateAnswer(
 
     const faithfulness =
       llmFaithfulness !== null
-        ? heuristicFaithfulness * 0.4 + llmFaithfulness * 0.6
+        ? heuristicFaithfulness * 0.3 + llmFaithfulness * 0.7
         : heuristicFaithfulness;
 
     const answerRelevance =
       llmRelevance !== null
-        ? heuristicRelevance * 0.2 + llmRelevance * 0.8
+        ? heuristicRelevance * 0.1 + llmRelevance * 0.9
         : heuristicRelevance;
 
     console.log(
@@ -564,7 +619,11 @@ export async function evaluateContextRecall(
   console.log("[rag-evaluator] 评估 Context Recall");
 
   try {
+    // 优先使用LLM评估Context Recall（对中文效果更好）
+    const llmScore = await llmEvaluateContextRecall(query, expectedAnswer, searchResults);
+
     const scorers = await getScorers();
+    let libScore: number | null = null;
 
     if (scorers) {
       try {
@@ -576,23 +635,28 @@ export async function evaluateContextRecall(
         };
 
         const contextRecallResult = await scorers.contextRecallScorer.score(sample);
-        const contextRecall = contextRecallResult.score;
+        libScore = contextRecallResult.score;
 
         console.log(
-          `[rag-evaluator] Context Recall (库): ${contextRecall}, 覆盖事实: ${contextRecallResult.covered_facts}/${contextRecallResult.total_facts}`
+          `[rag-evaluator] Context Recall (库): ${libScore}, 覆盖事实: ${contextRecallResult.covered_facts}/${contextRecallResult.total_facts}`
         );
-
-        return contextRecall;
       } catch (scorerError) {
-        console.error("[rag-evaluator] 库评分器失败，使用降级计算:", scorerError);
-        return fallbackContextRecall(expectedAnswer, searchResults);
+        console.error("[rag-evaluator] 库评分器失败:", scorerError);
       }
     }
 
-    return fallbackContextRecall(expectedAnswer, searchResults);
+    // 融合策略：LLM评分权重0.7，库评分权重0.3（如果库评分可用）
+    if (libScore !== null) {
+      const fusedScore = llmScore * 0.7 + libScore * 0.3;
+      console.log(`[rag-evaluator] Context Recall 融合: LLM=${llmScore}, 库=${libScore}, 融合=${fusedScore}`);
+      return fusedScore;
+    }
+
+    console.log(`[rag-evaluator] Context Recall 使用LLM评分: ${llmScore}`);
+    return llmScore;
   } catch (error) {
-    console.error("[rag-evaluator] Context Recall 评估失败:", error);
-    return 0;
+    console.error("[rag-evaluator] Context Recall 评估失败，使用降级计算:", error);
+    return fallbackContextRecall(expectedAnswer, searchResults);
   }
 }
 
@@ -1022,7 +1086,7 @@ export async function evaluateAnswerCorrectness(
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请评估生成的答案与期望答案之间的语义一致性。评估维度包括：1.事实一致性（事实信息是否准确）2.完整性（是否涵盖了期望答案中的关键信息）3.相关性（是否与问题直接相关）。评分范围0-1，1表示完全一致，0表示完全不一致。只返回一个0到1之间的数字，不要返回其他内容。",
+          "你是一个RAG系统评估专家。请评估生成的答案与期望答案之间的语义一致性。\n\n评估维度：\n1. 事实一致性（40%）：答案中的事实信息是否与期望答案一致\n2. 完整性（30%）：答案是否涵盖了期望答案中的关键信息\n3. 准确性（30%）：答案中的具体数值、日期等是否准确\n\n评分标准：\n- 1.0分：与期望答案完全一致，所有关键信息准确无误\n- 0.8分：主要信息一致，少量细节差异\n- 0.6分：部分信息一致，但缺少重要细节或有轻微偏差\n- 0.4分：仅部分信息一致，关键信息缺失或有明显偏差\n- 0.2分：大部分信息不一致\n- 0.0分：完全不一致\n\n特别注意：\n1. 数值差异在5%以内视为准确\n2. 如果实际答案包含了期望答案的所有关键信息但表述不同，仍应给高分\n3. 如果实际答案比期望答案更详细但核心信息一致，不应扣分\n\n只返回一个0到1之间的数字，不要返回其他内容。",
       },
       {
         role: "user",
