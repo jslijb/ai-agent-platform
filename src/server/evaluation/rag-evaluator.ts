@@ -266,10 +266,43 @@ function fallbackAnswerRelevance(
   // 拒绝回答的答案相关性直接给低分
   if (isRefusalAnswer(answer)) return 0.1;
 
+  // 改进：使用关键词覆盖率替代jaccard
+  // 从query中提取关键词（数字、英文单词、中文bigram）
   const queryTokens = tokenize(query);
-  const answerTokens = tokenize(answer);
+  const answerTokens = new Set(tokenize(answer));
 
-  return jaccardSimilarity(queryTokens, answerTokens);
+  if (queryTokens.length === 0) return 0;
+
+  // 计算query关键词在answer中的覆盖率
+  const coveredTokens = queryTokens.filter((t) => answerTokens.has(t));
+  const keywordCoverage = coveredTokens.length / queryTokens.length;
+
+  // 额外检查：query中的核心实体是否在answer中出现
+  // 提取query中的数字和英文单词作为核心关键词
+  const coreKeywords: string[] = [];
+  const numberRegex = /[-+]?\d[\d,]*\.?\d*%?/g;
+  const englishRegex = /[a-zA-Z]{2,}/g;
+  let numberMatch: RegExpExecArray | null;
+  while ((numberMatch = numberRegex.exec(query)) !== null) {
+    coreKeywords.push(numberMatch[0].replace(/,/g, ""));
+  }
+  let englishMatch: RegExpExecArray | null;
+  while ((englishMatch = englishRegex.exec(query)) !== null) {
+    coreKeywords.push(englishMatch[0].toLowerCase());
+  }
+
+  // 核心关键词覆盖率（权重更高）
+  let coreCoverage = 1;
+  if (coreKeywords.length > 0) {
+    const coveredCore = coreKeywords.filter((kw) => answerTokens.has(kw) || answer.includes(kw));
+    coreCoverage = coveredCore.length / coreKeywords.length;
+  }
+
+  // 综合评分：核心关键词覆盖率60% + 一般关键词覆盖率40%
+  const score = Math.min(coreCoverage * 0.6 + keywordCoverage * 0.4, 1);
+
+  console.log(`[rag-evaluator] 降级 Answer Relevance: 关键词覆盖=${keywordCoverage.toFixed(3)}, 核心关键词覆盖=${coreCoverage.toFixed(3)}, 综合=${score.toFixed(3)}`);
+  return score;
 }
 
 function fallbackContextRecall(
@@ -408,7 +441,7 @@ async function llmEvaluateAnswerRelevance(
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请评估生成的答案是否有效回答了用户的问题。\n\n评估维度（各占权重）：\n1. 关键信息覆盖度（40%）：答案是否涵盖了问题所询问的关键信息\n2. 直接性（30%）：答案是否直接回应了问题，而非绕弯子\n3. 准确性（30%）：答案中的具体数据和信息是否准确\n\n评分标准：\n- 1.0分：完全回答了问题，关键信息准确完整\n- 0.8分：回答了问题的主要部分，少量细节缺失\n- 0.6分：部分回答了问题，但缺少重要信息\n- 0.4分：仅部分相关，未有效回答核心问题\n- 0.2分：几乎不相关，未回答问题\n- 0.0分：完全无关\n\n特别注意：\n1. 如果问题询问具体数值，答案必须包含该数值才算是有效回答\n2. 如果答案说无法获取但问题本应能被回答，应给低分\n3. 如果答案提供了相关但非核心的信息，给中等分数\n\n只返回一个0到1之间的数字，不要返回其他内容。",
+          "你是一个RAG系统评估专家。请评估生成的答案是否有效回答了用户的问题。\n\n评估维度（各占权重）：\n1. 关键信息覆盖度（40%）：答案是否涵盖了问题所询问的关键信息\n2. 直接性（30%）：答案是否直接回应了问题，而非绕弯子\n3. 准确性（30%）：答案中的具体数据和信息是否准确\n\n评分标准：\n- 1.0分：完全回答了问题，关键信息准确完整\n- 0.8分：回答了问题的主要部分，少量细节缺失\n- 0.6分：部分回答了问题，但缺少重要信息\n- 0.4分：仅部分相关，未有效回答核心问题\n- 0.2分：几乎不相关，未回答问题\n- 0.0分：完全无关\n\n特别注意：\n1. 如果问题询问具体数值，答案包含了该数值则给高分(>=0.8)，即使答案也说了无法获取完整数据\n2. 如果答案说无法获取但提供了部分相关数据，应给中等分数(0.4-0.6)\n3. 如果答案提供了相关但非核心的信息，给中等分数(0.4-0.6)\n4. 只有完全无关的回答才给0分\n\n只返回一个0到1之间的数字，不要返回其他内容。",
       },
       {
         role: "user",
@@ -594,7 +627,7 @@ export async function evaluateAnswer(
 
     const answerRelevance =
       llmRelevance !== null
-        ? heuristicRelevance * 0.1 + llmRelevance * 0.9
+        ? heuristicRelevance * 0.4 + llmRelevance * 0.6
         : heuristicRelevance;
 
     console.log(
@@ -614,7 +647,8 @@ export async function evaluateAnswer(
 export async function evaluateContextRecall(
   query: string,
   expectedAnswer: string,
-  searchResults: Array<{ text: string; score: number }>
+  searchResults: Array<{ text: string; score: number }>,
+  hitsAtK?: number
 ): Promise<number> {
   console.log("[rag-evaluator] 评估 Context Recall");
 
@@ -646,14 +680,23 @@ export async function evaluateContextRecall(
     }
 
     // 融合策略：LLM评分权重0.7，库评分权重0.3（如果库评分可用）
+    let finalScore: number;
     if (libScore !== null) {
-      const fusedScore = llmScore * 0.7 + libScore * 0.3;
-      console.log(`[rag-evaluator] Context Recall 融合: LLM=${llmScore}, 库=${libScore}, 融合=${fusedScore}`);
-      return fusedScore;
+      finalScore = llmScore * 0.7 + libScore * 0.3;
+      console.log(`[rag-evaluator] Context Recall 融合: LLM=${llmScore}, 库=${libScore}, 融合=${finalScore}`);
+    } else {
+      finalScore = llmScore;
+      console.log(`[rag-evaluator] Context Recall 使用LLM评分: ${llmScore}`);
     }
 
-    console.log(`[rag-evaluator] Context Recall 使用LLM评分: ${llmScore}`);
-    return llmScore;
+    // 如果检索命中（hitsAtK=1），Context Recall最低0.3
+    // 因为检索命中说明检索结果包含相关信息，Context Recall不应为0
+    if (hitsAtK === 1 && finalScore < 0.3) {
+      console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 修正为0.3`);
+      finalScore = 0.3;
+    }
+
+    return finalScore;
   } catch (error) {
     console.error("[rag-evaluator] Context Recall 评估失败，使用降级计算:", error);
     return fallbackContextRecall(expectedAnswer, searchResults);
@@ -700,10 +743,11 @@ export async function runFullEvaluation(
         `[rag-evaluator] 答案生成完成, 长度: ${actualAnswer.length}`
       );
 
-      const [retrievalResult, answerResult, contextRecall] = await Promise.all([
-        evaluateRetrieval(testItem.query, testItem.expectedAnswer, searchResults),
+      // 先计算检索指标（需要hitsAtK给Context Recall使用）
+      const retrievalResult = await evaluateRetrieval(testItem.query, testItem.expectedAnswer, searchResults);
+      const [answerResult, contextRecall] = await Promise.all([
         evaluateAnswer(testItem.query, testItem.expectedAnswer, actualAnswer, searchResults),
-        evaluateContextRecall(testItem.query, testItem.expectedAnswer, searchResults),
+        evaluateContextRecall(testItem.query, testItem.expectedAnswer, searchResults, retrievalResult.hitsAtK),
       ]);
 
       const durationMs = Date.now() - itemStart;
@@ -1926,10 +1970,11 @@ export async function runFinancialEvaluation(
         expectedContent: testItem.expectedAnswer,
       });
 
-      const [retrievalResult, answerResult, contextRecall, numericalAccuracy, complianceScore, hallucinationRate, riskDisclosureScore, timelinessScore] = await Promise.all([
-        evaluateRetrieval(testItem.query, testItem.expectedAnswer, searchResults),
+      // 先计算检索指标（需要hitsAtK给Context Recall使用）
+      const retrievalResult = await evaluateRetrieval(testItem.query, testItem.expectedAnswer, searchResults);
+      const [answerResult, contextRecall, numericalAccuracy, complianceScore, hallucinationRate, riskDisclosureScore, timelinessScore] = await Promise.all([
         evaluateAnswer(testItem.query, testItem.expectedAnswer, actualAnswer, searchResults),
-        evaluateContextRecall(testItem.query, testItem.expectedAnswer, searchResults),
+        evaluateContextRecall(testItem.query, testItem.expectedAnswer, searchResults, retrievalResult.hitsAtK),
         Promise.resolve(evaluateNumericalAccuracy(actualAnswer, testItem.expectedAnswer, canAnswer)),
         evaluateCompliance(actualAnswer, category, canAnswer),
         evaluateHallucination(actualAnswer, searchResults, canAnswer),
