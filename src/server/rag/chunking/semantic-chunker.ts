@@ -13,6 +13,9 @@ export interface ChunkResult {
     source: string;
     heading?: string;
     tokenCount: number;
+    pageNum?: number;
+    startPage?: number;
+    endPage?: number;
   };
 }
 
@@ -137,6 +140,24 @@ export async function parsePDFWithMinerU(
     console.error("[semantic-chunker] PDF 解析异常:", error);
     throw error;
   }
+}
+
+/**
+ * 从包含 [PAGE_N] 标记的文本中提取页码范围
+ * PDF解析时会在每页文本前插入 [PAGE_N] 标记
+ */
+function extractPageRange(text: string): { startPage?: number; endPage?: number; cleanText: string } {
+  const pageMarkers = text.match(/\[PAGE_(\d+)\]/g);
+  if (!pageMarkers || pageMarkers.length === 0) {
+    return { cleanText: text.replace(/\[PAGE_\d+\]\n?/g, "") };
+  }
+
+  const pageNumbers = pageMarkers.map(m => parseInt(m.match(/\d+/)![0]));
+  const startPage = Math.min(...pageNumbers);
+  const endPage = Math.max(...pageNumbers);
+  const cleanText = text.replace(/\[PAGE_\d+\]\n?/g, "");
+
+  return { startPage, endPage, cleanText };
 }
 
 function splitByHeadings(markdown: string): Array<{ heading: string; content: string; level: number }> {
@@ -436,14 +457,22 @@ export async function chunkDocument(
       : await chunkText(parsedText, options);
     const fixedChunks = fixChunkBoundaries(chunks);
     return {
-      rawText: parsedText,
-      chunks: fixedChunks.map((chunk) => ({
-        ...chunk,
-        metadata: {
-          ...chunk.metadata,
-          source: fileName,
-        },
-      })),
+      rawText: parsedText.replace(/\[PAGE_\d+\]\n?/g, ""),
+      chunks: fixedChunks.map((chunk) => {
+        // 从chunk文本中提取页码信息
+        const { startPage, endPage, cleanText } = extractPageRange(chunk.text);
+        return {
+          ...chunk,
+          text: cleanText,
+          metadata: {
+            ...chunk.metadata,
+            source: fileName,
+            startPage,
+            endPage,
+            pageNum: startPage,
+          },
+        };
+      }),
     };
   }
 
