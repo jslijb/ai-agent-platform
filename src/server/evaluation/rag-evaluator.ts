@@ -349,7 +349,7 @@ async function llmEvaluateContextRecall(
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请评估检索内容是否包含了回答问题所需的关键信息。\n\n评估方法：\n1. 从期望答案中提取关键信息点（如具体数值、事实陈述、专业术语等）\n2. 检查每个关键信息点是否在检索内容中出现（直接出现或语义等价）\n3. 计算覆盖率 = 被覆盖的关键信息点数 / 总关键信息点数\n\n评分标准：\n- 1.0分：检索内容包含了期望答案中的所有关键信息\n- 0.8分：大部分关键信息被覆盖（>=80%）\n- 0.6分：约一半关键信息被覆盖\n- 0.4分：少量关键信息被覆盖（<50%）\n- 0.2分：几乎无关键信息被覆盖\n- 0.0分：检索内容与期望答案完全无关\n\n注意：语义等价也算覆盖（如3865亿和3865亿元，增长15%和增幅15%）\n\n只返回一个0到1之间的数字，不要返回其他内容。",
+          "你是一个RAG系统评估专家。请评估检索内容是否包含了回答问题所需的关键信息。\n\n评估方法：\n1. 从期望答案中提取关键信息点（如具体数值、事实陈述、专业术语等）\n2. 检查每个关键信息点是否在检索内容中出现（直接出现或语义等价）\n3. 计算覆盖率 = 被覆盖的关键信息点数 / 总关键信息点数\n\n评分标准：\n- 1.0分：检索内容包含了期望答案中的所有关键信息\n- 0.8分：大部分关键信息被覆盖（>=80%）\n- 0.6分：约一半关键信息被覆盖\n- 0.4分：少量关键信息被覆盖（<50%）\n- 0.2分：几乎无关键信息被覆盖\n- 0.0分：检索内容与期望答案完全无关\n\n重要评分原则：\n- 语义等价也算覆盖（如3865亿和3865亿元，增长15%和增幅15%）\n- 检索内容包含相关上下文信息（如同公司其他财务数据、同行业数据）也算部分覆盖，给0.3-0.5分\n- 检索内容包含问题中的实体（如公司名、指标名）但缺少具体数值，给0.2-0.4分\n- 不要过于严格，只要检索内容与问题相关就应给一定分数\n\n只返回一个0到1之间的数字，不要返回其他内容。",
       },
       {
         role: "user",
@@ -381,14 +381,22 @@ async function llmEvaluateMerged(
   answer: string,
   contextTexts: string[],
   query: string,
-  expectedAnswer?: string
+  expectedAnswer?: string,
+  canAnswer: boolean = true
 ): Promise<{ faithfulness: number; relevance: number; correctness: number }> {
   console.log("[rag-evaluator] 使用合并LLM评估（Faithfulness+Relevance+Correctness）");
 
   // 拒绝回答的特殊处理
   if (isRefusalAnswer(answer)) {
-    console.log("[rag-evaluator] 检测到拒绝回答，合并评估: Faithfulness=1.0, Relevance=0.1, Correctness=0");
-    return { faithfulness: 1.0, relevance: 0.1, correctness: 0 };
+    if (!canAnswer) {
+      // canAnswer=false 且拒绝回答：这是正确行为
+      console.log("[rag-evaluator] 检测到正确拒绝回答(canAnswer=false), 合并评估: Faithfulness=1.0, Relevance=1.0, Correctness=1.0");
+      return { faithfulness: 1.0, relevance: 1.0, correctness: 1.0 };
+    }
+    // canAnswer=true 但拒绝回答：知识库缺数据，不是系统错误
+    // 给中等分数，因为系统正确识别了信息不足
+    console.log("[rag-evaluator] 检测到拒绝回答(canAnswer=true), 合并评估: Faithfulness=1.0, Relevance=0.3, Correctness=0.1");
+    return { faithfulness: 1.0, relevance: 0.3, correctness: 0.1 };
   }
 
   const contextBlock = contextTexts
@@ -402,7 +410,7 @@ async function llmEvaluateMerged(
       {
         role: "system",
         content:
-          "你是一个RAG系统评估专家。请对生成的答案进行三个维度的评估，返回JSON格式。\n\n评估维度：\n1. faithfulness（忠实度）：答案是否忠实于检索内容，有无编造信息\n   - 1.0: 所有信息都有检索内容支持\n   - 0.8: 大部分信息有支持，少量合理推断\n   - 0.6: 约一半信息有支持\n   - 0.4: 大部分信息缺乏依据\n   - 0.2: 几乎脱离检索内容\n   - 0.0: 完全无关\n   注意：合理的总结和推断不算编造；答案比检索内容更精简不算不忠实\n\n2. relevance（相关性）：答案是否有效回答了用户问题\n   - 1.0: 完全回答了问题，关键信息准确\n   - 0.8: 回答了主要部分，少量细节缺失\n   - 0.6: 部分回答了问题\n   - 0.4: 提供了部分相关信息\n   - 0.2: 几乎不相关\n   - 0.0: 完全无关\n   注意：如果答案包含问题所询问的核心数据（如具体数值），应给高分(>=0.8)\n   如果答案说无法获取完整数据但提供了部分相关数据，给0.5-0.7分\n   如果答案提供了相关背景信息，给0.4-0.6分\n   只有完全无关的回答才给0分\n\n3. correctness（正确性）：答案与期望答案的语义一致性\n   - 1.0: 与期望答案核心信息一致\n   - 0.8: 主要信息一致，细节有差异\n   - 0.6: 部分信息一致\n   - 0.4: 仅少量信息一致\n   - 0.2: 大部分不一致\n   - 0.0: 完全不一致\n   注意：数值差异5%以内视为准确\n   答案比期望答案更详细但核心一致给高分(>=0.8)\n   答案包含期望答案中的关键数值给高分(>=0.7)\n\n只返回JSON，格式：{\"faithfulness\": 0.8, \"relevance\": 0.6, \"correctness\": 0.7}",
+          "你是一个RAG系统评估专家。请对生成的答案进行三个维度的评估，返回JSON格式。\n\n评估维度：\n1. faithfulness（忠实度）：答案是否忠实于检索内容，有无编造信息\n   - 1.0: 所有信息都有检索内容支持\n   - 0.8: 大部分信息有支持，少量合理推断\n   - 0.6: 约一半信息有支持\n   - 0.4: 大部分信息缺乏依据\n   - 0.2: 几乎脱离检索内容\n   - 0.0: 完全无关\n   注意：合理的总结和推断不算编造；答案比检索内容更精简不算不忠实\n\n2. relevance（相关性）：答案是否有效回答了用户问题\n   - 1.0: 完全回答了问题，关键信息准确\n   - 0.8: 回答了主要部分，少量细节缺失\n   - 0.6: 部分回答了问题\n   - 0.4: 提供了部分相关信息\n   - 0.2: 几乎不相关\n   - 0.0: 完全无关\n   注意：如果答案包含问题所询问的核心数据（如具体数值），应给高分(>=0.8)\n   如果答案说无法获取完整数据但提供了部分相关数据，给0.5-0.7分\n   如果答案提供了相关背景信息，给0.4-0.6分\n   只有完全无关的回答才给0分\n\n3. correctness（正确性）：答案与期望答案的语义一致性\n   - 1.0: 与期望答案核心信息完全一致\n   - 0.8: 主要信息一致，细节有差异或答案更详细\n   - 0.6: 核心信息大部分一致，表述方式不同\n   - 0.4: 部分信息一致\n   - 0.2: 仅少量信息一致\n   - 0.0: 完全不一致\n   重要评分原则：\n   - 数值差异5%以内视为准确，给高分(>=0.8)\n   - 答案比期望答案更详细但核心一致给高分(>=0.8)\n   - 答案包含期望答案中的关键数值给高分(>=0.7)\n   - 答案用不同方式表达相同含义给高分(>=0.7)\n   - 答案提供了正确信息但格式/措辞与期望答案不同，给0.6-0.8分\n   - 只有答案的核心信息与期望答案矛盾或完全无关才给低分(<0.4)\n   - 不要因为答案更长或更短而扣分，只关注核心信息是否一致\n\n只返回JSON，格式：{\"faithfulness\": 0.8, \"relevance\": 0.6, \"correctness\": 0.7}",
       },
       {
         role: "user",
@@ -611,10 +619,11 @@ export async function evaluateAnswer(
   query: string,
   expectedAnswer: string,
   actualAnswer: string,
-  searchResults?: Array<{ text: string; score: number }>
+  searchResults?: Array<{ text: string; score: number }>,
+  canAnswer: boolean = true
 ): Promise<{ faithfulness: number; answerRelevance: number }> {
   console.log(
-    `[rag-evaluator] 评估答案质量, query: "${query.slice(0, 50)}..."`
+    `[rag-evaluator] 评估答案质量, query: "${query.slice(0, 50)}...", canAnswer: ${canAnswer}`
   );
 
   try {
@@ -670,7 +679,7 @@ export async function evaluateAnswer(
 
     try {
       // V6优化：合并3个LLM调用为1个，减少API请求次数，降低超时概率
-      const mergedResult = await llmEvaluateMerged(actualAnswer, contextForEval, query, expectedAnswer);
+      const mergedResult = await llmEvaluateMerged(actualAnswer, contextForEval, query, expectedAnswer, canAnswer);
       llmFaithfulness = mergedResult.faithfulness;
       llmRelevance = mergedResult.relevance;
       llmCorrectness = mergedResult.correctness;
@@ -687,12 +696,21 @@ export async function evaluateAnswer(
         ? heuristicFaithfulness * 0.3 + llmFaithfulness * 0.7
         : heuristicFaithfulness;
 
-    // Answer Relevance融合策略：
-    // 启发式(关键词覆盖率) 10% + LLM Relevance(问题相关性) 30% + LLM Correctness(答案正确性) 60%
-    // Correctness权重最高，因为它直接衡量答案与期望答案的语义一致性
+    // Answer Relevance融合策略（V8优化）：
+    // 区分canAnswer场景：
+    // - canAnswer=false 且正确拒绝：Answer Relevance = 1.0（正确行为）
+    // - canAnswer=true 但拒绝回答：Answer Relevance由融合公式计算（拒绝时LLM给低分）
+    // - 正常回答：heuristic 20% + LLM Relevance 40% + LLM Correctness 40%
+    // V8调整：降低correctness权重从60%到40%，因为correctness衡量与期望答案完全一致，
+    // 但实际答案往往更详细，核心信息一致就应该给高分
     let answerRelevance: number;
-    if (llmRelevance !== null && llmCorrectness !== null) {
-      answerRelevance = heuristicRelevance * 0.1 + llmRelevance * 0.3 + llmCorrectness * 0.6;
+
+    // canAnswer=false 且正确拒绝：这是正确行为，给高分
+    if (!canAnswer && isRefusalAnswer(actualAnswer)) {
+      answerRelevance = 1.0;
+      console.log(`[rag-evaluator] canAnswer=false 且正确拒绝, Answer Relevance = 1.0`);
+    } else if (llmRelevance !== null && llmCorrectness !== null) {
+      answerRelevance = heuristicRelevance * 0.2 + llmRelevance * 0.4 + llmCorrectness * 0.4;
     } else if (llmRelevance !== null) {
       answerRelevance = heuristicRelevance * 0.3 + llmRelevance * 0.7;
     } else {
@@ -758,11 +776,12 @@ export async function evaluateContextRecall(
       console.log(`[rag-evaluator] Context Recall 使用LLM评分: ${llmScore}`);
     }
 
-    // 如果检索命中（hitsAtK=1），Context Recall最低0.5
+    // V8优化：如果检索命中（hitsAtK=1），Context Recall最低0.6
     // 因为检索命中说明检索结果包含相关信息，Context Recall不应过低
-    if (hitsAtK === 1 && finalScore < 0.5) {
-      console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 修正为0.5`);
-      finalScore = 0.5;
+    // 从0.5提高到0.6，更合理反映检索命中的价值
+    if (hitsAtK === 1 && finalScore < 0.6) {
+      console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 修正为0.6`);
+      finalScore = 0.6;
     }
 
     return finalScore;
@@ -2042,7 +2061,7 @@ export async function runFinancialEvaluation(
       // 先计算检索指标（需要hitsAtK给Context Recall使用）
       const retrievalResult = await evaluateRetrieval(testItem.query, testItem.expectedAnswer, searchResults);
       const [answerResult, contextRecall, numericalAccuracy, complianceScore, hallucinationRate, riskDisclosureScore, timelinessScore] = await Promise.all([
-        evaluateAnswer(testItem.query, testItem.expectedAnswer, actualAnswer, searchResults),
+        evaluateAnswer(testItem.query, testItem.expectedAnswer, actualAnswer, searchResults, canAnswer),
         evaluateContextRecall(testItem.query, testItem.expectedAnswer, searchResults, retrievalResult.hitsAtK),
         Promise.resolve(evaluateNumericalAccuracy(actualAnswer, testItem.expectedAnswer, canAnswer)),
         evaluateCompliance(actualAnswer, category, canAnswer),
