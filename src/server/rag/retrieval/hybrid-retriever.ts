@@ -9,18 +9,21 @@ interface HybridSearchResult {
   score: number;
   denseScore?: number;
   sparseScore?: number;
+  metadata?: Record<string, any>;
 }
 
 interface DenseOnlyResult {
   text: string;
   documentId: string;
   score: number;
+  metadata?: Record<string, any>;
 }
 
 interface SparseOnlyResult {
   text: string;
   documentId: string;
   score: number;
+  metadata?: Record<string, any>;
 }
 
 export async function hybridSearch(
@@ -33,11 +36,11 @@ export async function hybridSearch(
     const [denseResults, sparseResults] = await Promise.all([
       denseSearch(query, topK * 2).catch((err) => {
         console.error("[hybrid-retriever] 稠密检索失败:", err);
-        return [] as Array<{ id: string; text: string; documentId: string; score: number }>;
+        return [] as Array<{ id: string; text: string; documentId: string; score: number; metadata?: Record<string, any> }>;
       }),
       sparseSearch(query, topK * 2).catch((err) => {
         console.error("[hybrid-retriever] 稀疏检索失败:", err);
-        return [] as Array<{ id: number; text: string; documentId: string; score: number }>;
+        return [] as Array<{ id: number; text: string; documentId: string; score: number; metadata?: Record<string, any> }>;
       }),
     ]);
 
@@ -57,6 +60,7 @@ export async function hybridSearch(
         sparseRank?: number;
         denseScore?: number;
         sparseScore?: number;
+        metadata?: Record<string, any>;
       }
     >();
 
@@ -67,6 +71,7 @@ export async function hybridSearch(
         documentId: denseRanked[i].documentId,
         denseRank: i + 1,
         denseScore: denseRanked[i].score,
+        metadata: (denseRanked[i] as any).metadata || {},
       });
     }
 
@@ -82,6 +87,7 @@ export async function hybridSearch(
           documentId: sparseRanked[i].documentId,
           sparseRank: i + 1,
           sparseScore: sparseRanked[i].score,
+          metadata: (sparseRanked[i] as any).metadata || {},
         });
       }
     }
@@ -105,6 +111,7 @@ export async function hybridSearch(
         score: rrfScore,
         denseScore: info.denseScore,
         sparseScore: info.sparseScore,
+        metadata: info.metadata,
       });
     }
 
@@ -132,6 +139,7 @@ export async function denseOnlySearch(
       text: r.text,
       documentId: r.documentId,
       score: r.score,
+      metadata: r.metadata,
     }));
   } catch (error) {
     console.error("[hybrid-retriever] 稠密检索失败:", error);
@@ -151,6 +159,7 @@ export async function sparseOnlySearch(
       text: r.text,
       documentId: r.documentId,
       score: r.score,
+      metadata: (r as any).metadata || {},
     }));
   } catch (error) {
     console.error("[hybrid-retriever] 稀疏检索失败:", error);

@@ -81,7 +81,7 @@ export async function POST(request: Request) {
 
     const initialTopK = useRerank ? 20 : (topK || 5);
 
-    let vectorResults: Array<{ text: string; documentId: string; score: number; denseScore?: number; sparseScore?: number }> = [];
+    let vectorResults: Array<{ text: string; documentId: string; score: number; denseScore?: number; sparseScore?: number; metadata?: Record<string, any> }> = [];
 
     const retrievalDebug = {
       denseRecallCount: 0,
@@ -162,6 +162,7 @@ export async function POST(request: Request) {
       source: mode === "hybrid" ? "vector+bm25" : mode,
       denseScore: r.denseScore,
       sparseScore: r.sparseScore,
+      metadata: r.metadata || {},
     }));
 
     retrievalDebug.graphLimitedCount = limitedGraphItems.length;

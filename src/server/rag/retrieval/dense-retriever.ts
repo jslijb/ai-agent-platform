@@ -10,6 +10,7 @@ interface DenseSearchResult {
   text: string;
   documentId: string;
   score: number;
+  metadata?: Record<string, any>;
 }
 
 function getEmbeddingBaseUrl(): string {
@@ -160,7 +161,7 @@ export async function denseSearch(
     const vectorLiteral = sql.raw(`'${vectorStr}'::vector`);
 
     const result = await db.execute(sql`
-      SELECT e.id, e."chunkText", e."documentId", 1 - (e.embedding <=> ${vectorLiteral}) as score
+      SELECT e.id, e."chunkText", e."documentId", 1 - (e.embedding <=> ${vectorLiteral}) as score, e.metadata
       FROM "Embedding" e
       JOIN "Document" d ON e."documentId" = d.id
       WHERE d."validUntil" IS NULL OR d."validUntil" > NOW()
@@ -173,12 +174,13 @@ export async function denseSearch(
       chunkText: string;
       documentId: string;
       score: number;
+      metadata: Record<string, any>;
     }>;
 
     if (results.length === 0) {
       console.warn("[dense-retriever] 索引扫描返回0条结果，尝试顺序扫描降级...");
       const fallbackResult = await db.execute(sql`
-        SELECT e.id, e."chunkText", e."documentId", 1 - (e.embedding <=> ${vectorLiteral}) as score
+        SELECT e.id, e."chunkText", e."documentId", 1 - (e.embedding <=> ${vectorLiteral}) as score, e.metadata
         FROM "Embedding" e
         JOIN "Document" d ON e."documentId" = d.id
         WHERE d."validUntil" IS NULL OR d."validUntil" > NOW()
@@ -190,6 +192,7 @@ export async function denseSearch(
         chunkText: string;
         documentId: string;
         score: number;
+        metadata: Record<string, any>;
       }>;
       console.log(`[dense-retriever] 顺序扫描降级返回 ${fallbackRows.length} 条结果`);
       return fallbackRows.map((row) => ({
@@ -197,6 +200,7 @@ export async function denseSearch(
         text: row.chunkText,
         documentId: row.documentId,
         score: Number(row.score),
+        metadata: row.metadata || {},
       }));
     }
 
@@ -207,6 +211,7 @@ export async function denseSearch(
       text: row.chunkText,
       documentId: row.documentId,
       score: Number(row.score),
+      metadata: row.metadata || {},
     }));
   } catch (error) {
     console.error("[dense-retriever] 向量检索失败:", error);
@@ -219,7 +224,8 @@ export async function storeEmbedding(
   chunkIndex: number,
   chunkText: string,
   embedding: number[],
-  tokenCount?: number
+  tokenCount?: number,
+  metadata?: Record<string, any>
 ): Promise<void> {
   console.log(
     `[dense-retriever] 存储 embedding, documentId: ${documentId}, chunkIndex: ${chunkIndex}`
@@ -229,8 +235,8 @@ export async function storeEmbedding(
     const vectorStr = `[${embedding.join(",")}]`;
 
     await db.execute(sql`
-      INSERT INTO "Embedding" ("documentId", "chunkIndex", "chunkText", embedding, "tokenCount", "createdAt")
-      VALUES (${documentId}, ${chunkIndex}, ${chunkText}, ${sql.raw(`'${vectorStr}'::vector`)}, ${tokenCount ?? null}, NOW())
+      INSERT INTO "Embedding" ("documentId", "chunkIndex", "chunkText", embedding, "tokenCount", "metadata", "createdAt")
+      VALUES (${documentId}, ${chunkIndex}, ${chunkText}, ${sql.raw(`'${vectorStr}'::vector`)}, ${tokenCount ?? null}, ${JSON.stringify(metadata || {})}, NOW())
     `);
 
     console.log(`[dense-retriever] Embedding 存储成功, documentId: ${documentId}, chunkIndex: ${chunkIndex}`);
@@ -250,6 +256,7 @@ export async function storeEmbeddings(
     chunkText: string;
     embedding: number[];
     tokenCount?: number;
+    metadata?: Record<string, any>;
   }>
 ): Promise<void> {
   console.log(`[dense-retriever] 批量存储 embedding, 数量: ${items.length}`);
@@ -262,19 +269,20 @@ export async function storeEmbeddings(
       const vectorStr = `[${item.embedding.join(",")}]`;
       const escapedText = item.chunkText.replace(/'/g, "''");
       const tc = item.tokenCount != null ? item.tokenCount : "NULL";
-      valuesParts.push(`('${item.documentId}', ${item.chunkIndex}, '${escapedText}', '${vectorStr}'::vector, ${tc}, NOW())`);
+      const metaStr = `'${JSON.stringify(item.metadata || {}).replace(/'/g, "''")}'::jsonb`;
+      valuesParts.push(`('${item.documentId}', ${item.chunkIndex}, '${escapedText}', '${vectorStr}'::vector, ${tc}, ${metaStr}, NOW())`);
     }
     const valuesStr = valuesParts.join(",\n");
 
     try {
       await db.execute(sql.raw(`
-        INSERT INTO "Embedding" ("documentId", "chunkIndex", "chunkText", embedding, "tokenCount", "createdAt")
+        INSERT INTO "Embedding" ("documentId", "chunkIndex", "chunkText", embedding, "tokenCount", "metadata", "createdAt")
         VALUES ${valuesStr}
       `));
     } catch (error) {
       console.error(`[dense-retriever] 批量存储第 ${i}-${i + batch.length} 条失败，回退逐条存储:`, error);
       for (const item of batch) {
-        await storeEmbedding(item.documentId, item.chunkIndex, item.chunkText, item.embedding, item.tokenCount);
+        await storeEmbedding(item.documentId, item.chunkIndex, item.chunkText, item.embedding, item.tokenCount, item.metadata);
       }
     }
 
