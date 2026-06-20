@@ -1,0 +1,260 @@
+{
+  "timestamp": "2026-06-19T12:43:07.094Z",
+  "totalTests": 10,
+  "avgHitsAtK": 0,
+  "avgContextRelevance": 0,
+  "avgContextRecall": 0,
+  "avgFaithfulness": 0.7,
+  "avgAnswerRelevance": 0.03,
+  "overallScore": 0.1825,
+  "resultsByCategory": {
+    "L1-事实提取": {
+      "count": 10,
+      "avgHitsAtK": 0,
+      "avgFaithfulness": 0.7,
+      "avgAnswerRelevance": 0.03
+    }
+  },
+  "resultsByDifficulty": {
+    "easy": {
+      "count": 10,
+      "avgHitsAtK": 0,
+      "avgFaithfulness": 0.7,
+      "avgAnswerRelevance": 0.03
+    }
+  },
+  "results": [
+    {
+      "id": "L1-001",
+      "query": "中国能建2025年营业收入是多少？",
+      "expectedAnswer": "中国能建2025年营业收入约为3865亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 7222,
+      "canAnswer": true,
+      "retrievalLatency": 7152,
+      "generationLatency": 0,
+      "e2eLatency": 7152,
+      "isError": false
+    },
+    {
+      "id": "L1-002",
+      "query": "中国铁建2025年营业收入是多少？",
+      "expectedAnswer": "中国铁建2025年营业收入约为11068亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15074,
+      "canAnswer": true,
+      "retrievalLatency": 7036,
+      "generationLatency": 0,
+      "e2eLatency": 7036,
+      "isError": false
+    },
+    {
+      "id": "L1-003",
+      "query": "中国人保2025年营业收入是多少？",
+      "expectedAnswer": "中国人保2025年营业收入约为5623亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15058,
+      "canAnswer": true,
+      "retrievalLatency": 7034,
+      "generationLatency": 0,
+      "e2eLatency": 7034,
+      "isError": false
+    },
+    {
+      "id": "L1-004",
+      "query": "五粮液2025年营业收入是多少？",
+      "expectedAnswer": "五粮液2025年营业收入约为832亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15061,
+      "canAnswer": true,
+      "retrievalLatency": 7036,
+      "generationLatency": 1,
+      "e2eLatency": 7039,
+      "isError": false
+    },
+    {
+      "id": "L1-005",
+      "query": "格力电器2025年营业收入是多少？",
+      "expectedAnswer": "格力电器2025年营业收入约为2050亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15070,
+      "canAnswer": true,
+      "retrievalLatency": 7045,
+      "generationLatency": 0,
+      "e2eLatency": 7045,
+      "isError": false
+    },
+    {
+      "id": "L1-006",
+      "query": "中国长城2025年营业收入是多少？",
+      "expectedAnswer": "中国长城2025年营业收入约为168亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15045,
+      "canAnswer": true,
+      "retrievalLatency": 7024,
+      "generationLatency": 0,
+      "e2eLatency": 7025,
+      "isError": false
+    },
+    {
+      "id": "L1-007",
+      "query": "江苏银行2025年营业收入是多少？",
+      "expectedAnswer": "江苏银行2025年营业收入约为856亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15045,
+      "canAnswer": true,
+      "retrievalLatency": 7026,
+      "generationLatency": 0,
+      "e2eLatency": 7027,
+      "isError": false
+    },
+    {
+      "id": "L1-008",
+      "query": "东吴证券2025年营业收入是多少？",
+      "expectedAnswer": "东吴证券2025年营业收入约为126亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15077,
+      "canAnswer": true,
+      "retrievalLatency": 7051,
+      "generationLatency": 0,
+      "e2eLatency": 7051,
+      "isError": false
+    },
+    {
+      "id": "L1-009",
+      "query": "华海药业2025年营业收入是多少？",
+      "expectedAnswer": "华海药业2025年营业收入约为108亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15079,
+      "canAnswer": true,
+      "retrievalLatency": 7052,
+      "generationLatency": 0,
+      "e2eLatency": 7052,
+      "isError": false
+    },
+    {
+      "id": "L1-010",
+      "query": "片仔癀2025年营业收入是多少？",
+      "expectedAnswer": "片仔癀2025年营业收入约为132亿元",
+      "actualAnswer": "抱歉，未找到与您问题相关的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7,
+        "answerRelevance": 0.03
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 15072,
+      "canAnswer": true,
+      "retrievalLatency": 7042,
+      "generationLatency": 0,
+      "e2eLatency": 7043,
+      "isError": false
+    }
+  ],
+  "evaluationLevel": "daily",
+  "dataSource": "golden"
+}

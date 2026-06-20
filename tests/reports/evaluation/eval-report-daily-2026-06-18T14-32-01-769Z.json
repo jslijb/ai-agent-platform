@@ -1,0 +1,260 @@
+{
+  "timestamp": "2026-06-18T14:32:01.768Z",
+  "totalTests": 10,
+  "avgHitsAtK": 1,
+  "avgContextRelevance": 0.8323,
+  "avgContextRecall": 0.1,
+  "avgFaithfulness": 0.9146,
+  "avgAnswerRelevance": 0.2339,
+  "overallScore": 0.627,
+  "resultsByCategory": {
+    "L1-事实提取": {
+      "count": 10,
+      "avgHitsAtK": 1,
+      "avgFaithfulness": 0.9146,
+      "avgAnswerRelevance": 0.2339
+    }
+  },
+  "resultsByDifficulty": {
+    "easy": {
+      "count": 10,
+      "avgHitsAtK": 1,
+      "avgFaithfulness": 0.9146,
+      "avgAnswerRelevance": 0.2339
+    }
+  },
+  "results": [
+    {
+      "id": "L1-001",
+      "query": "中国能建2025年营业收入是多少？",
+      "expectedAnswer": "中国能建2025年营业收入约为3865亿元",
+      "actualAnswer": "根据提供的文档片段，**无法直接获取**中国能源建设股份有限公司（中国能建）2025年的整体营业收入总额。\n\n**原因说明：**\n1.  **文档片段1、4、5、8、10** 均为《中国能源建设股份有限公司 2025 年年度报告》的内容，但片段中仅提供了行业分析、部分项目营收（如浪戛光伏、白玉光伏）、细分业务营收占比（如传统能源、新能源及综合智慧能源的具体金额，但未给总和）或战略描述，**未包含“主要会计数据和财务指标”表中列示的2025年全年合并营业收入总额**。\n2.  **文档片段3** 提供了“中国铁建”2025年的营业收入（10,297.845亿元），但这属于另一家上市公司，与中国能建无关。\n3.  **文档片段6** 涉及人保财险/人保集团的数据，与中国能建无关。\n\n因此，基于现有文档片段，**无法回答**中国能建2025年的具体营业收入总额。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 1,
+        "answerRelevance": 0.0716
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 21928,
+      "canAnswer": true,
+      "retrievalLatency": 10842,
+      "generationLatency": 10988,
+      "e2eLatency": 21830,
+      "isError": false
+    },
+    {
+      "id": "L1-002",
+      "query": "中国铁建2025年营业收入是多少？",
+      "expectedAnswer": "中国铁建2025年营业收入约为11068亿元",
+      "actualAnswer": "中国铁建2025年营业收入为 **10,297.845 亿元**。\n\n**数据来源：**\n根据文档片段1和文档片段5显示，2025年中国铁建本集团实现营业收入 10,297.845 亿元，同比减少 3.50%。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 1,
+        "answerRelevance": 0.6376
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 50502,
+      "canAnswer": true,
+      "retrievalLatency": 6164,
+      "generationLatency": 15871,
+      "e2eLatency": 22036,
+      "isError": false
+    },
+    {
+      "id": "L1-003",
+      "query": "中国人保2025年营业收入是多少？",
+      "expectedAnswer": "中国人保2025年营业收入约为5623亿元",
+      "actualAnswer": "根据提供的文档片段，**无法回答**中国人保2025年的具体营业收入数值。\n\n**原因说明：**\n文档片段6中虽然提到了“人保财险”、“人保寿险”和“人保健康”的经营情况，但所有涉及金额的数据（如原保险保费收入、保险服务收入、净利润等）均以“**亿元**”为单位，且具体数字被省略（显示为空白或占位符），例如：“实现原保险保费收入 亿 元”。因此，文档中未提供具体的营业收入数值。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 1,
+        "answerRelevance": 0.0784
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 31026,
+      "canAnswer": true,
+      "retrievalLatency": 7580,
+      "generationLatency": 15402,
+      "e2eLatency": 22984,
+      "isError": false
+    },
+    {
+      "id": "L1-004",
+      "query": "五粮液2025年营业收入是多少？",
+      "expectedAnswer": "五粮液2025年营业收入约为832亿元",
+      "actualAnswer": "根据提供的文档片段，**无法直接获取**五粮液2025年的具体营业收入总额数据。\n\n**原因说明：**\n1.  **文档片段1、3、5、7、9** 虽然涉及五粮液2025年的经营情况、品牌建设和核心竞争力，但均未披露具体的营业收入数值。\n2.  **文档片段3** 提到了净利润数据：“实现归属于上市公司股东的净利润 89.54 亿元、同比下降 71.89%”，但未提及对应的营业收入。\n3.  **文档片段4、8、10** 涉及的是“中国能源建设股份有限公司”的数据，与五粮液无关。\n4.  **文档片段2** 仅列示了“与主营业务无关的业务收入小计”为 530,501,661.26 元，这并非公司总营业收入。\n\n因此，基于现有文档，只能确认五粮液2025年归母净利润为89.54亿元，但缺少总营业收入的具体数值。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.84,
+        "answerRelevance": 0.0108
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 53087,
+      "canAnswer": true,
+      "retrievalLatency": 6248,
+      "generationLatency": 15067,
+      "e2eLatency": 21316,
+      "isError": false
+    },
+    {
+      "id": "L1-005",
+      "query": "格力电器2025年营业收入是多少？",
+      "expectedAnswer": "格力电器2025年营业收入约为2050亿元",
+      "actualAnswer": "根据提供的文档片段，**无法直接回答**格力电器2025年的具体营业收入数值。\n\n**原因说明：**\n1.  **文档片段1、3、5** 虽然涉及格力电器（如提到“珠海格力电器股份有限公司2025年年度报告全文”字样出现在片段3页眉，且片段1、5详细描述了格力在家用空调、商用空调及零部件行业的市场表现），但这些片段主要提供了**行业整体数据**（如2025年国内家电零售市场规模8,931亿元、家用空调总销量19,839万台等）和格力的**市场占有率/排名**（如家用空调线上零售额占比24.31%），并未列出格力电器自身的年度营业收入总额。\n2.  **文档片段4、8、9** 提供的是**中国能源建设股份有限公司**（而非格力电器）的2025年营业收入数据（4,529.30亿元）。\n3.  **文档片段6** 提供的是**人保集团**的相关财务数据。\n\n因此，基于现有文档，缺少格力电器2025年营业收入的具体财务数据。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 1,
+        "answerRelevance": 0.6116
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 91332,
+      "canAnswer": true,
+      "retrievalLatency": 5411,
+      "generationLatency": 41340,
+      "e2eLatency": 46751,
+      "isError": false
+    },
+    {
+      "id": "L1-006",
+      "query": "中国长城2025年营业收入是多少？",
+      "expectedAnswer": "中国长城2025年营业收入约为168亿元",
+      "actualAnswer": "中国长城2025年营业收入为 **158.09亿元**（具体数值为 15,808,600,064.94 元）。\n\n**数据来源说明：**\n根据[文档片段7]《中国长城科技集团股份有限公司 财务报表附注 2025年》，表格中“合计”行的“本年度”（即2025年）营业收入金额为 15,808,600,064.94 元。该数据由主营业务（14,992,195,426.51元）和其他业务（816,404,638.43元）构成。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.768,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 1,
+        "answerRelevance": 0.6196
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 61474,
+      "canAnswer": true,
+      "retrievalLatency": 5558,
+      "generationLatency": 14904,
+      "e2eLatency": 20462,
+      "isError": false
+    },
+    {
+      "id": "L1-007",
+      "query": "江苏银行2025年营业收入是多少？",
+      "expectedAnswer": "江苏银行2025年营业收入约为856亿元",
+      "actualAnswer": "根据提供的文档片段，**无法回答**江苏银行2025年的营业收入。\n\n原因如下：\n1.  **文档片段1** 提到的是“中国铁建”（营业收入10,297.845亿元）。\n2.  **文档片段4** 提到的是“中国能源建设股份有限公司”（部分项目营收数据，非银行）。\n3.  **文档片段6** 提到的是“人保财险”、“人保寿险”等保险集团的数据，且具体数值在文本中被省略（显示为“亿元”前留空），并非江苏银行。\n4.  其余文档片段涉及建筑业、制造业、空调行业等，均未提及江苏银行的财务数据。\n\n因此，提供的文档中没有包含江苏银行2025年的营业收入信息。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.84,
+        "answerRelevance": 0.0752
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 50123,
+      "canAnswer": true,
+      "retrievalLatency": 6975,
+      "generationLatency": 35121,
+      "e2eLatency": 42097,
+      "isError": false
+    },
+    {
+      "id": "L1-008",
+      "query": "东吴证券2025年营业收入是多少？",
+      "expectedAnswer": "东吴证券2025年营业收入约为126亿元",
+      "actualAnswer": "根据提供的文档片段，**无法回答**东吴证券2025年的营业收入。\n\n提供的文档片段主要涉及以下公司的财务或经营数据，未包含东吴证券的相关信息：\n*   **中国铁建股份有限公司**（文档片段1、3、5、9）\n*   **中国能源建设股份有限公司**（文档片段4、7、8、10）\n*   **中国人民保险集团**（文档片段6，提及人保财险、人保寿险等）\n\n因此，基于现有资料，我无法提供东吴证券2025年的营业收入数据。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.841,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 1,
+        "answerRelevance": 0.0804
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 29304,
+      "canAnswer": true,
+      "retrievalLatency": 5421,
+      "generationLatency": 15863,
+      "e2eLatency": 21284,
+      "isError": false
+    },
+    {
+      "id": "L1-009",
+      "query": "华海药业2025年营业收入是多少？",
+      "expectedAnswer": "华海药业2025年营业收入约为108亿元",
+      "actualAnswer": "基于提供的文档片段，**无法回答**华海药业2025年的营业收入。\n\n**原因说明：**\n提供的文档片段主要涉及以下企业或业务板块的财务数据，未包含“华海药业”的相关信息：\n1.  **文档片段1**：显示营业收入约为1704.47亿元，同比下降9.89%，分行业包括消费电器、工业制品等，符合**美的集团**的特征。\n2.  **文档片段2、5、8**：涉及中国能源建设股份有限公司（中国能建）的工业制造、投资运营及工程项目营收。\n3.  **文档片段6**：涉及中国人民保险集团（人保财险、人保寿险等）的保费收入。\n4.  **文档片段7**：涉及某公司销售、管理、财务及研发费用，未明确提及华海药业。\n5.  **文档片段9**：提及研发投入占营收比例，但未明确主体为华海药业。\n\n因此，根据现有文档，无法提供华海药业2025年的营业收入数据。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.874,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.7332,
+        "answerRelevance": 0.0716
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 28308,
+      "canAnswer": true,
+      "retrievalLatency": 5389,
+      "generationLatency": 14898,
+      "e2eLatency": 20287,
+      "isError": false
+    },
+    {
+      "id": "L1-010",
+      "query": "片仔癀2025年营业收入是多少？",
+      "expectedAnswer": "片仔癀2025年营业收入约为132亿元",
+      "actualAnswer": "根据提供的文档片段，**无法回答**片仔癀2025年的营业收入。\n\n原因如下：\n1. 提供的文档片段主要涉及**中国商用空调行业**、**格力电器**、**中国能源建设股份有限公司**、**中国铁建**、**中国人保**等公司或行业的数据。\n2. 文档中未包含任何关于“片仔癀”公司的财务数据或相关信息。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.794,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.7332,
+        "answerRelevance": 0.0824
+      },
+      "category": "L1-事实提取",
+      "difficulty": "easy",
+      "durationMs": 28866,
+      "canAnswer": true,
+      "retrievalLatency": 5698,
+      "generationLatency": 15133,
+      "e2eLatency": 20832,
+      "isError": false
+    }
+  ],
+  "evaluationLevel": "daily",
+  "dataSource": "golden"
+}

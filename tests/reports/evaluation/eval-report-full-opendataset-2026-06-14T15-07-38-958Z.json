@@ -1,0 +1,3681 @@
+{
+  "timestamp": "2026-06-14T15:07:38.954Z",
+  "totalTests": 201,
+  "avgHitsAtK": 0.403,
+  "avgContextRelevance": 0.5774,
+  "avgContextRecall": 0.0464,
+  "avgFaithfulness": 0.3284,
+  "avgAnswerRelevance": 0.2955,
+  "overallScore": 0.3301,
+  "results": [
+    {
+      "id": 1,
+      "query": "以下哪种做法是符合会计信息质量可比性要求的？\nA: 因客户的财务状况好转，将坏账准备的计提比例由应收账款余额的30$\\%$降为15$\\%$\nB: 为了扭转亏损，将本应费用化的借款费用进行资本化\nC: 被投资企业本年严重亏损，投资企业将长期股权投资从权益法转为成本法\nD: 鉴于本期利润完成不理想，将应费用化的研发支出改成资本化处理",
+      "expectedAnswer": "A: 因客户的财务状况好转，将坏账准备的计提比例由应收账款余额的30$\\%$降为15$\\%$",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 737
+    },
+    {
+      "id": 2,
+      "query": "哪个选项不违背可比性要求？\nA: 投资性房地产的后续计量由公允价值模式改为成本模式\nB: 因预计发生年度亏损，将以前年度计提的无形资产减值准备全部予以转回\nC: 因申请专利成功，将已计入前期损益的研究与开发费用转为无形资产的成本\nD: 因追加投资，使原投资比例由45$\\%$增加到80$\\%$，而对被投资单位由具有重大影响变为具有控制，故将长期股权投资由权益法改为成本法核算",
+      "expectedAnswer": "D: 因追加投资，使原投资比例由45$\\%$增加到80$\\%$，而对被投资单位由具有重大影响变为具有控制，故将长期股权投资由权益法改为成本法核算",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 679
+    },
+    {
+      "id": 3,
+      "query": "会计信息质量要求主要包括可靠性、相关性、可理解性、可比性、实质重于形式、重要性、谨慎性和及时性等，体现实质重于形式这一会计信息质量要求的是____。\nA: 确认预计负债\nB: 将租入固定资产视同自有资产核算\nC: 应收账款计提坏账准备\nD: 公布财务报表时提供可比信息",
+      "expectedAnswer": "B: 将租入固定资产视同自有资产核算",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 536
+    },
+    {
+      "id": 4,
+      "query": "以下选项中应作为以现金结算的股份支付进行会计处理的一项是____。\nA: 以低于市价向员工出售限制性股票的计划\nB: 授予高管人员低于市价购买公司股票的期权计划\nC: 公司承诺达到业绩条件时向员工无对价定向发行股票的计划\nD: 授予研发人员以预期股价相对于基准日股价的上涨幅度为基础支付奖励款的计划",
+      "expectedAnswer": "D: 授予研发人员以预期股价相对于基准日股价的上涨幅度为基础支付奖励款的计划",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 501
+    },
+    {
+      "id": 5,
+      "query": "以下关于权益结算的股份支付的计量的阐述中，不正确的是____。\nA: 对于换取职工服务的股份支付，应按授予日权益工具的公允价值计量，不确认其后续公允价值变动\nB: 对于换取职工服务的股份支付，企业应当按在等待期内的每个资产负债表日的公允价值计量\nC: 对于授予后立即可行权的换取职工提供服务的权益结算的股份支付，应在授予日按照权益工具的公允价值计量\nD: 对于换取职工服务的股份支付，企业应当按照权益工具在授予日的公允价值，将当期取得的服务计入相关资产成本或当期费用，同时确认资本公积中的其他资本公积",
+      "expectedAnswer": "B: 对于换取职工服务的股份支付，企业应当按在等待期内的每个资产负债表日的公允价值计量",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 761
+    },
+    {
+      "id": 6,
+      "query": "A公司是一家上市公司，经股东大会批准，向其子公司（B公司）的高级管理人员授予其自身的股票期权，对于上述股份支付，在A公司和B公司的个别财务报表中，正确的会计处理方法是____。\nA: 均作为以现金结算的股份支付处理\nB: A公司作为以权益结算的股份支付处理，B公司作为以现金结算的股份支付处理\nC: 均作为以权益结算的股份支付处理\nD: A公司作为以现金结算的股份支付处理，B公司作为以权益结算的股份支付处理",
+      "expectedAnswer": "C: 均作为以权益结算的股份支付处理",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 604
+    },
+    {
+      "id": 7,
+      "query": "20×7年5月1日，A公司正式动工兴建一栋厂房。为解决厂房建设需要的资金。20×7年6月1日，A公司从B银行专门借款8000万元，期限为1年，20×8年3月30日，厂房工程全部完工。20×8年4月10日，厂房经验收达到预定可使用状态。20×8年5月20日，厂房投入使用。20×8年5月31日，A公司偿还B银行上述借款。不考虑其他因素。甲公司厂房工程借款费用停止资本化的时点是____。\nA: 20×8年3月30日\nB: 20×8年4月10日\nC: 20×8年5月31日\nD: 20×8年5月20日",
+      "expectedAnswer": "A: 20×8年3月30日",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 824
+    },
+    {
+      "id": 8,
+      "query": "资本化是指符合条件的相关费用支出不计入当期损益，而是计入相关资产成本作为资产负债表的资产类项目管理。下列关于资本化的表述中，正确的是____。\nA: 开发阶段支出应当资本化计入无形资产\nB: 在建项目占用一般借款的，其借款利息可以资本化\nC: 房地产开发企业不应将用于项目开发的借款费用资本化计入开发成本\nD: 符合资本化条件的固定资产是指需要经过相当长时间（超过一年，不含一年）的购建或者生产活动才能达到预定可使用状态的固定资产等",
+      "expectedAnswer": "B: 在建项目占用一般借款的，其借款利息可以资本化",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 735
+    },
+    {
+      "id": 9,
+      "query": "甲公司20×7年1月1日发行面值总额为1000万元的债券，取得的款项专门用于建造厂房。该债券系分期付息、到期还本债券，期限为4年，票面年利率为10$\\%$，每年12月31日支付当年利息。该债券实际年利率为8$\\%$。债券发行价格总额为1066.21万元，款项已存入银行。厂房于20×7年1月1日开工建造，20×7年度累计发生建造工程支出450万元。经批准，当年甲公司将尚未使用的债券资金投资于国债，取得投资收益76万元。20×7年12月31日工程尚未完工，该在建工程的账面余额为____万元\nA: 459\nB: 481\nC: 535\nD: 560",
+      "expectedAnswer": "A: 459",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.417,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 846
+    },
+    {
+      "id": 10,
+      "query": "甲公司20×5年3月1日借入4000万元专门用于建造厂房的借款，借款期限为2年，年利率为6$\\%$。而后于20×5年4月1日，甲公司开始购建活动并支付了第一笔款项2000万元给施工方。然而，由于质量问题，施工活动从20×5年7月1日起中断。直到20×5年12月1日，质量问题得到解决，施工活动重新开始进行。甲公司将闲置的借款资金进行了投资，投资于固定收益债券，月收益率为0.4$\\%$。请计算甲公司20×5年度应该资本化的利息费用。\nA: 24\nB: 44\nC: 48\nD: 99",
+      "expectedAnswer": "C: 48",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 710
+    },
+    {
+      "id": 11,
+      "query": "关于预计负债，下列表述正确的是____。\nA: 预计负债是企业承担的潜在义务\nB: 与预计负债相关支出的时间或金额具有一定的不确定性\nC: 预计负债计量应考虑未来期间相关资产预期处置利得的影响\nD: 预计负债应按相关支出的最佳估计数减去基本确定能够收到的补偿后的净额计量",
+      "expectedAnswer": "B: 与预计负债相关支出的时间或金额具有一定的不确定性",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 434
+    },
+    {
+      "id": 12,
+      "query": "20×7年8月1日，甲公司因产品质量不合格而被乙公司起诉。至20×7年12月31日，该起诉讼尚未判决，甲公司估计很可能承担违约赔偿责任，需要赔偿150万元的可能性为80$\\%$，需要赔偿80万元的可能性为20$\\%$。甲公司基本确定能够从直接责任人处追回40万元。20×7年12月31日，甲公司对该起诉讼应确认的预计负债金额为____。\nA: 85万元\nB: 100万元\nC: 150万元\nD: 100万元",
+      "expectedAnswer": "C: 150万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.443,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 593
+    },
+    {
+      "id": 13,
+      "query": "20×7年8月1日，甲公司因产品质量不合格而被乙公司起诉。至20×7年12月31日，该起诉讼尚未判决，甲公司估计很可能承担违约赔偿责任，需要赔偿70万元的可能性为70$\\%$，需要赔偿50万元的可能性为30$\\%$。甲公司基本确定能够从直接责任人处追回30万元。影响当期损益的金额是____。\nA: －85万元\nB: －100万元\nC: －70万元\nD: －50万元",
+      "expectedAnswer": "C: －70万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 570
+    },
+    {
+      "id": 14,
+      "query": "甲公司于20×1年7月10日购入某上市公司股票100万股，每股价格24元，实际支付购买价款2400万元，其中包括已宣告尚未支付的现金股利120万元，另支付手续费等50万元。甲公司将其作为以公允价值计量且其变动计入当期损益的金融资产核算。20×1年12月31日该股票每股价格为28元。甲公司20×1年对该交易性金融资产确认的公允价值变动收益为____万元。\nA: 150\nB: 200\nC: 270\nD: 520",
+      "expectedAnswer": "D: 520",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.425,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 640
+    },
+    {
+      "id": 15,
+      "query": "甲公司20×7年10月10日自证券市场购入乙公司发行的股票100万股，共支付价款1720万元，其中包括交易费用8万元。购入时，乙公司已宣告但尚未发放的现金股利为每股0.32元。甲公司将购入的乙公司股票作为以公允价值计量且其变动计入当期损益的金融资产核算。20×7年12月2日，甲公司出售该交易性金融资产，收到价款1920万元。甲公司20×7年利润表中因该交易性金融资产应确认的投资收益为____。\nA: 200万元\nB: 232万元\nC: 240万元\nD: 132万元",
+      "expectedAnswer": "B: 232万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.454,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 718
+    },
+    {
+      "id": 16,
+      "query": "甲公司于2021年1月1日购买了乙公司发行的一种4年期分期付息、到期还本的债券，面值为100万元，票面年利率为5%，实际支付价款为105万元，同时还支付了0.2万元的交易费用。甲公司将该债券按照摊余成本计量的方法进行分类，每年年末确认投资收益。截至2021年12月31日，甲公司确认的投资收益为3.5万元。请计算甲公司在2021年12月31日该债券的摊余成本。\nA: 103.5万元\nB: 103.7万元\nC: 106.5万元\nD: 106.7万元",
+      "expectedAnswer": "B: 103.7万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.25,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 668
+    },
+    {
+      "id": 17,
+      "query": "20×6年12月31日，甲公司持有的某项以公允价值计量且其变动计入其他综合收益的非交易性权益工具投资的公允价值为2500万元，账面价值为3500万元。该权益工具投资前期已因公允价值下降减少账面价值1600万元。考虑到股票市场持续低迷已超过9个月，甲公司判断该资产价值发生严重且非暂时性下跌。甲公司对该金融资产应确认的减值损失金额为____。\nA: 700万元\nB: 2600万元\nC: 3100万元\nD: 0万元",
+      "expectedAnswer": "B: 2600万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 606
+    },
+    {
+      "id": 18,
+      "query": "租赁合同中规定，甲乙两方于2×19年12月20日达成协议，甲方在2×20年2月1日将房屋钥匙交付予乙方。乙方收到钥匙后，有权自主安排商场的装修布置并进行搬迁。根据合同约定，前3个月为免租期，正式起租日期是2×20年4月1日。乙方将从2×20年4月2日开始支付租金。请问，租赁期的开始日期是____。\nA: 2×19年12月20日\nB: 2×20年2月1日\nC: 2×20年4月1日\nD: 2×20年4月2日",
+      "expectedAnswer": "B: 2×20年2月1日",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 714
+    },
+    {
+      "id": 19,
+      "query": "以下有关租赁相关的陈述，哪一项是错误的____。\nA: 初始直接费用，是指为达成租赁所发生的增量成本\nB: 租赁负债应当按照租赁期开始日尚未支付的租赁付款额的现值进行初始计量\nC: 担保余值是指在租赁结束时，由与出租人无关的一方提供的担保，确保租赁资产的价值至少达到指定的金额。这种担保是为了保证租赁资产在租赁期结束时的最低价值。\nD: 未担保余值是指在租赁资产余值中，出租人无法保证能够实现的那部分价值，这部分价值并不包括与出租人有关的一方已经提供担保的部分。",
+      "expectedAnswer": "D: 未担保余值是指在租赁资产余值中，出租人无法保证能够实现的那部分价值，这部分价值并不包括与出租人有关的一方已经提供担保的部分。",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 766
+    },
+    {
+      "id": 20,
+      "query": "以下哪个说法与租赁分类不符____。\nA: 承租人应当在租赁开始日将租赁分为融资租赁和经营租赁\nB: 出租人应当在租赁开始日将租赁分为融资租赁和经营租赁\nC: 在租赁开始日后，出租人无需对租赁的分类进行重新评估，除非发生租赁变更\nD: 如果一项租赁实质上转移了与租赁资产所有权有关的几乎全部风险和报酬，出租人应当将该项租赁分类为融资租赁",
+      "expectedAnswer": "A: 承租人应当在租赁开始日将租赁分为融资租赁和经营租赁",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 520
+    },
+    {
+      "id": 21,
+      "query": "甲公司与飞机所有者（供应商）签署了一份为期两年的合同，明确指定了使用一架特定飞机的条件。合同详细规定了飞机的内部和外部规格，并包含了飞行区域的合同和法律限制。甲公司有权决定飞机的飞行地点、时间以及搭载的乘客和货物，但必须遵守这些限制条件。供应商负责飞机的操作，并使用自己的机组人员。在合同期内，甲公司不得雇佣其他人员来操作飞机，也不能自行操作飞机。供应商有权在两年期间随时更换飞机，并且在飞机发生故障时必须进行替换。替换的飞机必须符合合同中规定的内部和外部规格。供应商为了满足甲公司的要求，需要在其机队中配备符合规格的飞机，这将涉及高昂的成本。以下哪个陈述与合同内容不符：____。\nA: 该合同包含租赁\nB: 该合同存在已识别资产\nC: 供应商在使用期内能够控制飞机的使用\nD: 甲公司在整个两年使用期内拥有控制飞机使用的权利",
+      "expectedAnswer": "C: 供应商在使用期内能够控制飞机的使用",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 1018
+    },
+    {
+      "id": 22,
+      "query": "2×20年10月5日，A公司与交易对手方签订股权出售协议，协议约定A公司出售其全资子公司B公司80$\\%$的股权，2×21年3月15日办理了股权过户登记手续、董事会改选、支付股权转让款等事项。乙公司的经营地区在华南，是A公司的一个单独的主要经营地区，处置B公司股权后，A公司将退出华南地区。甲公司2×20年度财务报告经批准于2×21年4月15日对外报出。甲公司在编制2×20年度对外财务报表时，下列各项会计处理的表述中，正确的是____。\nA: 个别财务报表中将持有的B公司长期股权投资的80$\\%$重分类为持有待售资产\nB: 比较合并财务报表中，将B公司2×19年度的经营损益列报为终止经营损益\nC: 合并财务报表中，不再将B公司纳入2×20年度合并范围\nD: 合并财务报表中，终止经营报益为B公司2×20年10月至12月的经营损益",
+      "expectedAnswer": "B: 比较合并财务报表中，将B公司2×19年度的经营损益列报为终止经营损益",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 1119
+    },
+    {
+      "id": 23,
+      "query": "A公司2017年6月30日与L公司签订一项不可撤销的销售合同，将位于市区的办公用房转让给B公司。合同约定，办公用房转让价格为310万元，预计该资产转让时出售费用为10万元。B公司应于2018年2月1日前支付上述款项；A公司应协助B公司于2018年2月10日前完成办公用房所有权的转移手续。A公司办公用房系2012年3月达到预定可使用状态并投入使用，成本为490万元，预计使用年限为20年，预计净残值为10万元，采用年限平均法计提折旧，至2017年6月30日签订销售合同时未计提减值准备。下列会计处理中不正确的是____。\nA: 该办公楼至2017年6月30日累计计提折旧126万元\nB: 该办公楼2017年应计提折旧12万元\nC: 该办公楼2017年6月30日应计提减值准备64万元\nD: 该办公楼2017年6月30日资产负债表上列报金额为358万元",
+      "expectedAnswer": "D: 该办公楼2017年6月30日资产负债表上列报金额为358万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 1084
+    },
+    {
+      "id": 24,
+      "query": "R公司计划出售一项专利技术，该专利技术于2016年12月31日被划分为持有待售，公允价值为75万元，预计出售费用为5万元。该专利技术购买于2012年1月1日，原值为90万元，预计使用寿命为10年，无残值，采用直线法计提摊销。不考虑其他因素，该专利技术2016年12月31日应计提减值准备的金额为____万元。\nA: 80\nB: 1000\nC: 1020\nD: 0",
+      "expectedAnswer": "D: 0",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 570
+    },
+    {
+      "id": 25,
+      "query": "以下哪个描述是处置组的正确说明？\nA: 处置组中不包括负债\nB: 处置组中只包括非流动资产\nC: 处置组中不包括商誉\nD: 处置组中可能包括流动资产、非流动资产和负债",
+      "expectedAnswer": "D: 处置组中可能包括流动资产、非流动资产和负债",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 343
+    },
+    {
+      "id": 26,
+      "query": "所有者权益是指企业资产扣除负债后，由所有者享有的剩余权益。公司的所有者权益又称为股东权益。下列各项交易或事项产生的差额中，应当计入所有者权益的是____。\nA: 企业发行可转换公司债券的发行价格与负债公允价值之间的差额\nB: 企业将债务转为权益工具时债务账面价值与权益工具公允价值之间的差额\nC: 企业购入可转换公司债券实际支付的价款与可转换公司债券面值之间的差额\nD: 企业发行公司债券实际收到的价款与债券面值之间的差额",
+      "expectedAnswer": "A: 企业发行可转换公司债券的发行价格与负债公允价值之间的差额",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 637
+    },
+    {
+      "id": 27,
+      "query": "以下哪项交易或事项不会影响当期资本公积（资本溢价）？\nA: 以资本公积转增股本\nB: 根据董事会决议，每2股缩为1股\nC: 授予员工股票期权在等待期内确认相关费用\nD: 同一控制下企业合并中取得被合并方净资产份额小于所支付对价账面价值",
+      "expectedAnswer": "C: 授予员工股票期权在等待期内确认相关费用",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 470
+    },
+    {
+      "id": 28,
+      "query": "以下哪个选项不是在相关资产处置时应转入当期损益的？\nA: 以公允价值计量且其变动计入其他综合收益的债务工具因公允价值变动计入其他综合收益的部分\nB: 权益法核算的股权投资因享有联营企业其他综合收益计入其他综合收益的部分\nC: 同一控制下企业合并中股权投资入账价值与支付对价差额计入资本公积的部分\nD: 自用房地产转为以公允价值计量的投资性房地产在转换日计入其他综合收益的部分",
+      "expectedAnswer": "C: 同一控制下企业合并中股权投资入账价值与支付对价差额计入资本公积的部分",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 630
+    },
+    {
+      "id": 29,
+      "query": "甲公司在2016年5月以固定资产和无形资产作为对价，从独立第三方购买了丙公司80%的股权。由于支付对价的固定资产和无形资产增值，甲公司需要支付大额企业所得税。考虑到甲公司的母公司乙公司承诺为其承担税费，甲公司没有计提因上述企业合并产生的相关税费。在2016年12月，乙公司按照事先承诺为甲公司支付了因企业合并产生的相关税费。不考虑其他因素，对于乙公司为甲公司承担相关税费的事项，甲公司应当进行的会计处理是____。\nA: 无需进行会计处理\nB: 确认费用，同时确认收入\nC: 确认费用，同时确认所有者权益\nD: 不作账务处理，但在财务报表附注中披露",
+      "expectedAnswer": "C: 确认费用，同时确认所有者权益",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 829
+    },
+    {
+      "id": 30,
+      "query": "当企业与同一客户同时订立的两份或多份合同时，____应当合并为一份合同进行会计处理。\nA: 该两份或多份合同没有构成一揽子交易\nB: 该两份或多份合同中所承诺的商品构成一项单项履约义务\nC: 该两份或多份合同中的一份合同的对价金额与其他合同的定价或履行情况无关\nD: 该两份或多份合同在一个月内订立",
+      "expectedAnswer": "B: 该两份或多份合同中所承诺的商品构成一项单项履约义务",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 535
+    },
+    {
+      "id": 31,
+      "query": "20×4年3月1日，甲公司向乙公司销售商品5000件，每件售价为20元（不含增值税），甲、乙公司均为增值税一般纳税人，适用的增值税税率均为13$\\%$。甲公司向乙公司销售商品给予50$\\%$的商业折扣，提供的现金折扣条件为2/10、1/20、n/30，并代垫运杂费1000元。乙公司于20×4年3月15日付款。不考虑其他因素，甲公司在该项交易中应确认的收入是____。\nA: 90000元\nB: 80000元\nC: 200000元\nD: 101000元",
+      "expectedAnswer": "C: 200000元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.25,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 691
+    },
+    {
+      "id": 32,
+      "query": "甲公司和乙公司在20×9年2月16日达成一项交易，甲公司以500万元的价格向乙公司出售一台设备。交易条件规定，1年后甲公司必须以600万元的价格从乙公司处回购该设备。在不计算增值税和其他因素的情况下，甲公司应该如何正确处理这笔交易的会计处理？\nA: 作为融资交易进行会计处理\nB: 作为租赁交易进行会计处理\nC: 作为附有销售退回条款的销售交易进行会计处理\nD: 分别作为销售和购买进行会计处理",
+      "expectedAnswer": "A: 作为融资交易进行会计处理",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 588
+    },
+    {
+      "id": 33,
+      "query": "以下哪一项税收优惠属于企业会计准则规定的政府补助？\nA: 增值税出口退税\nB: 免征的企业所得税\nC: 减征的企业所得税\nD: 先征后返的企业所得税",
+      "expectedAnswer": "D: 先征后返的企业所得税",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 296
+    },
+    {
+      "id": 34,
+      "query": "政府补助的主要形式包括以下哪个项目？\nA: 财政拨款\nB: 政府作为企业所有者投资\nC: 政府作为采购者向企业支付的款项\nD: 免税",
+      "expectedAnswer": "A: 财政拨款",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 305
+    },
+    {
+      "id": 35,
+      "query": "哪个说法对政府补助的会计处理是不正确的____。\nA: 在总额法下，收到政府补助款最终全额确认为收益\nB: 净额法，在会计处理中，是将政府补助视为相关成本费用的扣减。\nC: 政府补助与企业日常活动相关时，应根据经济业务的实质，将其计入其他收益或者直接冲减相关的成本费用。\nD: 政府补助如果是与企业日常运营活动无关的，那么它应该被计入营业外收入。",
+      "expectedAnswer": "D: 政府补助如果是与企业日常运营活动无关的，那么它应该被计入营业外收入。",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 644
+    },
+    {
+      "id": 36,
+      "query": "下列项目中，属于与收益相关的政府补助的是____。\nA: 政府拨付的用于企业购买无形资产的财政拨款\nB: 没有正确答案\nC: 政府对企业用于建造固定资产的相关贷款给与的财政补贴\nD: 企业收到的先征后返的增值税",
+      "expectedAnswer": "D: 企业收到的先征后返的增值税",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3828
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 468
+    },
+    {
+      "id": 37,
+      "query": "甲公司当期发生研究开发费用总计500万元，其中研究阶段费用为100万元，开发阶段不满足资本化条件的费用为120万元，开发阶段满足资本化条件的费用为300万元，假设甲公司当期摊销无形资产费用为10万元。甲公司当期末无形资产的计税基数为____万元。\nA: 0\nB: 315\nC: 435\nD: 472.5",
+      "expectedAnswer": "C: 435",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 536
+    },
+    {
+      "id": 38,
+      "query": "甲公司在2015年12月10日购入A股票，支付了10万元的价款。截至2015年12月31日，该股票的公允价值为8万元。请计算该金融资产在2015年12月31日的计税基础是____万元。\nA: 10\nB: 8\nC: 9\nD: 20",
+      "expectedAnswer": "A: 10",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 486
+    },
+    {
+      "id": 39,
+      "query": "A公司于2015年3月20日购入一台不需安装的设备，设备价款为400万元，增值税税额为26万元，购入后投入行政管理部门使用。会计采用年限平均法计提折旧，税法允许采用双倍余额递减法计提折旧，假定预计使用年限为5年（会计与税法相同），无残值（会计与税法相同），则2015年12月31日该设备产生的应纳税暂时性差异余额为____万元。\nA: 20\nB: 45\nC: 30\nD: 60",
+      "expectedAnswer": "D: 60",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 605
+    },
+    {
+      "id": 40,
+      "query": "A公司于2014年12月31日“预计负债—产品质量保证费用”科目贷方余额为200万元，2015年实际发生产品质量保证费用190万元，2015年12月31日预提产品质量保证费用110万元，2015年12月31日该项负债的计税基础为____万元。\nA: 0\nB: 12\nC: 9\nD: 11",
+      "expectedAnswer": "A: 0",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 451
+    },
+    {
+      "id": 41,
+      "query": "下列税金中，不应计算为存货成本的是哪一个？\nA: 一般纳税企业进口原材料支付的关税\nB: 一般纳税企业购进原材料支付的增值税\nC: 小规模纳税企业购进原材料支付的增值税\nD: 一般纳税企业进口应税消费品支付的消费税",
+      "expectedAnswer": "B: 一般纳税企业购进原材料支付的增值税",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 429
+    },
+    {
+      "id": 42,
+      "query": "甲公司作为一家制造企业，在日常经营活动中发生了以下费用或损失，应当计入存货成本的是____。\nA: 仓库保管人员的工资\nB: 季节性停工期间发生的制造费用\nC: 未使用管理用固定资产计提的折旧\nD: 采购运输过程中因自然灾害发生的损失",
+      "expectedAnswer": "B: 季节性停工期间发生的制造费用",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 401
+    },
+    {
+      "id": 43,
+      "query": "以下与存货跌价准备有关的表述中正确的是____\nA: 已过期且无转让价值的存货通常表明应计提的存货跌价准备等于存货账面价值\nB: 已计提存货跌价准备的存货在对外销售时，应当将原计提的存货跌价准备转回并计入资产减值损失\nC: 同一项存货中有一部分有合同价格约定、其他部分不存在合同价格的，应当合并确\nD: 生产产品用材料的跌价准备以该材料的市场价格低于成本的金额计量",
+      "expectedAnswer": "A: 已过期且无转让价值的存货通常表明应计提的存货跌价准备等于存货账面价值",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 619
+    },
+    {
+      "id": 44,
+      "query": "以下关于确定存货可变现净值基础的陈述，有错误的是____。\nA: 无销售合同的库存商品以该库存商品的估计售价为基础\nB: 有销售合同的库存商品以该库存商品的合同价格为基础\nC: 用于出售的无销售合同的材料以该材料的市场价格为基础\nD: 用于生产有销售合同产品的材料以该材料的市场价格为基础",
+      "expectedAnswer": "D: 用于生产有销售合同产品的材料以该材料的市场价格为基础",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 472
+    },
+    {
+      "id": 45,
+      "query": "下列哪项交易不应被甲公司视为货币性资产交换进行会计处理?\nA: 甲公司以一批产成品交换乙公司一台汽车\nB: 甲公司以所持丙公司20$\\%$股权（具有重大影响）交换乙公司一批原材料\nC: 甲公司以应收丁公司的2200万元银行承兑汇票交换乙公司一栋办公用房\nD: 甲公司以一项专利权交换乙公司一项非专利技术，并以银行存款收取补价，所收取补价占换出专利权公允价值的30$\\%$",
+      "expectedAnswer": "B: 甲公司以所持丙公司20$\\%$股权（具有重大影响）交换乙公司一批原材料",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 604
+    },
+    {
+      "id": 46,
+      "query": "甲公司和乙公司都是增值税一般纳税人，适用销售动产的增值税税率为13$\\%$。在2020年3月，甲公司以其持有的10000股丙公司股票作为交易性金融资产，与乙公司交换了一台办公设备，并将该办公设备作为固定资产进行核算。甲公司持有的丙公司股票的账面价值为180万元，其中成本为170万元，公允价值变动收益为10万元，在交换日的公允价值为300万元。乙公司的办公设备在交换日的账面价值为170万元，公允价值和计税价格均为200万元。此外，甲公司还向乙公司支付了26万元的价款。假设该资产交换具有商业实质，不考虑其他因素。甲公司换入办公设备的入账价值为____万元。\nA: 180\nB: 200\nC: 287\nD: 190",
+      "expectedAnswer": "C: 287",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 928
+    },
+    {
+      "id": 47,
+      "query": "甲乙两公司进行产品互换，交换日，甲公司换出产品的账面价值为1120万元，公允价值为1400万元（等于计税价格），增值税为182万元，甲公司将产品运抵乙公司并向乙公司开具了增值税专用发票，当日双方办妥了乙公司产品所有权转让手续。该交易具有商业实质，经评估确认，乙公司的专利产品的公允价值为1800万元，增值税为108万元，甲公司另以银行存款支付乙公司支付了补价326万元，不考虑其他因素，甲公司换入的专利产品的入账价值是____。\nA: 1282万元\nB: 1800万元\nC: 1562万元\nD: 1638万元",
+      "expectedAnswer": "B: 1800万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 721
+    },
+    {
+      "id": 48,
+      "query": "A公司用一栋办公楼换入B公司的一项专利技术。办公楼的账面原值为2000万元，已提折旧500万元，已提减值准备200万元。A公司另向B公司支付补价200万元。假定该项资产交换不具有商业实质，且不考虑相关税费，A公司换入专利权的入账价值为____万元。\nA: 1100\nB: 1300\nC: 1500\nD: 1900",
+      "expectedAnswer": "C: 1500",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 503
+    },
+    {
+      "id": 49,
+      "query": "哪个选项符合债务重组准则的会计处理要求：____。\nA: 债务重组中涉及的债权、重组债权、债务、重组债务和其他金融工具的确认、计量\nB: 通过债务重组形成企业合并\nC: 债权人与债务人在债务重组前后均受同一方或相同的多方最终控制，且该债务重组的交易实质是债权人或债务人进行了权益性分配或接受了权益性投入\nD: 以存货清偿债务",
+      "expectedAnswer": "D: 以存货清偿债务",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 511
+    },
+    {
+      "id": 50,
+      "query": "2×20年1月1日，甲公司和乙公司进行债务重组，重组日甲公司应收乙公司账款账面余额为4000万元，已提坏账准备200万元，其公允价值为3600万元，乙公司以持有丙公司3$\\%$股权抵偿上述账款，该项股权投资的公允价值为3400万元。甲公司为取得该项股权投资支付直接相关费用2万元，取得该项股权投资后，甲公司将其作为交易性金融资产核算。假定不考虑其他因素。甲公司债务重组取得交易性金融资产的入账价值为____万元。\nA: 1700\nB: 1710\nC: 1800\nD: 1810",
+      "expectedAnswer": "A: 1700",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 697
+    },
+    {
+      "id": 51,
+      "query": "A公司为B公司和C公司的母公司。在2020年1月1日，A公司与B公司进行债务重组，重组日B公司应收A公司账款余额为80万元，已提坏账准备8万元，其公允价值为76万元。在2020年1月1日，A公司以其持有的C公司80%股权偿还上述债务，其公允价值为77万元。同时，C公司个别报表中净资产的账面价值为92万元，而A公司合并报表中C公司按购买日可辨认净资产公允价值持续计算的净资产账面价值为96万元。不考虑其他因素的影响，则在2020年1月1日，B公司债务重组业务对损益的影响金额为____万元。\nA: 5\nB: 4\nC: 4.8\nD: 0",
+      "expectedAnswer": "D: 0",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 807
+    },
+    {
+      "id": 52,
+      "query": "某家中国企业以欧元作为其核算货币，以下哪个说法是错误的？\nA: 该企业以人民币计价和结算的交易属于外币交易\nB: 该企业以欧元计价和结算的交易不属于外币交易\nC: 该企业的编报货币为欧元\nD: 该企业的编报货币为人民币",
+      "expectedAnswer": "C: 该企业的编报货币为欧元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 407
+    },
+    {
+      "id": 53,
+      "query": "甲公司以人民币为记账本位币，于2018年3月10日以每股5美元的价格购入乙公司在境外上市交易的股票2万股，交易费用为1千元。甲公司将其指定为以公允价值计量且其变动计入其他综合收益的金融资产。当日汇率为1美元=6.6元人民币。截至2018年12月31日，乙公司股票的市场价格为每股6美元，当日汇率为1美元=6.9元人民币。于2019年2月5日，甲公司以每股8美元的价格将持有的乙公司股票全部出售，当日汇率为1美元=6.8元人民币。不考虑相关税费及其他因素，以下是关于甲公司上述交易或事项会计处理的正确表述：\nA: 2019年2月5日，确认投资收益26万元\nB: 2018年12月31日，确认其他综合收益16.14万元\nC: 2018年12月31日，确认财务费用3.6万元\nD: 购入乙公司的股票初始入账金额为66万元",
+      "expectedAnswer": "B: 2018年12月31日，确认其他综合收益16.14万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 969
+    },
+    {
+      "id": 54,
+      "query": "某中外合资经营企业的注册资本为800万美元，根据合同约定，资金分两次投入。约定的汇率为1美元兑换8.0人民币。中方投资者于2015年1月1日投入了600万美元，而外方投资者于3月1日投入了200万美元。截至2015年底，汇率分别为1美元兑换8.20人民币（1月1日），1美元兑换8.25人民币（3月1日），1美元兑换8.24人民币（3月31日），1美元兑换8.30人民币（12月31日）。假设该企业以人民币作为记账本位币，外币业务使用当日即期汇率折算。请计算该企业2015年年末资产负债表中“实收资本”项目以人民币计算的金额，结果为____万元人民币。\nA: 6400\nB: 5770\nC: 3285\nD: 5760",
+      "expectedAnswer": "B: 5770",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 832
+    },
+    {
+      "id": 55,
+      "query": "甲公司对外币交易采用交易发生时市场汇率折算，按月计算汇兑损益。甲公司2025年3月10日出口销售一批设备，设备价款总额为2000万美元，合同规定购货方应于4个月后支付货款，销售时的市场汇率为1美元=6.35元人民币。3月31日市场汇率为1美元=6.36元人民币，4月30日市场汇率为1美元=6.34元人民币，5月31日市场汇率为1美元=6.37元人民币，甲公司2025年5月对该外币性债权确认的汇兑收益为____百万元。\nA: -40\nB: 40\nC: 60\nD: 50",
+      "expectedAnswer": "C: 60",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 685
+    },
+    {
+      "id": 56,
+      "query": "甲公司主要业务是从供电方购买电力后销售给实际用电方。甲公司与供电方和实际用电方签订了合同，并分别进行结算。甲公司自行决定向实际用电方销售电力的价格，并承担相关收款风险。截至2016年12月底，实际用电方拖欠了甲公司用电款，导致甲公司出现资金周转困难，进而拖欠了供电方的部分款项。供电方因此提起仲裁，并经裁决要求甲公司支付电款2600万元，该款项尚未在2016年12月31日之前支付。同时，甲公司对实际用电方提起诉讼，要求其支付用电款3200万元。最终，法院终审判决支持了甲公司的主张。甲公司在按照会计政策计提了坏账准备后，该笔债权的账面价值为2400万元。不考虑其他因素，以下哪个表述关于甲公司针对上述交易的会计处理是正确的？\nA: 资产负债表中列报应收债权3200万元和应付债务2600万元\nB: 资产负债表中列报对供电方的负债2600万元，但不列报应收债权2400万元\nC: 资产负债表中列报应收债权2400万元和应付债务2600万元\nD: 资产负债表中应收和应付项目以抵销后的净额列报为200万元负债",
+      "expectedAnswer": "C: 资产负债表中列报应收债权2400万元和应付债务2600万元",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.25,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 1382
+    },
+    {
+      "id": 57,
+      "query": "哪种组合可以在资产负债表上以净额列示____。\nA: 作为金融负债担保物的金融资产和被担保的金融负债\nB: 与交易方明确约定定期以净额结算的应收款项和应付款项\nC: 因或有事项需承担的义务和基本确定可获得的第三方赔偿\nD: 基础风险相同但涉及不同交易对手的远期合同中的金融资产和金融负债",
+      "expectedAnswer": "B: 与交易方明确约定定期以净额结算的应收款项和应付款项",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 482
+    },
+    {
+      "id": 58,
+      "query": "甲公司常常使用商业汇票进行结算，使得他们持有大量的应收票据。甲公司目标是有效管理这些应收票据，既要确保能在票据到期时收到全部现金流入，又要考虑到流动性需求并对商业汇票进行贴现。忽略其他因素，甲公司上述应收票据在资产负债表中列示的项目是____。\nA: 应收票据\nB: 应收款项融资\nC: 其他流动资产\nD: 其他债权投资",
+      "expectedAnswer": "B: 应收款项融资",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 531
+    },
+    {
+      "id": 59,
+      "query": "以下哪个交易或事项不会对企业当年度营业利润产生影响____。\nA: 对持有存货计提跌价准备\nB: 报废自有专利技术产生损失\nC: 持有的交易性金融资产公允价值上升\nD: 处置某项联营企业投资产生投资损失",
+      "expectedAnswer": "B: 报废自有专利技术产生损失",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 356
+    },
+    {
+      "id": 60,
+      "query": "以下由董事会决定的事务中会计政策变更的是____。\nA: 将自行开发无形资产的摊销年限由10年调整为5年\nB: 将发出存货的计价方法由移动加权平均法变更为先进先出法\nC: 将账龄在1年以内应收账款的坏账计提比例由4$\\%$提高至9$\\%$\nD: 将符合持有待售条件的固定资产由非流动资产重分类为流动资产列报",
+      "expectedAnswer": "B: 将发出存货的计价方法由移动加权平均法变更为先进先出法",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 535
+    },
+    {
+      "id": 61,
+      "query": "以下哪个选项属于会计政策的变更？\nA: 将一项固定资产的净残值由20万变更为5万\nB: 将产品保修费用的计提比例由销售收入的2$\\%$变更为1.5$\\%$\nC: 将发出存货的计价方法由移动加权平均法变更为个别计价法\nD: 将一台生产设备的折旧方法由年限平均法变更为双倍余额递减法",
+      "expectedAnswer": "C: 将发出存货的计价方法由移动加权平均法变更为个别计价法",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 497
+    },
+    {
+      "id": 62,
+      "query": "在编制合并财务报表时，甲公司作为母公司与其控股子公司乙公司之间存在差异的会计处理事项，应当进行统一的会计政策是____。\nA: 甲公司产品保修费用的计提比例为售价的2$\\%$，乙公司为售价的3$\\%$\nB: 甲公司对机器设备的折旧年限按不少于15年确定，乙公司按不少于20年\nC: 甲公司对投资性房地产采用成本模式进行后续计量，乙公司采用公允价值模式\nD: 甲公司对1年以内应收款项计提坏账准备的比例为期末余额的3$\\%$，乙公司为期末余额的5$\\%$",
+      "expectedAnswer": "C: 甲公司对投资性房地产采用成本模式进行后续计量，乙公司采用公允价值模式",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 749
+    },
+    {
+      "id": 63,
+      "query": "2×16年12月31日，甲公司发生的事项如下：（1）因业务模式改变，将某项债券投资由以摊余成本计量的金融资产重分类为以公允价值计量且其变动计入当期损益的金融资产；（2）因不再出租，将某块土地由以公允价值进行后续计量的投资性房地产转换为以成本计量的无形资产；（3）执行新的收入准则，收入确认时点的判断标准由以风险报酬转移变更为以控制权转移；（4）因增资甲公司对乙公司股权投资的后续计量由以公允价值计量且其变动计入当期损益改为按权益法核算。下列各项中，甲公司应当作为会计政策变更进行会计处理的是____。\nA: 收入确认时点的判断标准由以风险报酬转移变更为以控制权转移\nB: 对乙公司股权投资的后续计量由以公允价值计量且其变动计入当期损益改为按权益法核算\nC: 债券投资由以摊余成本计量的金融资产重分类为以公允价值计量且其变动计入当期损益的金融资产\nD: 以公允价值进行后续计量的投资性房地产转换为以成本计量的无形资产",
+      "expectedAnswer": "A: 收入确认时点的判断标准由以风险报酬转移变更为以控制权转移",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 1283
+    },
+    {
+      "id": 64,
+      "query": "某公司2020年年报经批准于2021年4月1日对外报出。下列情况中，需要调整2020年度财务报表的是____。\nA: 2021年3月1日，发行新股\nB: 2021年3月15日，存货市场价格下跌\nC: 2021年1月15日签订购买子公司的协议，2021年3月28日完成股权过户登记手续，取得对子公司的控制权\nD: 2021年3月21日，发现重要的前期差错",
+      "expectedAnswer": "D: 2021年3月21日，发现重要的前期差错",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.565,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 517
+    },
+    {
+      "id": 65,
+      "query": "某公司20×3年财务报表于20×4年4月10日对外报出。下列有关事项均在20×4年发生，且具有重要性，那么这个公司应该如何对20×3年财务报表进行调整____。\nA: 5月2日，自20×3年9月即已开始策划的企业合并交易获得股东大会批准\nB: 4月15日，发现20×3年一项重要交易会计处理未充分考虑当时情况，导致虚增20×3年利润\nC: 3月12日，某项于20×3年资产负债表日已存在的未决诉讼结案，由于新的司法解释出台，甲公司实际支付赔偿金额大于原已确认预计负债\nD: 4月10日，因某客户所在地发生自然灾害造成重大损失，导致甲公司20×3年资产负债表日应收该客户货款按新的情况预计的坏账高于原预计金额",
+      "expectedAnswer": "C: 3月12日，某项于20×3年资产负债表日已存在的未决诉讼结案，由于新的司法解释出台，甲公司实际支付赔偿金额大于原已确认预计负债",
+      "actualAnswer": "基于提供的文档片段，**无法直接回答**该问题。\n\n**原因如下：**\n提供的文档片段主要涉及珠海格力电器股份有限公司2025年年度报告的编制基础、持续经营假设、租赁会计政策以及部分债券募集资金用途等信息，并未包含关于“资产负债表日后事项”（如调整事项与非调整事项的区分）的具体会计准则规定或案例解析。\n\n**补充说明（基于通用会计准则知识，非文档内容）：**\n虽然文档未提供答案，但根据《企业会计准则第29号——资产负债表日后事项》的一般原则：\n*   **调整事项**是指对资产负债表日已经存在的情况提供了新的或进一步证据的事项。\n*   **非调整事项**是指表明资产负债表日后发生的情况的事项。\n\n在本题中：\n*   **A选项**：企业合并交易在资产负债表日（20×3年12月31日）尚未存在（9月才策划，次年5月批准），属于日后新发生的情况，为**非调整事项**。\n*   **B选项**：发现20×3年会计处理错误（前期差错），属于对资产负债表日存在情况的进一步证据，为**调整事项**。\n*   **C选项**：未决诉讼在资产负债表日已存在，结案提供了新的证据，且金额变化源于新司法解释（对原有估计的修正），通常作为**调整事项**处理。\n*   **D选项**：自然灾害发生在资产负债表日后，属于新发生的情况，导致坏账增加，为**非调整事项**。\n\n因此，通常应选 **B、C** 作为调整事项。但请注意，此答案并非基于提供的文档片段得出。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.8032
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 37716
+    },
+    {
+      "id": 66,
+      "query": "以下哪个陈述与资产负债表日后事项不符合？\nA: 调整事项是对报告年度资产负债表日已经存在的情况提供了进一步证据的事项\nB: 非调整事项是报告年度资产负债表日及之前其状况不存在的事项\nC: 调整事项均应通过“以前年度损益调整”科目进行账务处理\nD: 重要的非调整事项只需在报告年度财务报表附注中披露",
+      "expectedAnswer": "C: 调整事项均应通过“以前年度损益调整”科目进行账务处理",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由如下：**\n提供的文档片段主要包含以下内容：\n1.  金融工具变动情况、董事会会议记录（涉及资产负债率管控、季度报告审议等）。\n2.  主要会计数据和财务指标（流动比率、资产负债率、净利润等）。\n3.  审计报告意见段及合并资产负债表的部分科目列表。\n4.  关于资金占用、违规担保、会计师事务所聘任情况的说明。\n\n文档中**未包含**任何关于“资产负债表日后事项”的定义、分类（调整事项与非调整事项）、会计处理原则（如是否通过“以前年度损益调整”科目）或披露要求的描述。因此，无法根据现有文档判断选项 A、B、C、D 中哪一项与文档内容或会计准则（文档未提供）不符。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.2012
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 28570
+    },
+    {
+      "id": 67,
+      "query": "A公司与乙公司于2010年10月签署了一份供销合同，但由于A公司未按合同交付货物，导致乙公司遭受重大经济损失。乙公司对此提起了诉讼，但截至2010年12月31日，法院尚未作出判决。然而，在A公司的2010年12月31日资产负债表中，反映了预计需要支付2000万元的赔偿款项。随后于2011年3月5日，法院作出判决，要求A公司赔偿乙公司经济损失2400万元。A公司不再提起上诉，并假设赔偿款已支付。假设不考虑所得税影响，A公司2010财年财务报告批准报出日为2011年4月28日，报告年度资产负债表中有关项目应以以下方式进行调整处理：____。\nA: “预计负债”项目调增200万元；“其他应付款”项目0万元\nB: “预计负债”项目调减2000万元；“其他应付款”项目调增2400万元\nC: “预计负债”项目调增200万元；“其他应付款”项目调增1200万元\nD: “预计负债”项目调减1200万元；“其他应付款”项目调增200万元",
+      "expectedAnswer": "B: “预计负债”项目调减2000万元；“其他应付款”项目调增2400万元",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及中国能源建设股份有限公司2025年年度报告中的应收票据、应收账款、其他应收款的坏账准备计提情况，以及部分债券募集资金用途等信息。文档中**不包含**任何关于A公司与乙公司诉讼案件、预计负债调整、资产负债表日后事项会计处理或相关会计准则解释的内容。因此，无法依据现有文档片段推导出选项中的正确答案。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.04
+      },
+      "category": "Accounting",
+      "difficulty": "medium",
+      "durationMs": 4633
+    },
+    {
+      "id": 1,
+      "query": "请判断以下金融文本的类别：谢女士是某城市商业银行财富中心的理财师，在与客户宋先生的交谈中了解到他的一些理财目标，其中不合理的是（）。①他想在40岁时成为一个有钱人②他想在30岁时进行购房规划，在35岁时进行子女教育金规划，在55岁时进行退休规划③他准备8年后买幢首付50万元的别墅，现在开始每月存4500元钱④他现在有30万元现金准备进行投资，希望10年后获得60万元",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要包含中国能源建设股份有限公司、宜宾五粮液股份有限公司、中国人民保险集团股份有限公司等企业的2025年年度报告片段，内容涉及担保、委托理财、关联交易、高管简历及金融资产转移等财务信息。文档中**不包含**任何关于“谢女士”、“宋先生”、“理财目标合理性分析”或相关金融理财案例的题目内容。\n\n因此，根据指令要求“如果文档中没有相关信息，请明确说明”，我无法基于给定材料判断哪个理财目标是不合理的。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.01
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 14054
+    },
+    {
+      "id": 2,
+      "query": "请判断以下金融文本的类别：关于计算增值税销项税额的行为，哪一项应当根据差额确定销售额？下列选项中属于此类行为的是（　　）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.08
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 13406
+    },
+    {
+      "id": 3,
+      "query": "请判断以下金融文本的类别：在风险管理中，（）是处理风险残余的方法。",
+      "expectedAnswer": "B",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由：**\n提供的文档片段主要涉及金融工具的会计分类（如以摊余成本计量、以公允价值计量等）、减值处理、流动性风险管理、声誉风险管理、风险偏好管理、风险监测与排查机制以及全面风险评估等内容。文档中并未提及“处理风险残余”的具体方法或相关定义。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0972
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 19893
+    },
+    {
+      "id": 4,
+      "query": "请判断以下金融文本的类别：风险战略是银行为实现总体发展目标所制定的一系列风险管理目标和方针政策，下列关于风险战略的说法，正确的有（）。",
+      "expectedAnswer": "ACE",
+      "actualAnswer": "基于提供的文档片段，**无法直接回答**关于“风险战略”定义的多选题选项判断问题，因为文档中并未包含具体的选项列表，也未直接给出“风险战略是银行为实现总体发展目标所制定的一系列风险管理目标和方针政策”这一标准定义的完整上下文供比对。\n\n但是，根据文档片段1和文档片段3的内容，可以提取出该集团（中国人民保险集团，非银行，但属于金融集团）关于**风险管理策略/目标**的相关描述，供您参考：\n\n1.  **风险管理策略包括**：风险偏好、风险容忍度和风险限额；风险识别、评估、监控工具；风险应对及危机管理策略；风险管理有效性评估；风险传染和传递的防范机制；风险管理的人力、财务、组织等资源配置。（见文档片段1）\n2.  **风险管理目标**：在风险和收益之间取得适当的平衡，将风险对本公司经营业绩的负面影响降低到最低水平，使股东及其他权益投资者的利益最大化。（见文档片段3）\n3.  **总体目标**：集团全面风险管理的总体目标由董事会审批。（见文档片段1）\n\n**结论：**\n由于题目要求判断特定说法的正确性，且通常此类题目为多选题，需要结合具体选项（A、B、C、D等）进行分析。提供的文档片段仅提供了该金融集团自身的风险管理架构、策略构成及目标，**未提供通用的“风险战略”定义的标准判断题选项**。因此，基于现有文档，无法给出确切的选项选择。\n\n如果您能提供具体的选项内容，我可以基于文档中提到的“风险偏好”、“风险容忍度”、“风险管理策略”等概念为您进一步分析。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.4012
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 16936
+    },
+    {
+      "id": 5,
+      "query": "请判断以下金融文本的类别：特种风险的赔偿限额通常依据（）确定。",
+      "expectedAnswer": "ACD",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由：**\n提供的5个文档片段主要涉及以下内容：\n1.  人保集团关于科技、绿色、普惠、养老金融的业务数据及“五篇大文章”成果。\n2.  关于存货跌价准备的关键审计事项及审计程序。\n3.  公司对子公司及子公司之间担保情况的表格数据。\n4.  银行借款、或有事项（法律诉讼）及全面风险管理目标与策略。\n5.  农险大灾保费准备金提取比例、应付债券（资本补充债券）的明细及变动情况。\n\n文档中**未包含**任何关于“特种风险”、“赔偿限额”确定依据的相关信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0916
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 27295
+    },
+    {
+      "id": 6,
+      "query": "请判断以下金融文本的类别：甲有限责任公司（简称“甲公司”）由两位投资者各出资750万元设立，2020年1月初，甲公司资产负债表所有者权益项目金额如下：实收资本1&amp;nbsp;500万元，资本公积500万元，盈余公积300万元，未分配利润100万元。2020年甲公司发生如下经济业务：（1）1月10日，经股东会批准，按股东原出资比例将资本公积300万元转增资本；（2）9月20日，为扩大经营规模，经股东会批准，引入新投资人加入甲公司，并将甲公司注册资本增加至2&amp;nbsp;000万元，按投资协议，新投资人出资资金300万元，占甲公司注册资本的比例为10%；（3）12月31日，经计算本年度实现净利润400万元，经股东会批准，按净利润的10%提取法定盈余公积，按净利润的30%以现金方式向投资者分配利润。要求：根据上述资料，不考虑其他因素，分析回答下列小题。（答案中的金额单位用万元表示）5.根据期初资料、资料（1）至（3），下列各项中，2020年12月31日甲公司资产负债表中相关项目“期末余额”栏填列正确的是（）。",
+      "expectedAnswer": "ABCD",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的5个文档片段主要涉及上市公司（如中国人民保险集团、中国能源建设股份有限公司等）的财务报表附注、商誉、长期股权投资、其他应收款及债券募集资金用途等具体财务数据和分析。这些片段中**不包含**用户问题中提到的“甲有限责任公司”的设立背景、期初所有者权益明细、2020年具体的增资及利润分配业务数据，也没有相关的会计处理题目或答案。\n\n因此，根据“回答必须基于提供的文档内容，不要编造信息”的要求，无法从给定文档中得出该会计题目的正确选项。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.5,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0188
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 16662
+    },
+    {
+      "id": 7,
+      "query": "请判断以下金融文本的类别：财务公司拆入资金余额不得高于（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由：**\n提供的文档片段中未包含关于“财务公司拆入资金余额”限制的具体数值或规定。\n*   [文档片段1] 和 [文档片段2] 仅提到了公司在财务公司的**存款余额**（最高不超过550亿元）和**贷款/授信余额**（最高不超过100亿元）的限制。\n*   [文档片段5] 提到了中国能建集团财务公司的存款和贷款业务数据，但未提及拆入资金余额的限制。\n\n因此，根据现有文档，不能确定财务公司拆入资金余额不得高于多少。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1004
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 18885
+    },
+    {
+      "id": 8,
+      "query": "请判断以下金融文本的类别：非结算会员的结算准备金余额（）规定或者约定最低余额的，应当及时追加保证金或者自行平仓。",
+      "expectedAnswer": "B",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及中国人民保险集团、中国铁建股份有限公司等企业的财务报表附注，内容集中在“其他应收款”、“金融工具减值”、“信用风险”、“坏账准备计提”等会计政策和资产注释上。文档中并未包含关于“非结算会员的结算准备金余额”、“保证金追加”或“自行平仓”等期货交易或结算规则的相关信息。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1048
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 20533
+    },
+    {
+      "id": 9,
+      "query": "请判断以下金融文本的类别：根据银行结算账户法律制度的规定，存款人注册验资需要开立的银行账户是（  ）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及金融资产终止确认、中期票据发行信息、存出资本保证金明细以及永续债（其他权益工具）的会计处理等内容，并未包含关于“银行结算账户法律制度”或“注册验资开立银行账户类型”的相关规定。因此，根据要求“基于提供的文档内容，不要编造信息”，无法从给定材料中得出答案。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1048
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 7657
+    },
+    {
+      "id": 10,
+      "query": "请判断以下金融文本的类别：业绩归因方法Brison模型将股票型基金的收益与基准组合收益的差异归因于（）。\nⅠ.资产配置\nⅡ.行业与证券选择\nⅢ.交叉效应",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及以下内容：\n1.  第三层次公允价值计量的资产（如应收款项融资、其他权益工具投资、投资性房地产）的估值技术和输入值。\n2.  可续期公司债券的发行、付息及兑付条款。\n3.  资产证券化业务的会计处理及重大会计判断和估计。\n4.  金融资产和负债在不同公允价值层级之间的转换。\n\n文档中**未包含**任何关于“业绩归因方法”、“Brison模型”、“股票型基金”、“基准组合收益”或“资产配置/行业选择/交叉效应”的相关信息。因此，无法根据现有文档判断该金融文本的类别或回答具体问题。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.2916
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 6744
+    },
+    {
+      "id": 11,
+      "query": "请判断以下金融文本的类别：某资产管理机构发行了一款保本型股指联结票据，产品的主要条款如下图所示。根据主要条款的具体内容，回答以下两题。(1)假设产品即将发行时1年期的无风险利率是4.5%，若产品运营需要0.8元，则用于建立期权多头的资金有（ ）元。",
+      "expectedAnswer": "D",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因如下：**\n1.  **文档内容不匹配**：提供的5个文档片段主要涉及中国能源建设股份有限公司的可续期债券（永续债）会计处理、五粮液与财务公司的存贷款业务、保险资金的投资策略及资产支持证券情况。\n2.  **缺失关键信息**：文档中未包含任何关于“保本型股指联结票据”的产品条款、结构图、无风险利率或期权多头资金计算的相关数据。\n3.  **无法推导**：该问题属于具体的金融衍生品定价与结构计算题，需要特定的产品参数（如保本比例、期权结构、波动率等），这些在提供的文本中完全不存在。\n\n因此，根据“回答必须基于提供的文档内容，不要编造信息”的要求，无法提供答案。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1036
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 33111
+    },
+    {
+      "id": 12,
+      "query": "请判断以下金融文本的类别：下列国际收支项目中，可记入国际收支平衡表资本账户的有（）。",
+      "expectedAnswer": "AE",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及企业财务报表中的金融资产/负债分类（如短期借款、应付票据、交易性金融资产等）、房地产项目开发投资情况以及公司债券发行信息。这些内容均属于企业内部财务数据或特定债券条款，与国际收支平衡表（Balance of Payments）中的资本账户（Capital Account）分类标准（如资本转移、非生产非金融资产的收买/放弃等）无关。文档中未包含任何关于国际收支统计或资本账户记账规则的信息。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0932
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 5690
+    },
+    {
+      "id": 13,
+      "query": "请判断以下金融文本的类别：用人单位辞退张某，张某进行了失业登记，则下列说法中正确的有（ ）",
+      "expectedAnswer": "ABC",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因如下：**\n提供的文档片段主要涉及中国长城科技集团股份有限公司的财务报表附注，内容涵盖持有待售资产、长期股权投资、金融工具分类、收入确认、终止经营、分部报告、设定受益计划及辞退福利的会计处理政策等。\n\n虽然文档片段5提到了“辞退福利的会计处理方法”，指出集团在不能单方面撤回辞退福利或确认重组成本费用的孰早日确认辞退福利产生的职工薪酬负债并计入当期损益，但这属于企业会计准则下的会计处理规定。\n\n用户的问题是关于“用人单位辞退张某，张某进行了失业登记”这一具体情境下的法律或社保政策判断（通常涉及失业保险金的领取资格等劳动法或社会保障法范畴），且题目为多选题形式（“下列说法中正确的有”）。提供的文档中**不包含**关于失业登记、失业保险待遇或具体劳动纠纷案例的法律条文或解释，因此无法基于现有文档判断哪个说法正确。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.1016
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 13543
+    },
+    {
+      "id": 14,
+      "query": "请判断以下金融文本的类别：老王今年52岁，某公司中层管理人员，月税后收入8000元，离异，与儿子小王共同生活，小王大专毕业，现为某超市财务人员，月税后收入3000元，他们目前居住的两居室市价为90万元。老王目前有60万元的储蓄，他预算60岁退休后每月生活费5000元，假设老王预期寿命为85岁，不考虑他的社保，目前的储蓄包括一些基金证券，退休前整体收益率为5%，退休后全部转化为存款，年收益率为3%。根据以上材料回答（1）-（5）题。（1）老王退休时的退休基金缺口为（）元。",
+      "expectedAnswer": "C",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及财务报表附注（如其他应收款的账龄分析、坏账准备、应付职工薪酬中的退休金福利责任、债券募集资金用途等），并未包含关于“老王”个人财务规划、退休基金缺口计算所需的完整背景数据或具体的计算题目上下文。文档片段中虽然提到了“退休金福利责任”，但那是企业层面的会计估计，与个人理财计算无关。\n\n因此，根据指令要求“如果文档中没有相关信息，请明确说明”，我无法基于现有文档提供老王退休基金缺口的具体数值。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0096
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 22652
+    },
+    {
+      "id": 15,
+      "query": "请判断以下金融文本的类别：一个人在现货市场买入5,000桶原油，同时在期货市场卖出4,000桶原油期货合约进行套期保值，则对冲比率是（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及中国铁建和中国能源建设等公司的2025年年度报告内容，包括长期借款到期情况、应付债券、杠杆比率分析、受限资产明细以及存货分类等财务数据。文档中**不包含**任何关于原油现货与期货套期保值、对冲比率计算或相关金融衍生品交易策略的信息。\n\n因此，根据“回答必须基于提供的文档内容，不要编造信息”的要求，无法从给定材料中得出对冲比率的数值或计算方法。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.012
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 12817
+    },
+    {
+      "id": 16,
+      "query": "请判断以下金融文本的类别：私募基金募集机构应当在投资者自愿的前提下获取投资者问卷调查信息，问卷调查主要内容中投资者基本信息为（）。Ⅰ.个人投资者基本信息包括身份信息、年龄、学历、职业Ⅱ.个人投资者联系方式Ⅲ.机构投资者基本信息包括工商登记中的必备信息、联系方式等信息Ⅳ.个人与投资与机构投资者财产状况信息",
+      "expectedAnswer": "C",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要包含以下内容：\n1.  **文档片段1、3、5**：涉及股东持股数量、持股比例、股东性质（如国有法人、境外法人、自然人）以及股东之间的关联关系说明。\n2.  **文档片段2**：涉及中国人民保险集团的投资组合分类（如固定收益投资、权益投资等）、投资收益及管理层的讨论与分析。\n3.  **文档片段4**：涉及公司债券（如中国铁建发行的科技创新公司债券）的发行条款、利率、期限及承销商信息。\n\n所有文档片段中均**未包含**关于“私募基金募集机构”、“投资者问卷调查”、“投资者基本信息”或“财产状况信息”的相关规定或内容。因此，无法依据现有文档判断选项的正确性。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1004
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 25437
+    },
+    {
+      "id": 17,
+      "query": "请判断以下金融文本的类别：某期货公司从业人员王某在从业过程中，对其客户谎称本公司另一位李姓期货从业人员曾在从业中触犯刑律而被判过刑，故请客户不要找李某做经纪人。为了拉拢客户，王某允诺其可以收取更低的手续费。1、王某的行为违反了下列规定中的（）项。",
+      "expectedAnswer": "BC",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及金融资产的分类、计量方法（如摊余成本、公允价值）、收入确认原则以及部分保险公司的业务经营数据（如保费收入、继续率等）。文档中**不包含**任何关于期货从业人员行为规范、职业道德准则或相关法律法规（如《期货从业人员管理办法》等）的内容，因此无法根据现有材料判断王某的行为违反了哪项规定。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0968
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 5398
+    },
+    {
+      "id": 18,
+      "query": "请判断以下金融文本的类别：2×21年1月1日，甲公司开始建造生产线，为购建生产线借入3年期专门借款3 000万元，年利率为6%，当年度发生与购建生产线相关的支出包括：1月1日支付材料款1 800万元，3月1日支付工程进度款1 600万元，9月1日支付工程进度款2 000万元。甲公司将暂时未使用的专门借款用于货币市场投资，月利率为0.5%，除专门借款外，甲公司尚有两笔一般借款：一笔是2×20年10月借入的2年期借款2 000万元，年利率为5.5%；另一笔为2×21年1月1日借入的1年期借款3 000万元，年利率为4.5%。假定上述借款的实际利率与名义利率相同，不考虑其他因素，甲公司2×21年度应予资本化的一般借款利息金额为（　）。",
+      "expectedAnswer": "B",
+      "actualAnswer": "基于提供的文档片段，**无法直接回答**该具体计算题的最终数值结果，因为提供的文档片段仅包含借款费用资本化的**会计政策、确认原则和计算方法**（如中国长城科技集团、中国能源建设股份有限公司、珠海格力电器股份有限公司、中国铁建股份有限公司的财务报表附注），并未包含针对“甲公司”这一特定案例的具体计算过程或答案。\n\n但是，根据文档片段中提供的**计算方法**，可以为您梳理出计算该题所需遵循的逻辑步骤：\n\n**1. 确定资本化期间：**\n根据文档片段1、2、3、5，借款费用开始资本化的条件包括：资产支出已经发生、借款费用已经发生、购建活动已经开始。停止资本化的时点是资产达到预定可使用或可销售状态。题目中未提及中断或完工，通常假设2×21年全年为资本化期间（除非题目隐含其他完工信息，但基于现有片段无法判断）。\n\n**2. 计算专门借款的资本化金额（用于抵扣）：**\n根据文档片段1、2、3、4，专门借款资本化金额 = 专门借款当期实际发生的利息费用 - 尚未动用的借款资金取得的利息收入/投资收益。\n*   专门借款总额：3,000万元，年利率6%。\n*   1月1日支出1,800万元，剩余1,200万元。\n*   3月1日支出1,600万元，此时累计支出3,400万元 > 3,000万元，说明专门借款已用完，3月1日后无闲置资金。\n*   因此，闲置资金利息收入仅发生在1月1日至3月1日（2个月），金额为 $1,200 \\times 0.5\\% \\times 2$。\n\n**3. 计算一般借款的资本化金额（题目所求）：**\n根据文档片段1、2、3、4，占用一般借款的资本化金额 = **累计资产支出超过专门借款部分的资产支出加权平均数** × **所占用一般借款的资本化率**。\n\n*   **步骤A：计算累计资产支出超过专门借款部分的资产支出加权平均数**\n    *   专门借款3,000万元在1月1日和3月1日已用完（1,800+1,600=3,400 > 3,000）。\n    *   9月1日支付的2,000万元全部占用了一般借款。\n    *   该笔支出在2×21年占用的时间为4个月（9月、10月、11月、12月）。\n    *   加权平均数 = $2,000 \\times \\frac{4}{12}$。\n\n*   **步骤B：计算一般借款资本化率**\n    *   根据文档片段1、3，资本化率根据一般借款加权平均实际利率计算确定。\n    *   一般借款1：2,000万元，年利率5.5%（2×20年10月借入，2×21年全年存在）。\n    *   一般借款2：3,000万元，年利率4.5%（2×21年1月1日借入，2×21年全年存在）。\n    *   加权平均利率 = $\\frac{2,000 \\times 5.5\\% + 3,000 \\times 4.5\\%}{2,000 + 3,000}$。\n\n*   **步骤C：计算最终金额**\n    *   一般借款利息资本化金额 = $(2,000 \\times \\frac{4}{12}) \\times \\text{加权平均利率}$。\n\n**结论：**\n提供的文档片段仅提供了**计算规则**（即“根据累计资产支出超过专门借款部分的资产支出加权平均数乘以所占用一般借款的资本化率”），**不包含**该具体题目的答案。您需要依据上述规则自行计算，或查阅包含该具体案例答案的完整题库资料。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.906,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.3256
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 43241
+    },
+    {
+      "id": 19,
+      "query": "请判断以下金融文本的类别：中国公民李某2021年9月提供咨询服务，取得劳务报酬8200元，支付交通费200元。已知，劳务报酬所得个人所得税预扣率为20%；每次收入4000元以上的，减除费用按20%计算。计算李某当月该笔劳务报酬应预扣预缴个人所得税税额的下列算式中，正确的是（&amp;nbsp;）。",
+      "expectedAnswer": "B",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因如下：**\n提供的文档片段主要涉及中国铁建股份有限公司的财务报表附注、税项说明（如增值税、企业所得税税率）、递延所得税资产/负债明细以及部分股息红利代扣代缴规定。文档中**不包含**关于“劳务报酬所得”个人所得税预扣预缴的具体计算公式、税率表或针对此类具体案例的税务处理规定。因此，无法根据现有文档计算出李某应预扣预缴的个人所得税税额。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0192
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 4514
+    },
+    {
+      "id": 20,
+      "query": "请判断以下金融文本的类别：下列属于工作日志法缺点的有（）。",
+      "expectedAnswer": "ABCE",
+      "actualAnswer": "基于提供的文档片段，无法回答该问题。\n\n提供的文档片段主要涉及中国人民保险集团和中国铁建股份有限公司的财务报告、审计报告及重大事项说明，内容涵盖资产受限情况、保险合同负债评估、委托理财、债券发行等金融财务信息。文档中并未包含关于“工作日志法”及其缺点的相关描述或人力资源管理相关内容。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0928
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 19037
+    },
+    {
+      "id": 21,
+      "query": "请判断以下金融文本的类别：套期保值交易受交易限额规定限制。（）",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，该文本类别为：**正确**（或属于**衍生品投资/套期保值业务风险管理**相关内容）。\n\n**判断依据：**\n在**文档片段3**中，明确提到了“衍生品投资资金来源”为“自有资金”，并在“报告期衍生品持仓的风险分析及控制措施说明”中详细阐述了市场风险的控制措施。其中指出：“对于套期保值业务，**严格限定套期保值的数量不得超过实际现货交易的数量**，期货持仓量应不超过套期保值的现货量，并实施止损机制。”\n\n这表明套期保值交易确实受到交易限额（如持仓量不得超过现货量）的规定限制。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.6984
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 5036
+    },
+    {
+      "id": 22,
+      "query": "请判断以下金融文本的类别：某棉纺企业为增值税一般纳税人，适用的增值税税率为13%。2020年3月1日，“应付职工薪酬”科目贷方余额为516000元（全部为工资），该企业2020年3月份发生的有关职工薪酬业务如下：（1）1日，企业租入房屋4套供管理人员免费使用，月租金共计12000元，每月月末支付租金，企业于当月31日以银行存款支付本月租金12000元。（2）5日，从月初应付职工薪酬中扣除企业代扣由职工承担的个人所得税8900元（尚未缴纳），为职工代垫的家庭医药费5000元，通过银行转账实际发放工资502100元。（3）24日，企业以其生产的毛巾被作为福利发放给直接从事生产活动的职工，该批毛巾被市场售价总额为45000元（不含增值税），成本总额为30000元。（4）31日，本月各部门工资计算结果如下表：假定该企业社会保险费的计提比例为工资总额的20%，住房公积金的计提比例为工资总额的15%。要求：根据上述资料，不考虑其他因素，分析回答下列小题。（答案中的金额单位用元表示）&lt;imgsrc=&quot;https:&amp;nbsp;myktcdn.miyaketang.cn=&quot;&quot;&amp;nbsp;zkt_icon=&quot;&quot;&amp;nbsp;e56209555ad142559ebcbfca85ef2179.png&quot;style=&quot;max-width:100%;&quot;&gt;&lt;img&amp;nbsp;src=&quot;https://zktcdn.cqmapp.com/zkt_icon/fd6af7da41ca4319860b591786d6f3a6.png&quot;&amp;nbsp;style=&quot;max-width:100%;&quot;&gt;&amp;nbsp;&amp;nbsp;3.根据资料（2）至（4），下列项目中，应通过“应付职工薪酬”科目核算的是（）。&lt;/imgsrc=&quot;https:&gt;",
+      "expectedAnswer": "ABCD",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n1.  **内容不匹配**：提供的5个文档片段主要涉及上市公司（如中国能源建设股份有限公司、人保财险等）的年度报告、关联方交易、资金拆借、关键管理人员报酬及投资收益分析等财务数据。\n2.  **缺乏题目信息**：用户的问题是一个具体的会计实务计算题（关于棉纺企业职工薪酬的核算），其中包含具体的业务场景、金额数据（如租金12000元、代扣个税8900元等）以及需要分析的选项。这些内容**完全不存在**于提供的文档片段中。\n3.  **图片缺失**：问题中提到的“各部门工资计算结果如下表”及相关的图片链接，在提供的文本片段中并未包含有效数据。\n\n因此，根据“回答必须基于提供的文档内容，不要编造信息”的要求，无法从给定材料中提取答案。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.3156
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 18025
+    },
+    {
+      "id": 23,
+      "query": "请判断以下金融文本的类别：如果投资基金经理根据公开信息选择股票，投资基金的平均业绩与市场整体收益大体一致，说明该资本市场至少是（　）。",
+      "expectedAnswer": "D",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.9,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.08
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 24196
+    },
+    {
+      "id": 24,
+      "query": "请判断以下金融文本的类别：张君有一个10岁的孩子，计划5年后送孩子出国学习，从高中到硕士共需9年。假设目前国外求学费用每年10万元，学费成长率为3%。在年投资报酬率为8%的条件下，为了达成孩子未来出国念书的目标，张君应一次性投入（）万元。(答案取最接近值)",
+      "expectedAnswer": "D",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及企业财务报表数据（如长期借款、金融资产、应付债券等）、公司风险管理描述以及募集资金使用情况，**不包含**任何关于个人理财规划、教育金计算、复利公式或具体数学题解法的相关信息。因此，无法根据文档内容计算张君应一次性投入的金额。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0888
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 8751
+    },
+    {
+      "id": 25,
+      "query": "请判断以下金融文本的类别：期货市场是一个通过现代化通信手段联结起来的公开市场，因此，市场规模越集中，市场流动性越小，形成的价格越公平、权威。（）",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及金融工具的分类（如以摊余成本计量的金融资产、以公允价值计量的金融资产）、信用风险、流动性风险的管理以及具体的财务报表附注数据。文档中并未包含关于“期货市场”、“市场规模集中度”、“市场流动性”与“价格公平性/权威性”之间关系的理论描述或定义。因此，无法依据现有文档判断该文本的类别或验证其陈述。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1052
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 16886
+    },
+    {
+      "id": 26,
+      "query": "请判断以下金融文本的类别：请找出以下关于审计证据质量观点的错误所在（）。",
+      "expectedAnswer": "D",
+      "actualAnswer": "基于提供的文档片段，无法直接回答“找出以下关于审计证据质量观点的错误所在”这一具体问题，因为**用户的问题中并未提供具体的选项或待判断的观点文本**。\n\n不过，根据文档片段中关于“注册会计师对财务报表审计的责任”的描述，可以总结出关于**审计证据**和**审计风险**的核心正确观点，供你参考以自行判断错误选项：\n\n1.  **审计证据的目标**：注册会计师的目标是对财务报表整体是否不存在由于舞弊或错误导致的重大错报获取**合理保证**（而非绝对保证）。合理保证是高水平的保证，但并不能保证在某一重大错报存在时总能发现。\n2.  **舞弊与错误的风险差异**：由于舞弊可能涉及串通、伪造、故意遗漏、虚假陈述或凌驾于内部控制之上，**未能发现由于舞弊导致的重大错报的风险高于未能发现由于错误导致的重大错报的风险**。\n3.  **证据的充分性和适当性**：注册会计师需要设计和实施审计程序以应对识别出的风险，并获取**充分、适当的审计证据**，作为发表审计意见的基础。\n4.  **内部控制的作用**：注册会计师需要了解与审计相关的内部控制，以设计恰当的审计程序，但这并不免除管理层对财务报表的责任。\n\n如果你能提供具体的选项（A、B、C、D等），我可以基于上述文档内容帮你指出哪一个是错误的。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.3952
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 15158
+    },
+    {
+      "id": 27,
+      "query": "请判断以下金融文本的类别：西奥多舒尔茨开创的（）改变了传统经济学名人作为一种附属于资本的次要生产要素看待的错误思想。",
+      "expectedAnswer": "C",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n提供的文档片段主要涉及金融工具的会计政策、金融资产分类与计量、金融负债分类、合并财务报表编制方法以及信用风险管理等内容，并未包含关于西奥多·舒尔茨（Theodore Schultz）或其经济学理论的相关信息。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0916
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 5477
+    },
+    {
+      "id": 28,
+      "query": "请判断以下金融文本的类别：下图是动力煤期货日线价格走势图，回答以下题目。  1、从形态上看，该图形属于（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n1.  **内容不匹配**：提供的文档片段主要涉及库存商品分类（酒类/非酒类产品）、法律诉讼进展、绿色氢氨醇项目利息资本化、公司风险提示及关联方销售商品收入等财务和经营信息。\n2.  **缺失关键信息**：文档中没有任何关于“动力煤期货”、“日线价格走势图”或技术分析形态的内容。\n3.  **无法推断**：由于缺乏相关的图表或描述，无法判断图形属于何种技术形态。\n\n建议您提供包含动力煤期货走势图的相关文档或图片，以便进行准确分析。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.0992
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 39436
+    },
+    {
+      "id": 29,
+      "query": "请判断以下金融文本的类别：关于中证全债指数，以下表述错误的是（）。",
+      "expectedAnswer": "C",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及某公司的财务报表数据（如长期借款、金融资产、应付债券等）、管理层讨论、审计责任声明以及公司简介等内容。**文档中并未包含任何关于“中证全债指数”的描述、定义或相关表述**，因此无法根据现有材料判断关于该指数的表述哪一项是错误的。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0984
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 11251
+    },
+    {
+      "id": 30,
+      "query": "请判断以下金融文本的类别：下面关于受益人的指定的说法，正确的是（）。",
+      "expectedAnswer": "D",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及子公司信息、公司风险披露、债券发行人类别、金融资产与金融负债的分类及计量会计政策，以及委托贷款情况的声明。这些内容中均未包含关于“受益人指定”的具体规定或相关金融文本类别的判断依据。因此，根据要求，不能编造信息，无法给出正确选项。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0964
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 12300
+    },
+    {
+      "id": 31,
+      "query": "请判断以下金融文本的类别：监管机构对于股权投资基金管理人及其从业人员违法违规行为的主要监督处理方式包括（）。&amp;lt;br&amp;gt;Ⅰ.中国证监会及其派出机构采取行政监管措施&amp;lt;br&amp;gt;Ⅱ.中国证监会及其派出机构进行行政处罚&amp;lt;br&amp;gt;Ⅲ.中国证监会将违法犯罪线索移送司法机关审查处理&amp;lt;br&amp;gt;Ⅳ.中国证券投资基金业协会采取自律管理措施",
+      "expectedAnswer": "B",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要包含以下内容：\n1.  **文档片段1**：关于某公司前十大股东持股情况的表格及关联关系说明。\n2.  **文档片段2**：关于“葛洲”系列债券募集资金用途的说明。\n3.  **文档片段3**：关于股东持股数量及性质的简要列表。\n4.  **文档片段4**：关于中国人民保险集团（PICC）的业务范围、参股公司情况、资本开支及银行借款等信息。\n5.  **文档片段5**：关于中国人民保险集团的术语定义、公司简介及核心竞争力描述。\n\n上述片段中均未涉及“股权投资基金管理人及其从业人员违法违规行为”、“中国证监会行政监管措施”、“行政处罚”、“移送司法机关”或“中国证券投资基金业协会自律管理措施”等相关内容。因此，根据要求“基于提供的文档内容”且“不要编造信息”，无法从给定材料中提取答案。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.034
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 21103
+    },
+    {
+      "id": 32,
+      "query": "请判断以下金融文本的类别：有关作为证明商标或者集体商标注册的地理标志的保护，以下选项正确的是（）。",
+      "expectedAnswer": "AB",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由如下：**\n提供的文档片段主要包含以下内容：\n1.  **股东持股情况**（片段1、片段3）：涉及国有法人、境外法人等股东的持股数量和比例。\n2.  **关联交易与协议**（片段2）：涉及五粮液集团公司的商标使用许可协议（关于“厂徽标识”及酒类产品商标的使用费计算），以及公司与财务公司的金融服务协议。\n3.  **保险合同负债及资产管理情况**（片段4）：涉及人保健康、人保资产的保险负债、再保险合同资产及资产管理业务描述。\n4.  **公司基本信息及释义**（片段5）：涉及中国人民保险集团的上市信息、审计师、法律顾问及术语定义。\n\n文档中虽然提到了“商标、标识使用许可协议”，但这是关于商业授权和费用结算的约定，**并未涉及**关于“作为证明商标或者集体商标注册的地理标志的保护”的法律条款或相关判断内容。因此，根据现有文档无法判断该金融文本类别或回答相关问题。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.1024
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 27635
+    },
+    {
+      "id": 33,
+      "query": "请判断以下金融文本的类别：某投资者拥有一个三种股票组成的投资组合，三种股票的市值均为500万元，投资组合的总价值为1500万元，假定这三种股票均符合单因素模型，其预期收益率E（ri）分别为16%、20%和13%，其对该因素的敏感度（bi）分别为0.9、3.1、1.9，若投资者按照下列数据修改投资组合，不能提高预期收益率的组合是（）。",
+      "expectedAnswer": "ACD",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由如下：**\n1.  **内容不匹配**：提供的文档片段主要涉及企业财务报表附注，具体内容包括商誉所在资产组的信息、长期资产减值测试方法、其他权益工具投资情况、保险合同会计政策以及长期待摊费用等。\n2.  **缺乏必要信息**：文档中没有任何关于“单因素模型”、“股票预期收益率”、“敏感度（beta值）”或“投资组合优化”的理论定义、计算公式或相关案例数据。\n3.  **问题性质**：用户提出的问题是一个具体的金融学计算/选择题，需要运用资本资产定价模型（CAPM）或多因子模型的知识进行逻辑推导和计算，而这些知识并未包含在所提供的文本中。\n\n因此，根据指令要求“如果文档中没有相关信息，请明确说明”，我无法基于给定文档提供答案。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0152
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 15097
+    },
+    {
+      "id": 34,
+      "query": "请判断以下金融文本的类别：因业务发展需要，我国的A公司准备以融资租赁的方式购置一批生产设备。目前，有甲、乙两家金融租赁公司向A公司提供了融资租赁方案，具体操作分别为：甲租赁公司向A公司指定的设备供应商购买设备，租赁给A公司使用，租赁期限3年。在租赁期内，A公司按季向甲租赁公司支付租金。租赁期满后，A公司向甲租赁公司支付约定的名义货价，甲租赁公司将该批设备的所有权转移给A公司。A公司向乙租赁公司提供原已购入设备的原始购置发票，将设备所有权转让给乙租赁公司，保留设备使用权；乙租赁公司在取得设备所有权后，一次性向A公司支付转让款。在3年租赁期内，A公司按月向乙租赁公司支付租金。租赁期满后，A公司向乙租赁公司支付约定的名义货价，乙租赁公司将该批设备的所有权转移给A公司。根据以上资料，回答下列问题：3、根据我国的《金融租赁公司管理办法》，甲租赁公司对A公司的全部融资租赁业务余额不得超过资本净额的（）。",
+      "expectedAnswer": "B",
+      "actualAnswer": "根据提供的文档片段，**无法回答**该问题。\n\n提供的文档片段主要涉及中国能源建设股份有限公司、中国长城科技集团等企业的财务报表附注，内容集中在租赁会计处理（如融资租赁与经营租赁的分类、确认、计量及售后租回交易的会计处理），并未包含《金融租赁公司管理办法》中关于融资租赁业务余额与资本净额比例限制的具体监管规定。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1012
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 51783
+    },
+    {
+      "id": 35,
+      "query": "请判断以下金融文本的类别：按照《慈善组织保值增值投资活动管理暂行办法（征求意见稿）》规定，在下列活动中，慈善组织可以开展的投资活动是（）。",
+      "expectedAnswer": "C",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**理由：**\n提供的文档片段主要涉及某公司的债券发行信息、投资收益计算、流动性分析、子公司持股情况及利润表项目变动原因等财务和管理层讨论内容。其中并未包含《慈善组织保值增值投资活动管理暂行办法（征求意见稿）》的相关规定，也未提及慈善组织可以开展的具体投资活动类型。因此，根据“回答必须基于提供的文档内容”的要求，无法从给定材料中提取答案。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.122
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 42888
+    },
+    {
+      "id": 36,
+      "query": "请判断以下金融文本的类别：某交易者在1月份以150点的权利金买入一张3月到期、执行价格为8800点的中证500看涨期权。与此同时，该交易者又以100点的权利价格卖出一张执行价格为10000点的中证500看涨期权。合约到期时，中证500股指期货价格上涨到10100点。2、全部交易了结后的总体净损益为（）点。",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及企业财务报表中的投资类型、会计政策（如长期股权投资、投资性房地产、套期保值业务说明）、金融资产分类及减值损失等会计处理内容。文档中**不包含**关于期权交易策略、权利金计算、执行价格损益计算或具体金融衍生品交易案例的解题逻辑和数据。\n\n因此，无法根据现有文档计算出该交易者全部交易了结后的总体净损益。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0232
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 15540
+    },
+    {
+      "id": 37,
+      "query": "请判断以下金融文本的类别：关于《保险法》中，有关保险人解除权限的规定，下列哪项阐述是正确的？",
+      "expectedAnswer": "D",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n提供的文档片段主要涉及中国人民保险集团股份有限公司的财务数据、子公司设立情况、减值准备计提、保费收入分析、准备金提取及应付债券等财务和经营信息，并未包含《保险法》中关于保险人解除权限的具体法律规定或相关阐述。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1052
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 18577
+    },
+    {
+      "id": 38,
+      "query": "请判断以下金融文本的类别：下列各项中，可作为城镇土地使用税计税依据的有（ ）。",
+      "expectedAnswer": "ACD",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因说明：**\n提供的文档片段主要涉及企业财务报表中的公允价值计量、金融资产分类、无形资产（如土地使用权、专利权）的摊销政策及减值测试等会计处理内容。文档中虽然提到了“土地使用权”和“出租的土地使用权”的账面价值，但并未包含关于“城镇土地使用税”的计税依据、税法规定或相关税务知识。因此，根据“回答必须基于提供的文档内容，不要编造信息”的要求，无法从文档中得出该税务问题的答案。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0936
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 45456
+    },
+    {
+      "id": 39,
+      "query": "请判断以下金融文本的类别：发起式基金的发起资金必须持有一定期限的，其认购金额合计不得少于（）万元人民币。",
+      "expectedAnswer": "A",
+      "actualAnswer": "基于提供的文档片段，无法回答该问题。\n\n提供的文档片段主要涉及中国铁建股份有限公司的债券代码、持续关连交易（如存款、贷款、设备租赁等）的年度上限及实际发生额、以及部分会计政策（如资产减值、经营租赁），并未包含关于“发起式基金”发起资金持有期限或最低认购金额的相关规定。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0984
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 4259
+    },
+    {
+      "id": 40,
+      "query": "请判断以下金融文本的类别：中国证券登记结算有限责任公司是经由（）批准设立的。",
+      "expectedAnswer": "D",
+      "actualAnswer": "基于提供的文档片段，无法回答该问题。\n\n文档片段中未包含关于“中国证券登记结算有限责任公司”批准设立机构的相关信息。文档主要涉及股东持股情况、保险负债审计、债券发行信息及部分股东关联关系说明。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.919,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.1164
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 39463
+    },
+    {
+      "id": 41,
+      "query": "请判断以下金融文本的类别：“假币”印章为长方型印章，印章上半部分刻“假币”字样。（）",
+      "expectedAnswer": "B",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 6285
+    },
+    {
+      "id": 42,
+      "query": "请判断以下金融文本的类别：法是调整人们的行为或社会关系的规范，具有规范性。下列关于法的规范性的体现，错误的是（）。",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 234
+    },
+    {
+      "id": 43,
+      "query": "请判断以下金融文本的类别：甲公司以人民币为记账本位币，发生外币交易时采用交易日的即期汇率折算。甲公司12月 20日进口一批原材料并验收入库，原材料成本为80万美元，货款尚未支付，当日即期汇率为1美元＝6.8元人民币。12月31日，美元户银行存款余额为1 000万美元，按年末汇率调整前的人民币账面余额为7 020万元，当日即期汇率为1美元＝6.5元人民币。上述交易或事项对甲公司12月份营业利润的影响金额为（　）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 531
+    },
+    {
+      "id": 44,
+      "query": "请判断以下金融文本的类别：关于股利政策，以下哪一种更适用于成熟的企业，同时能够为投资者提供可预期的现金流？",
+      "expectedAnswer": "D",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 216
+    },
+    {
+      "id": 45,
+      "query": "请判断以下金融文本的类别：下列不属于我国银行业市场准入的法律体系的是（）。",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 184
+    },
+    {
+      "id": 46,
+      "query": "请判断以下金融文本的类别：下列各选项中，属于“电影作品和以类似摄制电影的方法创作的作品”的是（）。",
+      "expectedAnswer": "D",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 212
+    },
+    {
+      "id": 47,
+      "query": "请判断以下金融文本的类别：某一零息债券的面值为100元，期限为2年，市场发行价格为95元，那么这一债券的麦考利久期为（）。",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 254
+    },
+    {
+      "id": 48,
+      "query": "请判断以下金融文本的类别：根据企业所得税法律制度的规定，下列各项中，属于免税收入的是（）。",
+      "expectedAnswer": "B",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 206
+    },
+    {
+      "id": 49,
+      "query": "请判断以下金融文本的类别：下列说法不符合上市公司并购重组财务顾问业务规则的是（）。",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 188
+    },
+    {
+      "id": 50,
+      "query": "请判断以下金融文本的类别：（）是输入待查冠字号码的部分字符、取款时间段等不完整信息或模糊信息，从查询到的结果中再搜索是否包含待查现钞的查询方式。",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 272
+    },
+    {
+      "id": 51,
+      "query": "请判断以下金融文本的类别：作为风险防范的第一道关口，在贷款的派生收益与贷款本身安全性的权衡上，公司信贷业务人员应坚持将贷款的派生收益放在第一位，对派生收益较差的项目在受理阶段须持谨慎态度。（）",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 328
+    },
+    {
+      "id": 52,
+      "query": "请判断以下金融文本的类别：某面值为100元的零息债券，剩余期限为4年，该债券的市场利率为10%，已知债券当前的价格为70元，下列说法正确的是（）。",
+      "expectedAnswer": "D",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 252
+    },
+    {
+      "id": 53,
+      "query": "请判断以下金融文本的类别：审慎经营规则的内容包括（）。",
+      "expectedAnswer": "ABCDE",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 156
+    },
+    {
+      "id": 54,
+      "query": "请判断以下金融文本的类别：下列各项中，直接反应企业财务风险的是（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 184
+    },
+    {
+      "id": 55,
+      "query": "请判断以下金融文本的类别：下列各项垄断协议中，须由经营者证明不会严重限制相关市场的竞争且能使消费者分享由此产生的利益，才能获得《反垄断法》豁免的有（　　）。",
+      "expectedAnswer": "ACD",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 284
+    },
+    {
+      "id": 56,
+      "query": "请判断以下金融文本的类别：符合基本条件的一手房公积金贷款的借款人需提供的材料一般不包括（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 228
+    },
+    {
+      "id": 57,
+      "query": "请判断以下金融文本的类别：通过（）受理银行账户开户申请的，银行可为开户申请入开立Ⅰ类户、Ⅱ类户或Ⅲ类户。",
+      "expectedAnswer": "D",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 259
+    },
+    {
+      "id": 58,
+      "query": "请判断以下金融文本的类别：关于基金从业人员职业道德中“客户至上”的含义，以下说法错误的是（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 229
+    },
+    {
+      "id": 59,
+      "query": "请判断以下金融文本的类别：关于基金交易业务控制的内容，以下表述正确的是（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.908,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 203
+    },
+    {
+      "id": 60,
+      "query": "请判断以下金融文本的类别：AIB公司为扩大业务范围，在上海证券交易所通过发行债券的方式筹集资金，共发行面值为100元、票面利率为5%、到期期限为3年的债券10亿元，每年11月20日支付利息，到期还本付息。假定未来3年市场利率一直保持为5%。根据以上资料，回答下列问题：2、该债券的发行价格应为（）元。",
+      "expectedAnswer": "B",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 481
+    },
+    {
+      "id": 61,
+      "query": "请判断以下金融文本的类别：在以下列出的企业行为中，哪一项需要缴纳增值税？",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 1
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 220
+    },
+    {
+      "id": 62,
+      "query": "请判断以下金融文本的类别：投资者李女士以1元的价格卖出1份A股票的看跌期权，执行价格为100元，并以3元的价格买入1份A股票的看跌期权，执行价格为110元，两份期权到期日相同。如果到期日股票市价为105元，那么李女士的利润为（）。",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 2908
+    },
+    {
+      "id": 63,
+      "query": "请判断以下金融文本的类别：下列关于商业银行风险的表述，错误的是（）。",
+      "expectedAnswer": "B",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 445
+    },
+    {
+      "id": 64,
+      "query": "请判断以下金融文本的类别：期货价差套利是利用期货市场中某些期货合约的真实价格来预测该价格失真会最终消失，从中获取套利利润。（）",
+      "expectedAnswer": "A",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 452
+    },
+    {
+      "id": 65,
+      "query": "请判断以下金融文本的类别：赵先生当年税后工资收入20万元，于每年年末一次性获得。3年前贷款购得房屋一套，目前尚有50万元贷款未还，赵先生将该房屋出粗每年初获得房租收入5万元且保持不变。已知赵先生支出8万元，工作30年后退休，退休前后的投资报酬率均为6%，收入与支出的增长率均为5%，按照生命价值法，赵先生的应有寿险保额为（）。（答案取最接近值）",
+      "expectedAnswer": "C",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.382
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 1197
+    },
+    {
+      "id": 66,
+      "query": "请判断以下金融文本的类别：在《中华人民共和国与德意志联邦共和国有关促进和相互保护投资的协议》中，第3条明确表达：“一个签约方的投资者在另一个签约方的领土上投资时所获得的待遇，不应比该签约方对其它拥有类似协议的第三国投资者提供的待遇要差。” 这一条款主要反映出的是以下哪种待遇？",
+      "expectedAnswer": "B",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 1095
+    },
+    {
+      "id": 67,
+      "query": "请判断以下金融文本的类别：固定资产的更新改造、修理等后续支出，满足固定资产确认条件的，应当计入固定资产成本。（）",
+      "expectedAnswer": "B",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 1,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.38
+      },
+      "category": "金融文本分类",
+      "difficulty": "medium",
+      "durationMs": 340
+    },
+    {
+      "id": 0,
+      "query": "what is the net change in net revenue during 2015 for entergy corporation?\n参考表格：\n                                                  | amount ( in millions )\n--------------------------------------------------+-----------------------\n2014 net revenue                                  | $ 5735                \nretail electric price                             | 187                   \nvolume/weather                                    | 95                    \nwaterford 3 replacement steam generator provision | -32 ( 32 )            \nmiso deferral                                     | -35 ( 35 )            \nlouisiana business combination customer credits   | -107 ( 107 )          \nother                                             | -14 ( 14 )            \n2015 net revenue                                  | $ 5829                ",
+      "expectedAnswer": "94.0\n推理步骤：subtract(5829, 5735)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 813
+    },
+    {
+      "id": 0,
+      "query": "what percentage of total facilities as measured in square feet are leased?\n参考表格：\n( square feet in millions ) | unitedstates | othercountries | total\n----------------------------+--------------+----------------+------\nowned facilities1           | 30.7         | 17.2           | 47.9 \nleased facilities2          | 2.1          | 6.0            | 8.1  \ntotal facilities            | 32.8         | 23.2           | 56.0 ",
+      "expectedAnswer": "0.14464\n推理步骤：divide(8.1, 56.0)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 572
+    },
+    {
+      "id": 0,
+      "query": "what is the percentage change in cash flow hedges in 2011 compare to the 2010?\n参考表格：\nstatement of income classification | statement of income loss on swaps | statement of income gain on note | statement of income net income effect | statement of income gain on swaps | loss on note       | net income effect\n-----------------------------------+-----------------------------------+----------------------------------+---------------------------------------+-----------------------------------+--------------------+------------------\nother income                       | $ -4614 ( 4614 )                  | $ 4614                           | $ 2014                                | $ 20692                           | $ -20692 ( 20692 ) | $ 2014           ",
+      "expectedAnswer": "0.09864\n推理步骤：subtract(153.7, 139.9), divide(#0, 139.9)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.5,
+        "contextRecall": 0.333
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 685
+    },
+    {
+      "id": 0,
+      "query": "what portion of total purchase price is related to stock awards?\n参考表格：\nvalue of metavante common stock | $ 4066.4\n--------------------------------+---------\nvalue of metavante stock awards | 121.4   \ntotal purchase price            | $ 4187.8",
+      "expectedAnswer": "0.02899\n推理步骤：divide(121.4, 4187.8)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 377
+    },
+    {
+      "id": 0,
+      "query": "what was the difference in percentage cumulative total shareholder return on masco common stock versus the s&p 500 index for the five year period ended 2017?\n参考表格：\n                                      | 2013     | 2014     | 2015     | 2016     | 2017    \n--------------------------------------+----------+----------+----------+----------+---------\nmasco                                 | $ 138.48 | $ 155.26 | $ 200.79 | $ 227.08 | $ 318.46\ns&p 500 index                         | $ 132.04 | $ 149.89 | $ 151.94 | $ 169.82 | $ 206.49\ns&p industrials index                 | $ 140.18 | $ 153.73 | $ 149.83 | $ 177.65 | $ 214.55\ns&p consumer durables & apparel index | $ 135.84 | $ 148.31 | $ 147.23 | $ 138.82 | $ 164.39",
+      "expectedAnswer": "1.1197\n推理步骤：subtract(318.46, const_100), divide(#0, const_100), subtract(206.49, const_100), divide(#2, const_100), subtract(#1, #3)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.485,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "hard",
+      "durationMs": 1060
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in total rental expense under operating leases from july 2 , 2005 to july 1 , 2006?\n参考表格：\n            | amount    \n------------+-----------\n2007        | $ 56499000\n2008        | 46899000  \n2009        | 39904000  \n2010        | 33329000  \n2011        | 25666000  \nlater years | 128981000 ",
+      "expectedAnswer": "0.06757\n推理步骤：subtract(92710000, 86842000), divide(#0, 86842000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 479
+    },
+    {
+      "id": 0,
+      "query": "what percent of total recourse debt is current?\n参考表格：\ndecember 31,        | annual maturities ( in millions )\n--------------------+----------------------------------\n2011                | $ 463                            \n2012                | 2014                             \n2013                | 2014                             \n2014                | 497                              \n2015                | 500                              \nthereafter          | 3152                             \ntotal recourse debt | $ 4612                           ",
+      "expectedAnswer": "0.10039\n推理步骤：divide(463, 4612)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.315,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 494
+    },
+    {
+      "id": 0,
+      "query": "what percentage of future minimum rental payments are due in 2018?\n参考表格：\n$ in millions     | as of december 2015\n------------------+--------------------\n2016              | $ 317              \n2017              | 313                \n2018              | 301                \n2019              | 258                \n2020              | 226                \n2021 - thereafter | 1160               \ntotal             | $ 2575             ",
+      "expectedAnswer": "0.11689\n推理步骤：divide(301, 2575)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 431
+    },
+    {
+      "id": 0,
+      "query": "did altria outperform the s&p 500?\n参考表格：\ndate          | altria group inc . | altria group inc . peer group | s&p 500 \n--------------+--------------------+-------------------------------+---------\ndecember 2011 | $ 100.00           | $ 100.00                      | $ 100.00\ndecember 2012 | $ 111.77           | $ 108.78                      | $ 115.99\ndecember 2013 | $ 143.69           | $ 135.61                      | $ 153.55\ndecember 2014 | $ 193.28           | $ 151.74                      | $ 174.55\ndecember 2015 | $ 237.92           | $ 177.04                      | $ 176.94\ndecember 2016 | $ 286.61           | $ 192.56                      | $ 198.09",
+      "expectedAnswer": "yes\n推理步骤：greater(286.61, 198.09)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.193,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 888
+    },
+    {
+      "id": 0,
+      "query": "what was the change in unrecognized tax benefits from the end of 2014 to the end of 2015?\n参考表格：\n( in millions )                                              | 2015       | 2014         | 2013        \n-------------------------------------------------------------+------------+--------------+-------------\nbalance january 1                                            | $ 1171     | $ 1701       | $ 1573      \nadditions based on tax positions related to the current year | 67         | 63           | 90          \nadditions based on tax positions related to prior years      | 98         | 111          | 201         \nadditions from acquired subsidiaries                         | 2014       | 2014         | 268         \nreductions for tax positions of prior years                  | -84 ( 84 ) | -220 ( 220 ) | -141 ( 141 )\nreductions due to expiration of statutes of limitations      | -41 ( 41 ) | -448 ( 448 ) | -3 ( 3 )    \nsettlements with tax authorities                             | -75 ( 75 ) | -36 ( 36 )   | -287 ( 287 )\nbalance december 31                                          | $ 1136     | $ 1171       | $ 1701      ",
+      "expectedAnswer": "-35.0\n推理步骤：subtract(1136, 1171)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.352,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1247
+    },
+    {
+      "id": 0,
+      "query": "what is the growth rate in the balance of standby letters of credit from 2006 to 2007?\n参考表格：\n( in millions )                       | 2007     | 2006    \n--------------------------------------+----------+---------\nindemnified securities financing      | $ 558368 | $ 506032\nliquidity asset purchase agreements   | 35339    | 30251   \nunfunded commitments to extend credit | 17533    | 16354   \nstandby letters of credit             | 4711     | 4926    ",
+      "expectedAnswer": "-0.04365\n推理步骤：subtract(4711, 4926), divide(#0, 4926)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 578
+    },
+    {
+      "id": 0,
+      "query": "what is the debt-to-asset ratio?\n参考表格：\n( in thousands )                        | at december 31 , 2016 | at december 31 , 2015 | at december 31 , 2014 | at december 31 , 2013 | at december 31 , 2012\n----------------------------------------+-----------------------+-----------------------+-----------------------+-----------------------+----------------------\ncash and cash equivalents               | $ 250470              | $ 129852              | $ 593175              | $ 347489              | $ 341841             \nworking capital ( 1 )                   | 1279337               | 1019953               | 1127772               | 702181                | 651370               \ninventories                             | 917491                | 783031                | 536714                | 469006                | 319286               \ntotal assets                            | 3644331               | 2865970               | 2092428               | 1576369               | 1155052              \ntotal debt including current maturities | 817388                | 666070                | 281546                | 151551                | 59858                \ntotal stockholders 2019 equity          | $ 2030900             | $ 1668222             | $ 1350300             | $ 1053354             | $ 816922             ",
+      "expectedAnswer": "0.22429\n推理步骤：divide(817388, 3644331)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1327
+    },
+    {
+      "id": 0,
+      "query": "what portion of the total noncancelable future lease commitments are due in fiscal year of 2019?\n参考表格：\nin millions                                      | operating leases | capital leases\n-------------------------------------------------+------------------+---------------\nfiscal 2019                                      | $ 137.4          | $ 0.3         \nfiscal 2020                                      | 115.7            | 0.2           \nfiscal 2021                                      | 92.3             | -             \nfiscal 2022                                      | 70.9             | -             \nfiscal 2023                                      | 51.8             | -             \nafter fiscal 2023                                | 91.2             | -             \ntotal noncancelable future lease commitments     | $ 559.3          | $ 0.5         \nless : interest                                  |                  | -0.2 ( 0.2 )  \npresent value of obligations under capitalleases |                  | $ 0.3         ",
+      "expectedAnswer": "0.24566\n推理步骤：divide(137.4, 559.3)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 801
+    },
+    {
+      "id": 0,
+      "query": "was the five year total return of the 2019 peer group greater than the 2018 peer group?\n参考表格：\n                | 2014   | 2015   | 2016   | 2017   | 2018   | 2019  \n----------------+--------+--------+--------+--------+--------+-------\njkhy            | 100.00 | 110.51 | 151.12 | 182.15 | 231.36 | 240.29\n2019 peer group | 100.00 | 126.23 | 142.94 | 166.15 | 224.73 | 281.09\n2018 peer group | 100.00 | 127.40 | 151.16 | 177.26 | 228.97 | 286.22\ns&p 500         | 100.00 | 107.42 | 111.71 | 131.70 | 150.64 | 166.33",
+      "expectedAnswer": "no\n推理步骤：greater(281.09, 286.22)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.294,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1030
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in deferred tax assets and regulatory assets from 2013 to 2014\n参考表格：\nbalance at january 1 2013                              | $ 180993        \n-------------------------------------------------------+-----------------\nincreases in current period tax positions              | 27229           \ndecreases in prior period measurement of tax positions | -30275 ( 30275 )\nbalance at december 31 2013                            | $ 177947        \nincreases in current period tax positions              | 53818           \ndecreases in prior period measurement of tax positions | -36528 ( 36528 )\nbalance at december 31 2014                            | $ 195237        ",
+      "expectedAnswer": "0.01714\n推理步骤：subtract(6348, 6241), divide(#0, 6241)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 658
+    },
+    {
+      "id": 0,
+      "query": "what was the average net annual change in discounted future net cash flows ( in millions ) for the years 2011 , 2010 , and 2009?\n参考表格：\n( in millions )                                                                            | 2011             | 2010             | 2009            \n-------------------------------------------------------------------------------------------+------------------+------------------+-----------------\nsales and transfers of oil and gas produced net of production and administrative costs     | $ -7922 ( 7922 ) | $ -6330 ( 6330 ) | $ -4876 ( 4876 )\nnet changes in prices and production and administrative costs related to future production | 12313            | 9843             | 4840            \nextensions discoveries and improved recovery less related costs                            | 1454             | 1268             | 1399            \ndevelopment costs incurred during the period                                               | 1899             | 2546             | 2786            \nchanges in estimated future development costs                                              | -1349 ( 1349 )   | -2153 ( 2153 )   | -3773 ( 3773 )  \nrevisions of previous quantity estimates                                                   | 2526             | 1117             | 5110            \nnet changes in purchases and sales of minerals in place                                    | 233              | -20 ( 20 )       | -159 ( 159 )    \naccretion of discount                                                                      | 2040             | 1335             | 787             \nnet change in income taxes                                                                 | -6676 ( 6676 )   | -4231 ( 4231 )   | -4345 ( 4345 )  \ntiming and other                                                                           | 130              | 250              | -149 ( 149 )    \nnet change for the year                                                                    | 4648             | 3625             | 1620            \nbeginning of the year                                                                      | 9280             | 5655             | 4035            \nend of year                                                                                | $ 13928          | $ 9280           | $ 5655          ",
+      "expectedAnswer": "3297.66667\n推理步骤：table_average(net change for the year, none)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.215,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1660
+    },
+    {
+      "id": 0,
+      "query": "assuming each continent has the same number of destinations , approximately how many destinations does each continent have?\n参考表格：\n                                   | years                                              \n-----------------------------------+----------------------------------------------------\nships                              | 30                                                 \nship improvements                  | 3-20                                               \nbuildings and improvements         | 10-40                                              \ncomputer hardware and software     | 3-5                                                \ntransportation equipment and other | 3-30                                               \nleasehold improvements             | shorter of remaining lease term or useful life 3-30",
+      "expectedAnswer": "65.0\n推理步骤：divide(455, const_7)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 532
+    },
+    {
+      "id": 0,
+      "query": "what was the average net revenue between 2016 and 2017 in millions\n参考表格：\n                      | amount ( in millions )\n----------------------+-----------------------\n2016 net revenue      | $ 705.4               \nvolume/weather        | -18.2 ( 18.2 )        \nretail electric price | 13.5                  \nother                 | 2.4                   \n2017 net revenue      | $ 703.1               ",
+      "expectedAnswer": "705.25\n推理步骤：add(703.1, 705.4), add(#0, const_2), divide(#1, const_2)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "medium",
+      "durationMs": 435
+    },
+    {
+      "id": 0,
+      "query": "the combined amount of accrued interest and penalties related to tax positions taken on our tax returns and included in non-current income taxes payable was what percent of the total ending balance as of november 28 2008?\n参考表格：\nbeginning balance as of december 1 2007                                      | $ 201808        \n-----------------------------------------------------------------------------+-----------------\ngross increases in unrecognized tax benefits 2013 prior year tax positions   | 14009           \ngross increases in unrecognized tax benefits 2013 current year tax positions | 11350           \nsettlements with taxing authorities                                          | -81213 ( 81213 )\nlapse of statute of limitations                                              | -3512 ( 3512 )  \nforeign exchange gains and losses                                            | -2893 ( 2893 )  \nending balance as of november 28 2008                                        | $ 139549        ",
+      "expectedAnswer": "0.10964\n推理步骤：divide(139549, const_1000), divide(15.3, #0)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 976
+    },
+    {
+      "id": 0,
+      "query": "in 2010 and 2009 , what was the total fair value in billions of assets segregated for the benefit of securities and futures brokerage customers?\n参考表格：\nyear ended december 31 ( in millions )                             | 2010    | 2009    | 2008            \n-------------------------------------------------------------------+---------+---------+-----------------\nu.s .                                                              | $ 16568 | $ 6263  | $ -2094 ( 2094 )\nnon-u.s. ( a )                                                     | 8291    | 9804    | 4867            \nincome before incometax expense/ ( benefit ) andextraordinary gain | $ 24859 | $ 16067 | $ 2773          ",
+      "expectedAnswer": "68.9\n推理步骤：add(25.0, 24.0), add(9.7, 10.2), add(#1, #0)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "medium",
+      "durationMs": 748
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in the commercial mortgage loans designated for sale at fair value from 2008 to 2009\n参考表格：\nin millions                                      | december 312012 | december 312011\n-------------------------------------------------+-----------------+----------------\ncommercial mortgages at fair value               | $ 772           | $ 843          \ncommercial mortgages at lower of cost or market  | 620             | 451            \ntotal commercial mortgages                       | 1392            | 1294           \nresidential mortgages at fair value              | 2096            | 1415           \nresidential mortgages at lower of cost or market | 124             | 107            \ntotal residential mortgages                      | 2220            | 1522           \nother                                            | 81              | 120            \ntotal                                            | $ 3693          | $ 2936         ",
+      "expectedAnswer": "-0.08422\n推理步骤：subtract(772, 843), divide(#0, 843)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 731
+    },
+    {
+      "id": 0,
+      "query": "what was the difference in percentage cumulative 5-year total shareholder return on common stock fidelity national information services , inc . compared to the s&p 500 for the period ending 12/16?\n参考表格：\n                                                   | 12/11  | 12/12  | 12/13  | 12/14  | 12/15  | 12/16 \n---------------------------------------------------+--------+--------+--------+--------+--------+-------\nfidelity national information services inc .       | 100.00 | 134.12 | 210.97 | 248.68 | 246.21 | 311.81\ns&p 500                                            | 100.00 | 116.00 | 153.58 | 174.60 | 177.01 | 198.18\ns&p supercap data processing & outsourced services | 100.00 | 126.06 | 194.91 | 218.05 | 247.68 | 267.14",
+      "expectedAnswer": "1.1363\n推理步骤：subtract(198.18, const_100), divide(#0, const_100), subtract(311.81, const_100), divide(#2, const_100), subtract(#3, #1)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.264,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "hard",
+      "durationMs": 983
+    },
+    {
+      "id": 0,
+      "query": "for the quarter ended march 312015 what was the percentage change in the share price from the highest to the lowest\n参考表格：\n2016                       | high     | low    \n---------------------------+----------+--------\nquarter ended march 31     | $ 102.93 | $ 83.07\nquarter ended june 30      | 113.63   | 101.87 \nquarter ended september 30 | 118.26   | 107.57 \nquarter ended december 31  | 118.09   | 99.72  \n2015                       | high     | low    \nquarter ended march 31     | $ 101.88 | $ 93.21\nquarter ended june 30      | 98.64    | 91.99  \nquarter ended september 30 | 101.54   | 86.83  \nquarter ended december 31  | 104.12   | 87.23  ",
+      "expectedAnswer": "0.09302\n推理步骤：subtract(101.88, 93.21), divide(#0, 93.21)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 824
+    },
+    {
+      "id": 0,
+      "query": "of the total contractual obligations and off-balance sheet arrangements contractual obligations what percentage is due to capital lease obligations?\n参考表格：\n( $ in millions )                                 | total   | payments due by period less than1 year | payments due by period 1-3 years | payments due by period 3-5 years | payments due by period after5 years\n--------------------------------------------------+---------+----------------------------------------+----------------------------------+----------------------------------+------------------------------------\ndebt ( 1 )                                        | $ 10483 | $ 1074                                 | $ 4392                           | $ 2054                           | $ 2963                             \ncapital lease obligations ( 1 )                   | 230     | 13                                     | 26                               | 26                               | 165                                \noperating leases where we are the primary obligor | 2073    | 171                                    | 315                              | 292                              | 1295                               \npurchase obligations                              | 286     | 153                                    | 116                              | 17                               | 2014                               \nother noncurrent liabilities                      | 136     | 3                                      | 28                               | 20                               | 85                                 \ntotal contractual obligations                     | $ 13208 | $ 1414                                 | $ 4877                           | $ 2409                           | $ 4508                             ",
+      "expectedAnswer": "0.01741\n推理步骤：divide(230, 13208)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.193,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1174
+    },
+    {
+      "id": 0,
+      "query": "what is the ratio of the total flight attendants to total maintenance personnel\n参考表格：\n                                            | mainline operations | wholly-owned regional carriers | total \n--------------------------------------------+---------------------+--------------------------------+-------\npilots and flight crew training instructors | 13400               | 3400                           | 16800 \nflight attendants                           | 24700               | 2200                           | 26900 \nmaintenance personnel                       | 14900               | 2000                           | 16900 \nfleet service personnel                     | 16600               | 3500                           | 20100 \npassenger service personnel                 | 15900               | 7100                           | 23000 \nadministrative and other                    | 16000               | 2600                           | 18600 \ntotal                                       | 101500              | 20800                          | 122300",
+      "expectedAnswer": "1.59172\n推理步骤：divide(26900, 16900)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 744
+    },
+    {
+      "id": 0,
+      "query": "as of december 2007 what was the ratio of the square footage in alpharetta georgia to charlotte north carolina\n参考表格：\nlocation                 | approximate square footage\n-------------------------+---------------------------\nalpharetta georgia       | 219000                    \narlington virginia       | 196000                    \njersey city new jersey   | 107000                    \ncharlotte north carolina | 83000                     \nmenlo park california    | 79000                     \nsandy utah               | 77000                     \ntoronto canada           | 75000                     \nnew york new york        | 60000                     \nchicago illinois         | 29000                     ",
+      "expectedAnswer": "2.63855\n推理步骤：divide(219000, 83000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 635
+    },
+    {
+      "id": 0,
+      "query": "in 2010 what was the percent of the income tax benefit to the stock based compensation cost\n参考表格：\n                              | 2010           | 2009           | 2008          \n------------------------------+----------------+----------------+---------------\nshare-based compensation cost | $ 18.1         | $ 14.6         | $ 13.8        \nincome tax benefit            | $ -6.3 ( 6.3 ) | $ -5.2 ( 5.2 ) | $ -4.9 ( 4.9 )",
+      "expectedAnswer": "0.34807\n推理步骤：divide(6.3, 18.1)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 473
+    },
+    {
+      "id": 0,
+      "query": "what is the percentage change in the the gross liability for unrecognized tax benefits during 2008 compare to 2007?\n参考表格：\nbeginning balance as of december 1 2007                                      | $ 201808        \n-----------------------------------------------------------------------------+-----------------\ngross increases in unrecognized tax benefits 2013 prior year tax positions   | 14009           \ngross increases in unrecognized tax benefits 2013 current year tax positions | 11350           \nsettlements with taxing authorities                                          | -81213 ( 81213 )\nlapse of statute of limitations                                              | -3512 ( 3512 )  \nforeign exchange gains and losses                                            | -2893 ( 2893 )  \nending balance as of november 28 2008                                        | $ 139549        ",
+      "expectedAnswer": "-0.30851\n推理步骤：subtract(139549, 201808), divide(#0, 201808)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 707
+    },
+    {
+      "id": 0,
+      "query": "what was the total impairment costs recorded from 2003 to 2005 in millions\n参考表格：\nland improvements                | 20   \n---------------------------------+------\nbuildings                        | 39-40\nfurniture fixtures and equipment | 3-10 ",
+      "expectedAnswer": "5.8\n推理步骤：add(0.6, 0.5), add(#0, 4.7)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 292
+    },
+    {
+      "id": 0,
+      "query": "what is the borrowing under the term loan facility as a percentage of the total contractual maturities of long-term debt obligations due subsequent to december 31 , 2016?\n参考表格：\n2017 | $ 2014\n-----+-------\n2018 | 150   \n2019 | 175   \n2020 | 2756  ",
+      "expectedAnswer": "1.13599\n推理步骤：divide(3500, 3081)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 380
+    },
+    {
+      "id": 0,
+      "query": "in 2015 what was the percent of the total operating revenues associated with agriculture products\n参考表格：\nmillions                 | 2015    | 2014    | 2013   \n-------------------------+---------+---------+--------\nagricultural products    | $ 3581  | $ 3777  | $ 3276 \nautomotive               | 2154    | 2103    | 2077   \nchemicals                | 3543    | 3664    | 3501   \ncoal                     | 3237    | 4127    | 3978   \nindustrial products      | 3808    | 4400    | 3822   \nintermodal               | 4074    | 4489    | 4030   \ntotal freight revenues   | $ 20397 | $ 22560 | $ 20684\nother revenues           | 1416    | 1428    | 1279   \ntotal operating revenues | $ 21813 | $ 23988 | $ 21963",
+      "expectedAnswer": "0.16417\n推理步骤：divide(3581, 21813)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 837
+    },
+    {
+      "id": 0,
+      "query": "what percent of net interest revenue where total operating expenses in 2009?\n参考表格：\nin millions of dollars                                       | 2009             | 2008               | 2007               | % (  % ) change 2009 vs . 2008 | % (  % ) change 2008 vs . 2007\n-------------------------------------------------------------+------------------+--------------------+--------------------+--------------------------------+-------------------------------\nnet interest revenue                                         | $ 3173           | $ 3332             | $ 2723             | ( 5 ) % (  % )                 | 22% ( 22 % )                  \nnon-interest revenue                                         | -6855 ( 6855 )   | -42906 ( 42906 )   | -20619 ( 20619 )   | 84                             | nm                            \nrevenues net of interest expense                             | $ -3682 ( 3682 ) | $ -39574 ( 39574 ) | $ -17896 ( 17896 ) | 91% ( 91 % )                   | nm                            \ntotal operating expenses                                     | $ 896            | $ 988              | $ 1070             | ( 9 ) % (  % )                 | ( 8 ) % (  % )                \nnet credit losses                                            | $ 5420           | $ 909              | $ 436              | nm                             | nm                            \nprovision for unfunded lending commitments                   | 111              | -172 ( 172 )       | 71                 | nm                             | nm                            \ncredit reserve builds/ ( release )                           | -483 ( 483 )     | 2844               | 378                | nm                             | nm                            \nprovisions for credit losses and for benefits and claims     | $ 5048           | $ 3581             | $ 885              | 41% ( 41 % )                   | nm                            \n( loss ) from continuing operations before taxes             | $ -9626 ( 9626 ) | $ -44143 ( 44143 ) | $ -19851 ( 19851 ) | 78% ( 78 % )                   | nm                            \nincome taxes ( benefits )                                    | -4323 ( 4323 )   | -17149 ( 17149 )   | -7740 ( 7740 )     | 75                             | nm                            \n( loss ) from continuing operations                          | $ -5303 ( 5303 ) | $ -26994 ( 26994 ) | $ -12111 ( 12111 ) | 80% ( 80 % )                   | nm                            \nnet income ( loss ) attributable to noncontrolling interests | -17 ( 17 )       | -205 ( 205 )       | 149                | 92                             | nm                            \nnet ( loss )                                                 | $ -5286 ( 5286 ) | $ -26789 ( 26789 ) | $ -12260 ( 12260 ) | 80% ( 80 % )                   | nm                            \neop assets ( in billions of dollars )                        | $ 154            | $ 241              | $ 351              | ( 36 ) % (  % )                | ( 31 ) % (  % )               ",
+      "expectedAnswer": "0.28238\n推理步骤：divide(896, 3173)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.363,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1795
+    },
+    {
+      "id": 0,
+      "query": "what was the greatest provision for income taxes , in millions?\n参考表格：\n                                                       | 2006         | 2005 as restated ( 1 ) | 2004 as restated ( 1 )\n-------------------------------------------------------+--------------+------------------------+-----------------------\ncomputed expected tax                                  | $ 987        | $ 633                  | $ 129                 \nstate taxes net of federal effect                      | 86           | -19 ( 19 )             | -5 ( 5 )              \nindefinitely invested earnings of foreign subsidiaries | -224 ( 224 ) | -98 ( 98 )             | -31 ( 31 )            \nnondeductible executive compensation                   | 11           | 14                     | 12                    \nresearch and development credit net                    | -12 ( 12 )   | -26 ( 26 )             | -5 ( 5 )              \nother items                                            | -19 ( 19 )   | -24 ( 24 )             | 4                     \nprovision for income taxes                             | $ 829        | $ 480                  | $ 104                 \neffective tax rate                                     | 29% ( 29 % ) | 27% ( 27 % )           | 28% ( 28 % )          ",
+      "expectedAnswer": "829.0\n推理步骤：table_max(provision for income taxes, none)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.5,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1313
+    },
+    {
+      "id": 0,
+      "query": "in 2018 what was the percent of the cib markets net interest income as part of the managed interest income\n参考表格：\nyear ended december 31 ( in millions except rates )                         | 2018             | 2017             | 2016            \n----------------------------------------------------------------------------+------------------+------------------+-----------------\nnet interest income 2013 managed basis ( a ) ( b )                          | $ 55687          | $ 51410          | $ 47292         \nless : cib markets net interest income ( c )                                | 3087             | 4630             | 6334            \nnet interest income excluding cib markets ( a )                             | $ 52600          | $ 46780          | $ 40958         \naverage interest-earning assets                                             | $ 2229188        | $ 2180592        | $ 2101604       \nless : average cib markets interest-earning assets ( c )                    | 609635           | 540835           | 520307          \naverage interest-earning assets excluding cib markets                       | $ 1619553        | $ 1639757        | $ 1581297       \nnet interest yield on average interest-earning assets 2013 managed basis    | 2.50% ( 2.50 % ) | 2.36% ( 2.36 % ) | 2.25% ( 2.25 % )\nnet interest yield on average cib markets interest-earning assets ( c )     | 0.51             | 0.86             | 1.22            \nnet interest yield on average interest-earning assets excluding cib markets | 3.25% ( 3.25 % ) | 2.85% ( 2.85 % ) | 2.59% ( 2.59 % )",
+      "expectedAnswer": "0.05543\n推理步骤：divide(3087, 55687)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1730
+    },
+    {
+      "id": 0,
+      "query": "what would the fair value of total securities available for sale be without the fair value of securities classified as corporate stocks as of december 31 , 2012?\n参考表格：\nin millions                               | december 31 2012 amortized cost | december 31 2012 fair value | december 31 2012 amortized cost | fair value\n------------------------------------------+---------------------------------+-----------------------------+---------------------------------+-----------\ntotal securities available for sale ( a ) | $ 49447                         | $ 51052                     | $ 48609                         | $ 48568   \ntotal securities held to maturity         | 10354                           | 10860                       | 12066                           | 12450     \ntotal securities                          | $ 59801                         | $ 61912                     | $ 60675                         | $ 61018   ",
+      "expectedAnswer": "61545.0\n推理步骤：subtract(61912, 367)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 761
+    },
+    {
+      "id": 0,
+      "query": "assuming the same level of settlements as in fiscal 2007 , what would be the ending balance at march 31 2008 in millions for unrecognized tax benefits?\\\\n\n参考表格：\nbalance at april 1 2007                                                           | $ 224     \n----------------------------------------------------------------------------------+-----------\nreductions for tax positions for closing of the applicable statute of limitations | -56 ( 56 )\nbalance at march 31 2008                                                          | $ 168     ",
+      "expectedAnswer": "112.0\n推理步骤：subtract(168, 56)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.25,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 537
+    },
+    {
+      "id": 0,
+      "query": "as of december 2012 what is the percent of the square footage not leased to the total square footage in alpharetta , georgia\n参考表格：\nlocation               | approximate square footage\n-----------------------+---------------------------\nalpharetta georgia     | 254000                    \njersey city new jersey | 107000                    \narlington virginia     | 102000                    \nmenlo park california  | 91000                     \nsandy utah             | 66000                     \nnew york new york      | 39000                     \nchicago illinois       | 25000                     ",
+      "expectedAnswer": "0.64961\n推理步骤：divide(165000, 254000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 575
+    },
+    {
+      "id": 0,
+      "query": "as of december 2007 what was the percent of the square footage in alpharetta georgia not yet leased\n参考表格：\nlocation                 | approximate square footage\n-------------------------+---------------------------\nalpharetta georgia       | 219000                    \narlington virginia       | 196000                    \njersey city new jersey   | 107000                    \ncharlotte north carolina | 83000                     \nmenlo park california    | 79000                     \nsandy utah               | 77000                     \ntoronto canada           | 75000                     \nnew york new york        | 60000                     \nchicago illinois         | 29000                     ",
+      "expectedAnswer": "0.75799\n推理步骤：divide(166000, 219000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 624
+    },
+    {
+      "id": 0,
+      "query": "what is the total amount of stock options cancelled in millions during 2017 , 2016 and 2015?\n参考表格：\nin millions except per share amounts   | year ended december 2017 | year ended december 2016 | year ended december 2015\n---------------------------------------+--------------------------+--------------------------+-------------------------\ncommon share repurchases               | 29.0                     | 36.6                     | 22.1                    \naverage cost per share                 | $ 231.87                 | $ 165.88                 | $ 189.41                \ntotal cost of common share repurchases | $ 6721                   | $ 6069                   | $ 4195                  ",
+      "expectedAnswer": "12.1\n推理步骤：add(4.6, 5.5), add(#0, const_2)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 616
+    },
+    {
+      "id": 0,
+      "query": "in 2004 and 2003 , what were the total shares of common stock that were issued to employees?\n参考表格：\nyear ended december 31, | as of december 31 , 2004 | as of december 31 , 2003\n------------------------+--------------------------+-------------------------\n2005                    | $ 2014                   | $ 177973                ",
+      "expectedAnswer": "3876875.0\n推理步骤：add(1939734, 1937141)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 407
+    },
+    {
+      "id": 0,
+      "query": "what is the net change in net revenue for entergy wholesale commodities during 2012?\n参考表格：\n                               | amount ( in millions )\n-------------------------------+-----------------------\n2011 net revenue               | $ 2045                \nnuclear realized price changes | -194 ( 194 )          \nnuclear volume                 | -33 ( 33 )            \nother                          | 36                    \n2012 net revenue               | $ 1854                ",
+      "expectedAnswer": "-191.0\n推理步骤：subtract(1854, 2045)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 420
+    },
+    {
+      "id": 0,
+      "query": "what was the difference in percentage cumulative total return for goldman sachs group inc . and the s&p 500 index for the five year period ending 12/31/13?\n参考表格：\n                              | 12/26/08 | 12/31/09 | 12/31/10 | 12/31/11 | 12/31/12 | 12/31/13\n------------------------------+----------+----------+----------+----------+----------+---------\nthe goldman sachs group inc . | $ 100.00 | $ 224.98 | $ 226.19 | $ 123.05 | $ 176.42 | $ 248.36\ns&p 500 index                 | 100.00   | 130.93   | 150.65   | 153.83   | 178.42   | 236.20  \ns&p 500 financials index      | 100.00   | 124.38   | 139.47   | 115.67   | 148.92   | 201.92  ",
+      "expectedAnswer": "0.1216\n推理步骤：subtract(248.36, const_100), divide(#0, const_100), subtract(236.20, const_100), divide(#2, const_100), subtract(#1, #3)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.453,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "hard",
+      "durationMs": 933
+    },
+    {
+      "id": 0,
+      "query": "as of december 31 , 2017 what was the value of the granted share awards\n参考表格：\n                              | number of performance share awards | weighted-averagegrant-datefair value\n------------------------------+------------------------------------+-------------------------------------\nnon-vestedat december 31 2016 | 421600                             | $ 48.00                             \ngranted                       | 160196                             | 58.02                               \nvested                        | -95183 ( 95183 )                   | 45.13                               \nforfeited                     | -58285 ( 58285 )                   | 48.22                               \nnon-vestedat december 31 2017 | 428328                             | $ 52.35                             ",
+      "expectedAnswer": "9294571.92\n推理步骤：multiply(160196, 58.02)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 644
+    },
+    {
+      "id": 0,
+      "query": "what percent of total contractual obligations is categorized as long term debt?\n参考表格：\ncontractual obligations        | total    | 2009   | 2010 and 2011 | 2012 and 2013 | 2014 and thereafter\n-------------------------------+----------+--------+---------------+---------------+--------------------\nlong-term debt                 | $ 460.1  | $ 2013 | $ 2013        | $ 460.1       | $ 2013             \noperating leases               | 149.3    | 38.2   | 51.0          | 30.2          | 29.9               \npurchase obligations           | 56.8     | 47.7   | 7.6           | 1.5           | 2013               \nlong-term income taxes payable | 116.9    | 2013   | 69.6          | 24.9          | 22.4               \nother long-term liabilities    | 237.0    | 2013   | 30.7          | 15.1          | 191.2              \ntotal contractual obligations  | $ 1020.1 | $ 85.9 | $ 158.9       | $ 531.8       | $ 243.5            ",
+      "expectedAnswer": "0.45103\n推理步骤：divide(460.1, 1020.1)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1060
+    },
+    {
+      "id": 0,
+      "query": "what was the average cash flow from 2004 to 2006\n参考表格：\n( dollars in millions )                   | 2006             | 2005                     | 2004            \n------------------------------------------+------------------+--------------------------+-----------------\nnet cash provided by operating activities | $ 1410.5         | $ 1143.3                 | $ 1229.0        \nadditions to properties                   | -453.1 ( 453.1 ) | -374.2 ( 374.2 )         | -278.6 ( 278.6 )\ncash flow                                 | $ 957.4          | $ 769.1                  | $ 950.4         \nyear-over-yearchange                      | 24.5% ( 24.5 % ) | 221219.1% ( 221219.1 % ) |                 ",
+      "expectedAnswer": "892.3\n推理步骤：add(957.4, 769.1), add(950.4, #0), divide(#1, const_3)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "medium",
+      "durationMs": 749
+    },
+    {
+      "id": 0,
+      "query": "what is the total value of securities issued and approved by security holders , ( in millions ) ?\n参考表格：\nplan category                                              | number of securities to be issued upon exercise of outstanding options warrants and rights ( a ) | weighted-average exerciseprice of outstanding options warrants and rights ( b ) | number of securitiesremaining available forfuture issuance under equity compensation plans ( excluding securities reflected in column ( a ) ) ( c )\n-----------------------------------------------------------+--------------------------------------------------------------------------------------------------+---------------------------------------------------------------------------------+----------------------------------------------------------------------------------------------------------------------------------------------------\nequity compensation plans approved by security holders     | 766801                                                                                           | $ 40.85                                                                         | 8945694                                                                                                                                            \nequity compensation plans not approved by security holders | 2014                                                                                             | 2014                                                                            | 2014                                                                                                                                               \ntotal                                                      | 766801                                                                                           | $ 40.85                                                                         | 8945694                                                                                                                                            ",
+      "expectedAnswer": "31.32382\n推理步骤：multiply(766801, 40.85), divide(#0, const_1000000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 927
+    },
+    {
+      "id": 0,
+      "query": "what is the percentage change in revenue generated from non-us currencies from 2015 to 2016?\n参考表格：\ncurrency                   | 2017  | 2016  | 2015 \n---------------------------+-------+-------+------\npound sterling             | $ 42  | $ 47  | $ 34 \neuro                       | 35    | 38    | 33   \nreal                       | 39    | 32    | 29   \nindian rupee               | 14    | 12    | 10   \ntotal increase or decrease | $ 130 | $ 129 | $ 106",
+      "expectedAnswer": "0.42889\n推理步骤：subtract(1909, 1336), divide(#0, 1336)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.285,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 552
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage decrease in cash flows from operations from 2009 to 2010?\n参考表格：\n( $ in millions )                                                                         | 2010             | 2009             | 2008            \n------------------------------------------------------------------------------------------+------------------+------------------+-----------------\ncash flows provided by ( used in ) operating activities including discontinued operations | $ 515.2          | $ 559.7          | $ 627.6         \ncash flows provided by ( used in ) investing activities including discontinued operations | -110.2 ( 110.2 ) | -581.4 ( 581.4 ) | -418.0 ( 418.0 )\ncash flows provided by ( used in ) financing activities                                   | -459.6 ( 459.6 ) | 100.8            | -205.5 ( 205.5 )",
+      "expectedAnswer": "0.07951\n推理步骤：subtract(559.7, 515.2), divide(#0, 559.7)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.269,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 764
+    },
+    {
+      "id": 0,
+      "query": "what percentage of the total carrying amount of investment securities is the securities held to maturity?\n参考表格：\nin millions                               | december 31 2012 amortized cost | december 31 2012 fair value | december 31 2012 amortized cost | fair value\n------------------------------------------+---------------------------------+-----------------------------+---------------------------------+-----------\ntotal securities available for sale ( a ) | $ 49447                         | $ 51052                     | $ 48609                         | $ 48568   \ntotal securities held to maturity         | 10354                           | 10860                       | 12066                           | 12450     \ntotal securities                          | $ 59801                         | $ 61912                     | $ 60675                         | $ 61018   ",
+      "expectedAnswer": "16.93811\n推理步骤：divide(10.4, 61.4), multiply(#0, const_100)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 751
+    },
+    {
+      "id": 0,
+      "query": "for the quarter ended 12/29/2018 what was the percent of the total shares bought after 11/25/2018\n参考表格：\nperiod               | sharespurchased | average priceper share | shares purchased aspart of publiclyannounced plans orprograms | approximatevalue of sharesthat may yet bepurchased underpubliclyannounced plansor programs*\n---------------------+-----------------+------------------------+---------------------------------------------------------------+--------------------------------------------------------------------------------------------\n09/30/18 to 10/27/18 | 90000           | $ 149.28               | 90000                                                         | $ 292.4 million                                                                            \n10/28/18 to 11/24/18 | 335000          | $ 159.35               | 335000                                                        | $ 239.1 million                                                                            \n11/25/18 to 12/29/18 | 205000          | $ 160.20               | 205000                                                        | $ 215.7 million                                                                            \ntotal/average        | 630000          | $ 158.19               | 630000                                                        | n/a                                                                                        ",
+      "expectedAnswer": "0.3254\n推理步骤：divide(205000, 630000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 978
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in cash flows from operations from 2014 to 2015?\n参考表格：\ntype of obligations                 | total   | payments due in less than 1 year | payments due in 1-3 years | payments due in 3-5 years | payments due in more than 5 years\n------------------------------------+---------+----------------------------------+---------------------------+---------------------------+----------------------------------\nlong-term debt ( 1 )                | $ 10591 | $ 332                            | $ 1573                    | $ 2536                    | $ 6150                           \ninterest ( 2 )                      | 2829    | 381                              | 706                       | 595                       | 1147                             \noperating leases                    | 401     | 96                               | 158                       | 82                        | 65                               \ndata processing and maintenance     | 557     | 242                              | 258                       | 35                        | 22                               \nother contractual obligations ( 3 ) | 51      | 17                               | 17                        | 16                        | 1                                \ntotal                               | $ 14429 | $ 1068                           | $ 2712                    | $ 3264                    | $ 7385                           ",
+      "expectedAnswer": "-0.02918\n推理步骤：subtract(1131, 1165), divide(#0, 1165)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.25,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1040
+    },
+    {
+      "id": 0,
+      "query": "as of december 31 , 2010 , what was the ratio of collateral pledged to the bank by its derivatives counterparties to overnight and other short-term borrowings\n参考表格：\ntrusts                               | face value | maturity date | annual interest rate                            \n-------------------------------------+------------+---------------+-------------------------------------------------\netbh capital trust ii                | $ 5000     | 2031          | 10.25% ( 10.25 % )                              \netbh capital trust i                 | 20000      | 2031          | 3.75% ( 3.75 % ) above 6-month libor            \netbh capital trust v vi viii         | 51000      | 2032          | 3.25%-3.65% ( 3.25%-3.65 % ) above 3-month libor\netbh capital trust vii ix 2014xii    | 65000      | 2033          | 3.00%-3.30% ( 3.00%-3.30 % ) above 3-month libor\netbh capital trust xiii 2014xviii xx | 77000      | 2034          | 2.45%-2.90% ( 2.45%-2.90 % ) above 3-month libor\netbh capital trust xix xxi xxii      | 60000      | 2035          | 2.20%-2.40% ( 2.20%-2.40 % ) above 3-month libor\netbh capital trust xxiii 2014xxiv    | 45000      | 2036          | 2.10% ( 2.10 % ) above 3-month libor            \netbh capital trust xxv 2014xxx       | 110000     | 2037          | 1.90%-2.00% ( 1.90%-2.00 % ) above 3-month libor\ntotal                                | $ 433000   |               |                                                 ",
+      "expectedAnswer": "4.6\n推理步骤：divide(2.3, 0.5)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1829
+    },
+    {
+      "id": 0,
+      "query": "what is the total value , in dollars , of the shares purchasable under the warrant?\n参考表格：\n( in millions )                                                                                                   | 2009             | 2008             | 2007          \n------------------------------------------------------------------------------------------------------------------+------------------+------------------+---------------\nforeign currency translation                                                                                      | $ 281            | $ 68             | $ 331         \nnet unrealized loss on hedges of net investments in non-u.s . subsidiaries                                        | -14 ( 14 )       | -14 ( 14 )       | -15 ( 15 )    \nnet unrealized loss on available-for-sale securities                                                              | -1636 ( 1636 )   | -5205 ( 5205 )   | -678 ( 678 )  \nnet unrealized loss on fair value hedges of available-for-sale securities                                         | -113 ( 113 )     | -242 ( 242 )     | -55 ( 55 )    \nlosses from other-than-temporary impairment on available-for-sale securities related to factors other than credit | -159 ( 159 )     | 2014             | 2014          \nlosses from other-than-temporary impairment on held-to-maturity securities related to factors other than credit   | -387 ( 387 )     | 2014             | 2014          \nminimum pension liability                                                                                         | -192 ( 192 )     | -229 ( 229 )     | -146 ( 146 )  \nnet unrealized loss on cash flow hedges                                                                           | -18 ( 18 )       | -28 ( 28 )       | -12 ( 12 )    \ntotal                                                                                                             | $ -2238 ( 2238 ) | $ -5650 ( 5650 ) | $ -575 ( 575 )",
+      "expectedAnswer": "299999990.4\n推理步骤：multiply(5576208, 53.80)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 1566
+    },
+    {
+      "id": 0,
+      "query": "during 2008 what was the share price of the warrants exercised\\\\n\n参考表格：\nnumber of shares | exercise price | expiration date\n-----------------+----------------+----------------\n238510           | $ 7.27         | 4/25/2010      \n864040           | $ 7.27         | 7/12/2010      \n809246           | $ 10.91        | 11/23/2010     \n1125734          | $ 10.91        | 1/19/2011      \n18322320 ( 1 )   | $ 31.44        | 2/15/2014      \n21359850         |                |                ",
+      "expectedAnswer": "1e-05\n推理步骤：divide(const_3, 401362)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 604
+    },
+    {
+      "id": 0,
+      "query": "what is the growth rate in net revenue for entergy mississippi , inc . in 2003?\n参考表格：\n                 | ( in millions )\n-----------------+----------------\n2002 net revenue | $ 380.2        \nbase rates       | 48.3           \nother            | -1.9 ( 1.9 )   \n2003 net revenue | $ 426.6        ",
+      "expectedAnswer": "0.12204\n推理步骤：subtract(426.6, 380.2), divide(#0, 380.2)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 443
+    },
+    {
+      "id": 0,
+      "query": "what portion of the estimated purchase price is derived by the net tangible assets?\n参考表格：\nnet tangible assets acquired as of september 18 2007 | $ 2800        \n-----------------------------------------------------+---------------\ndeveloped technology and know how                    | 12300         \ncustomer relationship                                | 17000         \ntrade name                                           | 2800          \ndeferred income tax liabilities net                  | -9500 ( 9500 )\ngoodwill                                             | 47800         \nestimated purchase price                             | $ 73200       ",
+      "expectedAnswer": "0.03825\n推理步骤：divide(2800, 73200)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 517
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in the weighted average fair value on the date of the award of the common stock\n参考表格：\n                              | number of performance share awards | weighted-averagegrant-datefair value\n------------------------------+------------------------------------+-------------------------------------\nnon-vestedat december 31 2016 | 421600                             | $ 48.00                             \ngranted                       | 160196                             | 58.02                               \nvested                        | -95183 ( 95183 )                   | 45.13                               \nforfeited                     | -58285 ( 58285 )                   | 48.22                               \nnon-vestedat december 31 2017 | 428328                             | $ 52.35                             ",
+      "expectedAnswer": "0.10563\n推理步骤：subtract(63.43, 57.37), divide(#0, 57.37)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 692
+    },
+    {
+      "id": 0,
+      "query": "in november 2005 what was the percent of the stock issue costs to the company proceeds\n参考表格：\n( in thousands )                                              | december 31 2007\n--------------------------------------------------------------+-----------------\n2008                                                          | $ 14684         \n2009                                                          | 14660           \n2010                                                          | 13110           \n2011                                                          | 10125           \n2012 and thereafter                                           | 1005            \ntotal future minimum sponsorship and other marketing payments | $ 53584         ",
+      "expectedAnswer": "0.09583\n推理步骤：divide(10.8, 112.7)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.25,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 439
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in the impact of the euro on earnings from 2010 to 2011?\n参考表格：\ncurrency       | 2012   | 2011   | 2010  \n---------------+--------+--------+-------\nreal           | $ 40.4 | $ 42.4 | $ 32.5\neuro           | 27.1   | 26.4   | 18.6  \npound sterling | 18.5   | 17.6   | 9.0   \nindian rupee   | 4.3    | 3.6    | 2.6   \ntotal impact   | $ 90.3 | $ 90.0 | $ 62.7",
+      "expectedAnswer": "0.41935\n推理步骤：subtract(26.4, 18.6), divide(#0, 18.6)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 604
+    },
+    {
+      "id": 0,
+      "query": "what was the average number of shares issued to employees from 2013 to 2015\n参考表格：\n                                                        | 2015  | 2014 | 2013\n--------------------------------------------------------+-------+------+-----\naggregate intrinsic value of stock options exercised    | $ 104 | $ 61 | $ 73\ncash received from the exercise of stock options        | 40    | 38   | 61  \ntax benefit realized from the exercise of stock options | 36    | 16   | 15  ",
+      "expectedAnswer": "850636.0\n推理步骤：add(411636, 439000)",
+      "actualAnswer": "答案生成失败，请稍后重试。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.3,
+        "answerRelevance": 0.3
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 504
+    },
+    {
+      "id": 0,
+      "query": "what was the percentage change in receivables from brokers with in other current assets from 2009 to 2010?\n参考表格：\n( in millions )                                      | 2010    | 2009   \n-----------------------------------------------------+---------+--------\nrefundable income tax                                | $ 61.0  | $ 24.1 \nnet deferred income taxes ( note 14 )                | 18.3    | 23.8   \nprepaid technology license and maintenance contracts | 18.0    | 17.0   \nforward contract receivable ( note 20 )              | 11.8    | 27.3   \nreceivables from brokers                             | 11.2    | 8.8    \nother prepaid expenses                               | 9.6     | 13.5   \nprepaid insurance                                    | 6.3     | 7.0    \ncboe exercise rights privilege                       | 2014    | 39.8   \nother                                                | 9.9     | 4.3    \ntotal                                                | $ 146.1 | $ 165.6",
+      "expectedAnswer": "0.27273\n推理步骤：subtract(11.2, 8.8), divide(#0, 8.8)",
+      "actualAnswer": "Based on the reference table provided:\n\n1.  Identify the values for **receivables from brokers**:\n    *   2010: $11.2 million\n    *   2009: $8.8 million\n\n2.  Calculate the percentage change:\n    $$ \\text{Percentage Change} = \\frac{\\text{2010 Value} - \\text{2009 Value}}{\\text{2009 Value}} \\times 100 $$\n    $$ \\text{Percentage Change} = \\frac{11.2 - 8.8}{8.8} \\times 100 $$\n    $$ \\text{Percentage Change} = \\frac{2.4}{8.8} \\times 100 $$\n    $$ \\text{Percentage Change} \\approx 27.27\\% $$\n\nThe percentage change in receivables from brokers from 2009 to 2010 was approximately **27.27%**.",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.193,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.7388
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 22048
+    },
+    {
+      "id": 0,
+      "query": "in the adoption of the prospective method what was the ratio of the other comprehensive income to the net income reclassifying certain separate accounts to general account\n参考表格：\ncomponents of cumulative effect of adoption                        | net income   | other comprehensive income\n-------------------------------------------------------------------+--------------+---------------------------\nestablishing gmdb and other benefit reserves for annuity contracts | $ -54 ( 54 ) | $ 2014                    \nreclassifying certain separate accounts to general account         | 30           | 294                       \nother                                                              | 1            | -2 ( 2 )                  \ntotal cumulative effect of adoption                                | $ -23 ( 23 ) | $ 292                     ",
+      "expectedAnswer": "9.8\n推理步骤：divide(294, 30)",
+      "actualAnswer": "根据提供的参考表格，在采用追溯调整法（prospective method，此处指表格所示的采用方法）时，“reclassifying certain separate accounts to general account”（将某些单独账户重分类至一般账户）这一项对应的数据如下：\n\n*   **Net Income (净收入):** 30\n*   **Other Comprehensive Income (其他综合收益):** 294\n\n因此，其他综合收益与净收入的比率为：\n\n$$ \\frac{294}{30} = 9.8 $$\n\n该比率为 **9.8**。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0.5,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.7884
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 48689
+    },
+    {
+      "id": 0,
+      "query": "assuming all options in the compensation plans approved by security holders were exercised , what would be the deemed proceeds to the company?\n参考表格：\nplan category                                              | number of securities to be issued upon exercise of outstanding options ( a ) | weighted-average exercise price of outstanding options ( b ) | number of securities remaining available for future issuance underequity compensation plans ( excluding securities reflected in column ( a ) ) ( c )\n-----------------------------------------------------------+------------------------------------------------------------------------------+--------------------------------------------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------\nequity compensation plans approved by security holders     | 1211143                                                                      | $ 308.10                                                     | 5156223                                                                                                                                             \nequity compensation plans not approved by security holders | 5978                                                                         | 22.00                                                        | 2014                                                                                                                                                \ntotal                                                      | 1217121                                                                      |                                                              | 5156223                                                                                                                                             ",
+      "expectedAnswer": "373153158.3\n推理步骤：multiply(1211143, 308.10)",
+      "actualAnswer": "基于提供的文档片段，**无法回答**该问题。\n\n**原因如下：**\n1.  **数据不匹配**：用户提供的参考表格中显示“经股东批准的股权激励计划”下的加权平均行权价格为 **$308.10**，且涉及证券数量为 **1,211,143** 股。然而，提供的文档片段（特别是文档片段3）中提到的股权激励计划数据完全不同。文档片段3显示授予的股票期权行权价格为 **14.10 元/股**（或控股子公司为13.21元/股），授予对象为44名激励对象，合计477.00万份股票期权。\n2.  **货币单位与主体不明**：文档片段主要涉及中文语境下的公司（如“珠海格力电器股份有限公司”、“武汉中原电子信息有限公司”等），货币单位为人民币（元），而参考表格使用美元（$）。文档中并未包含参考表格中提到的特定行权价格（$308.10）或证券数量（1,211,143）的信息。\n3.  **信息缺失**：文档片段中没有提供关于“经股东批准的股权激励计划”中所有未行使期权的完整列表及其对应的加权平均行权价格，无法直接计算假设所有期权行权后的预期收益。\n\n因此，根据现有文档片段，无法计算基于参考表格数据的预期收益。",
+      "retrieval": {
+        "hitsAtK": 1,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0.6,
+        "answerRelevance": 0.0088
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 112301
+    },
+    {
+      "id": 0,
+      "query": "what is the net change in aon 2019s unpaid restructuring liabilities during 2006?\n参考表格：\nbalance at january 1 2005    | $ 2014      \n-----------------------------+-------------\nexpensed in 2005             | 141         \ncash payments in 2005        | -23 ( 23 )  \nforeign currency revaluation | -2 ( 2 )    \nbalance at december 31 2005  | 116         \nexpensed in 2006             | 155         \ncash payments in 2006        | -141 ( 141 )\nforeign currency revaluation | 4           \nbalance at december 31 2006  | 134         \nexpensed in 2007             | 38          \ncash payments in 2007        | -110 ( 110 )\nforeign currency revaluation | 1           \nbalance at december 31 2007  | $ 63        ",
+      "expectedAnswer": "18.0\n推理步骤：add(155, -141), add(#0, 4)",
+      "actualAnswer": "Based on the provided documents, I cannot answer this question. The provided text snippets (Documents 1-5) contain financial data regarding foreign exchange rates, related party transactions, and specific account balances for entities involving currencies like USD, HKD, and EUR, but they do not contain any information about \"Aon,\" \"unpaid restructuring liabilities,\" or the specific table showing changes from 2005 to 2007.\n\nAlthough the reference table provided in your prompt shows that the balance at December 31, 2006 was **$134** (calculated from a beginning balance of $116, plus $155 expensed, minus $141 cash payments, plus $4 foreign currency revaluation), this information is not present in the provided document fragments. Therefore, strictly following the instruction to base the answer *only* on the provided documents, there is no relevant information.",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.252,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.2012
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 7494
+    },
+    {
+      "id": 0,
+      "query": "what are the nuclear realized price changes as a percentage of the decrease in net revenue from 2011 to 2012?\n参考表格：\n                               | amount ( in millions )\n-------------------------------+-----------------------\n2011 net revenue               | $ 2045                \nnuclear realized price changes | -194 ( 194 )          \nnuclear volume                 | -33 ( 33 )            \nother                          | 36                    \n2012 net revenue               | $ 1854                ",
+      "expectedAnswer": "1.01571\n推理步骤：subtract(2045, 1854), divide(194, #0)",
+      "actualAnswer": "Based on the provided documents, I cannot answer this question. The provided document snippets (Documents 1-5) contain financial data regarding sales expenses, management expenses, R&D investments, cash flows, and insurance value assessments for the years 2024 and 2025. They do not contain any information regarding \"nuclear realized price changes\" or net revenue figures for the years 2011 and 2012.\n\nAlthough the user provided a reference table with specific numbers for 2011 and 2012, my instructions require me to base my answer **strictly on the provided document fragments**. Since the document fragments do not contain this data, I must state that the information is not available in the source material.",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.1968
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 8148
+    },
+    {
+      "id": 0,
+      "query": "did compensation expense related to the company 2019s employee stock purchase plan grow from 2004 to 2005?\n参考表格：\n                               | 2003             | 2004             | 2005            \n-------------------------------+------------------+------------------+-----------------\nrisk-free interest rate        | 2.92% ( 2.92 % ) | 2.56% ( 2.56 % ) | 3.87% ( 3.87 % )\nexpected dividend yield        | 2014             | 2014             | 2014            \nexpected option term in years  | 5.0 years        | 5.3 years        | 7.5 years       \nassumed stock price volatility | 85% ( 85 % )     | 86% ( 86 % )     | 84% ( 84 % )    ",
+      "expectedAnswer": "yes\n推理步骤：greater(28000, 19000)",
+      "actualAnswer": "Based on the provided documents, I cannot answer this question.\n\nThe provided document fragments do not contain information regarding \"compensation expense related to the company 2019s employee stock purchase plan\" or any data for the years 2004 and 2005 related to such a plan.\n\n*   **Document 1** discusses cash dividend distributions in 2025 and 2026.\n*   **Document 2** details goodwill impairment and asset group parameters.\n*   **Document 3** mentions a restricted stock incentive plan approved in 2016 and general performance evaluation mechanisms, but does not provide specific compensation expense data for 2004 or 2005.\n*   **Document 4** lists corporate bonds.\n*   **Document 5** mentions interest distribution to other equity instrument holders in 2025 and 2024.\n*   The **Reference Table** provided in the prompt contains parameters (risk-free rate, volatility, etc.) for 2003, 2004, and 2005, but it does not list \"compensation expense\" figures, nor does it explicitly link these parameters to a \"2019s employee stock purchase plan\" (which would be chronologically inconsistent with the years 2004-2005).\n\nTherefore, there is no information in the provided text to determine if the compensation expense grew from 2004 to 2005.",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.7784
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 36223
+    },
+    {
+      "id": 0,
+      "query": "what percentage of the intangible assets is related to the license of the realtor.com ae trademark?\n参考表格：\ncash                          | $ 108 \n------------------------------+-------\nother current assets          | 28    \nintangible assets             | 216   \ndeferred income taxes         | 153   \ngoodwill                      | 552   \nother non-current assets      | 69    \ntotal assets acquired         | $ 1126\nliabilities assumed:          |       \ncurrent liabilities           | $ 50  \ndeferred income taxes         | 52    \nborrowings                    | 129   \nother non-current liabilities | 3     \ntotal liabilities assumed     | 234   \nnet assets acquired           | $ 892 ",
+      "expectedAnswer": "0.53704\n推理步骤：divide(116, 216)",
+      "actualAnswer": "基于提供的文档片段，无法回答该问题。\n\n提供的文档片段（[文档片段1]至[文档片段5]）主要涉及资产负债表数据、关联交易、内含价值评估假设等财务信息，其中并未包含关于“realtor.com ae”商标许可或无形资产具体构成的详细信息。此外，用户提供的参考表格中仅列出了无形资产的总价值（216），未提供其具体构成或占比数据。",
+      "retrieval": {
+        "hitsAtK": 0,
+        "contextRelevance": 0.5,
+        "contextRecall": 0
+      },
+      "answer": {
+        "faithfulness": 0,
+        "answerRelevance": 0.6336
+      },
+      "category": "数值推理",
+      "difficulty": "easy",
+      "durationMs": 33956
+    }
+  ],
+  "resultsByCategory": {
+    "Accounting": {
+      "count": 67,
+      "avgHitsAtK": 0.0896,
+      "avgFaithfulness": 0.2955,
+      "avgAnswerRelevance": 0.344
+    },
+    "金融文本分类": {
+      "count": 67,
+      "avgHitsAtK": 0.806,
+      "avgFaithfulness": 0.394,
+      "avgAnswerRelevance": 0.2238
+    },
+    "数值推理": {
+      "count": 67,
+      "avgHitsAtK": 0.3134,
+      "avgFaithfulness": 0.2955,
+      "avgAnswerRelevance": 0.3186
+    }
+  },
+  "resultsByDifficulty": {
+    "medium": {
+      "count": 137,
+      "avgHitsAtK": 0.4453,
+      "avgFaithfulness": 0.3438,
+      "avgAnswerRelevance": 0.2843
+    },
+    "easy": {
+      "count": 61,
+      "avgHitsAtK": 0.3279,
+      "avgFaithfulness": 0.2951,
+      "avgAnswerRelevance": 0.3204
+    },
+    "hard": {
+      "count": 3,
+      "avgHitsAtK": 0,
+      "avgFaithfulness": 0.3,
+      "avgAnswerRelevance": 0.3
+    }
+  },
+  "version": 1,
+  "avgNumericalAccuracy": 0.5256,
+  "avgComplianceScore": 0.9983,
+  "avgHallucinationRate": 0.0751,
+  "avgRiskDisclosureScore": 1,
+  "avgTimelinessScore": 0.4617,
+  "financialOverallScore": 0.5617,
+  "dataSource": "opendataset",
+  "dataSourceDetail": "开源数据集评估, 数据集: [FinEval: 67条, CFLUE: 67条, FinQA: 67条], 总数: 201",
+  "evaluationLevel": "full",
+  "triggerMode": "manual"
+}
