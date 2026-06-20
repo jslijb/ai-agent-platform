@@ -54,6 +54,9 @@ const stockDataByCode = new Map<string, CachedStockData>();
 
 let currentUserId: string = "default-user";
 
+/** 最近一次 hybridSearch 的原始结果，供引用收集使用 */
+let lastHybridSearchRawResults: Array<{ text: string; documentId: string; score: number; denseScore?: number; sparseScore?: number; metadata?: Record<string, any> }> = [];
+
 const stockDataCache = new Map<string, { data: CachedStockData; expiresAt: number }>();
 const STOCK_CACHE_TTL_MS = 30 * 60 * 1000;
 
@@ -849,8 +852,14 @@ const tools: ToolDefinition[] = [
           (params.topK as number) || 10
         );
         console.log("[hybridSearch] RAG search time: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, results: " + results.length);
+        lastHybridSearchRawResults = results;
         const formatted = results
-          .map((r, i) => "[" + (i + 1) + "] (score: " + r.score.toFixed(4) + ") " + r.text)
+          .map((r, i) => {
+            const meta = r.metadata || {};
+            const pageRef = meta.startPage ? ` (第${meta.startPage}${meta.endPage && meta.endPage !== meta.startPage ? '-' + meta.endPage : ''}页)` : '';
+            const sourceRef = meta.source ? ` [来源: ${meta.source}${pageRef}]` : '';
+            return "[" + (i + 1) + "] (score: " + r.score.toFixed(4) + ")" + sourceRef + " " + r.text;
+          })
           .join("\n\n");
         return formatted || "未找到相关结果";
       } catch (error) {
@@ -1054,11 +1063,24 @@ function convertToBailianTools(toolsList: ToolDefinition[]): BailianTool[] {
   });
 }
 
+export interface CitationSource {
+  type: "pdf" | "sql";
+  documentId?: string;
+  fileName?: string;
+  startPage?: number;
+  endPage?: number;
+  text?: string;
+  dataSource?: string;
+  apiEndpoint?: string;
+  query?: string;
+}
+
 export interface AgentResult {
   answer: string;
   iterations: number;
   conversationId: string;
   steps: AgentStep[];
+  citations?: CitationSource[];
 }
 
 async function generateConversationTitle(query: string, answer: string, conversationId: string, model?: string): Promise<void> {
@@ -1088,6 +1110,8 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   console.log("[simpleAgent] Received query: " + query + ", maxIterations: " + maxIterations + ", userId: " + userId + ", model: " + (model || "default"));
   const startTime = Date.now();
   const steps: AgentStep[] = [];
+  const citations: CitationSource[] = [];
+  let lastSearchCitations: CitationSource[] = [];
   ensureToolsAndSkillsRegistered();
   lastStockData = getStockCache(userId);
   stockDataByCode.clear();
@@ -1371,7 +1395,7 @@ ${SkillRegistry.listDescriptions()}
         status: "timeout",
       }).catch((e) => console.error("[simpleAgent] 保存超时日志失败:", e));
       if (needGenerateTitle) await generateConversationTitle(query, "Agent 执行超时", convId, model);
-      return { answer: "Agent 执行超时，请稍后重试或简化您的问题。", iterations, conversationId: convId, steps };
+      return { answer: "Agent 执行超时，请稍后重试或简化您的问题。", iterations, conversationId: convId, steps, citations };
     }
     iterations++;
     const roundStartTime = Date.now();
@@ -1469,7 +1493,7 @@ ${SkillRegistry.listDescriptions()}
           }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
           if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
-          return { answer: assistantContent, iterations, conversationId: convId, steps };
+          return { answer: assistantContent, iterations, conversationId: convId, steps, citations };
         }
 
         console.log("[simpleAgent] 无工具调用且无工具结果，进入反思评估阶段");
@@ -1538,8 +1562,28 @@ ${SkillRegistry.listDescriptions()}
             const ragMs = Date.now() - ragStartTime;
             console.log("[simpleAgent] Round " + (i + 1) + " reflection RAG: " + (ragMs / 1000).toFixed(2) + "s, results: " + ragResult.length);
             const formattedResult = ragResult
-              .map((r, idx) => "[" + (idx + 1) + "] (score: " + r.score.toFixed(4) + ") " + r.text)
+              .map((r, idx) => {
+                const meta = r.metadata || {};
+                const pageRef = meta.startPage ? ` (第${meta.startPage}${meta.endPage && meta.endPage !== meta.startPage ? '-' + meta.endPage : ''}页)` : '';
+                const sourceRef = meta.source ? ` [来源: ${meta.source}${pageRef}]` : '';
+                return "[" + (idx + 1) + "] (score: " + r.score.toFixed(4) + ")" + sourceRef + " " + r.text;
+              })
               .join("\n\n");
+
+            // 收集反思检索的引用
+            for (const r of ragResult) {
+              const meta = r.metadata || {};
+              if (r.documentId) {
+                citations.push({
+                  type: "pdf",
+                  documentId: r.documentId,
+                  fileName: meta.source,
+                  startPage: meta.startPage,
+                  endPage: meta.endPage,
+                  text: r.text.substring(0, 200),
+                });
+              }
+            }
 
             lastSearchResults.push(formattedResult);
 
@@ -1611,7 +1655,7 @@ ${SkillRegistry.listDescriptions()}
         }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
         if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
-        return { answer: assistantContent, iterations, conversationId: convId, steps };
+        return { answer: assistantContent, iterations, conversationId: convId, steps, citations };
       }
 
       const toolCallsList = toolCalls;
@@ -1760,6 +1804,21 @@ ${SkillRegistry.listDescriptions()}
         if (toolCall.name === "hybridSearch") {
           lastSearchResults.push(toolResult);
 
+          // 从最近一次搜索结果中收集PDF引用
+          for (const r of lastHybridSearchRawResults) {
+            const meta = r.metadata || {};
+            if (r.documentId) {
+              citations.push({
+                type: "pdf",
+                documentId: r.documentId,
+                fileName: meta.source,
+                startPage: meta.startPage,
+                endPage: meta.endPage,
+                text: r.text.substring(0, 200),
+              });
+            }
+          }
+
           pushStep({
             type: "retrieval",
             round: i + 1,
@@ -1771,6 +1830,29 @@ ${SkillRegistry.listDescriptions()}
               resultPreview: toolResult.substring(0, 1000),
               toolMs,
             },
+            timestamp: Date.now(),
+          });
+        } else if (toolCall.name === "getStockFinancial" || toolCall.name === "getFinancialReport" || toolCall.name === "getStockHistory" || toolCall.name === "getStockRealtime") {
+          // 收集数据源引用
+          const endpointMap: Record<string, string> = {
+            getStockFinancial: "/api/market/financial",
+            getFinancialReport: "/api/market/financial_report",
+            getStockHistory: "/api/market/history",
+            getStockRealtime: "/api/market/realtime",
+          };
+          citations.push({
+            type: "sql",
+            dataSource: toolCall.name,
+            apiEndpoint: endpointMap[toolCall.name] || "",
+            query: JSON.stringify(toolCall.params),
+          });
+
+          pushStep({
+            type: "tool_result",
+            round: i + 1,
+            title: "Round " + (i + 1) + " - Tool Result: " + toolCall.name,
+            content: toolResult.substring(0, 500),
+            detail: { toolName: toolCall.name, resultPreview: toolResult.substring(0, 1000), toolMs },
             timestamp: Date.now(),
           });
         } else {
@@ -1906,7 +1988,7 @@ ${SkillRegistry.listDescriptions()}
           errorMessage: errorMsg,
         }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
         if (needGenerateTitle) await generateConversationTitle(query, "Execution error: " + errorMsg, convId, model);
-        return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps };
+        return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps, citations };
       }
 
       pushStep({
@@ -1935,5 +2017,5 @@ ${SkillRegistry.listDescriptions()}
 
   await addMessage(convId, "assistant", "Agent 超过最大迭代次数，未能得出结论。");
   if (needGenerateTitle) await generateConversationTitle(query, "超过最大迭代次数", convId, model);
-  return { answer: "Agent 超过最大迭代次数，未能得出结论。", iterations, conversationId: convId, steps };
+  return { answer: "Agent 超过最大迭代次数，未能得出结论。", iterations, conversationId: convId, steps, citations };
 }
