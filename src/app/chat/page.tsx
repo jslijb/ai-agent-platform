@@ -13,6 +13,18 @@ interface AgentStep {
   timestamp: number;
 }
 
+interface CitationSource {
+  type: "pdf" | "sql";
+  documentId?: string;
+  fileName?: string;
+  startPage?: number;
+  endPage?: number;
+  text?: string;
+  dataSource?: string;
+  apiEndpoint?: string;
+  query?: string;
+}
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -21,6 +33,7 @@ interface Message {
   conversationId?: string;
   streaming?: boolean;
   markedWrong?: boolean;
+  citations?: CitationSource[];
 }
 
 interface ConversationItem {
@@ -266,6 +279,175 @@ function AgentStepsPanel({ steps }: { steps: AgentStep[] }) {
           {answerStep && <StepCard step={answerStep} />}
         </div>
       )}
+    </div>
+  );
+}
+
+function CitationPanel({ citations }: { citations: CitationSource[] }) {
+  const [expanded, setExpanded] = useState(true);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [selectedCitation, setSelectedCitation] = useState<CitationSource | null>(null);
+
+  if (!citations || citations.length === 0) return null;
+
+  const pdfCitations = citations.filter((c) => c.type === "pdf");
+  const sqlCitations = citations.filter((c) => c.type === "sql");
+
+  const openPdfCitation = (citation: CitationSource) => {
+    setSelectedCitation(citation);
+    setPdfModalOpen(true);
+  };
+
+  return (
+    <>
+      <div className="mt-2 border border-blue-200 rounded-lg overflow-hidden bg-blue-50/50">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="w-full flex items-center justify-between px-3 py-2 hover:bg-blue-100/50 transition"
+        >
+          <div className="flex items-center gap-2 text-xs font-medium text-blue-700">
+            <span>📎</span>
+            <span>引用来源</span>
+            <span className="text-blue-400">({citations.length})</span>
+          </div>
+          <span className="text-blue-400 text-xs">{expanded ? "收起 ▲" : "展开 ▼"}</span>
+        </button>
+
+        {expanded && (
+          <div className="px-3 pb-3 space-y-2">
+            {pdfCitations.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-gray-500 mb-1">PDF 文档引用</div>
+                {pdfCitations.map((c, i) => (
+                  <button
+                    key={i}
+                    onClick={() => openPdfCitation(c)}
+                    className="w-full text-left flex items-center gap-2 px-2 py-1.5 rounded bg-white hover:bg-blue-50 border border-blue-100 mb-1 transition"
+                  >
+                    <span className="text-sm">📄</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium text-blue-700 truncate">
+                        {c.fileName || "文档"}
+                        {c.startPage ? ` 第${c.startPage}${c.endPage && c.endPage !== c.startPage ? '-' + c.endPage : ''}页` : ""}
+                      </div>
+                      {c.text && (
+                        <div className="text-[10px] text-gray-400 truncate">{c.text}</div>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-blue-400 shrink-0">查看 →</span>
+                  </button>
+                ))}
+              </div>
+            )}
+            {sqlCitations.length > 0 && (
+              <div>
+                <div className="text-xs font-medium text-gray-500 mb-1">数据源查询</div>
+                {sqlCitations.map((c, i) => (
+                  <div
+                    key={i}
+                    className="px-2 py-1.5 rounded bg-white border border-green-100 mb-1"
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm">🗄️</span>
+                      <span className="text-xs font-medium text-green-700">{c.dataSource}</span>
+                    </div>
+                    <div className="text-[10px] text-gray-400 mt-0.5">
+                      API: {c.apiEndpoint}
+                    </div>
+                    {c.query && (
+                      <div className="text-[10px] text-gray-500 mt-0.5 font-mono bg-gray-50 rounded px-1.5 py-0.5 overflow-x-auto">
+                        {c.query}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {pdfModalOpen && selectedCitation && (
+        <PdfPreviewModal
+          citation={selectedCitation}
+          onClose={() => { setPdfModalOpen(false); setSelectedCitation(null); }}
+        />
+      )}
+    </>
+  );
+}
+
+function PdfPreviewModal({ citation, onClose }: { citation: CitationSource; onClose: () => void }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const pdfUrl = citation.documentId
+    ? `/api/document/uploaded-file/${citation.documentId}`
+    : null;
+  const pageAnchor = citation.startPage ? `#page=${citation.startPage}` : "";
+
+  useEffect(() => {
+    if (!pdfUrl) {
+      setError("无文档ID，无法预览PDF");
+      setLoading(false);
+    } else {
+      setLoading(false);
+    }
+  }, [pdfUrl]);
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">📄</span>
+            <span className="font-medium text-gray-800">
+              {citation.fileName || "PDF文档"}
+              {citation.startPage ? ` - 第${citation.startPage}${citation.endPage && citation.endPage !== citation.startPage ? '-' + citation.endPage : ''}页` : ""}
+            </span>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+        </div>
+
+        <div className="flex-1 overflow-auto p-4">
+          {loading && (
+            <div className="flex items-center justify-center py-20">
+              <div className="w-6 h-6 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin mr-3" />
+              <span className="text-gray-500 text-sm">加载PDF...</span>
+            </div>
+          )}
+          {error && (
+            <div className="text-center py-20">
+              <div className="text-4xl mb-3">📄</div>
+              <p className="text-gray-500 text-sm">{error}</p>
+              {citation.text && (
+                <div className="mt-4 mx-auto max-w-lg bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-left">
+                  <div className="text-xs font-medium text-yellow-700 mb-2">引用文本片段：</div>
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap">{citation.text}</div>
+                </div>
+              )}
+            </div>
+          )}
+          {pdfUrl && !loading && (
+            <div>
+              {citation.text && (
+                <div className="mb-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                  <div className="text-xs font-medium text-yellow-700 mb-1">高亮引用段落：</div>
+                  <div className="text-sm text-gray-700 whitespace-pre-wrap bg-yellow-100/50 rounded px-2 py-1">
+                    {citation.text}
+                  </div>
+                </div>
+              )}
+              <iframe
+                src={`${pdfUrl}${pageAnchor}`}
+                className="w-full border rounded"
+                style={{ height: "70vh" }}
+                title="PDF Preview"
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -555,6 +737,7 @@ export default function ChatPage() {
                       iterations: data.iterations,
                       conversationId: data.conversationId,
                       streaming: false,
+                      citations: data.citations || [],
                     };
                   }
                   return updated;
@@ -723,6 +906,10 @@ export default function ChatPage() {
 
                   {msg.role === "assistant" && msg.steps && msg.steps.length > 0 && (
                     <AgentStepsPanel steps={msg.steps} />
+                  )}
+
+                  {msg.role === "assistant" && !msg.streaming && msg.citations && msg.citations.length > 0 && (
+                    <CitationPanel citations={msg.citations} />
                   )}
 
                   {msg.role === "assistant" && !msg.streaming && msg.content && !msg.content.startsWith("[Error]") && !msg.content.startsWith("[Network Error]") && (
