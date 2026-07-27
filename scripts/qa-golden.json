@@ -2,1052 +2,1697 @@
   {
     "id": "L1-001",
     "query": "中国能建2025年营业收入是多少？",
-    "expectedAnswer": "中国能建2025年营业收入约为3865亿元",
+    "expectedAnswer": "中国能建2025年营业收入约为4529.30亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [3865],
+      "expectedNumbers": [
+        4529.3
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+      "documentId": "066be4a7-a8ff-4686-a621-61e6d2cb879d",
+      "page": null,
+      "originalText": "稳健增长，战略性新兴产业加速落地，科 技创新成果持续产出 ， 国际化经营质量显著提升 ， 高质量发展迈出坚实步伐 。 2025 年 ， 公司 全年 实现新签合同额人民币 14,493.84 亿元，同比增长 2.88% ；实现营业收入人民币 4,529.30 亿元 ， 同比增长 3.71% ；营业收现率提升至 103. 80 % ，同比提高 6.98 个百分点。 （一）核心主业优势巩固，行业领军地位彰显 公司聚焦能源电力、水利两大核心主业，持续巩固传统能源领域竞争优势，加快拓展新能源 与国际化"
+    },
+    "calculationMethod": "文档原文直接提取：4,529.30，换算为4529.30亿元"
   },
   {
     "id": "L1-002",
     "query": "中国铁建2025年营业收入是多少？",
-    "expectedAnswer": "中国铁建2025年营业收入约为11068亿元",
+    "expectedAnswer": "中国铁建2025年营业收入约为10297.84亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [11068],
+      "expectedNumbers": [
+        10297.84
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "同额 2,089.684 亿元、 同比 增长 18.21% 。国际化经营成效显著，境外新签 合同额 3,633.398 亿元、同比增长 16.46% ，占比提 升至 11.81% ，再创历史新高。二是生产运营稳产高效。 全年 实现营业收入 10,297.845 亿元，其 中海外实现营业收入 758.735 亿元、同比增长 15.14% 、占比提升 1.19 个百分点 。 全面强化生产 调度和重难点项目督导，层层压实稳产达产责任。加强 内外部信用评价管理，出台《内部施工企 业信用评价指导意见》，"
+    },
+    "calculationMethod": "文档原文直接提取：10,297.845，换算为10297.84亿元"
   },
   {
     "id": "L1-003",
     "query": "中国人保2025年营业收入是多少？",
-    "expectedAnswer": "中国人保2025年营业收入约为5623亿元",
+    "expectedAnswer": "中国人保2025年营业收入约为5623.00亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5623],
+      "expectedNumbers": [
+        5623.0
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国人保2025年年度报告.txt",
+      "documentId": "6bee5b1c-19ec-466a-9f0c-a8d74558c190",
+      "page": null,
+      "originalText": "信息\r 公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r 股票代码：601319（A股）、1339（H股）\r 报告期：2025年1月1日至2025年12月31日\r \r 二、主要财务数据\r 1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r 2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r 3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r \r 三、分部经营数据\r 1. 人保财险：202"
+    },
+    "calculationMethod": "文档原文直接提取：5623，换算为5623.00亿元"
   },
   {
     "id": "L1-004",
     "query": "五粮液2025年营业收入是多少？",
-    "expectedAnswer": "五粮液2025年营业收入约为832亿元",
+    "expectedAnswer": "五粮液2025年营业收入约为405.29亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [832],
+      "expectedNumbers": [
+        405.29
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "群体方面具有  独特的比较优势。  四、主营业务分析  1 、概述  报告期内，公司围绕酿酒生产、质量提升、市场营销、品牌建设 等重点工作持续强基础、补短板、  蓄动能，为后续经营改善创造条件 。 2025   年，公司实现营业总收入   405.29   亿元、同比下降   54.55% ；实现  归属于上市公司股东的净利润   89.54   亿元、同比下降   71.89% 。  一是产品品质进一步强化。 酿酒专用粮基地建设达   170.2   万亩，秉承 “ 优质、高产、低耗、"
+    },
+    "calculationMethod": "文档原文直接提取：405.29，换算为405.29亿元"
   },
   {
     "id": "L1-005",
     "query": "格力电器2025年营业收入是多少？",
-    "expectedAnswer": "格力电器2025年营业收入约为2050亿元",
+    "expectedAnswer": "格力电器2025年营业收入约为1711.18亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [2050],
+      "expectedNumbers": [
+        1711.18
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "项   目   附注   2025   年度   2024   年度  一、营业总收入   171,118,161,275.41   190,038,071,604.78  其中：营业收入   五、 54   170,447,058,533.57   189,163,654,064.64  利息收入   五、 55   671,102,741.84   874,41"
+    },
+    "calculationMethod": "文档原文直接提取：171,118,161,275.41，换算为1711.18亿元"
   },
   {
     "id": "L1-006",
     "query": "中国长城2025年营业收入是多少？",
-    "expectedAnswer": "中国长城2025年营业收入约为168亿元",
+    "expectedAnswer": "中国长城2025年营业收入约为158.09亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [168],
+      "expectedNumbers": [
+        158.09
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000066_中国长城_2025年年度报告.pdf",
+      "documentId": "30a8de63-5af0-4031-86f2-a84472510f2e",
+      "page": null,
+      "originalText": "2025   年   2024   年   本年比上年增减   2023   年  营业收入（元）   15,808,600,064.94   14,202,752,494.20   11.31%   13,420,233,900.29  归属于上市公司股东的净利润（元 ）   -55,724,795.18   -1,478,505,080.54   -   -977,252"
+    },
+    "calculationMethod": "文档原文直接提取：15,808,600,064.94，换算为158.09亿元"
   },
   {
     "id": "L1-007",
     "query": "江苏银行2025年营业收入是多少？",
-    "expectedAnswer": "江苏银行2025年营业收入约为856亿元",
+    "expectedAnswer": "江苏银行2025年营业收入约为879.42亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [856],
+      "expectedNumbers": [
+        879.42
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "会价值贡献实现双提升。 2025 年末，集团资产总额 4.93 万亿元，较上年末增长 24.78%；各项存款余额 2.54 万亿元，较上年末增长 19.99%；各项 贷款余额 2.47 万亿元，较上年末增长 17.84%。全年实现营业收入 879.42 亿元，同比增长 8.82%，归属于上市公司股东 的净利润 345.01 亿元，同比增长 8.35%，ROE、ROA 保持较好水平。全球银行 1000 强排名列第 56 位，较上年大幅提升 10 位。 胸怀“国之大者”，服务大局展现新作为。"
+    },
+    "calculationMethod": "文档原文直接提取：879.42，换算为879.42亿元"
   },
   {
     "id": "L1-008",
     "query": "东吴证券2025年营业收入是多少？",
-    "expectedAnswer": "东吴证券2025年营业收入约为126亿元",
+    "expectedAnswer": "东吴证券2025年营业收入约为90.30亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [126],
+      "expectedNumbers": [
+        90.3
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "东吴证券_601555_2025年年度报告.pdf",
+      "documentId": "738017a4-da2f-48fb-930d-5c9b260e9579",
+      "page": null,
+      "originalText": "新质生产力的道路上坚韧前行，资本市场迈向高质量发展新阶段，证券行业加速回归本源。这一年，我们 凝心聚力、锐意进取，推动公司规模效益与经营质量协同提升，圆满完成“十四五”奋斗目标，高质量发展基础进一步夯 实。2025 年，本集团实现营业收入 90.30 亿元，同比增长 27.70%；归属于母公司股东的净利润 35.52 亿元，同比增长 50.12%。 截至 2025 年末， 集团资产总额 2,162.19 亿元， 同比增长 21.61%；所有者权益总额 437.58 亿元， 同比增长 3"
+    },
+    "calculationMethod": "文档原文直接提取：90.30，换算为90.30亿元"
   },
   {
     "id": "L1-009",
     "query": "华海药业2025年营业收入是多少？",
-    "expectedAnswer": "华海药业2025年营业收入约为108亿元",
+    "expectedAnswer": "华海药业2025年营业收入约为85.87亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [108],
+      "expectedNumbers": [
+        85.87
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "华海药业_600521_2025年年度报告.pdf",
+      "documentId": "4d9b581b-f92f-4932-be2c-332991bd9135",
+      "page": null,
+      "originalText": "近三年主要会计数据和财务指标 ( 一 ) 主要会计数据 单位： 元 币种： 人民币 主要会计数据 2025 年 2024 年 本期比上年同期增 减 (%) 2023 年 营业收入 8,587,145,652.08 9,547,425,412.40 -10.06 8,308,719,758.46 利润总额 443,877,072.00 1,463,608,474.95 -69.67 1,100,321,379.94 归属于上市公司股东的净利润 266"
+    },
+    "calculationMethod": "文档原文直接提取：8,587,145,652.08，换算为85.87亿元"
   },
   {
     "id": "L1-010",
     "query": "片仔癀2025年营业收入是多少？",
-    "expectedAnswer": "片仔癀2025年营业收入约为132亿元",
+    "expectedAnswer": "片仔癀2025年营业收入约为90.01亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [132],
+      "expectedNumbers": [
+        90.01
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 6,
+      "originalText": "号 签字会计师姓名 李恩成、 蔡志良、 施旭锋 七、 近三年主要会计数据和财务指标 ( 一 ) 主要会计数据 单位： 元 币种： 人民币 主要会计 数据 2025 年 2024 年 本期比 上年同 期增减 (%) 2023 年 营业收入 9,001,411,806.06 10,787,863,091.37 -16.56 10,058,497,338.92 利润总额 2,537,828,299.17 3,538,740,621.67 -28.28 3,368,912,507.02 归属于上市公司 股东的净利"
+    },
+    "calculationMethod": "文档原文直接提取：9,001,411,806.06，换算为90.01亿元"
   },
   {
     "id": "L1-011",
     "query": "中国能建2025年净利润是多少？",
-    "expectedAnswer": "中国能建2025年净利润约为98亿元",
+    "expectedAnswer": "中国能建2025年净利润约为58.40亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [98],
+      "expectedNumbers": [
+        58.4
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+      "documentId": "066be4a7-a8ff-4686-a621-61e6d2cb879d",
+      "page": null,
+      "originalText": "会计准则编制的财务报表中税后利润较少者为准；根据 股东大会决议，本公司可以进行中期现金分红；本公司分配股利的形式为现金或股票。 经天健会计师事务所 （ 特殊普通合伙 ） 审计 ， 公司 2025 年全年实现归属于本公司股东的净利 润人民币 58.40 亿元，支付永续债利息人民币 3.23 亿元，归属于上市公司普通股股东净利润 人民 币 55.17 亿元，扣除按规定计提的法定盈余公积金人民币 25.12 亿元后的可供分配利润为人民 币 30. 05 亿元 ， 对于此部分可供分配利润以公司"
+    },
+    "calculationMethod": "文档原文直接提取：58.40，换算为58.40亿元"
   },
   {
     "id": "L1-012",
     "query": "中国铁建2025年净利润是多少？",
-    "expectedAnswer": "中国铁建2025年净利润约为286亿元",
+    "expectedAnswer": "中国铁建2025年净利润约为183.63亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [286],
+      "expectedNumbers": [
+        183.63
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "3 年 营业收入 1,029,784,460 1,067,171,337 - 3. 50 1,137,993,486 利润总额 26,932,977 32,474,709 - 17. 06 38,828,152 归属于上市公司股东的净利润 18,362,618 22,215,074 - 17. 34 26,096,971 归属于上市公司股东的扣除非经常性 损益的净利润 15,997,757 21,325,484 - 24.98 24,580,442 经营活动产生的现金流量净额 2,956,977"
+    },
+    "calculationMethod": "文档原文直接提取：18,362,618，换算为183.63亿元"
   },
   {
     "id": "L1-013",
     "query": "中国人保2025年净利润是多少？",
-    "expectedAnswer": "中国人保2025年净利润约为326亿元",
+    "expectedAnswer": "中国人保2025年净利润约为218.00亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [326],
+      "expectedNumbers": [
+        218.0
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国人保2025年年度报告.txt",
+      "documentId": "6bee5b1c-19ec-466a-9f0c-a8d74558c190",
+      "page": null,
+      "originalText": "19（A股）、1339（H股）\r 报告期：2025年1月1日至2025年12月31日\r \r 二、主要财务数据\r 1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r 2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r 3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r \r 三、分部经营数据\r 1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r 2. 人保寿险：2025"
+    },
+    "calculationMethod": "文档原文直接提取：218，换算为218.00亿元"
   },
   {
     "id": "L1-014",
     "query": "五粮液2025年净利润是多少？",
-    "expectedAnswer": "五粮液2025年净利润约为312亿元",
+    "expectedAnswer": "五粮液2025年净利润约为89.54亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [312],
+      "expectedNumbers": [
+        89.54
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "产、质量提升、市场营销、品牌建设 等重点工作持续强基础、补短板、  蓄动能，为后续经营改善创造条件 。 2025   年，公司实现营业总收入   405.29   亿元、同比下降   54.55% ；实现  归属于上市公司股东的净利润   89.54   亿元、同比下降   71.89% 。  一是产品品质进一步强化。 酿酒专用粮基地建设达   170.2   万亩，秉承 “ 优质、高产、低耗、均衡、安  全 ” 生产方针，产销协同有效强化。"
+    },
+    "calculationMethod": "文档原文直接提取：89.54，换算为89.54亿元"
   },
   {
     "id": "L1-015",
     "query": "格力电器2025年净利润是多少？",
-    "expectedAnswer": "格力电器2025年净利润约为298亿元",
+    "expectedAnswer": "格力电器2025年净利润约为290.03亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [298],
+      "expectedNumbers": [
+        290.03
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "年  增减   2023   年  营业收入（元）   170,447,058,533.57   189,163,654,064.64   -9.89%   203,979,266,387.09  归属于上市公司股东的净利润  （元）   29,003,103,411.66   32,184,570,372.28   -9.89%   29,017,387,604.18  归属于上市公司股东的扣除非  经常性损益的净利润（元）   27,706,292,436.94   30,099,760,382.99"
+    },
+    "calculationMethod": "文档原文直接提取：29,003,103,411.6，换算为290.03亿元"
   },
   {
     "id": "L1-016",
     "query": "中国长城2025年净利润是多少？",
-    "expectedAnswer": "中国长城2025年净利润约为12亿元",
+    "expectedAnswer": "中国长城2025年净利润约为-0.56亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [12],
+      "expectedNumbers": [
+        -0.56
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000066_中国长城_2025年年度报告.pdf",
+      "documentId": "30a8de63-5af0-4031-86f2-a84472510f2e",
+      "page": null,
+      "originalText": "本年比上年增减   2023   年  营业收入（元）   15,808,600,064.94   14,202,752,494.20   11.31%   13,420,233,900.29  归属于上市公司股东的净利润（元 ）   -55,724,795.18   -1,478,505,080.54   -   -977,252,427.62  归属于上市公司股东的扣除非经常  性损益的净利润（元）   -650,133,333.20   -1,480,273,179.58   -   -1,1"
+    },
+    "calculationMethod": "文档原文直接提取：-55,724,795.18，换算为-0.56亿元"
   },
   {
     "id": "L1-017",
     "query": "江苏银行2025年净利润是多少？",
-    "expectedAnswer": "江苏银行2025年净利润约为328亿元",
+    "expectedAnswer": "江苏银行2025年净利润约为345.01亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [328],
+      "expectedNumbers": [
+        345.01
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "较上年末增长 24.78%；各项存款余额 2.54 万亿元，较上年末增长 19.99%；各项 贷款余额 2.47 万亿元，较上年末增长 17.84%。全年实现营业收入 879.42 亿元，同比增长 8.82%，归属于上市公司股东 的净利润 345.01 亿元，同比增长 8.35%，ROE、ROA 保持较好水平。全球银行 1000 强排名列第 56 位，较上年大幅提升 10 位。 胸怀“国之大者”，服务大局展现新作为。 习近平总书记指出，金融是“国之大者”，关系中国式现代化建设全局。作为"
+    },
+    "calculationMethod": "文档原文直接提取：345.01，换算为345.01亿元"
   },
   {
     "id": "L1-018",
     "query": "东吴证券2025年净利润是多少？",
-    "expectedAnswer": "东吴证券2025年净利润约为38亿元",
+    "expectedAnswer": "东吴证券2025年净利润约为35.52亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [38],
+      "expectedNumbers": [
+        35.52
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "东吴证券_601555_2025年年度报告.pdf",
+      "documentId": "738017a4-da2f-48fb-930d-5c9b260e9579",
+      "page": null,
+      "originalText": "速回归本源。这一年，我们 凝心聚力、锐意进取，推动公司规模效益与经营质量协同提升，圆满完成“十四五”奋斗目标，高质量发展基础进一步夯 实。2025 年，本集团实现营业收入 90.30 亿元，同比增长 27.70%；归属于母公司股东的净利润 35.52 亿元，同比增长 50.12%。 截至 2025 年末， 集团资产总额 2,162.19 亿元， 同比增长 21.61%；所有者权益总额 437.58 亿元， 同比增长 3.55%。 核心指标较“十三五”末期实现跨越式增长的同时，公司合规经"
+    },
+    "calculationMethod": "文档原文直接提取：35.52，换算为35.52亿元"
   },
   {
     "id": "L1-019",
     "query": "华海药业2025年净利润是多少？",
-    "expectedAnswer": "华海药业2025年净利润约为15亿元",
+    "expectedAnswer": "华海药业2025年净利润约为2.66亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [15],
+      "expectedNumbers": [
+        2.66
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "华海药业_600521_2025年年度报告.pdf",
+      "documentId": "4d9b581b-f92f-4932-be2c-332991bd9135",
+      "page": null,
+      "originalText": ".08 9,547,425,412.40 -10.06 8,308,719,758.46 利润总额 443,877,072.00 1,463,608,474.95 -69.67 1,100,321,379.94 归属于上市公司股东的净利润 266,399,456.11 1,118,981,177.61 -76.19 830,466,003.18 归属于上市公司股东的扣除非经 常性损益的净利润 157,551,579.54 1,129,321,710.61 -86.05 888,522,218.59 经营"
+    },
+    "calculationMethod": "文档原文直接提取：266,399,456.11，换算为2.66亿元"
   },
   {
     "id": "L1-020",
     "query": "片仔癀2025年净利润是多少？",
-    "expectedAnswer": "片仔癀2025年净利润约为32亿元",
+    "expectedAnswer": "片仔癀2025年净利润约为21.59亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [32],
+      "expectedNumbers": [
+        21.59
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 6,
+      "originalText": "0,787,863,091.37 -16.56 10,058,497,338.92 利润总额 2,537,828,299.17 3,538,740,621.67 -28.28 3,368,912,507.02 归属于上市公司 股东的净利润 2,158,633,048.42 2,977,002,486.34 -27.49 2,797,351,515.70 归属于上市公司 股东的扣除非经 常性损益的净利 润 1,999,617,616.75 3,041,471,439.35 -34.25 2,853,833,4"
+    },
+    "calculationMethod": "文档原文直接提取：2,158,633,048.42，换算为21.59亿元"
   },
   {
     "id": "L1-021",
     "query": "格力电器2025年研发费用是多少？",
-    "expectedAnswer": "格力电器2025年研发费用约为82亿元",
+    "expectedAnswer": "格力电器2025年研发费用约为64.63亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [82],
+      "expectedNumbers": [
+        64.63
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "%  管理费用   5,180,260,235.38   6,057,608,713.94   -14.48%  财务费用   -4,086,088,396.47   -3,300,417,558.96   -23.81%  研发费用   6,463,100,763.66   6,904,084,981.92   -6.39%  4. 研发投入   适用   □ 不适用  主要研发  项目名称   项目目的   项目进展   拟达到的目标   预计对公司未来发展的影响  悦省电家  用空调系  列产品"
+    },
+    "calculationMethod": "文档原文直接提取：6,463,100,763.66，换算为64.63亿元"
   },
   {
     "id": "L1-022",
     "query": "中国长城2025年研发费用是多少？",
-    "expectedAnswer": "中国长城2025年研发费用约为22亿元",
+    "expectedAnswer": "中国长城2025年研发费用约为10.87亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [22],
+      "expectedNumbers": [
+        10.87
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000066_中国长城_2025年年度报告.pdf",
+      "documentId": "30a8de63-5af0-4031-86f2-a84472510f2e",
+      "page": null,
+      "originalText": "01   1,054,682,954.55   -14.65%  财务费用   211,392,112.30   140,194,958.91   50.78%   主要是本 年度 汇率变动致汇兑净损失同  比增加所致 。  研发费用   1,087,421,743.45   1,130,377,397.97   -3.80%  （ 四 ） 研发投入  √ 适用 □ 不适用  202 5   年，公司在体系和体制建设、科技创新平台 和 资质建设、核心技术产品研发、 参与国家项目 、科技成果等方面不  断进取"
+    },
+    "calculationMethod": "文档原文直接提取：1,087,421,743.45，换算为10.87亿元"
   },
   {
     "id": "L1-023",
     "query": "华海药业2025年研发费用是多少？",
-    "expectedAnswer": "华海药业2025年研发费用约为13亿元",
+    "expectedAnswer": "华海药业2025年研发费用约为12.29亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [13],
+      "expectedNumbers": [
+        12.29
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "华海药业_600521_2025年年度报告.pdf",
+      "documentId": "4d9b581b-f92f-4932-be2c-332991bd9135",
+      "page": null,
+      "originalText": "587.51 1,678,900,157.74 -6.07 管理费用 1,558,912,337.62 1,464,239,757.56 6.47 财务费用 248,160,740.07 95,480,079.27 159.91 研发费用 1,229,124,707.86 986,685,361.64 24.57 经营活动产生的现金流量净额 1,230,088,568.89 2,172,663,923.81 -43.38 投资活动产生的现金流量净额 -1,867,553,723.31 -1,920,276,"
+    },
+    "calculationMethod": "文档原文直接提取：1,229,124,707.86，换算为12.29亿元"
   },
   {
     "id": "L1-024",
     "query": "中国能建2025年总资产是多少？",
-    "expectedAnswer": "中国能建2025年总资产约为6850亿元",
+    "expectedAnswer": "中国能建2025年总资产约为9415.97亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [6850],
+      "expectedNumbers": [
+        9415.97
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+      "documentId": "066be4a7-a8ff-4686-a621-61e6d2cb879d",
+      "page": 14,
+      "originalText": "年年度报告 14 / 307 2025 年 末 2024 年 末 本期末比上 年同期末增 减（ % ） 2023 年末 归属于上市公司股东的净资产 119,984,044 116,011,181 3.42 110,464,737 总资产 941,597,382 869,004,776 8.35 783,156,193 ( 二 ) 主要财务指标 主要财务指标 2025 年 2024 年 本期比上年同期 增减 (%) 2023 年 基本每股收益（元／股） 0.13 0.19 -31.58 0.18"
+    },
+    "calculationMethod": "文档原文直接提取：941,597,382，换算为9415.97亿元"
   },
   {
     "id": "L1-025",
     "query": "江苏银行2025年总资产是多少？",
-    "expectedAnswer": "江苏银行2025年总资产约为39800亿元",
+    "expectedAnswer": "江苏银行2025年总资产约为49313.16亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [39800],
+      "expectedNumbers": [
+        49313.16
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "全力服务所在区域走在前、 做示范、 挑大梁、 作贡献， 将自身发展融入区域发展大局， 积极探索 “稳投资、 促消费、 惠民生” 金融服务新模式， 加大 “两重” “两新” 融资支持力度， 为实体经济发展注入金融动能。 报告期末， 资产总额 49,313.16 亿元， 较上年末增长 24.78%；各项存款余额 25,387.48 亿元， 较上年末增长 19.99%；各项贷款余额 24,690.61 亿元，较上年末增长 17.84%。 优化体制机制，经营效益持续稳健增长。 突出问题导向，聚焦经营管"
+    },
+    "calculationMethod": "文档原文直接提取：49,313.16，换算为49313.16亿元"
   },
   {
     "id": "L1-026",
     "query": "五粮液2025年总资产是多少？",
-    "expectedAnswer": "五粮液2025年总资产约为1680亿元",
+    "expectedAnswer": "五粮液2025年总资产约为1899.84亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [1680],
+      "expectedNumbers": [
+        1899.84
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "830  加权平均净资产收益率   6.89 %   23.35%   减少   16.46   个百分点   25.06%  2025   年末   2024   年末   本年末比上年末增减   2023   年末  总资产（元）   189,984,270,815.47   188,252,218,704.17   0.92%   165,432,981,684.75  归属于上市公司股东的  净资产（元）   119,932,271,234.99   133,285,282,015.97   - 10."
+    },
+    "calculationMethod": "文档原文直接提取：189,984,270,815.47，换算为1899.84亿元"
   },
   {
     "id": "L1-027",
     "query": "片仔癀2025年总资产是多少？",
-    "expectedAnswer": "片仔癀2025年总资产约为196亿元",
+    "expectedAnswer": "片仔癀2025年总资产约为175.60亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [196],
+      "expectedNumbers": [
+        175.6
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 7,
+      "originalText": "年 末 2024 年 末 本期末 比上年 同期末 增减 （ % ） 2023 年末 归属于上市公司 股东的净资产 14,539,495,290.14 14,271,727,825.79 1.88 13,376,325,404.04 总资产 17,560,037,344.69 17,539,661,657.50 0.12 17,080,413,435.81 ( 二 ) 主要财务指标 主要财务指标 2025 年 2024 年 本期比上年同期增减 (%) 2023 年 基本每股收益（元／股） 3.58 4.93 -"
+    },
+    "calculationMethod": "文档原文直接提取：17,560,037,344.69，换算为175.60亿元"
   },
   {
     "id": "L1-028",
     "query": "中国人保2025年保费收入是多少？",
-    "expectedAnswer": "中国人保2025年保费收入约为5180亿元",
+    "expectedAnswer": "中国人保2025年保费收入约为5386.00亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5180],
+      "expectedNumbers": [
+        5386.0
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国人保2025年年度报告.txt",
+      "documentId": "6bee5b1c-19ec-466a-9f0c-a8d74558c190",
+      "page": null,
+      "originalText": "1日\r \r 二、主要财务数据\r 1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r 2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r 3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r \r 三、分部经营数据\r 1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r 2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r 3. 人保健康"
+    },
+    "calculationMethod": "文档原文直接提取：5386，换算为5386.00亿元"
   },
   {
     "id": "L1-029",
     "query": "东吴证券2025年经纪业务收入是多少？",
-    "expectedAnswer": "东吴证券2025年经纪业务收入约为42亿元",
+    "expectedAnswer": "东吴证券2025年经纪业务收入约为23.93亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [42],
+      "expectedNumbers": [
+        23.93
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "东吴证券_601555_2025年年度报告.pdf",
+      "documentId": "738017a4-da2f-48fb-930d-5c9b260e9579",
+      "page": null,
+      "originalText": "收入 45 3,689,425,405.52 2,905,359,843.60 其中 ： 经纪业务手续费净收入 2,393,083,024.66 1,793,776,222.93 投资银行业务手续费净收入 796,701,527.70 704,679,301.07 资产管理业务手续费净收入 197,687,133.40 168,515,218.10 投资收益 （损失以“-”号填列）"
+    },
+    "calculationMethod": "文档原文直接提取：2,393,083,024.66，换算为23.93亿元"
   },
   {
     "id": "L1-030",
     "query": "中国铁建2025年新签合同额是多少？",
-    "expectedAnswer": "中国铁建2025年新签合同额约为32680亿元",
+    "expectedAnswer": "中国铁建2025年新签合同额约为30764.97亿元",
     "category": "L1-事实提取",
     "difficulty": "easy",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [32680],
+      "expectedNumbers": [
+        30764.97
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "主义思想为指导，坚决贯彻党中央、国务院决策部署及国务院国资委工作要求， 坚持高质量发展，各项工作取得了积极成效，实现“十四五”圆满收官。 2025 年， 中国铁建 强化经营管理，发展质效持续提升。 市场经营稳中提质， 全年新 签合同总 额 30,764.970 亿元 ， 完成年度计划的 100.5% 。 生产运营稳产高效， 全年 实现营业收入 10, 297 . 845 亿元 、 利润总额 269.330 亿元。 开展 精细化管 理“全 面 提升年”活动，持续增强成本管控能力， 强化供应链管理和"
+    },
+    "calculationMethod": "文档原文直接提取：30,764.970，换算为30764.97亿元"
   },
   {
     "id": "L2-001",
     "query": "中国能建和中国铁建2025年营收谁更高？",
-    "expectedAnswer": "中国铁建2025年营收约为11068亿元，中国能建2025年营收约为3865亿元，中国铁建的营收更高，差额约为7203亿元",
+    "expectedAnswer": "中国铁建2025年营收约为10297.84亿元，中国能建2025年营收约为4529.30亿元，中国铁建的营收更高，差额约为5768.54亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [11068, 3865],
+      "expectedNumbers": [
+        4529.3,
+        10297.84
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "同额 2,089.684 亿元、 同比 增长 18.21% 。国际化经营成效显著，境外新签 合同额 3,633.398 亿元、同比增长 16.46% ，占比提 升至 11.81% ，再创历史新高。二是生产运营稳产高效。 全年 实现营业收入 10,297.845 亿元，其 中海外实现营业收入 758.735 亿元、同比增长 15.14% 、占比提升 1.19 个百分点 。 全面强化生产 调度和重难点项目督导，层层压实稳产达产责任。加强 内外部信用评价管理，出台《内部施工企 业信用评价指导意见》，"
+    },
+    "calculationMethod": "对比计算：中国能建营收=4529.30亿元，中国铁建营收=10297.84亿元，差额=|4529.30-10297.84|=5768.54亿元"
   },
   {
     "id": "L2-002",
     "query": "五粮液和格力电器2025年净利润哪个更多？",
-    "expectedAnswer": "五粮液2025年净利润约为312亿元，格力电器2025年净利润约为298亿元，五粮液的净利润更多，差额约为14亿元",
+    "expectedAnswer": "格力电器2025年净利润约为290.03亿元，五粮液2025年净利润约为89.54亿元，格力电器的净利润更高，差额约为200.49亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [312, 298],
+      "expectedNumbers": [
+        89.54,
+        290.03
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "年  增减   2023   年  营业收入（元）   170,447,058,533.57   189,163,654,064.64   -9.89%   203,979,266,387.09  归属于上市公司股东的净利润  （元）   29,003,103,411.66   32,184,570,372.28   -9.89%   29,017,387,604.18  归属于上市公司股东的扣除非  经常性损益的净利润（元）   27,706,292,436.94   30,099,760,382.99"
+    },
+    "calculationMethod": "对比计算：五粮液净利润=89.54亿元，格力电器净利润=290.03亿元，差额=|89.54-290.03|=200.49亿元"
   },
   {
     "id": "L2-003",
     "query": "华海药业和片仔癀2025年营收谁更高？",
-    "expectedAnswer": "片仔癀2025年营收约为132亿元，华海药业2025年营收约为108亿元，片仔癀的营收更高，差额约为24亿元",
+    "expectedAnswer": "片仔癀2025年营收约为90.01亿元，华海药业2025年营收约为85.87亿元，片仔癀的营收更高，差额约为4.14亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [132, 108],
+      "expectedNumbers": [
+        85.87,
+        90.01
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 6,
+      "originalText": "号 签字会计师姓名 李恩成、 蔡志良、 施旭锋 七、 近三年主要会计数据和财务指标 ( 一 ) 主要会计数据 单位： 元 币种： 人民币 主要会计 数据 2025 年 2024 年 本期比 上年同 期增减 (%) 2023 年 营业收入 9,001,411,806.06 10,787,863,091.37 -16.56 10,058,497,338.92 利润总额 2,537,828,299.17 3,538,740,621.67 -28.28 3,368,912,507.02 归属于上市公司 股东的净利"
+    },
+    "calculationMethod": "对比计算：华海药业营收=85.87亿元，片仔癀营收=90.01亿元，差额=|85.87-90.01|=4.14亿元"
   },
   {
     "id": "L2-004",
     "query": "中国能建和中国铁建2025年净利润谁更高？",
-    "expectedAnswer": "中国铁建2025年净利润约为286亿元，中国能建2025年净利润约为98亿元，中国铁建的净利润更高，差额约为188亿元",
+    "expectedAnswer": "中国铁建2025年净利润约为183.63亿元，中国能建2025年净利润约为58.40亿元，中国铁建的净利润更高，差额约为125.23亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [286, 98],
+      "expectedNumbers": [
+        58.4,
+        183.63
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "3 年 营业收入 1,029,784,460 1,067,171,337 - 3. 50 1,137,993,486 利润总额 26,932,977 32,474,709 - 17. 06 38,828,152 归属于上市公司股东的净利润 18,362,618 22,215,074 - 17. 34 26,096,971 归属于上市公司股东的扣除非经常性 损益的净利润 15,997,757 21,325,484 - 24.98 24,580,442 经营活动产生的现金流量净额 2,956,977"
+    },
+    "calculationMethod": "对比计算：中国能建净利润=58.40亿元，中国铁建净利润=183.63亿元，差额=|58.40-183.63|=125.23亿元"
   },
   {
     "id": "L2-005",
     "query": "江苏银行和东吴证券2025年营收谁更高？",
-    "expectedAnswer": "江苏银行2025年营收约为856亿元，东吴证券2025年营收约为126亿元，江苏银行的营收更高，差额约为730亿元",
+    "expectedAnswer": "江苏银行2025年营收约为879.42亿元，东吴证券2025年营收约为90.30亿元，江苏银行的营收更高，差额约为789.12亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [856, 126],
+      "expectedNumbers": [
+        879.42,
+        90.3
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "会价值贡献实现双提升。 2025 年末，集团资产总额 4.93 万亿元，较上年末增长 24.78%；各项存款余额 2.54 万亿元，较上年末增长 19.99%；各项 贷款余额 2.47 万亿元，较上年末增长 17.84%。全年实现营业收入 879.42 亿元，同比增长 8.82%，归属于上市公司股东 的净利润 345.01 亿元，同比增长 8.35%，ROE、ROA 保持较好水平。全球银行 1000 强排名列第 56 位，较上年大幅提升 10 位。 胸怀“国之大者”，服务大局展现新作为。"
+    },
+    "calculationMethod": "对比计算：江苏银行营收=879.42亿元，东吴证券营收=90.30亿元，差额=|879.42-90.30|=789.12亿元"
   },
   {
     "id": "L2-006",
     "query": "格力电器和中国长城2025年研发费用谁更高？",
-    "expectedAnswer": "格力电器2025年研发费用约为82亿元，中国长城2025年研发费用约为22亿元，格力电器的研发费用更高，差额约为60亿元",
+    "expectedAnswer": "格力电器2025年研发费用约为64.63亿元，中国长城2025年研发费用约为10.87亿元，格力电器的研发费用更高，差额约为53.76亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [82, 22],
+      "expectedNumbers": [
+        64.63,
+        10.87
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "%  管理费用   5,180,260,235.38   6,057,608,713.94   -14.48%  财务费用   -4,086,088,396.47   -3,300,417,558.96   -23.81%  研发费用   6,463,100,763.66   6,904,084,981.92   -6.39%  4. 研发投入   适用   □ 不适用  主要研发  项目名称   项目目的   项目进展   拟达到的目标   预计对公司未来发展的影响  悦省电家  用空调系  列产品"
+    },
+    "calculationMethod": "对比计算：格力电器研发费用=64.63亿元，中国长城研发费用=10.87亿元，差额=|64.63-10.87|=53.76亿元"
   },
   {
     "id": "L2-007",
     "query": "五粮液和片仔癀2025年净利润谁更高？",
-    "expectedAnswer": "五粮液2025年净利润约为312亿元，片仔癀2025年净利润约为32亿元，五粮液的净利润更高，差额约为280亿元",
+    "expectedAnswer": "五粮液2025年净利润约为89.54亿元，片仔癀2025年净利润约为21.59亿元，五粮液的净利润更高，差额约为67.95亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [312, 32],
+      "expectedNumbers": [
+        89.54,
+        21.59
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "产、质量提升、市场营销、品牌建设 等重点工作持续强基础、补短板、  蓄动能，为后续经营改善创造条件 。 2025   年，公司实现营业总收入   405.29   亿元、同比下降   54.55% ；实现  归属于上市公司股东的净利润   89.54   亿元、同比下降   71.89% 。  一是产品品质进一步强化。 酿酒专用粮基地建设达   170.2   万亩，秉承 “ 优质、高产、低耗、均衡、安  全 ” 生产方针，产销协同有效强化。"
+    },
+    "calculationMethod": "对比计算：五粮液净利润=89.54亿元，片仔癀净利润=21.59亿元，差额=|89.54-21.59|=67.95亿元"
   },
   {
     "id": "L2-008",
     "query": "中国人保和江苏银行2025年净利润谁更高？",
-    "expectedAnswer": "江苏银行2025年净利润约为328亿元，中国人保2025年净利润约为326亿元，江苏银行的净利润略高，差额约为2亿元",
+    "expectedAnswer": "江苏银行2025年净利润约为345.01亿元，中国人保2025年净利润约为218.00亿元，江苏银行的净利润更高，差额约为127.01亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [328, 326],
+      "expectedNumbers": [
+        218.0,
+        345.01
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "较上年末增长 24.78%；各项存款余额 2.54 万亿元，较上年末增长 19.99%；各项 贷款余额 2.47 万亿元，较上年末增长 17.84%。全年实现营业收入 879.42 亿元，同比增长 8.82%，归属于上市公司股东 的净利润 345.01 亿元，同比增长 8.35%，ROE、ROA 保持较好水平。全球银行 1000 强排名列第 56 位，较上年大幅提升 10 位。 胸怀“国之大者”，服务大局展现新作为。 习近平总书记指出，金融是“国之大者”，关系中国式现代化建设全局。作为"
+    },
+    "calculationMethod": "对比计算：中国人保净利润=218.00亿元，江苏银行净利润=345.01亿元，差额=|218.00-345.01|=127.01亿元"
   },
   {
     "id": "L2-009",
     "query": "中国铁建和中国能建2025年总资产谁更高？",
-    "expectedAnswer": "中国铁建2025年总资产约为15800亿元，中国能建2025年总资产约为6850亿元，中国铁建的总资产更高，差额约为8950亿元",
+    "expectedAnswer": "中国铁建2025年总资产约为20838.25亿元，中国能建2025年总资产约为9415.97亿元，中国铁建的总资产更高，差额约为11422.28亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [15800, 6850],
+      "expectedNumbers": [
+        9415.97,
+        20838.25
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "不适用 20,412,048 2025 年 末 2024 年 末 本期末比上年 同期末增减 （ % ） 2023 年末 归属于上市公司股东的净资产 340,286,440 328,251,080 3.6 7 309,837,517 总资产 2,083,825,209 1,862,842,522 11.86 1,663,019,578 ( 二 ) 主要财务指标 主要财务指标 2025 年 2024 年 本期比上年同期增 减 (%) 2023 年 基本每股收益（元／股） 1.1 8 1.46 - 19."
+    },
+    "calculationMethod": "对比计算：中国能建总资产=9415.97亿元，中国铁建总资产=20838.25亿元，差额=|9415.97-20838.25|=11422.28亿元"
   },
   {
     "id": "L2-010",
     "query": "华海药业和片仔癀2025年研发费用谁更高？",
-    "expectedAnswer": "华海药业2025年研发费用约为13亿元，片仔癀2025年研发费用约为3.5亿元，华海药业的研发费用更高，差额约为9.5亿元",
+    "expectedAnswer": "华海药业2025年研发费用约为12.29亿元，片仔癀2025年研发费用约为2.52亿元，华海药业的研发费用更高，差额约为9.77亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [13, 3.5],
+      "expectedNumbers": [
+        12.29,
+        2.52
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "华海药业_600521_2025年年度报告.pdf",
+      "documentId": "4d9b581b-f92f-4932-be2c-332991bd9135",
+      "page": null,
+      "originalText": "587.51 1,678,900,157.74 -6.07 管理费用 1,558,912,337.62 1,464,239,757.56 6.47 财务费用 248,160,740.07 95,480,079.27 159.91 研发费用 1,229,124,707.86 986,685,361.64 24.57 经营活动产生的现金流量净额 1,230,088,568.89 2,172,663,923.81 -43.38 投资活动产生的现金流量净额 -1,867,553,723.31 -1,920,276,"
+    },
+    "calculationMethod": "对比计算：华海药业研发费用=12.29亿元，片仔癀研发费用=2.52亿元，差额=|12.29-2.52|=9.77亿元"
   },
   {
     "id": "L2-011",
     "query": "格力电器和五粮液2025年营收谁更高？",
-    "expectedAnswer": "格力电器2025年营收约为2050亿元，五粮液2025年营收约为832亿元，格力电器的营收更高，差额约为1218亿元",
+    "expectedAnswer": "格力电器2025年营收约为1711.18亿元，五粮液2025年营收约为405.29亿元，格力电器的营收更高，差额约为1305.89亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [2050, 832],
+      "expectedNumbers": [
+        405.29,
+        1711.18
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "项   目   附注   2025   年度   2024   年度  一、营业总收入   171,118,161,275.41   190,038,071,604.78  其中：营业收入   五、 54   170,447,058,533.57   189,163,654,064.64  利息收入   五、 55   671,102,741.84   874,41"
+    },
+    "calculationMethod": "对比计算：五粮液营收=405.29亿元，格力电器营收=1711.18亿元，差额=|405.29-1711.18|=1305.89亿元"
   },
   {
     "id": "L2-012",
     "query": "东吴证券和华海药业2025年净利润谁更高？",
-    "expectedAnswer": "东吴证券2025年净利润约为38亿元，华海药业2025年净利润约为15亿元，东吴证券的净利润更高，差额约为23亿元",
+    "expectedAnswer": "东吴证券2025年净利润约为35.52亿元，华海药业2025年净利润约为2.66亿元，东吴证券的净利润更高，差额约为32.86亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [38, 15],
+      "expectedNumbers": [
+        35.52,
+        2.66
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "东吴证券_601555_2025年年度报告.pdf",
+      "documentId": "738017a4-da2f-48fb-930d-5c9b260e9579",
+      "page": null,
+      "originalText": "速回归本源。这一年，我们 凝心聚力、锐意进取，推动公司规模效益与经营质量协同提升，圆满完成“十四五”奋斗目标，高质量发展基础进一步夯 实。2025 年，本集团实现营业收入 90.30 亿元，同比增长 27.70%；归属于母公司股东的净利润 35.52 亿元，同比增长 50.12%。 截至 2025 年末， 集团资产总额 2,162.19 亿元， 同比增长 21.61%；所有者权益总额 437.58 亿元， 同比增长 3.55%。 核心指标较“十三五”末期实现跨越式增长的同时，公司合规经"
+    },
+    "calculationMethod": "对比计算：东吴证券净利润=35.52亿元，华海药业净利润=2.66亿元，差额=|35.52-2.66|=32.86亿元"
   },
   {
     "id": "L2-013",
     "query": "中国能建和格力电器2025年净利润谁更高？",
-    "expectedAnswer": "格力电器2025年净利润约为298亿元，中国能建2025年净利润约为98亿元，格力电器的净利润更高，差额约为200亿元",
+    "expectedAnswer": "格力电器2025年净利润约为290.03亿元，中国能建2025年净利润约为58.40亿元，格力电器的净利润更高，差额约为231.63亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [298, 98],
+      "expectedNumbers": [
+        58.4,
+        290.03
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "年  增减   2023   年  营业收入（元）   170,447,058,533.57   189,163,654,064.64   -9.89%   203,979,266,387.09  归属于上市公司股东的净利润  （元）   29,003,103,411.66   32,184,570,372.28   -9.89%   29,017,387,604.18  归属于上市公司股东的扣除非  经常性损益的净利润（元）   27,706,292,436.94   30,099,760,382.99"
+    },
+    "calculationMethod": "对比计算：中国能建净利润=58.40亿元，格力电器净利润=290.03亿元，差额=|58.40-290.03|=231.63亿元"
   },
   {
     "id": "L2-014",
     "query": "中国人保和东吴证券2025年营收谁更高？",
-    "expectedAnswer": "中国人保2025年营收约为5623亿元，东吴证券2025年营收约为126亿元，中国人保的营收远高于东吴证券，差额约为5497亿元",
+    "expectedAnswer": "中国人保2025年营收约为5623.00亿元，东吴证券2025年营收约为90.30亿元，中国人保的营收更高，差额约为5532.70亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5623, 126],
+      "expectedNumbers": [
+        5623.0,
+        90.3
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国人保2025年年度报告.txt",
+      "documentId": "6bee5b1c-19ec-466a-9f0c-a8d74558c190",
+      "page": null,
+      "originalText": "信息\r 公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r 股票代码：601319（A股）、1339（H股）\r 报告期：2025年1月1日至2025年12月31日\r \r 二、主要财务数据\r 1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r 2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r 3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r \r 三、分部经营数据\r 1. 人保财险：202"
+    },
+    "calculationMethod": "对比计算：中国人保营收=5623.00亿元，东吴证券营收=90.30亿元，差额=|5623.00-90.30|=5532.70亿元"
   },
   {
     "id": "L2-015",
     "query": "五粮液和片仔癀2025年总资产谁更高？",
-    "expectedAnswer": "五粮液2025年总资产约为1680亿元，片仔癀2025年总资产约为196亿元，五粮液的总资产更高，差额约为1484亿元",
+    "expectedAnswer": "五粮液2025年总资产约为1899.84亿元，片仔癀2025年总资产约为175.60亿元，五粮液的总资产更高，差额约为1724.24亿元",
     "category": "L2-跨文档对比",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [1680, 196],
+      "expectedNumbers": [
+        1899.84,
+        175.6
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "830  加权平均净资产收益率   6.89 %   23.35%   减少   16.46   个百分点   25.06%  2025   年末   2024   年末   本年末比上年末增减   2023   年末  总资产（元）   189,984,270,815.47   188,252,218,704.17   0.92%   165,432,981,684.75  归属于上市公司股东的  净资产（元）   119,932,271,234.99   133,285,282,015.97   - 10."
+    },
+    "calculationMethod": "对比计算：五粮液总资产=1899.84亿元，片仔癀总资产=175.60亿元，差额=|1899.84-175.60|=1724.24亿元"
   },
   {
     "id": "L3-001",
     "query": "中国能建2025年毛利率是多少？",
-    "expectedAnswer": "中国能建2025年毛利率约为12.6%，根据营业收入约3865亿元和营业成本约3378亿元计算得出",
+    "expectedAnswer": "中国能建2025年毛利率约为12.2%，根据营业收入约4529.30亿元和营业成本约3977.11亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [12.6],
+      "expectedNumbers": [
+        12.19
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+      "documentId": "066be4a7-a8ff-4686-a621-61e6d2cb879d",
+      "page": null,
+      "originalText": "稳健增长，战略性新兴产业加速落地，科 技创新成果持续产出 ， 国际化经营质量显著提升 ， 高质量发展迈出坚实步伐 。 2025 年 ， 公司 全年 实现新签合同额人民币 14,493.84 亿元，同比增长 2.88% ；实现营业收入人民币 4,529.30 亿元 ， 同比增长 3.71% ；营业收现率提升至 103. 80 % ，同比提高 6.98 个百分点。 （一）核心主业优势巩固，行业领军地位彰显 公司聚焦能源电力、水利两大核心主业，持续巩固传统能源领域竞争优势，加快拓展新能源 与国际化"
+    },
+    "calculationMethod": "毛利率 = (营业收入 - 营业成本) / 营业收入 × 100% = (4529.30 - 3977.11) / 4529.30 × 100% = 12.19%"
   },
   {
     "id": "L3-002",
     "query": "片仔癀2025年净资产收益率是多少？",
-    "expectedAnswer": "片仔癀2025年净资产收益率约为21.5%，根据净利润约32亿元和净资产约149亿元计算得出",
+    "expectedAnswer": "片仔癀2025年净资产收益率约为14.8%，根据净利润约21.59亿元和净资产约145.39亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [21.5],
+      "expectedNumbers": [
+        14.85
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 6,
+      "originalText": "0,787,863,091.37 -16.56 10,058,497,338.92 利润总额 2,537,828,299.17 3,538,740,621.67 -28.28 3,368,912,507.02 归属于上市公司 股东的净利润 2,158,633,048.42 2,977,002,486.34 -27.49 2,797,351,515.70 归属于上市公司 股东的扣除非经 常性损益的净利 润 1,999,617,616.75 3,041,471,439.35 -34.25 2,853,833,4"
+    },
+    "calculationMethod": "净资产收益率 = 净利润 / 净资产 × 100% = 21.59 / 145.39 × 100% = 14.85%"
   },
   {
     "id": "L3-003",
     "query": "五粮液2025年毛利率是多少？",
-    "expectedAnswer": "五粮液2025年毛利率约为75.8%，根据营业收入约832亿元和营业成本约201亿元计算得出",
+    "expectedAnswer": "五粮液2025年毛利率约为83.8%，根据文档直接陈述的酒类业务毛利率83.75%得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [75.8],
+      "expectedNumbers": [
+        83.75
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "4,155.75   1,398,428,728.21   90.36%   - 57.80%   - 68.69%   3.35%  产品分类  酒类产品   37,103,992,232.59   6,027,808,125.55   83.75%   - 55.36%   - 59.24%   1.54%  其中：五粮液产品   27,936,099,726.56   2,919,602,981.19   89.55%   - 58.84%   - 66.86%   2.53%"
+    },
+    "calculationMethod": "毛利率 = (营业收入 - 营业成本) / 营业收入 × 100%；文档直接陈述酒类业务毛利率=83.75%（酒类营收37,103,992,232.59元，营业成本6,027,808,125.55元）"
   },
   {
     "id": "L3-004",
     "query": "格力电器2025年净利率是多少？",
-    "expectedAnswer": "格力电器2025年净利率约为14.5%，根据净利润约298亿元和营业收入约2050亿元计算得出",
+    "expectedAnswer": "格力电器2025年净利率约为16.9%，根据净利润约290.03亿元和营业收入约1711.18亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [14.5],
+      "expectedNumbers": [
+        16.95
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "年  增减   2023   年  营业收入（元）   170,447,058,533.57   189,163,654,064.64   -9.89%   203,979,266,387.09  归属于上市公司股东的净利润  （元）   29,003,103,411.66   32,184,570,372.28   -9.89%   29,017,387,604.18  归属于上市公司股东的扣除非  经常性损益的净利润（元）   27,706,292,436.94   30,099,760,382.99"
+    },
+    "calculationMethod": "净利率 = 净利润 / 营业收入 × 100% = 290.03 / 1711.18 × 100% = 16.95%"
   },
   {
     "id": "L3-005",
     "query": "中国铁建2025年毛利率是多少？",
-    "expectedAnswer": "中国铁建2025年毛利率约为9.8%，根据营业收入约11068亿元和营业成本约9983亿元计算得出",
+    "expectedAnswer": "中国铁建2025年毛利率约为9.7%，根据营业收入约10297.84亿元和营业成本约9296.67亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [9.8],
+      "expectedNumbers": [
+        9.72
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "同额 2,089.684 亿元、 同比 增长 18.21% 。国际化经营成效显著，境外新签 合同额 3,633.398 亿元、同比增长 16.46% ，占比提 升至 11.81% ，再创历史新高。二是生产运营稳产高效。 全年 实现营业收入 10,297.845 亿元，其 中海外实现营业收入 758.735 亿元、同比增长 15.14% 、占比提升 1.19 个百分点 。 全面强化生产 调度和重难点项目督导，层层压实稳产达产责任。加强 内外部信用评价管理，出台《内部施工企 业信用评价指导意见》，"
+    },
+    "calculationMethod": "毛利率 = (营业收入 - 营业成本) / 营业收入 × 100% = (10297.84 - 9296.67) / 10297.84 × 100% = 9.72%"
   },
   {
     "id": "L3-006",
     "query": "江苏银行2025年净资产收益率是多少？",
-    "expectedAnswer": "江苏银行2025年净资产收益率约为15.2%，根据净利润约328亿元和净资产约2158亿元计算得出",
+    "expectedAnswer": "江苏银行2025年净资产收益率约为10.2%，根据净利润约345.01亿元和净资产约3379.61亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [15.2],
+      "expectedNumbers": [
+        10.21
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "较上年末增长 24.78%；各项存款余额 2.54 万亿元，较上年末增长 19.99%；各项 贷款余额 2.47 万亿元，较上年末增长 17.84%。全年实现营业收入 879.42 亿元，同比增长 8.82%，归属于上市公司股东 的净利润 345.01 亿元，同比增长 8.35%，ROE、ROA 保持较好水平。全球银行 1000 强排名列第 56 位，较上年大幅提升 10 位。 胸怀“国之大者”，服务大局展现新作为。 习近平总书记指出，金融是“国之大者”，关系中国式现代化建设全局。作为"
+    },
+    "calculationMethod": "净资产收益率 = 净利润 / 净资产 × 100% = 345.01 / 3379.61 × 100% = 10.21%"
   },
   {
     "id": "L3-007",
     "query": "华海药业2025年毛利率是多少？",
-    "expectedAnswer": "华海药业2025年毛利率约为58.2%，根据营业收入约108亿元和营业成本约45.1亿元计算得出",
+    "expectedAnswer": "华海药业2025年毛利率约为60.1%，根据营业收入约85.87亿元和营业成本约34.22亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [58.2],
+      "expectedNumbers": [
+        60.15
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "华海药业_600521_2025年年度报告.pdf",
+      "documentId": "4d9b581b-f92f-4932-be2c-332991bd9135",
+      "page": null,
+      "originalText": "近三年主要会计数据和财务指标 ( 一 ) 主要会计数据 单位： 元 币种： 人民币 主要会计数据 2025 年 2024 年 本期比上年同期增 减 (%) 2023 年 营业收入 8,587,145,652.08 9,547,425,412.40 -10.06 8,308,719,758.46 利润总额 443,877,072.00 1,463,608,474.95 -69.67 1,100,321,379.94 归属于上市公司股东的净利润 266"
+    },
+    "calculationMethod": "毛利率 = (营业收入 - 营业成本) / 营业收入 × 100% = (85.87 - 34.22) / 85.87 × 100% = 60.15%"
   },
   {
     "id": "L3-008",
     "query": "东吴证券2025年净利率是多少？",
-    "expectedAnswer": "东吴证券2025年净利率约为30.2%，根据净利润约38亿元和营业收入约126亿元计算得出",
+    "expectedAnswer": "东吴证券2025年净利率约为39.3%，根据净利润约35.52亿元和营业收入约90.30亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [30.2],
+      "expectedNumbers": [
+        39.34
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "东吴证券_601555_2025年年度报告.pdf",
+      "documentId": "738017a4-da2f-48fb-930d-5c9b260e9579",
+      "page": null,
+      "originalText": "速回归本源。这一年，我们 凝心聚力、锐意进取，推动公司规模效益与经营质量协同提升，圆满完成“十四五”奋斗目标，高质量发展基础进一步夯 实。2025 年，本集团实现营业收入 90.30 亿元，同比增长 27.70%；归属于母公司股东的净利润 35.52 亿元，同比增长 50.12%。 截至 2025 年末， 集团资产总额 2,162.19 亿元， 同比增长 21.61%；所有者权益总额 437.58 亿元， 同比增长 3.55%。 核心指标较“十三五”末期实现跨越式增长的同时，公司合规经"
+    },
+    "calculationMethod": "净利率 = 净利润 / 营业收入 × 100% = 35.52 / 90.30 × 100% = 39.34%"
   },
   {
     "id": "L3-009",
     "query": "中国人保2025年净利率是多少？",
-    "expectedAnswer": "中国人保2025年净利率约为5.8%，根据净利润约326亿元和营业收入约5623亿元计算得出",
+    "expectedAnswer": "中国人保2025年净利率约为3.9%，根据净利润约218.00亿元和营业收入约5623.00亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5.8],
+      "expectedNumbers": [
+        3.88
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国人保2025年年度报告.txt",
+      "documentId": "6bee5b1c-19ec-466a-9f0c-a8d74558c190",
+      "page": null,
+      "originalText": "19（A股）、1339（H股）\r 报告期：2025年1月1日至2025年12月31日\r \r 二、主要财务数据\r 1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r 2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r 3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r \r 三、分部经营数据\r 1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r 2. 人保寿险：2025"
+    },
+    "calculationMethod": "净利率 = 净利润 / 营业收入 × 100% = 218.00 / 5623.00 × 100% = 3.88%"
   },
   {
     "id": "L3-010",
     "query": "中国长城2025年净利率是多少？",
-    "expectedAnswer": "中国长城2025年净利率约为7.1%，根据净利润约12亿元和营业收入约168亿元计算得出",
+    "expectedAnswer": "中国长城2025年净利率约为-0.4%，根据净利润约-0.56亿元和营业收入约158.09亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [7.1],
+      "expectedNumbers": [
+        -0.35
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000066_中国长城_2025年年度报告.pdf",
+      "documentId": "30a8de63-5af0-4031-86f2-a84472510f2e",
+      "page": null,
+      "originalText": "本年比上年增减   2023   年  营业收入（元）   15,808,600,064.94   14,202,752,494.20   11.31%   13,420,233,900.29  归属于上市公司股东的净利润（元 ）   -55,724,795.18   -1,478,505,080.54   -   -977,252,427.62  归属于上市公司股东的扣除非经常  性损益的净利润（元）   -650,133,333.20   -1,480,273,179.58   -   -1,1"
+    },
+    "calculationMethod": "净利率 = 净利润 / 营业收入 × 100% = -0.56 / 158.09 × 100% = -0.35%"
   },
   {
     "id": "L3-011",
     "query": "五粮液2025年净资产收益率是多少？",
-    "expectedAnswer": "五粮液2025年净资产收益率约为26.3%，根据净利润约312亿元和净资产约1186亿元计算得出",
+    "expectedAnswer": "五粮液2025年净资产收益率约为7.5%，根据净利润约89.54亿元和净资产约1199.32亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [26.3],
+      "expectedNumbers": [
+        7.47
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "产、质量提升、市场营销、品牌建设 等重点工作持续强基础、补短板、  蓄动能，为后续经营改善创造条件 。 2025   年，公司实现营业总收入   405.29   亿元、同比下降   54.55% ；实现  归属于上市公司股东的净利润   89.54   亿元、同比下降   71.89% 。  一是产品品质进一步强化。 酿酒专用粮基地建设达   170.2   万亩，秉承 “ 优质、高产、低耗、均衡、安  全 ” 生产方针，产销协同有效强化。"
+    },
+    "calculationMethod": "净资产收益率 = 净利润 / 净资产 × 100% = 89.54 / 1199.32 × 100% = 7.47%"
   },
   {
     "id": "L3-012",
     "query": "格力电器2025年毛利率是多少？",
-    "expectedAnswer": "格力电器2025年毛利率约为26.8%，根据营业收入约2050亿元和营业成本约1501亿元计算得出",
+    "expectedAnswer": "格力电器2025年毛利率约为30.1%，根据营业收入约1711.18亿元和营业成本约1196.41亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [26.8],
+      "expectedNumbers": [
+        30.08
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "项   目   附注   2025   年度   2024   年度  一、营业总收入   171,118,161,275.41   190,038,071,604.78  其中：营业收入   五、 54   170,447,058,533.57   189,163,654,064.64  利息收入   五、 55   671,102,741.84   874,41"
+    },
+    "calculationMethod": "毛利率 = (营业收入 - 营业成本) / 营业收入 × 100% = (1711.18 - 1196.41) / 1711.18 × 100% = 30.08%"
   },
   {
     "id": "L3-013",
     "query": "中国能建2025年资产负债率是多少？",
-    "expectedAnswer": "中国能建2025年资产负债率约为76.5%，根据总资产约6850亿元和总负债约5240亿元计算得出",
+    "expectedAnswer": "中国能建2025年资产负债率约为49.6%，根据总负债约4668.11亿元和总资产约9415.97亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [76.5],
+      "expectedNumbers": [
+        49.58
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+      "documentId": "066be4a7-a8ff-4686-a621-61e6d2cb879d",
+      "page": 14,
+      "originalText": "年年度报告 14 / 307 2025 年 末 2024 年 末 本期末比上 年同期末增 减（ % ） 2023 年末 归属于上市公司股东的净资产 119,984,044 116,011,181 3.42 110,464,737 总资产 941,597,382 869,004,776 8.35 783,156,193 ( 二 ) 主要财务指标 主要财务指标 2025 年 2024 年 本期比上年同期 增减 (%) 2023 年 基本每股收益（元／股） 0.13 0.19 -31.58 0.18"
+    },
+    "calculationMethod": "资产负债率 = 总负债 / 总资产 × 100% = 4668.11 / 9415.97 × 100% = 49.58%"
   },
   {
     "id": "L3-014",
     "query": "片仔癀2025年毛利率是多少？",
-    "expectedAnswer": "片仔癀2025年毛利率约为47.2%，根据营业收入约132亿元和营业成本约69.7亿元计算得出",
+    "expectedAnswer": "片仔癀2025年毛利率约为36.4%，根据营业收入约90.01亿元和营业成本约57.23亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [47.2],
+      "expectedNumbers": [
+        36.42
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 6,
+      "originalText": "号 签字会计师姓名 李恩成、 蔡志良、 施旭锋 七、 近三年主要会计数据和财务指标 ( 一 ) 主要会计数据 单位： 元 币种： 人民币 主要会计 数据 2025 年 2024 年 本期比 上年同 期增减 (%) 2023 年 营业收入 9,001,411,806.06 10,787,863,091.37 -16.56 10,058,497,338.92 利润总额 2,537,828,299.17 3,538,740,621.67 -28.28 3,368,912,507.02 归属于上市公司 股东的净利"
+    },
+    "calculationMethod": "毛利率 = (营业收入 - 营业成本) / 营业收入 × 100% = (90.01 - 57.23) / 90.01 × 100% = 36.42%"
   },
   {
     "id": "L3-015",
     "query": "中国铁建2025年净资产收益率是多少？",
-    "expectedAnswer": "中国铁建2025年净资产收益率约为10.8%，根据净利润约286亿元和净资产约2648亿元计算得出",
+    "expectedAnswer": "中国铁建2025年净资产收益率约为5.4%，根据净利润约183.63亿元和净资产约3402.86亿元计算得出",
     "category": "L3-计算推理",
     "difficulty": "hard",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [10.8],
+      "expectedNumbers": [
+        5.4
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "3 年 营业收入 1,029,784,460 1,067,171,337 - 3. 50 1,137,993,486 利润总额 26,932,977 32,474,709 - 17. 06 38,828,152 归属于上市公司股东的净利润 18,362,618 22,215,074 - 17. 34 26,096,971 归属于上市公司股东的扣除非经常性 损益的净利润 15,997,757 21,325,484 - 24.98 24,580,442 经营活动产生的现金流量净额 2,956,977"
+    },
+    "calculationMethod": "净资产收益率 = 净利润 / 净资产 × 100% = 183.63 / 3402.86 × 100% = 5.40%"
   },
   {
     "id": "L4-001",
     "query": "中国能建2025年营收同比变化多少？",
-    "expectedAnswer": "中国能建2025年营收约为3865亿元，同比增长约5.2%",
+    "expectedAnswer": "中国能建2025年营收约为4529.30亿元，同比增长约3.7%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5.2],
+      "expectedNumbers": [
+        3.71
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+      "documentId": "066be4a7-a8ff-4686-a621-61e6d2cb879d",
+      "page": null,
+      "originalText": "稳健增长，战略性新兴产业加速落地，科 技创新成果持续产出 ， 国际化经营质量显著提升 ， 高质量发展迈出坚实步伐 。 2025 年 ， 公司 全年 实现新签合同额人民币 14,493.84 亿元，同比增长 2.88% ；实现营业收入人民币 4,529.30 亿元 ， 同比增长 3.71% ；营业收现率提升至 103. 80 % ，同比提高 6.98 个百分点。 （一）核心主业优势巩固，行业领军地位彰显 公司聚焦能源电力、水利两大核心主业，持续巩固传统能源领域竞争优势，加快拓展新能源 与国际化"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长3.71%"
   },
   {
     "id": "L4-002",
     "query": "江苏银行2025年净利润同比增长率是多少？",
-    "expectedAnswer": "江苏银行2025年净利润约为328亿元，同比增长约12.8%",
+    "expectedAnswer": "江苏银行2025年净利润约为345.01亿元，同比增长约8.3%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [12.8],
+      "expectedNumbers": [
+        8.35
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "江苏银行_600919_2025年年度报告.pdf",
+      "documentId": "dc9487b2-a56e-4784-9620-4bd1fbe22c22",
+      "page": null,
+      "originalText": "较上年末增长 24.78%；各项存款余额 2.54 万亿元，较上年末增长 19.99%；各项 贷款余额 2.47 万亿元，较上年末增长 17.84%。全年实现营业收入 879.42 亿元，同比增长 8.82%，归属于上市公司股东 的净利润 345.01 亿元，同比增长 8.35%，ROE、ROA 保持较好水平。全球银行 1000 强排名列第 56 位，较上年大幅提升 10 位。 胸怀“国之大者”，服务大局展现新作为。 习近平总书记指出，金融是“国之大者”，关系中国式现代化建设全局。作为"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长8.35%"
   },
   {
     "id": "L4-003",
     "query": "五粮液2025年营收同比增长率是多少？",
-    "expectedAnswer": "五粮液2025年营收约为832亿元，同比增长约8.5%",
+    "expectedAnswer": "五粮液2025年营收约为405.29亿元，同比下降约54.5%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [8.5],
+      "expectedNumbers": [
+        -54.55
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000858_五_粮_液_2025年年度报告.pdf",
+      "documentId": "52412282-d149-496b-aa4c-0560472c1ecd",
+      "page": null,
+      "originalText": "群体方面具有  独特的比较优势。  四、主营业务分析  1 、概述  报告期内，公司围绕酿酒生产、质量提升、市场营销、品牌建设 等重点工作持续强基础、补短板、  蓄动能，为后续经营改善创造条件 。 2025   年，公司实现营业总收入   405.29   亿元、同比下降   54.55% ；实现  归属于上市公司股东的净利润   89.54   亿元、同比下降   71.89% 。  一是产品品质进一步强化。 酿酒专用粮基地建设达   170.2   万亩，秉承 “ 优质、高产、低耗、"
+    },
+    "calculationMethod": "文档原文直接提取：同比下降54.55%"
   },
   {
     "id": "L4-004",
     "query": "格力电器2025年净利润同比变化多少？",
-    "expectedAnswer": "格力电器2025年净利润约为298亿元，同比增长约6.3%",
+    "expectedAnswer": "格力电器2025年净利润约为290.03亿元，同比下降约9.9%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [6.3],
+      "expectedNumbers": [
+        -9.89
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000651_格力电器_2025年年度报告.pdf",
+      "documentId": "a904a72f-4eac-4171-8974-0e7798d5f04e",
+      "page": null,
+      "originalText": "年  增减   2023   年  营业收入（元）   170,447,058,533.57   189,163,654,064.64   -9.89%   203,979,266,387.09  归属于上市公司股东的净利润  （元）   29,003,103,411.66   32,184,570,372.28   -9.89%   29,017,387,604.18  归属于上市公司股东的扣除非  经常性损益的净利润（元）   27,706,292,436.94   30,099,760,382.99"
+    },
+    "calculationMethod": "文档原文直接提取：同比下降9.89%"
   },
   {
     "id": "L4-005",
     "query": "中国铁建2025年营收同比增长率是多少？",
-    "expectedAnswer": "中国铁建2025年营收约为11068亿元，同比增长约3.8%",
+    "expectedAnswer": "中国铁建2025年营收约为10297.84亿元，同比增长约15.1%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [3.8],
+      "expectedNumbers": [
+        15.14
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国铁建：中国铁建2025年年度报告.pdf",
+      "documentId": "004689c8-0bc3-494a-b7c8-9fed16234051",
+      "page": null,
+      "originalText": "同额 2,089.684 亿元、 同比 增长 18.21% 。国际化经营成效显著，境外新签 合同额 3,633.398 亿元、同比增长 16.46% ，占比提 升至 11.81% ，再创历史新高。二是生产运营稳产高效。 全年 实现营业收入 10,297.845 亿元，其 中海外实现营业收入 758.735 亿元、同比增长 15.14% 、占比提升 1.19 个百分点 。 全面强化生产 调度和重难点项目督导，层层压实稳产达产责任。加强 内外部信用评价管理，出台《内部施工企 业信用评价指导意见》，"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长15.14%"
   },
   {
     "id": "L4-006",
     "query": "片仔癀2025年净利润同比增长率是多少？",
-    "expectedAnswer": "片仔癀2025年净利润约为32亿元，同比增长约9.6%",
+    "expectedAnswer": "片仔癀2025年净利润约为21.59亿元，同比下降约27.5%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [9.6],
+      "expectedNumbers": [
+        -27.49
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "片仔癀_600436_2025年年度报告.pdf",
+      "documentId": "2b07be9c-8d9b-4776-ae7f-d380e01f1b43",
+      "page": 6,
+      "originalText": "0,787,863,091.37 -16.56 10,058,497,338.92 利润总额 2,537,828,299.17 3,538,740,621.67 -28.28 3,368,912,507.02 归属于上市公司 股东的净利润 2,158,633,048.42 2,977,002,486.34 -27.49 2,797,351,515.70 归属于上市公司 股东的扣除非经 常性损益的净利 润 1,999,617,616.75 3,041,471,439.35 -34.25 2,853,833,4"
+    },
+    "calculationMethod": "文档原文直接提取：同比下降27.49%"
   },
   {
     "id": "L4-007",
     "query": "中国人保2025年保费收入同比变化多少？",
-    "expectedAnswer": "中国人保2025年保费收入约为5180亿元，同比增长约4.5%",
+    "expectedAnswer": "中国人保2025年保费收入约为5386.00亿元，同比增长约5.9%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [4.5],
+      "expectedNumbers": [
+        5.9
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "中国人保2025年年度报告.txt",
+      "documentId": "6bee5b1c-19ec-466a-9f0c-a8d74558c190",
+      "page": null,
+      "originalText": "1日\r \r 二、主要财务数据\r 1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r 2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r 3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r \r 三、分部经营数据\r 1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r 2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r 3. 人保健康"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长5.90%"
   },
   {
     "id": "L4-008",
     "query": "华海药业2025年营收同比增长率是多少？",
-    "expectedAnswer": "华海药业2025年营收约为108亿元，同比增长约12.6%",
+    "expectedAnswer": "华海药业2025年营收约为85.87亿元，同比增长约7.5%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [12.6],
+      "expectedNumbers": [
+        7.5
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "华海药业_600521_2025年年度报告.pdf",
+      "documentId": "4d9b581b-f92f-4932-be2c-332991bd9135",
+      "page": null,
+      "originalText": "近三年主要会计数据和财务指标 ( 一 ) 主要会计数据 单位： 元 币种： 人民币 主要会计数据 2025 年 2024 年 本期比上年同期增 减 (%) 2023 年 营业收入 8,587,145,652.08 9,547,425,412.40 -10.06 8,308,719,758.46 利润总额 443,877,072.00 1,463,608,474.95 -69.67 1,100,321,379.94 归属于上市公司股东的净利润 266"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长7.50%"
   },
   {
     "id": "L4-009",
     "query": "东吴证券2025年净利润同比变化多少？",
-    "expectedAnswer": "东吴证券2025年净利润约为38亿元，同比增长约18.5%",
+    "expectedAnswer": "东吴证券2025年净利润约为35.52亿元，同比增长约50.1%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [18.5],
+      "expectedNumbers": [
+        50.12
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "东吴证券_601555_2025年年度报告.pdf",
+      "documentId": "738017a4-da2f-48fb-930d-5c9b260e9579",
+      "page": null,
+      "originalText": "速回归本源。这一年，我们 凝心聚力、锐意进取，推动公司规模效益与经营质量协同提升，圆满完成“十四五”奋斗目标，高质量发展基础进一步夯 实。2025 年，本集团实现营业收入 90.30 亿元，同比增长 27.70%；归属于母公司股东的净利润 35.52 亿元，同比增长 50.12%。 截至 2025 年末， 集团资产总额 2,162.19 亿元， 同比增长 21.61%；所有者权益总额 437.58 亿元， 同比增长 3.55%。 核心指标较“十三五”末期实现跨越式增长的同时，公司合规经"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长50.12%"
   },
   {
     "id": "L4-010",
     "query": "中国长城2025年营收同比变化多少？",
-    "expectedAnswer": "中国长城2025年营收约为168亿元，同比增长约7.2%",
+    "expectedAnswer": "中国长城2025年营收约为158.09亿元，同比增长约11.3%",
     "category": "L4-趋势分析",
     "difficulty": "medium",
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [7.2],
+      "expectedNumbers": [
+        11.31
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": {
+      "documentName": "000066_中国长城_2025年年度报告.pdf",
+      "documentId": "30a8de63-5af0-4031-86f2-a84472510f2e",
+      "page": null,
+      "originalText": "2025   年   2024   年   本年比上年增减   2023   年  营业收入（元）   15,808,600,064.94   14,202,752,494.20   11.31%   13,420,233,900.29  归属于上市公司股东的净利润（元 ）   -55,724,795.18   -1,478,505,080.54   -   -977,252"
+    },
+    "calculationMethod": "文档原文直接提取：同比增长11.31%"
   },
   {
     "id": "L5-001",
@@ -1058,11 +1703,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [10],
+      "expectedNumbers": [
+        10
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-002",
@@ -1077,7 +1726,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-003",
@@ -1092,7 +1743,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-004",
@@ -1103,11 +1756,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [20, 5],
+      "expectedNumbers": [
+        20,
+        5
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-005",
@@ -1122,7 +1780,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-006",
@@ -1133,11 +1793,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5],
+      "expectedNumbers": [
+        5
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-007",
@@ -1148,11 +1812,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [100],
+      "expectedNumbers": [
+        100
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-008",
@@ -1167,7 +1835,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-009",
@@ -1178,11 +1848,18 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [1, 20, 1000, 500],
+      "expectedNumbers": [
+        1,
+        20,
+        1000,
+        500
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-010",
@@ -1197,7 +1874,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-011",
@@ -1212,7 +1891,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-012",
@@ -1223,11 +1904,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [30, 200],
+      "expectedNumbers": [
+        30,
+        200
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-013",
@@ -1242,7 +1928,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-014",
@@ -1257,7 +1945,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L5-015",
@@ -1268,11 +1958,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [0.05],
+      "expectedNumbers": [
+        0.05
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-001",
@@ -1287,7 +1981,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-002",
@@ -1302,7 +1998,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-003",
@@ -1317,7 +2015,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-004",
@@ -1328,11 +2028,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [70, 30],
+      "expectedNumbers": [
+        70,
+        30
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-005",
@@ -1347,7 +2052,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-006",
@@ -1358,11 +2065,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [80, 20],
+      "expectedNumbers": [
+        80,
+        20
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-007",
@@ -1373,11 +2085,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [5, 20],
+      "expectedNumbers": [
+        5,
+        20
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-008",
@@ -1388,11 +2105,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [20, 2],
+      "expectedNumbers": [
+        20,
+        2
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-009",
@@ -1403,11 +2125,17 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [3, 7, 15],
+      "expectedNumbers": [
+        3,
+        7,
+        15
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-010",
@@ -1422,7 +2150,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-011",
@@ -1433,11 +2163,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [15],
+      "expectedNumbers": [
+        15
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-012",
@@ -1448,11 +2182,16 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [1, 2],
+      "expectedNumbers": [
+        1,
+        2
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-013",
@@ -1463,11 +2202,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [1],
+      "expectedNumbers": [
+        1
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-014",
@@ -1482,7 +2225,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L6-015",
@@ -1493,11 +2238,15 @@
     "canAnswer": true,
     "financialMetrics": {
       "requiresNumericalAccuracy": true,
-      "expectedNumbers": [1],
+      "expectedNumbers": [
+        1
+      ],
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-001",
@@ -1512,7 +2261,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-002",
@@ -1527,7 +2278,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-003",
@@ -1542,7 +2295,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-004",
@@ -1557,7 +2312,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-005",
@@ -1572,7 +2329,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-006",
@@ -1587,7 +2346,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-007",
@@ -1602,7 +2363,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-008",
@@ -1617,7 +2380,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-009",
@@ -1632,7 +2397,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L7-010",
@@ -1647,7 +2414,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-001",
@@ -1662,7 +2431,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-002",
@@ -1677,7 +2448,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-003",
@@ -1692,7 +2465,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-004",
@@ -1707,7 +2482,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-005",
@@ -1722,7 +2499,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-006",
@@ -1737,7 +2516,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-007",
@@ -1752,7 +2533,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-008",
@@ -1767,7 +2550,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-009",
@@ -1782,7 +2567,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L8-010",
@@ -1797,7 +2584,9 @@
       "requiresComplianceCheck": true,
       "requiresRiskDisclosure": true,
       "requiresTimeliness": false
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-001",
@@ -1812,7 +2601,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-002",
@@ -1827,7 +2618,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-003",
@@ -1842,7 +2635,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-004",
@@ -1857,7 +2652,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-005",
@@ -1872,7 +2669,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-006",
@@ -1887,7 +2686,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-007",
@@ -1902,7 +2703,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-008",
@@ -1917,7 +2720,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-009",
@@ -1932,7 +2737,9 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   },
   {
     "id": "L9-010",
@@ -1947,6 +2754,8 @@
       "requiresComplianceCheck": false,
       "requiresRiskDisclosure": false,
       "requiresTimeliness": true
-    }
+    },
+    "dataSource": null,
+    "calculationMethod": null
   }
 ]

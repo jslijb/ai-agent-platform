@@ -155,6 +155,9 @@ async function embedDocument(docId: string): Promise<void> {
     chunkText: chunk.text,
     embedding: embResults[index],
     tokenCount: chunk.metadata.tokenCount,
+    // 保留分块器生成的完整 metadata（source/startPage/endPage/pageNum 等）
+    // 历史bug：之前只取了 tokenCount，导致前端无法展示来源文档和页码、PDF跳转失效
+    metadata: chunk.metadata,
   }));
 
   try {

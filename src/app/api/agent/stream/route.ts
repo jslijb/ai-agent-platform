@@ -75,6 +75,7 @@ export async function POST(request: Request) {
           iterations: result.iterations,
           conversationId: result.conversationId,
           citations: result.citations || [],
+          coarseResults: result.coarseResults || [],
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);

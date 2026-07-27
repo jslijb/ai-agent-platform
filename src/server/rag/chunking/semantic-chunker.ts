@@ -230,7 +230,10 @@ function splitByParagraphs(
       }
 
       if (trimmedPara.length > maxChunkSize) {
-        const subChunks = splitLongText(trimmedPara, maxChunkSize, overlapSize);
+        // 表格优先：Markdown 表格按行切分，保留表头，避免行中间截断
+        const subChunks = isMarkdownTableBlock(trimmedPara)
+          ? splitTableByRows(trimmedPara, maxChunkSize)
+          : splitLongText(trimmedPara, maxChunkSize, overlapSize);
         for (const sub of subChunks) {
           if (sub.length >= minChunkSize) {
             chunks.push({
@@ -333,6 +336,56 @@ function splitLongText(
   }
 
   return chunks.filter((c) => c.length > 0);
+}
+
+/**
+ * 判断行是否为 Markdown 表格行（以 | 开头和结尾）
+ */
+function isMarkdownTableRow(line: string): boolean {
+  return /^\s*\|.*\|\s*$/.test(line);
+}
+
+/**
+ * 判断段落是否为 Markdown 表格块
+ * 表格行占比 >= 70% 且至少 3 行表格行
+ */
+function isMarkdownTableBlock(text: string): boolean {
+  const lines = text.split("\n").filter((l) => l.trim().length > 0);
+  if (lines.length < 3) return false;
+  const tableRowCount = lines.filter((l) => isMarkdownTableRow(l)).length;
+  return tableRowCount >= 3 && tableRowCount / lines.length >= 0.7;
+}
+
+/**
+ * 按行切分超长 Markdown 表格，每个子表格保留表头和分隔行
+ * 确保表格不会在行中间被截断
+ */
+function splitTableByRows(tableText: string, maxChunkSize: number): string[] {
+  const lines = tableText.split("\n");
+  if (lines.length < 3) return [tableText];
+
+  // 提取表头和分隔行（前2行）
+  const headerLines = lines.slice(0, 2);
+  const dataLines = lines.slice(2);
+  const headerBlock = headerLines.join("\n") + "\n";
+
+  const chunks: string[] = [];
+  let currentChunk = headerBlock;
+
+  for (const line of dataLines) {
+    if (currentChunk.length + line.length + 1 > maxChunkSize && currentChunk.length > headerBlock.length) {
+      chunks.push(currentChunk.trimEnd());
+      currentChunk = headerBlock + line + "\n";
+    } else {
+      currentChunk += line + "\n";
+    }
+  }
+
+  if (currentChunk.trim().length > 0) {
+    chunks.push(currentChunk.trimEnd());
+  }
+
+  return chunks.length > 0 ? chunks : [tableText];
 }
 
 export async function chunkMarkdown(

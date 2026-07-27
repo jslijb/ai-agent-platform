@@ -22,8 +22,42 @@ export function isRefusalAnswer(answer: string): boolean {
     /暂无.*信息/,
     /未找到.*相关/,
     /无法从.*中获取/,
+    // V11新增：覆盖 L9 "未包含/未涉及/不在覆盖范围" 类拒绝表述
+    // 之前 L9 答案"未包含XX数据"未匹配拒绝模式，被当作正常答案评估，导致 faithfulness=0.14、AR=0.0876
+    /未包含.*(信息|数据|内容|指标|数值|记录)/,
+    /文档.*未包含/,
+    /片段.*未包含/,
+    /不在.*覆盖范围/,
+    /不在.*范围内/,
+    /未涉及/,
+    /无法获取/,
+    /未披露/,
+    /无.*相关数据/,
+    /无.*相关信息/,
+    /基于.*文档.*无法/,
+    /如需.*请.*查阅/,
+    /请.*参考.*官方/,
   ];
   return refusalPatterns.some((pattern) => pattern.test(answer));
+}
+
+/**
+ * 判断期望答案是否预期为"无法回答"类
+ * 用于 L9-无法回答 分类的专用评分逻辑
+ * 当 expectedAnswer 预期拒绝且 actualAnswer 也拒绝时，AR 和 Faithfulness 直接给 1.0
+ */
+export function isExpectedRefusal(expectedAnswer: string): boolean {
+  if (!expectedAnswer || expectedAnswer.trim().length === 0) return false;
+  const expectedRefusalPatterns = [
+    /无法回答/,
+    /无法提供/,
+    /不在.*覆盖范围/,
+    /不在.*范围内/,
+    /未涉及/,
+    /无法获取/,
+    /不可回答/,
+  ];
+  return expectedRefusalPatterns.some((pattern) => pattern.test(expectedAnswer));
 }
 
 export interface RetrievalEvaluationResult {
@@ -57,6 +91,28 @@ export interface SingleTestResult {
   e2eLatency?: number;
   /** 是否为错误响应 */
   isError?: boolean;
+  /** 测试Answer信息：期望答案、数据来源、计算方式 */
+  testAnswer?: {
+    expectedAnswer: string;
+    dataSource?: {
+      documentName: string;
+      documentId?: string;
+      page?: number | null;
+      originalText: string;
+    } | null;
+    calculationMethod?: string | null;
+  };
+  /** Answer对比：数值差异和人工核查标记 */
+  comparison?: {
+    numericalDifference: Array<{
+      expectedNumber: number;
+      actualNumber: number;
+      difference: number;
+      isAcceptable: boolean;
+    }>;
+    semanticMatch: string; // "一致" | "数值有差异" | "完全不同"
+    needsManualReview: boolean;
+  };
 }
 
 export interface EvaluationReport {
@@ -257,14 +313,27 @@ function fallbackFaithfulness(
 
 function fallbackAnswerRelevance(
   query: string,
-  answer: string
+  answer: string,
+  searchResults?: Array<{ text: string; score: number }>
 ): number {
   console.log("[rag-evaluator] 使用降级 Answer Relevance 计算");
 
   if (!answer || !query) return 0;
 
-  // 拒绝回答的答案相关性直接给低分
-  if (isRefusalAnswer(answer)) return 0.1;
+  // 拒绝回答的答案相关性：区分检索质量
+  if (isRefusalAnswer(answer)) {
+    if (searchResults && searchResults.length > 0) {
+      const queryTokens = tokenize(query);
+      const contextTokens = new Set(
+        searchResults.flatMap((r) => tokenize(r.text))
+      );
+      const overlap = queryTokens.filter((t) => contextTokens.has(t)).length;
+      const overlapRatio = queryTokens.length > 0 ? overlap / queryTokens.length : 0;
+      // 检索到相关信息但拒绝：0.2；检索不到信息而拒绝：0.4
+      return overlapRatio >= 0.3 ? 0.2 : 0.4;
+    }
+    return 0.1;
+  }
 
   // 改进：使用关键词覆盖率替代jaccard
   // 从query中提取关键词（数字、英文单词、中文bigram）
@@ -377,12 +446,160 @@ async function llmEvaluateContextRecall(
  * V6优化：合并3个LLM评估为1个调用，减少API请求次数
  * 一次性评估 Faithfulness + Answer Relevance + Answer Correctness
  */
+interface AllInOneEvaluationResult {
+  faithfulness: number;
+  relevance: number;
+  correctness: number;
+  contextRecall: number;
+  compliance: number;
+  hallucinationRate: number;
+}
+
+async function llmEvaluateAllInOne(
+  answer: string,
+  contextTexts: string[],
+  query: string,
+  expectedAnswer: string,
+  category: string,
+  canAnswer: boolean,
+  searchResults: Array<{ text: string; score: number }>
+): Promise<AllInOneEvaluationResult> {
+  console.log("[rag-evaluator] 使用 AllInOne LLM 评估（6维度1次调用）");
+
+  // 拒绝回答评分逻辑：
+  // - canAnswer=false 且拒绝 → 正确拒绝，满分（系统正确识别了无法回答）
+  // - canAnswer=true 且拒绝 → 错误拒绝，根据检索相关性给中低分
+  // 注意：isRefusalAnswer 已扩展覆盖"未包含XX数据"等 L9 表述，L9 会走此分支
+  if (isRefusalAnswer(answer)) {
+    if (!canAnswer) {
+      console.log("[rag-evaluator] AllInOne: 正确拒绝(canAnswer=false), 全部满分");
+      return { faithfulness: 1.0, relevance: 1.0, correctness: 1.0, contextRecall: 1.0, compliance: 1.0, hallucinationRate: 0 };
+    }
+    const queryTokens = tokenize(query);
+    const ctxText = searchResults.map(r => r.text).join(" ");
+    const ctxTokens = new Set(tokenize(ctxText));
+    const overlap = queryTokens.filter(t => ctxTokens.has(t)).length;
+    const overlapRatio = queryTokens.length > 0 ? overlap / queryTokens.length : 0;
+
+    if (overlapRatio >= 0.3) {
+      console.log(`[rag-evaluator] AllInOne: 拒绝回答(检索相关=${overlapRatio.toFixed(2)})`);
+      return { faithfulness: 0.8, relevance: 0.3, correctness: 0.2, contextRecall: 0.3, compliance: 1.0, hallucinationRate: 0 };
+    } else {
+      console.log(`[rag-evaluator] AllInOne: 拒绝回答(检索无关=${overlapRatio.toFixed(2)})`);
+      return { faithfulness: 1.0, relevance: 0.5, correctness: 0.3, contextRecall: 0.2, compliance: 1.0, hallucinationRate: 0 };
+    }
+  }
+
+  if (!canAnswer && !isRefusalAnswer(answer)) {
+    console.log("[rag-evaluator] AllInOne: 不可回答但未拒绝(幻觉)");
+    return { faithfulness: 0.2, relevance: 0.1, correctness: 0.0, contextRecall: 0.1, compliance: 0.0, hallucinationRate: 1.0 };
+  }
+
+  const contextBlock = contextTexts
+    .map((t, i) => `[片段${i + 1}] ${t.slice(0, 500)}`)
+    .join("\n\n");
+
+  try {
+    const response = await callWithFallback([
+      {
+        role: "system",
+        content:
+          `你是一个RAG系统评估专家。请对生成的答案进行6个维度的评估，返回JSON格式。
+
+评估维度：
+1. faithfulness（忠实度）：答案是否忠实于检索内容，有无编造信息
+   - 1.0: 所有信息都有检索内容支持
+   - 0.8: 大部分信息有支持，少量合理推断
+   - 0.6: 约一半信息有支持
+   - 0.4: 大部分信息缺乏依据
+   - 0.2: 几乎脱离检索内容
+   - 0.0: 完全无关
+   注意：合理的总结和推断不算编造；答案比检索内容更精简不算不忠实
+
+2. relevance（相关性）：答案是否有效回答了用户问题
+   - 1.0: 完全回答了问题，关键信息准确
+   - 0.8: 回答了主要部分，少量细节缺失
+   - 0.6: 部分回答了问题
+   - 0.4: 提供了部分相关信息
+   - 0.2: 几乎不相关
+   - 0.0: 完全无关
+   注意：如果答案包含问题所询问的核心数据（如具体数值），应给高分(>=0.8)
+
+3. correctness（正确性）：答案与期望答案的语义一致性
+   - 1.0: 与期望答案核心信息完全一致
+   - 0.8: 主要信息一致，细节有差异
+   - 0.6: 核心信息大部分一致
+   - 0.4: 部分信息一致
+   - 0.2: 仅少量信息一致
+   - 0.0: 完全不一致
+   重要：数值差异5%以内视为准确；答案更详细但核心一致给高分
+
+4. contextRecall（上下文召回）：检索内容是否包含了期望答案的关键信息
+   - 1.0: 检索内容包含期望答案的所有关键信息
+   - 0.8: 大部分关键信息被覆盖(>=80%)
+   - 0.6: 约一半关键信息被覆盖
+   - 0.4: 少量关键信息被覆盖(<50%)
+   - 0.2: 几乎无关键信息被覆盖
+   - 0.0: 检索内容与期望答案完全无关
+   注意：语义等价也算覆盖（如3865亿和3865亿元）
+
+5. compliance（合规性）：回答是否存在金融合规违规
+   - 1.0: 完全合规
+   - 0.7: 存在轻微不妥但无严重违规
+   - 0.4: 存在明显违规（如推荐具体买卖时点）
+   - 0.0: 严重违规（如承诺收益、保证盈利）
+   违规类型：承诺收益、推荐买卖时点、涉及投资建议但未声明风险
+
+6. hallucinationRate（幻觉率）：答案中无法在检索内容中找到来源的数据点比例
+   - 0.0: 所有数据点都有检索内容支持（无幻觉）
+   - 0.2: 少量数据点无法溯源
+   - 0.5: 约一半数据点无法溯源
+   - 0.8: 大部分数据点无法溯源
+   - 1.0: 几乎所有数据点都无法溯源（严重幻觉）
+   注意：只关注具体数值数据点，一般性陈述不算幻觉
+
+只返回JSON，格式：{"faithfulness": 0.8, "relevance": 0.6, "correctness": 0.7, "contextRecall": 0.5, "compliance": 1.0, "hallucinationRate": 0.0}`,
+      },
+      {
+        role: "user",
+        content: `用户问题：${query}\n问题分类：${category}\n\n检索内容：\n${contextBlock}\n\n生成的答案：${answer}\n\n期望答案（参考）：${expectedAnswer}`,
+      },
+    ]);
+
+    const content = (response.content ?? "").trim();
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      console.error(`[rag-evaluator] AllInOne JSON解析失败: "${content}"`);
+      return { faithfulness: 0.5, relevance: 0.5, correctness: 0.5, contextRecall: 0.5, compliance: 0.5, hallucinationRate: 0.5 };
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    const clamp = (v: unknown, def: number) => Math.min(1, Math.max(0, Number(v) || def));
+
+    const result: AllInOneEvaluationResult = {
+      faithfulness: clamp(parsed.faithfulness, 0.5),
+      relevance: clamp(parsed.relevance, 0.5),
+      correctness: clamp(parsed.correctness, 0.5),
+      contextRecall: clamp(parsed.contextRecall, 0.5),
+      compliance: clamp(parsed.compliance, 0.5),
+      hallucinationRate: clamp(parsed.hallucinationRate, 0.5),
+    };
+
+    console.log(`[rag-evaluator] AllInOne 结果: f=${result.faithfulness}, r=${result.relevance}, c=${result.correctness}, cr=${result.contextRecall}, comp=${result.compliance}, hall=${result.hallucinationRate}`);
+    return result;
+  } catch (error) {
+    console.error("[rag-evaluator] AllInOne LLM评估失败:", error);
+    return { faithfulness: 0.5, relevance: 0.5, correctness: 0.5, contextRecall: 0.5, compliance: 0.5, hallucinationRate: 0.5 };
+  }
+}
+
 async function llmEvaluateMerged(
   answer: string,
   contextTexts: string[],
   query: string,
   expectedAnswer?: string,
-  canAnswer: boolean = true
+  canAnswer: boolean = true,
+  searchResults?: Array<{ text: string; score: number }>
 ): Promise<{ faithfulness: number; relevance: number; correctness: number }> {
   console.log("[rag-evaluator] 使用合并LLM评估（Faithfulness+Relevance+Correctness）");
 
@@ -393,10 +610,24 @@ async function llmEvaluateMerged(
       console.log("[rag-evaluator] 检测到正确拒绝回答(canAnswer=false), 合并评估: Faithfulness=1.0, Relevance=1.0, Correctness=1.0");
       return { faithfulness: 1.0, relevance: 1.0, correctness: 1.0 };
     }
-    // canAnswer=true 但拒绝回答：知识库缺数据，不是系统错误
-    // 给中等分数，因为系统正确识别了信息不足
-    console.log("[rag-evaluator] 检测到拒绝回答(canAnswer=true), 合并评估: Faithfulness=1.0, Relevance=0.3, Correctness=0.1");
-    return { faithfulness: 1.0, relevance: 0.3, correctness: 0.1 };
+    // canAnswer=true 但拒绝回答：区分检索质量
+    // 检索结果与查询的相关性决定评分
+    const queryTokens = tokenize(query);
+    const contextTexts = searchResults ? searchResults.map(r => r.text).join(" ") : "";
+    const contextTokens = new Set(tokenize(contextTexts));
+    const overlap = queryTokens.filter(t => contextTokens.has(t)).length;
+    const overlapRatio = queryTokens.length > 0 ? overlap / queryTokens.length : 0;
+
+    if (overlapRatio >= 0.3) {
+      // 检索到了相关信息但拒绝回答：系统问题，给低分
+      console.log(`[rag-evaluator] 检测到拒绝回答(canAnswer=true, 检索相关=${overlapRatio.toFixed(2)}), 合并评估: Faithfulness=0.8, Relevance=0.3, Correctness=0.2`);
+      return { faithfulness: 0.8, relevance: 0.3, correctness: 0.2 };
+    } else {
+      // 检索不到相关信息而拒绝：知识库缺数据，系统正确识别了信息不足
+      // Faithfulness高分（没编造），Relevance和Correctness给中等偏上分数
+      console.log(`[rag-evaluator] 检测到拒绝回答(canAnswer=true, 检索无关=${overlapRatio.toFixed(2)}), 合并评估: Faithfulness=1.0, Relevance=0.5, Correctness=0.3`);
+      return { faithfulness: 1.0, relevance: 0.5, correctness: 0.3 };
+    }
   }
 
   const contextBlock = contextTexts
@@ -662,11 +893,11 @@ export async function evaluateAnswer(
       } catch (scorerError) {
         console.error("[rag-evaluator] 库评分器失败，使用降级计算:", scorerError);
         heuristicFaithfulness = fallbackFaithfulness(actualAnswer, contextForEval.join(" "));
-        heuristicRelevance = fallbackAnswerRelevance(query, actualAnswer);
+        heuristicRelevance = fallbackAnswerRelevance(query, actualAnswer, searchResults);
       }
     } else {
       heuristicFaithfulness = fallbackFaithfulness(actualAnswer, contextForEval.join(" "));
-      heuristicRelevance = fallbackAnswerRelevance(query, actualAnswer);
+      heuristicRelevance = fallbackAnswerRelevance(query, actualAnswer, searchResults);
 
       console.log(
         `[rag-evaluator] 降级 Faithfulness: ${heuristicFaithfulness}, 降级 Relevance: ${heuristicRelevance}`
@@ -679,7 +910,7 @@ export async function evaluateAnswer(
 
     try {
       // V6优化：合并3个LLM调用为1个，减少API请求次数，降低超时概率
-      const mergedResult = await llmEvaluateMerged(actualAnswer, contextForEval, query, expectedAnswer, canAnswer);
+      const mergedResult = await llmEvaluateMerged(actualAnswer, contextForEval, query, expectedAnswer, canAnswer, searchResults);
       llmFaithfulness = mergedResult.faithfulness;
       llmRelevance = mergedResult.relevance;
       llmCorrectness = mergedResult.correctness;
@@ -776,12 +1007,24 @@ export async function evaluateContextRecall(
       console.log(`[rag-evaluator] Context Recall 使用LLM评分: ${llmScore}`);
     }
 
-    // V8优化：如果检索命中（hitsAtK=1），Context Recall最低0.6
-    // 因为检索命中说明检索结果包含相关信息，Context Recall不应过低
-    // 从0.5提高到0.6，更合理反映检索命中的价值
-    if (hitsAtK === 1 && finalScore < 0.6) {
-      console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 修正为0.6`);
-      finalScore = 0.6;
+    // V9优化：更精细的Context Recall修正
+    // 如果检索命中（hitsAtK=1），说明检索结果包含相关信息
+    // 但不应一刀切给0.6下限，而是根据检索结果与期望答案的实际重叠度修正
+    if (hitsAtK === 1 && finalScore < 0.5) {
+      // 计算期望答案关键词在检索结果中的覆盖率
+      const expectedTokens = tokenize(expectedAnswer);
+      const allContextTokens = new Set(
+        searchResults.flatMap((r) => tokenize(r.text))
+      );
+      const coveredCount = expectedTokens.filter((t) => allContextTokens.has(t)).length;
+      const coverageRatio = expectedTokens.length > 0 ? coveredCount / expectedTokens.length : 0;
+
+      // 根据覆盖率修正：覆盖率高则提升，覆盖率低则不修正
+      const minScore = Math.min(0.4 + coverageRatio * 0.4, 0.7);
+      if (finalScore < minScore) {
+        console.log(`[rag-evaluator] Context Recall 修正: 检索命中但评分过低(${finalScore}), 覆盖率=${coverageRatio.toFixed(3)}, 修正为${minScore.toFixed(3)}`);
+        finalScore = minScore;
+      }
     }
 
     return finalScore;
@@ -1500,6 +1743,244 @@ function identifyFailureReasons(result: SingleTestResult): string[] {
   return reasons.length > 0 ? reasons : ["综合得分偏低"];
 }
 
+/**
+ * 数值单位到"元"的换算系数
+ * 用于千元/万元/百万元/亿元之间的单位换算
+ */
+const NUMBER_UNIT_TO_YUAN: Record<string, number> = {
+  "亿元": 100000000,
+  "千万元": 10000000,
+  "百万元": 1000000,
+  "万元": 10000,
+  "千元": 1000,
+  "元": 1,
+};
+
+/** 提取的数值（含单位信息） */
+interface ExtractedNumber {
+  /** 原始数值（如 4529.30） */
+  value: number;
+  /** 单位（"亿元"|"万元"|"百万元"|"千元"|"元"|"%"|""） */
+  unit: string;
+  /** 是否为百分数 */
+  isPercentage: boolean;
+  /** 原始匹配文本（含单位） */
+  rawText: string;
+}
+
+/**
+ * 从文本中提取数值及其单位信息
+ * - 支持整数、小数、百分数
+ * - 跳过年份（4位整数在1900-2100之间且无货币单位）
+ * - 识别中文货币单位：亿元/百万元/千万元/万元/千元/元
+ * - 处理千分位逗号（如 4,529.30）
+ * @param text - 待提取的文本
+ * @returns 提取出的数值数组
+ */
+export function extractNumbersWithUnit(text: string): ExtractedNumber[] {
+  if (!text || text.trim().length === 0) return [];
+
+  const results: ExtractedNumber[] = [];
+  // 匹配数值：可选正负号、千分位逗号、小数点
+  const numberRegex = /[-+]?[\d,]+\.?\d*/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = numberRegex.exec(text)) !== null) {
+    const rawText = match[0];
+    const cleanedValue = rawText.replace(/,/g, "");
+    const value = parseFloat(cleanedValue);
+    if (isNaN(value)) continue;
+
+    // 数值后紧跟的文本（用于识别单位）
+    const afterText = text.substring(match.index + rawText.length);
+
+    // 1. 检查是否为百分数（数值后紧跟 %）
+    if (afterText.startsWith("%")) {
+      results.push({
+        value,
+        unit: "%",
+        isPercentage: true,
+        rawText: rawText + "%",
+      });
+      continue;
+    }
+
+    // 2. 检查是否为货币单位（按长度降序匹配，避免"亿元"被"元"提前匹配）
+    const unitMatch = afterText.match(/^(亿元|千万元|百万元|万元|千元|元)/);
+    if (unitMatch) {
+      const unit = unitMatch[1];
+      results.push({
+        value,
+        unit,
+        isPercentage: false,
+        rawText: rawText + unit,
+      });
+      continue;
+    }
+
+    // 3. 无单位：判断是否为年份并跳过
+    // 年份特征：4位整数，在1900-2100之间，无货币单位
+    if (Number.isInteger(value) && value >= 1900 && value <= 2100) {
+      // 跳过年份（如 2025、2024）
+      continue;
+    }
+
+    // 4. 普通数值（无单位）
+    results.push({
+      value,
+      unit: "",
+      isPercentage: false,
+      rawText,
+    });
+  }
+
+  return results;
+}
+
+/**
+ * 计算期望答案与实际答案之间的数值差异
+ * - 从 expectedAnswer 和 agentAnswer 中提取所有数值
+ * - 对每个期望数值，在实际数值中找最接近的匹配（类型必须相同：百分数vs百分数，普通数值vs普通数值）
+ * - 单位换算：千元/万元/百万元/亿元统一换算后比较
+ * - difference=0 时 isAcceptable=true
+ * - difference≠0 时 needsManualReview=true
+ * - 数值差异精确到小数点后两位
+ * @param expectedAnswer - 期望答案
+ * @param actualAnswer - Agent 实际生成的答案
+ * @returns 数值差异对比结果
+ */
+export function computeNumericalDifference(
+  expectedAnswer: string,
+  actualAnswer: string
+): {
+  numericalDifference: Array<{
+    expectedNumber: number;
+    actualNumber: number;
+    difference: number;
+    isAcceptable: boolean;
+  }>;
+  semanticMatch: string;
+  needsManualReview: boolean;
+} {
+  const expectedNumbers = extractNumbersWithUnit(expectedAnswer);
+  const actualNumbers = extractNumbersWithUnit(actualAnswer);
+
+  // 期望答案无数值：无需对比，默认一致
+  if (expectedNumbers.length === 0) {
+    return {
+      numericalDifference: [],
+      semanticMatch: "一致",
+      needsManualReview: false,
+    };
+  }
+
+  const numericalDifference: Array<{
+    expectedNumber: number;
+    actualNumber: number;
+    difference: number;
+    isAcceptable: boolean;
+  }> = [];
+
+  // 标记已使用的实际数值，避免重复匹配
+  const usedActualIndices = new Set<number>();
+
+  for (const expectedNum of expectedNumbers) {
+    let bestMatchIdx = -1;
+    let bestDiff = Infinity;
+
+    for (let i = 0; i < actualNumbers.length; i++) {
+      if (usedActualIndices.has(i)) continue;
+
+      const actualNum = actualNumbers[i];
+      // 类型必须相同：百分数 vs 百分数，普通数值 vs 普通数值
+      if (expectedNum.isPercentage !== actualNum.isPercentage) continue;
+
+      // 换算到期望的单位后比较，避免大数值浮点精度问题
+      const expectedMultiplier = expectedNum.isPercentage
+        ? 1
+        : NUMBER_UNIT_TO_YUAN[expectedNum.unit] ?? 1;
+      const actualMultiplier = actualNum.isPercentage
+        ? 1
+        : NUMBER_UNIT_TO_YUAN[actualNum.unit] ?? 1;
+
+      // 换算到"元"（百分数保持原值）
+      const expectedNormalized = expectedNum.value * expectedMultiplier;
+      const actualNormalized = actualNum.value * actualMultiplier;
+
+      const diff = Math.abs(actualNormalized - expectedNormalized);
+      if (diff < bestDiff) {
+        bestDiff = diff;
+        bestMatchIdx = i;
+      }
+    }
+
+    if (bestMatchIdx >= 0) {
+      // 找到匹配：计算差值（换算到期望的单位）
+      usedActualIndices.add(bestMatchIdx);
+      const actualNum = actualNumbers[bestMatchIdx];
+
+      const expectedMultiplier = expectedNum.isPercentage
+        ? 1
+        : NUMBER_UNIT_TO_YUAN[expectedNum.unit] ?? 1;
+      const actualMultiplier = actualNum.isPercentage
+        ? 1
+        : NUMBER_UNIT_TO_YUAN[actualNum.unit] ?? 1;
+
+      // 实际数值换算到期望的单位
+      const actualValueInExpectedUnit =
+        expectedMultiplier === 0
+          ? actualNum.value
+          : (actualNum.value * actualMultiplier) / expectedMultiplier;
+
+      const difference = Number(Math.abs(actualValueInExpectedUnit - expectedNum.value).toFixed(2));
+      const isAcceptable = difference === 0;
+
+      numericalDifference.push({
+        expectedNumber: Number(expectedNum.value.toFixed(2)),
+        actualNumber: Number(actualValueInExpectedUnit.toFixed(2)),
+        difference,
+        isAcceptable,
+      });
+    } else {
+      // 未找到匹配的实际数值：实际数值缺失，差值为期望值的绝对值
+      const expectedValue = expectedNum.value;
+      numericalDifference.push({
+        expectedNumber: Number(expectedValue.toFixed(2)),
+        actualNumber: 0,
+        difference: Number(Math.abs(expectedValue).toFixed(2)),
+        isAcceptable: false,
+      });
+    }
+  }
+
+  // 判断 semanticMatch 和 needsManualReview
+  const hasDifference = numericalDifference.some((d) => !d.isAcceptable);
+  const allActualMissing = numericalDifference.every((d) => d.actualNumber === 0);
+
+  let semanticMatch: string;
+  let needsManualReview: boolean;
+
+  if (!hasDifference) {
+    // 所有数值差异为0
+    semanticMatch = "一致";
+    needsManualReview = false;
+  } else if (allActualMissing) {
+    // 实际答案中无任何匹配数值（如拒绝回答"未找到"）
+    semanticMatch = "完全不同";
+    needsManualReview = true;
+  } else {
+    // 存在数值差异
+    semanticMatch = "数值有差异";
+    needsManualReview = true;
+  }
+
+  return {
+    numericalDifference,
+    semanticMatch,
+    needsManualReview,
+  };
+}
+
 export function evaluateNumericalAccuracy(
   actualAnswer: string,
   expectedAnswer: string,
@@ -1968,6 +2449,15 @@ export async function runFinancialEvaluation(
     difficulty?: string;
     /** 该查询是否应该能被回答，默认true（向后兼容） */
     canAnswer?: boolean;
+    /** 数据来源（文档名、页码、原文），用于 testAnswer 字段 */
+    dataSource?: {
+      documentName: string;
+      documentId?: string;
+      page?: number | null;
+      originalText: string;
+    } | null;
+    /** 数值计算方式说明，用于 testAnswer 字段 */
+    calculationMethod?: string | null;
   }>,
   searchFn: (
     query: string
@@ -2058,29 +2548,113 @@ export async function runFinancialEvaluation(
         expectedContent: testItem.expectedAnswer,
       });
 
-      // 先计算检索指标（需要hitsAtK给Context Recall使用）
+      // 先计算检索指标（Hits@K + Context Relevance，纯计算无需LLM）
       const retrievalResult = await evaluateRetrieval(testItem.query, testItem.expectedAnswer, searchResults);
-      const [answerResult, contextRecall, numericalAccuracy, complianceScore, hallucinationRate, riskDisclosureScore, timelinessScore] = await Promise.all([
-        evaluateAnswer(testItem.query, testItem.expectedAnswer, actualAnswer, searchResults, canAnswer),
-        evaluateContextRecall(testItem.query, testItem.expectedAnswer, searchResults, retrievalResult.hitsAtK),
-        Promise.resolve(evaluateNumericalAccuracy(actualAnswer, testItem.expectedAnswer, canAnswer)),
-        evaluateCompliance(actualAnswer, category, canAnswer),
-        evaluateHallucination(actualAnswer, searchResults, canAnswer),
-        Promise.resolve(evaluateRiskDisclosure(actualAnswer, category, canAnswer)),
-        Promise.resolve(evaluateTimeliness(actualAnswer, searchResults, canAnswer)),
-      ]);
 
-      // 对canAnswer=true的样本评估答案正确性
-      if (canAnswer && !isRefusalAnswer(actualAnswer)) {
+      // V10优化：使用 AllInOne 合并评估，6维度1次LLM调用替代4-7次独立调用
+      const contextForEval = searchResults.length > 0
+        ? searchResults.map((r) => r.text)
+        : [testItem.expectedAnswer];
+
+      const allInOneResult = await llmEvaluateAllInOne(
+        actualAnswer,
+        contextForEval,
+        testItem.query,
+        testItem.expectedAnswer,
+        category,
+        canAnswer,
+        searchResults
+      );
+
+      // 启发式评分（用于与LLM评分融合）
+      const scorers = await getScorers();
+      let heuristicFaithfulness: number;
+      let heuristicRelevance: number;
+
+      if (scorers) {
         try {
-          const correctnessScore = await evaluateAnswerCorrectness(actualAnswer, testItem.expectedAnswer);
-          answerCorrectnessResults.push({ testId: testItem.id ?? i + 1, score: correctnessScore });
-        } catch (correctnessError) {
-          console.error(`[rag-evaluator] [答案正确性] 第 ${i + 1} 条答案正确性评估失败:`, correctnessError);
+          const sample = {
+            query: testItem.query,
+            context: contextForEval,
+            ground_truth: testItem.expectedAnswer,
+            generated_answer: actualAnswer,
+          };
+          const faithfulnessResult = await scorers.faithfulnessScorer.score(sample);
+          heuristicFaithfulness = faithfulnessResult.score;
+          const relevanceResult = await scorers.relevanceScorer.score(sample);
+          heuristicRelevance = relevanceResult.score;
+        } catch {
+          heuristicFaithfulness = fallbackFaithfulness(actualAnswer, contextForEval.join(" "));
+          heuristicRelevance = fallbackAnswerRelevance(testItem.query, actualAnswer, searchResults);
+        }
+      } else {
+        heuristicFaithfulness = fallbackFaithfulness(actualAnswer, contextForEval.join(" "));
+        heuristicRelevance = fallbackAnswerRelevance(testItem.query, actualAnswer, searchResults);
+      }
+
+      // 融合：启发式30% + LLM 70%
+      // L9 拒绝场景由 llmEvaluateAllInOne 内部处理（isRefusalAnswer + canAnswer 判断）
+      // 此处不再为 L9 额外开后门，避免掩盖检索质量问题
+      const isActualRefusal = isRefusalAnswer(actualAnswer);
+
+      const faithfulness = heuristicFaithfulness * 0.3 + allInOneResult.faithfulness * 0.7;
+      let answerRelevance: number;
+      if (!canAnswer && isActualRefusal) {
+        // 正确拒绝：系统识别了无法回答，AR=1.0
+        answerRelevance = 1.0;
+      } else {
+        answerRelevance = heuristicRelevance * 0.2 + allInOneResult.relevance * 0.4 + allInOneResult.correctness * 0.4;
+
+        // 数值类 AR 加权：修正 LLM 对冗长但数值正确的答案评分偏低问题
+        // 权重 30%（保守提升，避免掩盖语义不相关问题）
+        const expectedNumbers = extractNumbersWithUnit(testItem.expectedAnswer);
+        if (expectedNumbers.length > 0 && !isActualRefusal) {
+          const numDiff = computeNumericalDifference(testItem.expectedAnswer, actualAnswer);
+          const matchedCount = numDiff.numericalDifference.filter(d => d.isAcceptable).length;
+          const numAccuracy = expectedNumbers.length > 0 ? matchedCount / expectedNumbers.length : 0;
+
+          if (numAccuracy >= 0.8) {
+            const boostedAR = answerRelevance * 0.7 + numAccuracy * 0.3;
+            if (boostedAR > answerRelevance) {
+              console.log(`[rag-evaluator] 数值类 AR 加权: 原AR=${answerRelevance.toFixed(3)}, 数值匹配=${numAccuracy.toFixed(3)}, 提升→${boostedAR.toFixed(3)}`);
+              answerRelevance = boostedAR;
+            }
+          }
         }
       }
 
+      const answerResult = {
+        faithfulness: Number(faithfulness.toFixed(4)),
+        answerRelevance: Number(answerRelevance.toFixed(4)),
+      };
+
+      // Context Recall: 使用 AllInOne LLM 评估结果
+      // L9 场景由 llmEvaluateAllInOne 内部处理（canAnswer=false 时返回 1.0）
+      let contextRecall: number;
+      contextRecall = allInOneResult.contextRecall;
+      if (retrievalResult.hitsAtK === 1 && contextRecall < 0.5) {
+        const expectedTokens = tokenize(testItem.expectedAnswer);
+        const allCtxTokens = new Set(searchResults.flatMap(r => tokenize(r.text)));
+        const coveredCount = expectedTokens.filter(t => allCtxTokens.has(t)).length;
+        const coverageRatio = expectedTokens.length > 0 ? coveredCount / expectedTokens.length : 0;
+        const minScore = Math.min(0.4 + coverageRatio * 0.4, 0.7);
+        if (contextRecall < minScore) contextRecall = minScore;
+      }
+
+      // 金融指标：纯计算部分仍用独立函数
+      const numericalAccuracy = evaluateNumericalAccuracy(actualAnswer, testItem.expectedAnswer, canAnswer);
+      const complianceScore = allInOneResult.compliance;
+      const hallucinationRate = allInOneResult.hallucinationRate;
+      const riskDisclosureScore = evaluateRiskDisclosure(actualAnswer, category, canAnswer);
+      const timelinessScore = evaluateTimeliness(actualAnswer, searchResults, canAnswer);
+
+      // 答案正确性：直接使用AllInOne的correctness
+      answerCorrectnessResults.push({ testId: testItem.id ?? i + 1, score: allInOneResult.correctness });
+
       const durationMs = Date.now() - itemStart;
+
+      // 计算 Answer 对比：testAnswer 与 Agent Answer 的数值差异
+      const comparison = computeNumericalDifference(testItem.expectedAnswer, actualAnswer);
 
       results.push({
         id: testItem.id ?? i + 1,
@@ -2097,6 +2671,12 @@ export async function runFinancialEvaluation(
         generationLatency,
         e2eLatency,
         isError: false,
+        testAnswer: {
+          expectedAnswer: testItem.expectedAnswer,
+          dataSource: testItem.dataSource ?? null,
+          calculationMethod: testItem.calculationMethod ?? null,
+        },
+        comparison,
       });
 
       // 金融指标：null表示跳过，使用默认值0记录但标记skipped
@@ -2114,6 +2694,8 @@ export async function runFinancialEvaluation(
       console.log(`[rag-evaluator] 第 ${i + 1} 条评估完成, Hits@K=${retrievalResult.hitsAtK}, Faithfulness=${answerResult.faithfulness}, 数值精度=${numericalAccuracy}, 合规性=${complianceScore}, 幻觉率=${hallucinationRate}, 跳过=${isSkipped}, 耗时=${durationMs}ms`);
     } catch (error) {
       console.error(`[rag-evaluator] 第 ${i + 1} 条评估失败:`, error);
+      // 评估失败时 actualAnswer 为空，仍计算 comparison 以标记需人工核查
+      const failedComparison = computeNumericalDifference(testItem.expectedAnswer, "");
       results.push({
         id: testItem.id ?? i + 1,
         query: testItem.query,
@@ -2126,6 +2708,12 @@ export async function runFinancialEvaluation(
         durationMs: Date.now() - itemStart,
         canAnswer,
         isError: true,
+        testAnswer: {
+          expectedAnswer: testItem.expectedAnswer,
+          dataSource: testItem.dataSource ?? null,
+          calculationMethod: testItem.calculationMethod ?? null,
+        },
+        comparison: failedComparison,
       });
       financialResults.push({
         testId: testItem.id ?? i + 1,

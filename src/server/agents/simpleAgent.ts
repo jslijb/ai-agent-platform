@@ -21,6 +21,8 @@ import {
 } from "@/server/mcp/tools/compliance";
 import { calculateVaR, calculateStressTest, checkRiskLimits, generateRiskReport } from "@/server/mcp/tools/risk_control";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
+import { rerank } from "@/server/rag/reranking/reranker";
+import { logCompliance } from "@/server/compliance/log";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
 import { createConversation, addMessage, updateConversationTitle, assembleContext, extractAndApplyPreferences, trackStockQuery } from "@/server/agents/memory";
 import { ToolRegistry } from "@/server/tools/registry";
@@ -54,8 +56,217 @@ const stockDataByCode = new Map<string, CachedStockData>();
 
 let currentUserId: string = "default-user";
 
-/** 最近一次 hybridSearch 的原始结果，供引用收集使用 */
-let lastHybridSearchRawResults: Array<{ text: string; documentId: string; score: number; denseScore?: number; sparseScore?: number; metadata?: Record<string, any> }> = [];
+/** 检索结果项类型 */
+type SearchResult = { text: string; documentId: string; score: number; denseScore?: number; sparseScore?: number; metadata?: Record<string, any> };
+
+/** 最近一次 hybridSearch 的原始结果（精排后），供引用收集使用 */
+let lastHybridSearchRawResults: SearchResult[] = [];
+
+/** 最近一次 hybridSearch 的粗排结果（精排前），供前端展示对比 */
+let lastCoarseResults: SearchResult[] = [];
+
+// ========== 意图识别层 - 对抗性关键词（Unsafe 级） ==========
+// 集中定义，支持后续扩展为外部配置文件
+const ADVERSARIAL_KEYWORDS: string[] = [
+  "预测股价",
+  "操纵市场",
+  "内幕消息",
+  "保证盈利",
+  "涨停预测",
+  "老鼠仓",
+  "稳赚不赔",
+  "绕过涨跌幅限制",
+  "虚假信息影响股价",
+  "洗钱",
+];
+
+// ========== 意图识别层 - 投资建议关键词（Controversial 级） ==========
+const INVESTMENT_ADVICE_KEYWORDS: string[] = [
+  "该不该买",
+  "该不该卖",
+  "持有",
+  "加仓",
+  "抄底",
+  "定投",
+  "推荐基金",
+  "推荐股票",
+  "哪个更值得投资",
+  "能赚多少钱",
+  "是不是底部",
+  "适合投资吗",
+  "值得投资吗",
+];
+
+// 对抗性关键词到违规类型的映射
+const ADVERSARIAL_VIOLATION_MAP: Record<string, string> = {
+  预测股价: "预测股价",
+  涨停预测: "预测股价",
+  内幕消息: "内幕消息",
+  操纵市场: "操纵市场",
+  老鼠仓: "操纵市场",
+  绕过涨跌幅限制: "操纵市场",
+  虚假信息影响股价: "操纵市场",
+  保证盈利: "其他",
+  稳赚不赔: "其他",
+  洗钱: "其他",
+};
+
+/**
+ * 意图识别函数 - 在工具调用之前识别问题类型并分流处理
+ *
+ * 三种类型：
+ * - adversarial: 对抗性问题 → 不执行检索，直接返回安全拒绝模板
+ * - investment_advice: 投资建议问题 → 检索财务数据，返回合规拒绝+数据参考
+ * - factual: 事实查询 → 走正常 RAG 检索流程
+ */
+/**
+ * 组合关键词正则映射
+ *
+ * 用于处理查询中词序变化或中间插入其他词的情况。
+ * 例如 "预测股价" 在用户查询中可能是 "预测明天贵州茅台的股价"，
+ * 此时 query.includes("预测股价") 会失败，需要用正则 预测.{0,30}股价 匹配。
+ *
+ * key: 原始关键词（与 ADVERSARIAL_KEYWORDS 中保持一致）
+ * value: 匹配该关键词的正则表达式
+ */
+const ADVERSARIAL_COMPOSITE_PATTERNS: Record<string, RegExp> = {
+  预测股价: /预测.{0,30}股价/,
+  涨停预测: /涨停.{0,30}预测|预测.{0,30}涨停/,
+  内幕消息: /内幕.{0,10}消息/,
+  操纵市场: /操纵.{0,10}市场/,
+  老鼠仓: /老鼠仓/,
+  绕过涨跌幅限制: /绕过.{0,20}涨跌幅.{0,10}限制/,
+  虚假信息影响股价: /虚假信息.{0,20}股价|散布.{0,20}虚假.{0,20}股价/,
+};
+
+function classifyIntent(query: string): {
+  type: "adversarial" | "investment_advice" | "factual";
+  matchedKeywords?: string[];
+} {
+  // 优先检测对抗性关键词（Unsafe 级优先于 Controversial 级）
+  // 支持组合关键词正则匹配（处理词序变化或中间插入其他词的情况）
+  const matchedAdversarial = ADVERSARIAL_KEYWORDS.filter((kw) => {
+    if (query.includes(kw)) return true;
+    const pattern = ADVERSARIAL_COMPOSITE_PATTERNS[kw];
+    return pattern ? pattern.test(query) : false;
+  });
+  if (matchedAdversarial.length > 0) {
+    return { type: "adversarial", matchedKeywords: matchedAdversarial };
+  }
+
+  const matchedAdvice = INVESTMENT_ADVICE_KEYWORDS.filter((kw) => query.includes(kw));
+  if (matchedAdvice.length > 0) {
+    return { type: "investment_advice", matchedKeywords: matchedAdvice };
+  }
+
+  return { type: "factual" };
+}
+
+/**
+ * 构建对抗性问题拒绝模板（Unsafe 级）
+ */
+function buildAdversarialRejection(matchedKeywords: string[]): string {
+  const violationDesc = matchedKeywords
+    .map((kw) => {
+      const descMap: Record<string, string> = {
+        预测股价: "预测股价",
+        操纵市场: "操纵市场",
+        内幕消息: "刺探/传播内幕消息",
+        保证盈利: "承诺保证盈利",
+        涨停预测: "涨停预测",
+        老鼠仓: "老鼠仓交易",
+        稳赚不赔: "承诺稳赚不赔",
+        绕过涨跌幅限制: "绕过涨跌幅限制",
+        虚假信息影响股价: "散布虚假信息影响股价",
+        洗钱: "洗钱",
+      };
+      return descMap[kw] || kw;
+    })
+    .join("、");
+
+  return `【拒绝声明】我无法提供此类信息。
+【违法警示】${violationDesc}违反《证券法》相关规定，
+可能面临行政处罚甚至刑事处罚。
+【风险提示】投资有风险，入市需谨慎。
+如您需要了解某公司的基本面财务数据，我可以为您提供参考信息。`;
+}
+
+/**
+ * 将检索片段按关键词归类到财务数据类别
+ */
+function categorizeChunk(text: string): "fundamental" | "valuation" | "risk" | "other" {
+  if (/营业收入|营收|净利润|利润|ROE|净资产收益率|毛利率|净利率|同比增长|增长率/.test(text)) {
+    return "fundamental";
+  }
+  if (/PE|市盈率|PB|市净率|股息率|市值|估值/.test(text)) {
+    return "valuation";
+  }
+  if (/资产负债率|流动比率|速动比率|负债|杠杆/.test(text)) {
+    return "risk";
+  }
+  return "other";
+}
+
+/**
+ * 格式化单条检索片段为财务数据参考条目
+ */
+function formatFinancialChunk(r: SearchResult): string {
+  const meta = r.metadata || {};
+  const pageRef = meta.startPage
+    ? `第${meta.startPage}${meta.endPage && meta.endPage !== meta.startPage ? "-" + meta.endPage : ""}页`
+    : "";
+  const sourceRef = meta.source ? `（来源：${meta.source}${pageRef ? " " + pageRef : ""}）` : "";
+  return `- ${r.text.substring(0, 300)}${sourceRef}`;
+}
+
+/**
+ * 构建投资建议合规拒绝（Controversial 级）+ 标准化财务数据参考
+ *
+ * 数据标准（6.6）：
+ * - 必选三类：基本面 + 估值 + 风险指标
+ * - 每项标注数值、报告期、数据来源（文档名+页码）
+ * - 知识库缺数据时跳过该项，不编造
+ * - 不提供技术指标、收益预测、保本承诺、买卖建议
+ */
+function buildInvestmentAdviceResponse(
+  searchResults: SearchResult[]
+): string {
+  let financialDataSection = "";
+  if (searchResults.length > 0) {
+    const fundamental = searchResults.filter((r) => categorizeChunk(r.text) === "fundamental");
+    const valuation = searchResults.filter((r) => categorizeChunk(r.text) === "valuation");
+    const risk = searchResults.filter((r) => categorizeChunk(r.text) === "risk");
+    const other = searchResults.filter((r) => categorizeChunk(r.text) === "other");
+
+    financialDataSection = "\n\n【财务数据参考】以下为您询问公司的客观数据，仅供参考：\n";
+
+    if (fundamental.length > 0) {
+      financialDataSection += "── 基本面数据 ──\n";
+      financialDataSection += fundamental.map(formatFinancialChunk).join("\n") + "\n";
+    }
+    if (valuation.length > 0) {
+      financialDataSection += "── 估值数据 ──\n";
+      financialDataSection += valuation.map(formatFinancialChunk).join("\n") + "\n";
+    }
+    if (risk.length > 0) {
+      financialDataSection += "── 风险指标 ──\n";
+      financialDataSection += risk.map(formatFinancialChunk).join("\n") + "\n";
+    }
+    if (other.length > 0) {
+      financialDataSection += "── 其他相关数据 ──\n";
+      financialDataSection += other.map(formatFinancialChunk).join("\n") + "\n";
+    }
+  }
+
+  return `【合规声明】根据合规要求，我无法提供具体的投资建议（买入/卖出/持有等）。
+投资决策需要根据您自身的风险承受能力、投资目标和财务状况综合判断。${financialDataSection}
+
+【风险提示】
+1. 以上数据为客观信息展示，不构成任何投资建议
+2. 历史数据不代表未来表现，市场有风险，投资需谨慎
+3. 数据可能存在滞后性，请以最新公告为准
+4. 本系统不承诺数据准确性、完整性，不保证盈利或本金安全`;
+}
 
 const stockDataCache = new Map<string, { data: CachedStockData; expiresAt: number }>();
 const STOCK_CACHE_TTL_MS = 30 * 60 * 1000;
@@ -839,7 +1050,7 @@ const tools: ToolDefinition[] = [
   {
     name: "hybridSearch",
     category: "knowledge-documents",
-    description: "RAG 混合检索工具。使用稠密检索和稀疏检索的 RRF 融合方式，从知识库中检索与查询相关的文档片段。适用于查找公司财报、行业分析、政策法规等文档内容。",
+    description: "RAG 混合检索工具。使用稠密检索和稀疏检索的 RRF 融合方式（粗排），再调用 bge-reranker 精排，从知识库中检索与查询相关的文档片段。适用于查找公司财报、行业分析、政策法规等文档内容。",
     parameters: {
       query: { type: "string", description: "搜索查询文本", required: true },
       topK: { type: "number", description: "返回结果数量，默认10" },
@@ -847,13 +1058,48 @@ const tools: ToolDefinition[] = [
     execute: async (params) => {
       try {
         const searchStartTime = Date.now();
-        const results = await hybridSearch(
-          params.query as string,
-          (params.topK as number) || 10
-        );
-        console.log("[hybridSearch] RAG search time: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, results: " + results.length);
-        lastHybridSearchRawResults = results;
-        const formatted = results
+        const topK = (params.topK as number) || 10;
+
+        // 第一步：粗排 - 混合检索取 topK*2 条
+        const coarseResults = await hybridSearch(params.query as string, topK * 2);
+        console.log("[hybridSearch] 粗排完成, 耗时: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, 粗排结果: " + coarseResults.length + " 条");
+
+        // 保存粗排结果（精排前），供前端展示对比
+        lastCoarseResults = coarseResults;
+
+        let rerankedResults: SearchResult[];
+
+        // 第二步：精排 - 调用 bge-reranker 重排序
+        try {
+          const texts = coarseResults.map((r) => r.text);
+          const rerankStartTime = Date.now();
+          const rerankResults = await rerank(params.query as string, texts, topK);
+          console.log("[hybridSearch] 精排完成, 耗时: " + ((Date.now() - rerankStartTime) / 1000).toFixed(2) + "s, 精排结果: " + rerankResults.length + " 条");
+
+          // 精排结果映射回原始结果（保留 metadata：来源文档、页码等）
+          rerankedResults = rerankResults.map((rr) => {
+            const original = coarseResults[rr.index ?? 0];
+            return {
+              text: rr.text,
+              documentId: original?.documentId || "",
+              score: rr.score,
+              denseScore: original?.denseScore,
+              sparseScore: original?.sparseScore,
+              metadata: original?.metadata || {},
+            };
+          });
+        } catch (rerankError) {
+          // 精排失败时降级为粗排结果直接截取 topK
+          console.error("[hybridSearch] 精排失败, 降级为粗排结果: " + (rerankError instanceof Error ? rerankError.message : String(rerankError)));
+          rerankedResults = coarseResults.slice(0, topK);
+        }
+
+        // 保存精排结果（精排后）
+        lastHybridSearchRawResults = rerankedResults;
+
+        console.log("[hybridSearch] 总检索耗时: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, 最终结果: " + rerankedResults.length + " 条");
+
+        const formatted = rerankedResults
           .map((r, i) => {
             const meta = r.metadata || {};
             const pageRef = meta.startPage ? ` (第${meta.startPage}${meta.endPage && meta.endPage !== meta.startPage ? '-' + meta.endPage : ''}页)` : '';
@@ -1081,6 +1327,7 @@ export interface AgentResult {
   conversationId: string;
   steps: AgentStep[];
   citations?: CitationSource[];
+  coarseResults?: SearchResult[];
 }
 
 async function generateConversationTitle(query: string, answer: string, conversationId: string, model?: string): Promise<void> {
@@ -1143,6 +1390,163 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
     timestamp: Date.now(),
   });
 
+  // ========== 意图识别层 - 在工具调用之前识别问题类型并分流处理（Task 6） ==========
+  const intentResult = classifyIntent(query);
+  console.log("[simpleAgent] 意图识别结果: type=" + intentResult.type + (intentResult.matchedKeywords ? ", keywords=" + intentResult.matchedKeywords.join(",") : ""));
+
+  if (intentResult.type === "adversarial") {
+    // 对抗性问题（Unsafe 级）：不执行检索，直接返回安全拒绝模板
+    const rejection = buildAdversarialRejection(intentResult.matchedKeywords || []);
+
+    pushStep({
+      type: "answer",
+      round: 0,
+      title: "对抗性问题拦截 - 安全拒绝",
+      content: rejection,
+      detail: { intentType: "adversarial", matchedKeywords: intentResult.matchedKeywords },
+      timestamp: Date.now(),
+    });
+
+    await addMessage(convId, "assistant", rejection);
+
+    // 记录合规日志（Unsafe 级）
+    const violationType = (intentResult.matchedKeywords || [])
+      .map((kw) => ADVERSARIAL_VIOLATION_MAP[kw] || "其他")
+      .filter((v, i, arr) => arr.indexOf(v) === i)[0] || "其他";
+    await logCompliance({
+      userId,
+      inputContent: query,
+      riskLevel: "Unsafe",
+      violationType,
+      handlingAction: "直接拒绝+违法警示",
+      outputContent: rejection,
+    });
+
+    const latencyMs = Date.now() - startTime;
+    saveAgentLog({
+      userId,
+      conversationId: convId,
+      query,
+      answer: rejection,
+      model: model || "unknown",
+      iterations: 0,
+      steps,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      latencyMs,
+      status: "success",
+    }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
+
+    if (needGenerateTitle) await generateConversationTitle(query, rejection, convId, model);
+    return { answer: rejection, iterations: 0, conversationId: convId, steps, citations: [], coarseResults: [] };
+  }
+
+  if (intentResult.type === "investment_advice") {
+    // 投资建议问题（Controversial 级）：先检索该公司财务数据，然后返回合规拒绝+数据参考
+    pushStep({
+      type: "retrieval",
+      round: 0,
+      title: "投资建议拦截 - 检索财务数据",
+      content: "检测到投资建议类问题，检索公司财务数据作为参考...",
+      detail: { intentType: "investment_advice", matchedKeywords: intentResult.matchedKeywords },
+      timestamp: Date.now(),
+    });
+
+    let searchResults: SearchResult[] = [];
+    try {
+      const searchStartTime = Date.now();
+      // 粗排：混合检索
+      const coarseResults = await hybridSearch(query, 20);
+      lastCoarseResults = coarseResults;
+
+      // 精排：bge-reranker
+      let rerankedResults: SearchResult[];
+      try {
+        const texts = coarseResults.map((r) => r.text);
+        const rerankResults = await rerank(query, texts, 10);
+        rerankedResults = rerankResults.map((rr) => {
+          const original = coarseResults[rr.index ?? 0];
+          return {
+            text: rr.text,
+            documentId: original?.documentId || "",
+            score: rr.score,
+            denseScore: original?.denseScore,
+            sparseScore: original?.sparseScore,
+            metadata: original?.metadata || {},
+          };
+        });
+      } catch {
+        rerankedResults = coarseResults.slice(0, 10);
+      }
+      lastHybridSearchRawResults = rerankedResults;
+      searchResults = rerankedResults;
+
+      console.log("[simpleAgent] 投资建议检索完成, 耗时: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, 结果: " + searchResults.length + " 条");
+    } catch (searchError) {
+      console.error("[simpleAgent] 投资建议检索失败: " + (searchError instanceof Error ? searchError.message : String(searchError)));
+    }
+
+    const response = buildInvestmentAdviceResponse(searchResults);
+
+    // 收集引用
+    const adviceCitations: CitationSource[] = [];
+    for (const r of searchResults) {
+      const meta = r.metadata || {};
+      if (r.documentId) {
+        adviceCitations.push({
+          type: "pdf",
+          documentId: r.documentId,
+          fileName: meta.source,
+          startPage: meta.startPage,
+          endPage: meta.endPage,
+          text: r.text.substring(0, 200),
+        });
+      }
+    }
+
+    pushStep({
+      type: "answer",
+      round: 0,
+      title: "投资建议合规拒绝 + 财务数据参考",
+      content: response,
+      detail: { intentType: "investment_advice", searchResultCount: searchResults.length },
+      timestamp: Date.now(),
+    });
+
+    await addMessage(convId, "assistant", response);
+
+    // 记录合规日志（Controversial 级）
+    await logCompliance({
+      userId,
+      inputContent: query,
+      riskLevel: "Controversial",
+      violationType: "投资建议",
+      handlingAction: "合规拒绝+数据参考",
+      outputContent: response,
+    });
+
+    const latencyMs = Date.now() - startTime;
+    saveAgentLog({
+      userId,
+      conversationId: convId,
+      query,
+      answer: response,
+      model: model || "unknown",
+      iterations: 0,
+      steps,
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      latencyMs,
+      status: "success",
+    }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
+
+    if (needGenerateTitle) await generateConversationTitle(query, response, convId, model);
+    return { answer: response, iterations: 0, conversationId: convId, steps, citations: adviceCitations, coarseResults: lastCoarseResults };
+  }
+
+  // 事实查询（factual）：走正常 Agent 流程
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
   const systemPrompt = `你是一个金融分析AI助手，可以使用以下工具来回答用户的问题：
@@ -1395,7 +1799,7 @@ ${SkillRegistry.listDescriptions()}
         status: "timeout",
       }).catch((e) => console.error("[simpleAgent] 保存超时日志失败:", e));
       if (needGenerateTitle) await generateConversationTitle(query, "Agent 执行超时", convId, model);
-      return { answer: "Agent 执行超时，请稍后重试或简化您的问题。", iterations, conversationId: convId, steps, citations };
+      return { answer: "Agent 执行超时，请稍后重试或简化您的问题。", iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
     }
     iterations++;
     const roundStartTime = Date.now();
@@ -1493,7 +1897,7 @@ ${SkillRegistry.listDescriptions()}
           }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
           if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
-          return { answer: assistantContent, iterations, conversationId: convId, steps, citations };
+          return { answer: assistantContent, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
         }
 
         console.log("[simpleAgent] 无工具调用且无工具结果，进入反思评估阶段");
@@ -1655,7 +2059,7 @@ ${SkillRegistry.listDescriptions()}
         }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
         if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
-        return { answer: assistantContent, iterations, conversationId: convId, steps, citations };
+        return { answer: assistantContent, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
       }
 
       const toolCallsList = toolCalls;
@@ -1988,7 +2392,7 @@ ${SkillRegistry.listDescriptions()}
           errorMessage: errorMsg,
         }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
         if (needGenerateTitle) await generateConversationTitle(query, "Execution error: " + errorMsg, convId, model);
-        return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps, citations };
+        return { answer: "Agent execution error: " + errorMsg, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
       }
 
       pushStep({
@@ -2017,5 +2421,5 @@ ${SkillRegistry.listDescriptions()}
 
   await addMessage(convId, "assistant", "Agent 超过最大迭代次数，未能得出结论。");
   if (needGenerateTitle) await generateConversationTitle(query, "超过最大迭代次数", convId, model);
-  return { answer: "Agent 超过最大迭代次数，未能得出结论。", iterations, conversationId: convId, steps, citations };
+  return { answer: "Agent 超过最大迭代次数，未能得出结论。", iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
 }

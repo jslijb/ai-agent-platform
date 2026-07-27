@@ -1,4 +1,6 @@
-const RERANKER_URL = process.env.RERANKER_URL || "http://localhost:8010";
+function getRerankerUrl(): string {
+  return process.env.RERANKER_URL || "http://localhost:8010";
+}
 
 interface RerankResult {
   text: string;
@@ -11,7 +13,8 @@ export async function rerank(
   documents: string[],
   topK: number = 3
 ): Promise<RerankResult[]> {
-  console.log(`[Reranker] 开始重排序, 查询: "${query}", 文档数: ${documents.length}, topK: ${topK}`);
+  const RERANKER_URL = getRerankerUrl();
+  console.log(`[Reranker] 开始重排序, 查询: "${query}", 文档数: ${documents.length}, topK: ${topK}, URL: ${RERANKER_URL}`);
 
   if (documents.length === 0) {
     console.log("[Reranker] 无文档需要重排序");

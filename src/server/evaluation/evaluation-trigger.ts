@@ -192,7 +192,7 @@ async function searchFn(
   console.log(`[evaluation-trigger] 检索查询: "${query.slice(0, 50)}..."`);
 
   try {
-    const results = await hybridSearch(query, 5);
+    const results = await hybridSearch(query, 10);
     console.log(`[evaluation-trigger] 检索返回 ${results.length} 条结果`);
     return results.map((r) => ({
       text: r.text,
@@ -226,11 +226,11 @@ async function answerFn(
       {
         role: "system",
         content:
-          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。回答必须基于提供的文档内容，不要编造信息。如果文档中没有相关信息，请明确说明。",
+          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。回答必须基于提供的文档内容，不要编造信息。如果文档中没有相关信息，请明确说明。\n\n重要规则：\n1. 数值优先采用文档原文汇总数字，不要自行加总各细分项计算\n2. 回答简洁直接，先给出核心数据（1-2句话），再补充简要说明\n3. 如需展示计算过程，使用 <details><summary>计算过程</summary>计算步骤</details> 折叠展示，主体答案只保留结论",
       },
       {
         role: "user",
-        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题。`,
+        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题。优先提取关键数据，直接给出答案。`,
       },
     ]);
 

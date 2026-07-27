@@ -9,6 +9,8 @@ import {
   serial,
   varchar,
   numeric,
+  uuid,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 
@@ -549,5 +551,28 @@ export const evaluationVersions = pgTable(
     evaluationLevelIdx: index("evaluation_versions_level_idx").on(table.evaluationLevel),
     timestampIdx: index("evaluation_versions_timestamp_idx").on(table.timestamp),
     createdAtIdx: index("evaluation_versions_created_at_idx").on(table.createdAt),
+  }),
+);
+
+// 合规日志表 - 记录被意图识别层拦截的问题（Controversial/Unsafe 级）
+// 监管依据：《证券投资顾问业务暂行规定》第二十八条 - 业务档案保存期限不少于5年
+export const complianceLogs = pgTable(
+  "compliance_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    timestamp: timestamp("timestamp", { withTimezone: true }).notNull().defaultNow(),
+    userId: text("user_id").notNull(),
+    inputContent: text("input_content").notNull(),
+    riskLevel: text("risk_level").notNull(), // "Controversial" | "Unsafe"
+    violationType: text("violation_type").notNull(), // "投资建议" | "预测股价" | "内幕消息" | "操纵市场" | "其他"
+    handlingAction: text("handling_action").notNull(),
+    outputContent: text("output_content").notNull(),
+    triggeredManualReview: boolean("triggered_manual_review").notNull().default(false),
+  },
+  (table) => ({
+    userIdIdx: index("compliance_logs_user_id_idx").on(table.userId),
+    riskLevelIdx: index("compliance_logs_risk_level_idx").on(table.riskLevel),
+    timestampIdx: index("compliance_logs_timestamp_idx").on(table.timestamp),
+    userIdTimestampIdx: index("compliance_logs_user_id_timestamp_idx").on(table.userId, table.timestamp),
   }),
 );

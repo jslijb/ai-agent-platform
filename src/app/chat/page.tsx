@@ -23,6 +23,18 @@ interface CitationSource {
   dataSource?: string;
   apiEndpoint?: string;
   query?: string;
+  // 精排分数（精排结果才有，可选）
+  score?: number;
+}
+
+/** 粗排检索结果项（与后端 SearchResult 结构对齐） */
+interface SearchResult {
+  text: string;
+  documentId: string;
+  score: number;
+  denseScore?: number;
+  sparseScore?: number;
+  metadata?: Record<string, unknown>;
 }
 
 interface Message {
@@ -34,6 +46,8 @@ interface Message {
   streaming?: boolean;
   markedWrong?: boolean;
   citations?: CitationSource[];
+  // 粗排结果（精排前），从 SSE done 事件获取
+  coarseResults?: SearchResult[];
 }
 
 interface ConversationItem {
@@ -452,6 +466,266 @@ function PdfPreviewModal({ citation, onClose }: { citation: CitationSource; onCl
   );
 }
 
+/** 召回片段统一展示格式 */
+interface RecallSnippetDisplay {
+  text: string;
+  score?: number;
+  fileName?: string;
+  startPage?: number;
+  endPage?: number;
+  documentId?: string;
+  type: "pdf" | "sql";
+  dataSource?: string;
+  apiEndpoint?: string;
+  query?: string;
+}
+
+/** 单条召回片段卡片 */
+function RecallSnippetCard({
+  snippet,
+  variant,
+  onViewSource,
+}: {
+  snippet: RecallSnippetDisplay;
+  variant: "coarse" | "refined";
+  onViewSource?: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const isCoarse = variant === "coarse";
+
+  // 文本截取前 200 字符，点击可展开全文
+  const text = snippet.text || "";
+  const truncated = text.length > 200;
+  const displayText = expanded || !truncated ? text : text.substring(0, 200);
+
+  // 粗排用蓝灰色背景，精排用绿色背景
+  const bgColor = isCoarse
+    ? "bg-slate-50 border-slate-200"
+    : "bg-green-50 border-green-200";
+  const labelColor = isCoarse
+    ? "bg-slate-200 text-slate-700"
+    : "bg-green-200 text-green-800";
+  const label = isCoarse ? "粗排" : "精排";
+
+  // 页码展示：startPage - endPage
+  const pageRange = snippet.startPage
+    ? `第${snippet.startPage}${snippet.endPage && snippet.endPage !== snippet.startPage ? "-" + snippet.endPage : ""}页`
+    : null;
+
+  return (
+    <div className={`rounded border ${bgColor} p-2 mb-1.5`}>
+      <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+        <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${labelColor}`}>{label}</span>
+        {snippet.score !== undefined && (
+          <span className="text-[10px] font-mono text-gray-500 bg-white px-1.5 py-0.5 rounded">
+            分数: {snippet.score.toFixed(4)}
+          </span>
+        )}
+        {snippet.fileName && (
+          <span className="text-[10px] text-gray-500 truncate flex-1 min-w-0">📄 {snippet.fileName}</span>
+        )}
+      </div>
+
+      {pageRange && (
+        <div className="text-[10px] text-gray-400 mb-1">页码: {pageRange}</div>
+      )}
+
+      {/* SQL 数据源特殊展示：数据源名称、API 端点、SQL 语句 */}
+      {snippet.type === "sql" && (
+        <div className="mb-1 space-y-0.5">
+          {snippet.dataSource && (
+            <div className="text-[10px] text-green-700">🗄️ 数据源: {snippet.dataSource}</div>
+          )}
+          {snippet.apiEndpoint && (
+            <div className="text-[10px] text-gray-400">API: {snippet.apiEndpoint}</div>
+          )}
+          {snippet.query && (
+            <div className="text-[10px] font-mono bg-gray-100 rounded px-1.5 py-0.5 overflow-x-auto text-gray-600">
+              {snippet.query}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div className="text-xs text-gray-700 whitespace-pre-wrap break-words">
+        {displayText}
+        {truncated && (
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="ml-1 text-[10px] text-blue-500 hover:text-blue-700"
+          >
+            {expanded ? "收起" : "展开全文"}
+          </button>
+        )}
+      </div>
+
+      {/* PDF 片段"查看来源"按钮，点击弹出 PDF 预览模态框 */}
+      {onViewSource && snippet.type === "pdf" && snippet.documentId && (
+        <button
+          onClick={onViewSource}
+          className="mt-1 text-[10px] text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          🔗 查看来源
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * 召回片段展示面板（默认隐藏，点击展开）
+ * 分两栏展示粗排结果（精排前）和精排结果（精排后）
+ */
+function RecallSnippetPanel({
+  coarseResults,
+  citations,
+}: {
+  coarseResults?: SearchResult[];
+  citations?: CitationSource[];
+}) {
+  // 召回片段区域默认隐藏
+  const [expanded, setExpanded] = useState(false);
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [selectedCitation, setSelectedCitation] = useState<CitationSource | null>(null);
+
+  const hasCoarse = !!(coarseResults && coarseResults.length > 0);
+  const hasCitations = !!(citations && citations.length > 0);
+
+  // 没有任何召回片段时不显示
+  if (!hasCoarse && !hasCitations) return null;
+
+  // 粗排结果转换为统一展示格式，按分数降序排列
+  const coarseSnippets: RecallSnippetDisplay[] = (coarseResults || [])
+    .map((r) => {
+      const meta = (r.metadata || {}) as Record<string, unknown>;
+      return {
+        text: r.text,
+        score: r.score,
+        fileName: (meta.source as string) || (meta.fileName as string),
+        startPage: meta.startPage as number | undefined,
+        endPage: meta.endPage as number | undefined,
+        documentId: r.documentId,
+        type: "pdf" as const,
+      };
+    })
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+
+  // 精排结果（citations）转换为统一展示格式
+  const refinedSnippets: RecallSnippetDisplay[] = (citations || []).map((c) => ({
+    text: c.text || "",
+    score: c.score,
+    fileName: c.fileName,
+    startPage: c.startPage,
+    endPage: c.endPage,
+    documentId: c.documentId,
+    type: c.type,
+    dataSource: c.dataSource,
+    apiEndpoint: c.apiEndpoint,
+    query: c.query,
+  }));
+
+  // 打开 PDF 预览模态框（复用 PdfPreviewModal 组件）
+  const openPdf = (snippet: RecallSnippetDisplay) => {
+    setSelectedCitation({
+      type: "pdf",
+      documentId: snippet.documentId,
+      fileName: snippet.fileName,
+      startPage: snippet.startPage,
+      endPage: snippet.endPage,
+      text: snippet.text,
+    });
+    setPdfModalOpen(true);
+  };
+
+  // 两栏展示：粗排和精排同时存在时才分栏
+  const showTwoColumns = hasCoarse && hasCitations;
+
+  // 渲染单条片段卡片
+  const renderSnippet = (
+    snippet: RecallSnippetDisplay,
+    idx: number,
+    variant: "coarse" | "refined"
+  ) => (
+    <RecallSnippetCard
+      key={idx}
+      snippet={snippet}
+      variant={variant}
+      onViewSource={
+        snippet.type === "pdf" && snippet.documentId
+          ? () => openPdf(snippet)
+          : undefined
+      }
+    />
+  );
+
+  return (
+    <>
+      {/* "显示召回片段" / "隐藏召回片段" 按钮：小号、灰色、带展开/收起图标 */}
+      <div className="mt-1">
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-gray-400 hover:text-gray-600 transition inline-flex items-center gap-1"
+        >
+          <span className="text-[10px]">{expanded ? "▼" : "▶"}</span>
+          <span>{expanded ? "隐藏召回片段" : "显示召回片段"}</span>
+          {hasCoarse && (
+            <span className="text-[10px] text-gray-400">
+              （粗排 {coarseSnippets.length} 条
+              {hasCitations ? ` · 精排 ${refinedSnippets.length} 条` : ""}
+              ）
+            </span>
+          )}
+          {!hasCoarse && hasCitations && (
+            <span className="text-[10px] text-gray-400">（精排 {refinedSnippets.length} 条）</span>
+          )}
+        </button>
+      </div>
+
+      {/* 展开后的召回片段区域，不影响消息气泡布局 */}
+      {expanded && (
+        <div className="mt-1.5 border border-gray-200 rounded-lg overflow-hidden p-2 bg-gray-50/50">
+          <div className={showTwoColumns ? "grid grid-cols-1 md:grid-cols-2 gap-3" : ""}>
+            {hasCoarse && (
+              <div>
+                <div className="text-xs font-medium text-slate-600 mb-1.5 flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-slate-400"></span>
+                  粗排结果（精排前）
+                </div>
+                <div>
+                  {coarseSnippets.map((s, i) => renderSnippet(s, i, "coarse"))}
+                </div>
+              </div>
+            )}
+
+            {hasCitations && (
+              <div>
+                <div className="text-xs font-medium text-green-700 mb-1.5 flex items-center gap-1">
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-400"></span>
+                  精排结果（精排后）
+                </div>
+                <div>
+                  {refinedSnippets.map((s, i) => renderSnippet(s, i, "refined"))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PDF 预览模态框：跳转到对应页面并高亮文本 */}
+      {pdfModalOpen && selectedCitation && (
+        <PdfPreviewModal
+          citation={selectedCitation}
+          onClose={() => {
+            setPdfModalOpen(false);
+            setSelectedCitation(null);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -738,6 +1012,8 @@ export default function ChatPage() {
                       conversationId: data.conversationId,
                       streaming: false,
                       citations: data.citations || [],
+                      // 提取粗排结果（精排前），供前端召回片段展示
+                      coarseResults: data.coarseResults || [],
                     };
                   }
                   return updated;
@@ -910,6 +1186,11 @@ export default function ChatPage() {
 
                   {msg.role === "assistant" && !msg.streaming && msg.citations && msg.citations.length > 0 && (
                     <CitationPanel citations={msg.citations} />
+                  )}
+
+                  {/* 召回片段展示（默认隐藏，点击展开）：粗排结果 + 精排结果 */}
+                  {msg.role === "assistant" && !msg.streaming && ((msg.coarseResults && msg.coarseResults.length > 0) || (msg.citations && msg.citations.length > 0)) && (
+                    <RecallSnippetPanel coarseResults={msg.coarseResults} citations={msg.citations} />
                   )}
 
                   {msg.role === "assistant" && !msg.streaming && msg.content && !msg.content.startsWith("[Error]") && !msg.content.startsWith("[Network Error]") && (

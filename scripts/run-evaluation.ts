@@ -31,6 +31,7 @@ import { callWithFallback } from "../src/server/llm/router";
 import { closeDb } from "../src/server/db/client";
 import {
   runFinancialEvaluation,
+  computeNumericalDifference,
   type EvaluationReport,
   type EvaluationWeights,
   type SingleTestResult,
@@ -53,11 +54,12 @@ const OPEN_DATASET_BASE_PATH = "D:\\data\\modelscope";
 const OPEN_DATASET_MAX_SAMPLES = 200;
 const OPEN_DATASET_NAMES = ["fineval", "cflue", "finqa"];
 
-// AGNES AI 限流配置：免费用户限流严格，需要更大间隔
-// 每次查询间隔8秒
-const QUERY_DELAY_MS = 8000;
-// 同一查询内 LLM 调用间隔5秒（每个查询约5-6次LLM调用）
-const LLM_CALL_DELAY_MS = 5000;
+// V10优化：减少限流等待时间
+// AllInOne合并评估后每条query仅2次LLM调用（1次检索后+1次生成），RPM压力大幅降低
+// 每次查询间隔3秒（原来8秒）
+const QUERY_DELAY_MS = 3000;
+// 同一查询内 LLM 调用间隔1秒（原来5秒，AllInOne后评估阶段仅1次LLM调用）
+const LLM_CALL_DELAY_MS = 1000;
 
 interface ParsedYamlConfig {
   rag_weights?: Record<string, number>;
@@ -479,11 +481,11 @@ async function answerFn(
       {
         role: "system",
         content:
-          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。\n\n重要规则：\n1. 优先从文档中提取关键数据（如营业收入、净利润、增长率等）直接回答\n2. 如果文档包含部分相关信息，请基于已有信息给出答案，并说明信息来源\n3. 只有当文档完全无关时才说明无法回答\n4. 回答要简洁直接，先给出核心数据，再补充说明\n5. 不要过度谨慎，如果文档中有相关数据就应该回答",
+          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。\n\n重要规则：\n1. 优先从文档中提取关键数据（如营业收入、净利润、增长率等）直接回答\n2. 【数值优先用文档原文汇总数字】如果文档中有汇总数字（如\"营业收入合计4529.30亿元\"），直接引用该汇总数字，不要自行加总各细分项计算\n3. 如果文档包含部分相关信息，请基于已有信息给出答案，并说明信息来源\n4. 如果文档中有相关数值，直接引用该数值作为答案，即使数值与问题中的公司/指标不完全匹配，也先给出找到的数据\n5. 回答要简洁直接：先给出核心数据（1-2句话），再补充简要说明\n6. 【减少冗长度】如需展示计算过程，使用 <details><summary>计算过程</summary>计算步骤</details> 折叠展示，主体答案只保留结论\n7. 不要过度谨慎：只要文档中有任何相关数据就应该回答，不要轻易说无法回答\n8. 如果文档中包含公司名称和对应财务数据，直接给出该数据\n9. 对于交易规则、技术指标、合规等问题，基于文档内容直接回答",
       },
       {
         role: "user",
-        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题，优先提取关键数据。`,
+        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题。优先提取关键数据，直接给出答案。如果文档中有相关内容，不要说无法回答。`,
       },
     ]);
 
@@ -575,6 +577,83 @@ function printReport(report: EvaluationReport & {
   for (const r of report.results) {
     console.log(
       `  ${String(r.id).padStart(2)} | ${r.category.padEnd(14)} | ${r.difficulty.padEnd(6)} | ${r.retrieval.hitsAtK.toFixed(2).padStart(6)} | ${(r.retrieval.contextRelevance).toFixed(4).padStart(10)} | ${(r.retrieval.contextRecall).toFixed(4).padStart(13)} | ${r.answer.faithfulness.toFixed(4).padStart(12)} | ${r.answer.answerRelevance.toFixed(4).padStart(9)} | ${String(r.durationMs).padStart(8)}`
+    );
+  }
+  console.log("=".repeat(80) + "\n");
+}
+
+/**
+ * 输出"需人工核查"汇总表
+ * 收集所有 needsManualReview=true 的测试用例，按差值绝对值降序排列
+ * 格式参照 spec：
+ *   需人工核查的测试用例（共 X 条）：
+ *   | ID | Query | 期望数值 | Agent数值 | 差值 | 数据来源 |
+ * @param results - 评估结果列表
+ */
+function printManualReviewSummary(results: SingleTestResult[]): void {
+  // 收集所有需人工核查的测试用例
+  const reviewItems: Array<{
+    id: number | string;
+    query: string;
+    expectedNumber: number;
+    actualNumber: number;
+    difference: number;
+    absDifference: number;
+    dataSource: string;
+  }> = [];
+
+  for (const r of results) {
+    if (!r.comparison || !r.comparison.needsManualReview) continue;
+    if (!r.comparison.numericalDifference || r.comparison.numericalDifference.length === 0) continue;
+
+    // 取差值绝对值最大的不可接受项作为代表
+    const unacceptableItems = r.comparison.numericalDifference.filter((d) => !d.isAcceptable);
+    if (unacceptableItems.length === 0) continue;
+    const maxDiffItem = unacceptableItems.reduce((max, cur) =>
+      Math.abs(cur.difference) > Math.abs(max.difference) ? cur : max
+    );
+
+    // 数据来源：文档页码（如 "文档P8"），page 为 null 时显示 "文档P?"
+    const ds = r.testAnswer?.dataSource;
+    let dataSourceStr = "无";
+    if (ds && ds.documentName) {
+      const pageStr = ds.page != null ? `P${ds.page}` : "P?";
+      dataSourceStr = pageStr;
+    }
+
+    reviewItems.push({
+      id: r.id,
+      query: r.query,
+      expectedNumber: maxDiffItem.expectedNumber,
+      actualNumber: maxDiffItem.actualNumber,
+      difference: maxDiffItem.difference,
+      absDifference: Math.abs(maxDiffItem.difference),
+      dataSource: dataSourceStr,
+    });
+  }
+
+  console.log("\n" + "=".repeat(80));
+  if (reviewItems.length === 0) {
+    console.log("  需人工核查的测试用例（共 0 条）：无");
+    console.log("=".repeat(80) + "\n");
+    return;
+  }
+
+  // 按差值绝对值降序排列
+  reviewItems.sort((a, b) => b.absDifference - a.absDifference);
+
+  console.log(`  需人工核查的测试用例（共 ${reviewItems.length} 条）：`);
+  console.log("-".repeat(80));
+  console.log(
+    "  ID         | Query（截断显示）                       | 期望数值        | Agent数值       | 差值            | 数据来源"
+  );
+  console.log(
+    "  -----------|-----------------------------------------|-----------------|-----------------|-----------------|----------"
+  );
+  for (const item of reviewItems) {
+    const queryStr = item.query.length > 38 ? item.query.slice(0, 38) + "..." : item.query;
+    console.log(
+      `  ${String(item.id).padEnd(10)} | ${queryStr.padEnd(39)} | ${String(item.expectedNumber).padStart(15)} | ${String(item.actualNumber).padStart(15)} | ${String(item.difference).padStart(15)} | ${item.dataSource}`
     );
   }
   console.log("=".repeat(80) + "\n");
@@ -712,6 +791,15 @@ async function runGoldenEvaluation(
       difficulty: string;
       // 支持 canAnswer 字段，默认 true（向后兼容）
       canAnswer?: boolean;
+      // 数据来源（文档名、页码、原文）
+      dataSource?: {
+        documentName: string;
+        documentId?: string;
+        page?: number | null;
+        originalText: string;
+      } | null;
+      // 数值计算方式说明
+      calculationMethod?: string | null;
     }) => ({
       id: item.id,
       query: item.query,
@@ -720,6 +808,9 @@ async function runGoldenEvaluation(
       difficulty: item.difficulty,
       // 读取 canAnswer 字段，不存在则默认为 true
       canAnswer: item.canAnswer ?? true,
+      // 传递数据来源和计算方式，用于评估报告 testAnswer 字段
+      dataSource: item.dataSource ?? null,
+      calculationMethod: item.calculationMethod ?? null,
     })
   );
 
@@ -823,6 +914,12 @@ async function runGoldenEvaluation(
         canAnswer: testItem.canAnswer,
         durationMs,
         isError: true,
+        testAnswer: {
+          expectedAnswer: testItem.expectedAnswer,
+          dataSource: testItem.dataSource ?? null,
+          calculationMethod: testItem.calculationMethod ?? null,
+        },
+        comparison: computeNumericalDifference(testItem.expectedAnswer, ""),
       };
 
       newResults.push(resultItem);
@@ -941,12 +1038,14 @@ async function main(): Promise<void> {
     console.log("\n[run-evaluation] >>> daily 模式: 仅黄金测试集（10条），快速验证");
     const report = await runGoldenEvaluation(cliArgs, config, weights);
     printReport(report);
+    printManualReviewSummary(report.results);
     saveReport(report, cliArgs.level);
 
   } else if (cliArgs.level === "standard") {
     console.log("\n[run-evaluation] >>> standard 模式: 黄金测试集（103条），标准评估");
     const report = await runGoldenEvaluation(cliArgs, config, weights);
     printReport(report);
+    printManualReviewSummary(report.results);
     saveReport(report, cliArgs.level);
 
   } else if (cliArgs.level === "full") {
@@ -955,6 +1054,7 @@ async function main(): Promise<void> {
     console.log("\n[run-evaluation] 阶段 1/2: 黄金测试集评估（103条）");
     const goldenReport = await runGoldenEvaluation(cliArgs, config, weights);
     printReport(goldenReport);
+    printManualReviewSummary(goldenReport.results);
     saveReport(goldenReport, cliArgs.level, "golden");
 
     const datasetPathExists = checkOpenDatasetPath();
@@ -965,6 +1065,7 @@ async function main(): Promise<void> {
 
       if (openReport) {
         printReport(openReport);
+        printManualReviewSummary(openReport.results);
         saveReport(openReport, cliArgs.level, "opendataset");
 
         console.log("\n" + "=".repeat(80));

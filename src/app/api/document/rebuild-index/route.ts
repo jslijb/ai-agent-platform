@@ -65,6 +65,13 @@ export async function POST(request: NextRequest) {
         chunkText: chunk.text,
         embedding: embeddingResults[i]!,
         tokenCount: chunk.metadata.tokenCount,
+        // 保留分块器生成的 metadata，并回填 source 为文档名
+        // 注意：rebuild-index 基于 rawContent（纯文本），无法恢复 PDF 页码
+        // 页码信息需要通过重新上传文档（走 chunkDocument 流程）才能获得
+        metadata: {
+          ...chunk.metadata,
+          source: doc.fileName,
+        },
       }));
 
       await storeEmbeddings(storeItems);
