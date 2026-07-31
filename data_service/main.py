@@ -730,6 +730,84 @@ async def ocr_health():
     })
 
 
+# ===== PDF 财报表格提取端点（R001 阶段2.1）=====
+
+class PdfExtractRequest(BaseModel):
+    pdf_path: str = Field(..., description="PDF 文件绝对路径")
+    stock_code: Optional[str] = Field(default=None, description="股票代码（用于元数据标记）")
+    report_year: Optional[int] = Field(default=None, description="报告年度")
+    report_quarter: Optional[str] = Field(default=None, description="报告季度 Q1/Q2/Q3/annual")
+
+
+@app.post("/api/pdf/extract_tables")
+async def pdf_extract_tables(req: PdfExtractRequest):
+    """从财报 PDF 提取三张主表 + 附注表格
+
+    返回结构：
+    {
+        "income_statement": {"fields": {...}, "periods": [...], "pages": [...]},
+        "balance_sheet": {...},
+        "cashflow_statement": {...},
+        "raw_tables": [{"table_name": ..., "page_num": ..., "table_data": [...]}],
+        "page_count": N
+    }
+    """
+    import os
+    if not os.path.exists(req.pdf_path):
+        return _make_response(False, error=f"PDF 文件不存在: {req.pdf_path}")
+    if not req.pdf_path.lower().endswith(".pdf"):
+        return _make_response(False, error="文件不是 PDF 格式")
+
+    logger.info(f"PDF 表格提取请求: path={req.pdf_path}, stock={req.stock_code}, year={req.report_year}")
+    start_time = time.time()
+
+    try:
+        from data_service.pdf_extractor import FinancialPDFExtractor
+        with FinancialPDFExtractor(req.pdf_path) as extractor:
+            result = extractor.extract_all()
+        elapsed = time.time() - start_time
+
+        # 附加元数据
+        result["metadata"] = {
+            "pdf_path": req.pdf_path,
+            "stock_code": req.stock_code,
+            "report_year": req.report_year,
+            "report_quarter": req.report_quarter,
+        }
+        result["elapsed_ms"] = int(elapsed * 1000)
+
+        logger.info(
+            f"PDF 提取完成: {req.pdf_path}, 耗时={elapsed:.2f}s, "
+            f"income字段={len(result['income_statement']['fields'])}, "
+            f"balance字段={len(result['balance_sheet']['fields'])}, "
+            f"cashflow字段={len(result['cashflow_statement']['fields'])}, "
+            f"raw_tables={len(result['raw_tables'])}"
+        )
+        return _make_response(True, data=result)
+    except Exception as e:
+        logger.error(f"PDF 提取失败: {req.pdf_path}, error={e}", exc_info=True)
+        return _make_response(False, error=f"PDF 提取失败: {type(e).__name__}: {e}")
+
+
+@app.get("/api/pdf/health")
+async def pdf_health():
+    """PDF 提取服务健康检查"""
+    try:
+        import sys
+        from pathlib import Path
+        vendor = Path(__file__).resolve().parent.parent / "vendor"
+        if vendor.exists():
+            sys.path.insert(0, str(vendor))
+        import pdfplumber
+        return _make_response(True, data={
+            "available": True,
+            "engine": "pdfplumber",
+            "version": pdfplumber.__version__,
+        })
+    except ImportError as e:
+        return _make_response(False, error=f"pdfplumber 未安装: {e}")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)

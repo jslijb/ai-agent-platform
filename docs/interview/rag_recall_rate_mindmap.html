@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG 召回率提升思维导图</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a0a1a;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      overflow: auto;
+    }
+    .wrap {
+      width: 3200px;
+      height: 2200px;
+      position: relative;
+    }
+    .node {
+      position: absolute;
+      border-radius: 8px;
+      padding: 6px 14px;
+      white-space: nowrap;
+      font-size: 13px;
+      color: #e2e8f0;
+      cursor: default;
+      transition: transform .15s;
+      z-index: 2;
+    }
+    .node:hover { transform: scale(1.06); z-index: 10; }
+    .L0 {
+      font-size: 24px; font-weight: 800;
+      background: linear-gradient(135deg, #0e7490, #059669, #7c3aed);
+      border: 2px solid #22d3ee;
+      padding: 18px 36px;
+      border-radius: 16px;
+      color: #fff;
+      box-shadow: 0 0 40px rgba(34,211,238,.25);
+    }
+    .L1 { font-size: 16px; font-weight: 700; padding: 10px 20px; border-radius: 10px; }
+    .L2 { font-size: 13px; font-weight: 600; padding: 6px 14px; }
+    .L3 { font-size: 11px; font-weight: 400; color: #cbd5e1; padding: 4px 10px; }
+    .cyan .L1 { background: rgba(8,51,68,.85); border: 2px solid #22d3ee; color: #22d3ee; }
+    .cyan .L2 { background: rgba(8,51,68,.55); border: 1.5px solid #06b6d4; }
+    .cyan .L3 { background: rgba(8,51,68,.35); border: 1px solid #0891b2; }
+    .green .L1 { background: rgba(6,78,59,.85); border: 2px solid #34d399; color: #34d399; }
+    .green .L2 { background: rgba(6,78,59,.55); border: 1.5px solid #10b981; }
+    .green .L3 { background: rgba(6,78,59,.35); border: 1px solid #059669; }
+    .violet .L1 { background: rgba(76,29,149,.85); border: 2px solid #a78bfa; color: #a78bfa; }
+    .violet .L2 { background: rgba(76,29,149,.55); border: 1.5px solid #8b5cf6; }
+    .violet .L3 { background: rgba(76,29,149,.35); border: 1px solid #7c3aed; }
+    svg.lines {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .page-title {
+      position: fixed; top: 16px; left: 50%;
+      transform: translateX(-50%);
+      color: #64748b; font-size: 12px;
+      z-index: 100;
+    }
+  </style>
+</head>
+<body>
+<div class="page-title">RAG 召回率提升方法论 · 思维导图 &nbsp;|&nbsp; 滚动查看完整内容</div>
+
+<div class="wrap" id="map">
+
+<svg class="lines" viewBox="0 0 3200 2200" preserveAspectRatio="xMidYMid meet">
+
+  <!-- ===== 中心 → 一级 ===== -->
+  <path d="M1600,1100 C1200,1100 900,700 700,700" fill="none" stroke="#22d3ee" stroke-width="3" opacity=".7"/>
+  <path d="M1600,1100 C1600,700 1600,500 1600,300" fill="none" stroke="#34d399" stroke-width="3" opacity=".7"/>
+  <path d="M1600,1100 C2000,1100 2300,700 2500,700" fill="none" stroke="#a78bfa" stroke-width="3" opacity=".7"/>
+
+  <!-- ===== 数据与索引(700,700) → 二级 ===== -->
+  <path d="M700,700 C500,700 420,300 340,280" fill="none" stroke="#06b6d4" stroke-width="2" opacity=".65"/>
+  <path d="M700,700 C500,700 400,680 320,680" fill="none" stroke="#06b6d4" stroke-width="2" opacity=".65"/>
+  <path d="M700,700 C500,700 400,1060 320,1080" fill="none" stroke="#06b6d4" stroke-width="2" opacity=".65"/>
+  <path d="M700,700 C500,700 420,1440 340,1460" fill="none" stroke="#06b6d4" stroke-width="2" opacity=".65"/>
+
+  <!-- 文档清洗(340,280) → 三级 -->
+  <path d="M340,280 C260,280 220,150 160,140" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M340,280 C260,280 220,190 160,180" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M340,280 C260,280 220,230 160,225" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M340,280 C260,280 220,270 160,270" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 分块策略(320,680) → 三级 -->
+  <path d="M320,680 C240,680 200,560 140,550" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M320,680 C240,680 200,600 140,590" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M320,680 C240,680 200,640 140,635" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M320,680 C240,680 200,680 140,680" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 元数据(320,1080) → 三级 -->
+  <path d="M320,1080 C240,1080 200,960 140,950" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M320,1080 C240,1080 200,1000 140,990" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M320,1080 C240,1080 200,1040 140,1035" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M320,1080 C240,1080 200,1080 140,1080" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 表格处理(340,1460) → 三级 -->
+  <path d="M340,1460 C260,1460 220,1340 160,1330" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M340,1460 C260,1460 220,1380 160,1370" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M340,1460 C260,1460 220,1420 160,1415" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+  <path d="M340,1460 C260,1460 220,1460 160,1460" fill="none" stroke="#22d3ee" stroke-width="1.2" opacity=".75"/>
+
+  <!-- ===== 查询与检索(1600,300) → 二级 ===== -->
+  <!-- 左侧3个 -->
+  <path d="M1600,300 C1400,300 1200,100 1100,80" fill="none" stroke="#10b981" stroke-width="2" opacity=".65"/>
+  <path d="M1600,300 C1400,300 1200,260 1100,260" fill="none" stroke="#10b981" stroke-width="2" opacity=".65"/>
+  <path d="M1600,300 C1400,300 1200,440 1100,460" fill="none" stroke="#10b981" stroke-width="2" opacity=".65"/>
+  <!-- 右侧3个 -->
+  <path d="M1600,300 C1800,300 2000,100 2100,80" fill="none" stroke="#10b981" stroke-width="2" opacity=".65"/>
+  <path d="M1600,300 C1800,300 2000,260 2100,260" fill="none" stroke="#10b981" stroke-width="2" opacity=".65"/>
+  <path d="M1600,300 C1800,300 2000,440 2100,460" fill="none" stroke="#10b981" stroke-width="2" opacity=".65"/>
+
+  <!-- 查询改写(1100,80) → 三级 -->
+  <path d="M1100,80 C1040,80 980,40 920,30" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M1100,80 C1040,80 980,75 920,65" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M1100,80 C1040,80 980,110 920,105" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 混合检索(1100,260) → 三级 -->
+  <path d="M1100,260 C1040,260 980,220 920,210" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M1100,260 C1040,260 980,255 920,245" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M1100,260 C1040,260 980,290 920,285" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 多路召回(1100,460) → 三级 -->
+  <path d="M1100,460 C1040,460 980,430 920,420" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M1100,460 C1040,460 980,465 920,460" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+
+  <!-- Embedding模型(2100,80) → 三级 -->
+  <path d="M2100,80 C2160,80 2220,40 2280,30" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,80 C2160,80 2220,75 2280,65" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,80 C2160,80 2220,110 2280,105" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,80 C2160,80 2220,145 2280,145" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+
+  <!-- Top-K参数(2100,260) → 三级 -->
+  <path d="M2100,260 C2160,260 2220,215 2280,205" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,260 C2160,260 2220,250 2280,240" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,260 C2160,260 2220,285 2280,280" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,260 C2160,260 2220,320 2280,320" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 父子块检索(2100,460) → 三级 -->
+  <path d="M2100,460 C2160,460 2220,410 2280,400" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,460 C2160,460 2220,445 2280,440" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,460 C2160,460 2220,480 2280,480" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+  <path d="M2100,460 C2160,460 2220,515 2280,520" fill="none" stroke="#34d399" stroke-width="1.2" opacity=".75"/>
+
+  <!-- ===== 重排序与评估(2500,700) → 二级 ===== -->
+  <path d="M2500,700 C2700,700 2800,400 2880,380" fill="none" stroke="#8b5cf6" stroke-width="2" opacity=".65"/>
+  <path d="M2500,700 C2700,700 2800,580 2880,570" fill="none" stroke="#8b5cf6" stroke-width="2" opacity=".65"/>
+  <path d="M2500,700 C2700,700 2800,760 2880,770" fill="none" stroke="#8b5cf6" stroke-width="2" opacity=".65"/>
+  <path d="M2500,700 C2700,700 2800,940 2880,960" fill="none" stroke="#8b5cf6" stroke-width="2" opacity=".65"/>
+  <path d="M2500,700 C2700,700 2800,1120 2880,1140" fill="none" stroke="#8b5cf6" stroke-width="2" opacity=".65"/>
+
+  <!-- Rerank(2880,380) → 三级 -->
+  <path d="M2880,380 C2920,380 2960,340 3000,330" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,380 C2920,380 2960,375 3000,370" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,380 C2920,380 2960,410 3000,410" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 多粒度Rerank(2880,570) → 三级 -->
+  <path d="M2880,570 C2920,570 2960,530 3000,520" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,570 C2920,570 2960,565 3000,560" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,570 C2920,570 2960,600 3000,600" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 评估体系(2880,770) → 三级 -->
+  <path d="M2880,770 C2920,770 2960,730 3000,720" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,770 C2920,770 2960,765 3000,760" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,770 C2920,770 2960,800 3000,800" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 量化指标(2880,960) → 三级 -->
+  <path d="M2880,960 C2920,960 2960,910 3000,900" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,960 C2920,960 2960,945 3000,940" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,960 C2920,960 2960,980 3000,980" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,960 C2920,960 2960,1015 3000,1020" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+
+  <!-- 评估闭环(2880,1140) → 三级 -->
+  <path d="M2880,1140 C2920,1140 2960,1100 3000,1090" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,1140 C2920,1140 2960,1135 3000,1130" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+  <path d="M2880,1140 C2920,1140 2960,1170 3000,1170" fill="none" stroke="#a78bfa" stroke-width="1.2" opacity=".75"/>
+
+  <!-- ===== 底部总结 ===== -->
+  <rect x="500" y="1700" width="2200" height="70" rx="12" fill="rgba(30,41,59,.5)" stroke="#475569" stroke-width="1.5"/>
+  <text x="1600" y="1732" fill="#e2e8f0" font-size="15" font-weight="700" text-anchor="middle">
+    实战路径: 基线(纯向量) → 优质Embedding → 混合检索(RRF) → Rerank重排 → 评估体系持续迭代 &nbsp;&nbsp;|&nbsp;&nbsp; 召回率 78% → 92%
+  </text>
+
+  <rect x="500" y="1800" width="2200" height="70" rx="12" fill="rgba(30,41,59,.5)" stroke="#475569" stroke-width="1.5"/>
+  <text x="1600" y="1832" fill="#94a3b8" font-size="13" font-weight="600" text-anchor="middle">
+    Chunk Size: 优先按段落/章节语义切分 → 超过2048按句子边界切 → 极端超长硬切+10% overlap → 父子块解耦检索粒度与生成粒度
+  </text>
+
+  <rect x="500" y="1900" width="2200" height="70" rx="12" fill="rgba(30,41,59,.5)" stroke="#475569" stroke-width="1.5"/>
+  <text x="1600" y="1932" fill="#94a3b8" font-size="13" font-weight="600" text-anchor="middle">
+    Top-K 预算分配: N_parent = LLM容量/父块P95长度 &nbsp;|&nbsp; N_rerank = N_parent × 每父块子块数 × 扩散系数(2~3) &nbsp;|&nbsp; N_retrieval = max(拐点, N_rerank×3)
+  </text>
+</svg>
+
+<!-- ============ 节点层 ============ -->
+
+<!-- L0 中心 -->
+<div class="node L0" style="left:1500px;top:1070px">RAG 召回率提升</div>
+
+<!-- ===== 左侧：数据与索引优化 ===== -->
+<div class="cyan">
+  <div class="node L1" style="left:580px;top:670px">📈 数据与索引优化</div>
+
+  <!-- L2: 4个节点，纵向均匀分布 -->
+  <div class="node L2" style="left:260px;top:260px">文档清洗与结构化</div>
+  <div class="node L2" style="left:240px;top:660px">文本分块策略 (Chunk Size)</div>
+  <div class="node L2" style="left:240px;top:1060px">元数据与索引</div>
+  <div class="node L2" style="left:260px;top:1440px">表格处理</div>
+
+  <!-- L3: 文档清洗 -->
+  <div class="node L3" style="left:80px;top:120px">去除HTML标签/广告/噪声</div>
+  <div class="node L3" style="left:80px;top:160px">SimHash 去重</div>
+  <div class="node L3" style="left:80px;top:200px">提取标题/段落结构</div>
+  <div class="node L3" style="left:80px;top:240px">全角半角统一/日期格式化</div>
+
+  <!-- L3: 分块策略 -->
+  <div class="node L3" style="left:60px;top:530px">起点: 512 tokens + 10-15% overlap</div>
+  <div class="node L3" style="left:60px;top:570px">进阶: 按段落/章节动态切分</div>
+  <div class="node L3" style="left:60px;top:610px">父子块: 小粒度匹配/大粒度生成</div>
+  <div class="node L3" style="left:60px;top:650px">硬上限: 2048 tokens</div>
+
+  <!-- L3: 元数据 -->
+  <div class="node L3" style="left:60px;top:930px">6类元数据(描述/管理/结构/权限/标记/关联)</div>
+  <div class="node L3" style="left:60px;top:970px">3层标签(基础/领域/场景)</div>
+  <div class="node L3" style="left:60px;top:1010px">向量库内联存储 + 元数据过滤</div>
+  <div class="node L3" style="left:60px;top:1050px">书籍: 章节→小节→段落层级索引</div>
+
+  <!-- L3: 表格 -->
+  <div class="node L3" style="left:80px;top:1310px">合并单元格: 网格化检测+填充重复值</div>
+  <div class="node L3" style="left:80px;top:1350px">跨页: 表头指纹匹配+渐进拼接</div>
+  <div class="node L3" style="left:80px;top:1390px">横向: 旋转校正+orientation标记</div>
+  <div class="node L3" style="left:80px;top:1430px">行级拆分: "列头: 值" 结构化文本</div>
+</div>
+
+<!-- ===== 上方：查询与检索策略 ===== -->
+<div class="green">
+  <div class="node L1" style="left:1470px;top:270px">🔍 查询与检索策略优化</div>
+
+  <!-- L2 左侧3个 -->
+  <div class="node L2" style="left:980px;top:60px">查询改写与扩展</div>
+  <div class="node L2" style="left:980px;top:240px">混合检索 Hybrid Search</div>
+  <div class="node L2" style="left:980px;top:440px">多路召回</div>
+
+  <!-- L2 右侧3个 -->
+  <div class="node L2" style="left:1980px;top:60px">选择 Embedding 模型</div>
+  <div class="node L2" style="left:1980px;top:240px">Top-K 参数设置</div>
+  <div class="node L2" style="left:1980px;top:440px">父子块检索流程</div>
+
+  <!-- L3: 查询改写 -->
+  <div class="node L3" style="left:780px;top:10px">LLM 查询改写</div>
+  <div class="node L3" style="left:780px;top:45px">同义词/相关词扩展</div>
+  <div class="node L3" style="left:780px;top:80px">HyDE 假设性文档嵌入</div>
+
+  <!-- L3: 混合检索 -->
+  <div class="node L3" style="left:780px;top:195px">向量检索(语义理解)</div>
+  <div class="node L3" style="left:780px;top:230px">BM25 关键词检索</div>
+  <div class="node L3" style="left:780px;top:265px">RRF 倒数排名融合 (K=60)</div>
+
+  <!-- L3: 多路召回 -->
+  <div class="node L3" style="left:780px;top:410px">知识图谱检索</div>
+  <div class="node L3" style="left:780px;top:445px">表格/图片特殊内容检索</div>
+
+  <!-- L3: Embedding模型 -->
+  <div class="node L3" style="left:2180px;top:10px">中文: BGE-large-zh</div>
+  <div class="node L3" style="left:2180px;top:45px">商业: text-embedding-3-large</div>
+  <div class="node L3" style="left:2180px;top:80px">轻量: M3E-large</div>
+  <div class="node L3" style="left:2180px;top:115px">领域微调可提升约2%</div>
+
+  <!-- L3: Top-K参数 -->
+  <div class="node L3" style="left:2180px;top:185px">粗排: 低成本高召回, 起始100~1000</div>
+  <div class="node L3" style="left:2180px;top:220px">精排: 精准高质量, 起始5~20</div>
+  <div class="node L3" style="left:2180px;top:255px">预算分配: N_parent=LLM容量/父块P95</div>
+  <div class="node L3" style="left:2180px;top:290px">动态: 事实型3-5 / 分析型10-20</div>
+
+  <!-- L3: 父子块检索 -->
+  <div class="node L3" style="left:2180px;top:380px">1. 向量检索 Top-100 子块</div>
+  <div class="node L3" style="left:2180px;top:415px">2. Rerank 子块取 Top-20</div>
+  <div class="node L3" style="left:2180px;top:450px">3. 提取 parent_id → 映射父块</div>
+  <div class="node L3" style="left:2180px;top:485px">4. 按原文排序拼接 → 送入LLM</div>
+</div>
+
+<!-- ===== 右侧：重排序与评估 ===== -->
+<div class="violet">
+  <div class="node L1" style="left:2360px;top:670px">🎯 重排序与评估迭代</div>
+
+  <div class="node L2" style="left:2780px;top:360px">重排序 Rerank</div>
+  <div class="node L2" style="left:2780px;top:550px">多粒度 Rerank 位置</div>
+  <div class="node L2" style="left:2780px;top:750px">科学评估体系</div>
+  <div class="node L2" style="left:2780px;top:940px">RAG 量化指标</div>
+  <div class="node L2" style="left:2780px;top:1120px">评估闭环</div>
+
+  <!-- L3: Rerank -->
+  <div class="node L3" style="left:2900px;top:320px">Cross-Encoder 精确语义打分</div>
+  <div class="node L3" style="left:2900px;top:355px">粗筛50~100 → Rerank → Top-K</div>
+  <div class="node L3" style="left:2900px;top:390px">首位命中率 45% → 68%</div>
+
+  <!-- L3: 多粒度Rerank -->
+  <div class="node L3" style="left:2900px;top:510px">Rerank操作对象是子块(非父块)</div>
+  <div class="node L3" style="left:2900px;top:545px">子块短→打分精准/父块长→爆显存</div>
+  <div class="node L3" style="left:2900px;top:580px">Rerank子块→映射父块→送LLM</div>
+
+  <!-- L3: 评估体系 -->
+  <div class="node L3" style="left:2900px;top:710px">Golden Dataset 100+ QA对</div>
+  <div class="node L3" style="left:2900px;top:745px">检索指标 + 生成指标</div>
+  <div class="node L3" style="left:2900px;top:780px">离线评估 + 在线监控</div>
+
+  <!-- L3: 量化指标 -->
+  <div class="node L3" style="left:2900px;top:900px">检索: Recall / Precision / MRR</div>
+  <div class="node L3" style="left:2900px;top:935px">检索: MAP / nDCG</div>
+  <div class="node L3" style="left:2900px;top:970px">生成: Faithfulness / Answer Relevance</div>
+  <div class="node L3" style="left:2900px;top:1005px">生成: Context Relevance / BLEU / ROUGE</div>
+
+  <!-- L3: 评估闭环 -->
+  <div class="node L3" style="left:2900px;top:1080px">评估 → 分析 → 优化</div>
+  <div class="node L3" style="left:2900px;top:1115px">用数据驱动每一次迭代</div>
+  <div class="node L3" style="left:2900px;top:1150px">AB测试: 50~100 QA × [128,256,512,1024]</div>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+  function fitMap() {
+    const wrap = document.querySelector('.wrap');
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const s = Math.min(vw / 3200, vh / 2000, 1);
+    wrap.style.transform = `scale(${s})`;
+    wrap.style.transformOrigin = '0 0';
+    wrap.style.width = '3200px';
+    wrap.style.height = '2200px';
+  }
+  fitMap();
+  window.addEventListener('resize', fitMap);
+</script>
+</body>
+</html>

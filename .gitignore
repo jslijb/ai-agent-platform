@@ -104,3 +104,26 @@ settings.json
 test_cache.py
 gguf_meta_output.txt
 evaluation-config.yaml
+
+# Python vendor deps (installed to local dir to bypass Windows permissions)
+/vendor/
+
+# Temporary debug/diagnostic scripts (prefixed with _)
+scripts/_debug_*.py
+scripts/_diag_*.py
+scripts/_test_*.py
+scripts/_dump_*.py
+scripts/_list_*.py
+scripts/_survey_*.py
+scripts/_check_*.py
+scripts/_verify_*.py
+scripts/_add_*.py
+
+# Runtime caches
+scripts/_chunks_cache.json
+scripts/_search_cache.json
+
+# SQL scratch files
+tmp_*.sql
+scripts/check_*.sql
+scripts/cleanup_*.sql

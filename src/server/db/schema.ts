@@ -576,3 +576,220 @@ export const complianceLogs = pgTable(
     userIdTimestampIdx: index("compliance_logs_user_id_timestamp_idx").on(table.userId, table.timestamp),
   }),
 );
+
+// ============================================================
+// 财务数据表（ADR-011：五表双轨制 + 查询路由）
+// 详见 docs/adr/011-financial-data-to-postgresql.md 和 docs/spec.md
+// 核心原则：指标清单驱动路由，命中走SQL，未命中走向量fallback
+// ============================================================
+
+// 公司映射表 - 解决SQL精确查询的公司名匹配问题
+export const stockMapping = pgTable(
+  "stock_mapping",
+  {
+    stockCode: varchar("stock_code", { length: 10 }).primaryKey(),
+    stockNameFull: varchar("stock_name_full", { length: 100 }).notNull(),
+    stockNameShort: varchar("stock_name_short", { length: 50 }).notNull(),
+    stockNameAlias: jsonb("stock_name_alias").default([]),
+    exchange: varchar("exchange", { length: 10 }),
+    industry: varchar("industry", { length: 50 }),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+  },
+  (table) => ({
+    nameShortIdx: index("stock_mapping_name_short_idx").on(table.stockNameShort),
+  }),
+);
+
+// 指标别名词典 - 解决query标准化问题
+export const indicatorAliases = pgTable(
+  "indicator_aliases",
+  {
+    id: serial("id").primaryKey(),
+    standardName: varchar("standard_name", { length: 50 }).notNull().unique(),
+    standardTable: varchar("standard_table", { length: 50 }).notNull(),
+    aliasList: jsonb("alias_list").notNull().default([]),
+    description: varchar("description", { length: 200 }),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+  },
+  (table) => ({
+    standardNameIdx: index("indicator_aliases_standard_name_idx").on(table.standardName),
+  }),
+);
+
+// 利润表标准化指标
+export const financialIncome = pgTable(
+  "financial_income",
+  {
+    id: serial("id").primaryKey(),
+    stockCode: varchar("stock_code", { length: 10 }).notNull(),
+    reportYear: integer("report_year").notNull(),
+    reportQuarter: varchar("report_quarter", { length: 10 }).notNull(),
+    reportType: varchar("report_type", { length: 20 }).notNull(),
+    revenue: numeric("revenue"),
+    operatingCost: numeric("operating_cost"),
+    operatingProfit: numeric("operating_profit"),
+    netProfit: numeric("net_profit"),
+    netProfitAttributable: numeric("net_profit_attributable"),
+    eps: numeric("eps"),
+    bvps: numeric("bvps"),
+    grossMargin: numeric("gross_margin"),
+    netMargin: numeric("net_margin"),
+    rdExpense: numeric("rd_expense"),
+    sellingExpense: numeric("selling_expense"),
+    administrativeExpense: numeric("administrative_expense"),
+    financialExpense: numeric("financial_expense"),
+    premiumIncome: numeric("premium_income"),
+    commissionIncome: numeric("commission_income"),
+    newSignedContract: numeric("new_signed_contract"),
+    source: varchar("source", { length: 20 }).notNull(),
+    sourcePriority: integer("source_priority").notNull(),
+    documentId: varchar("document_id", { length: 64 }),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow().$onUpdateFn(() => new Date()),
+  },
+  (table) => ({
+    stockCodeIdx: index("financial_income_stock_code_idx").on(table.stockCode),
+    yearQuarterIdx: index("financial_income_year_quarter_idx").on(table.reportYear, table.reportQuarter),
+    uniqueIdx: index("financial_income_unique_idx").on(table.stockCode, table.reportYear, table.reportQuarter, table.reportType),
+  }),
+);
+
+// 资产负债表标准化指标
+export const financialBalancesheet = pgTable(
+  "financial_balancesheet",
+  {
+    id: serial("id").primaryKey(),
+    stockCode: varchar("stock_code", { length: 10 }).notNull(),
+    reportYear: integer("report_year").notNull(),
+    reportQuarter: varchar("report_quarter", { length: 10 }).notNull(),
+    reportType: varchar("report_type", { length: 20 }).notNull(),
+    totalAssets: numeric("total_assets"),
+    totalLiabilities: numeric("total_liabilities"),
+    totalEquity: numeric("total_equity"),
+    equityAttributable: numeric("equity_attributable"),
+    currentAssets: numeric("current_assets"),
+    nonCurrentAssets: numeric("non_current_assets"),
+    currentLiabilities: numeric("current_liabilities"),
+    nonCurrentLiabilities: numeric("non_current_liabilities"),
+    cash: numeric("cash"),
+    accountsReceivable: numeric("accounts_receivable"),
+    inventory: numeric("inventory"),
+    fixedAssets: numeric("fixed_assets"),
+    goodwill: numeric("goodwill"),
+    debtRatio: numeric("debt_ratio"),
+    source: varchar("source", { length: 20 }).notNull(),
+    sourcePriority: integer("source_priority").notNull(),
+    documentId: varchar("document_id", { length: 64 }),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow().$onUpdateFn(() => new Date()),
+  },
+  (table) => ({
+    stockCodeIdx: index("financial_balancesheet_stock_code_idx").on(table.stockCode),
+    yearQuarterIdx: index("financial_balancesheet_year_quarter_idx").on(table.reportYear, table.reportQuarter),
+    uniqueIdx: index("financial_balancesheet_unique_idx").on(table.stockCode, table.reportYear, table.reportQuarter, table.reportType),
+  }),
+);
+
+// 现金流量表标准化指标
+export const financialCashflow = pgTable(
+  "financial_cashflow",
+  {
+    id: serial("id").primaryKey(),
+    stockCode: varchar("stock_code", { length: 10 }).notNull(),
+    reportYear: integer("report_year").notNull(),
+    reportQuarter: varchar("report_quarter", { length: 10 }).notNull(),
+    reportType: varchar("report_type", { length: 20 }).notNull(),
+    operatingCashFlow: numeric("operating_cash_flow"),
+    investingCashFlow: numeric("investing_cash_flow"),
+    financingCashFlow: numeric("financing_cash_flow"),
+    cashFlowFromOperating: numeric("cash_flow_from_operating"),
+    cashFlowFromInvesting: numeric("cash_flow_from_investing"),
+    cashFlowFromFinancing: numeric("cash_flow_from_financing"),
+    freeCashFlow: numeric("free_cash_flow"),
+    source: varchar("source", { length: 20 }).notNull(),
+    sourcePriority: integer("source_priority").notNull(),
+    documentId: varchar("document_id", { length: 64 }),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow().$onUpdateFn(() => new Date()),
+  },
+  (table) => ({
+    stockCodeIdx: index("financial_cashflow_stock_code_idx").on(table.stockCode),
+    yearQuarterIdx: index("financial_cashflow_year_quarter_idx").on(table.reportYear, table.reportQuarter),
+    uniqueIdx: index("financial_cashflow_unique_idx").on(table.stockCode, table.reportYear, table.reportQuarter, table.reportType),
+  }),
+);
+
+// 衍生指标宽表 - 三张表的计算字段
+export const financialIndicators = pgTable(
+  "financial_indicators",
+  {
+    id: serial("id").primaryKey(),
+    stockCode: varchar("stock_code", { length: 10 }).notNull(),
+    reportYear: integer("report_year").notNull(),
+    reportQuarter: varchar("report_quarter", { length: 10 }).notNull(),
+    reportType: varchar("report_type", { length: 20 }).notNull(),
+    roe: numeric("roe"),
+    roa: numeric("roa"),
+    grossMargin: numeric("gross_margin"),
+    netMargin: numeric("net_margin"),
+    debtRatio: numeric("debt_ratio"),
+    currentRatio: numeric("current_ratio"),
+    quickRatio: numeric("quick_ratio"),
+    revenueYoy: numeric("revenue_yoy"),
+    netProfitYoy: numeric("net_profit_yoy"),
+    totalAssetsYoy: numeric("total_assets_yoy"),
+    eps: numeric("eps"),
+    bvps: numeric("bvps"),
+    operatingCashFlowPerShare: numeric("operating_cash_flow_per_share"),
+    source: varchar("source", { length: 20 }).notNull(),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+  },
+  (table) => ({
+    stockCodeIdx: index("financial_indicators_stock_code_idx").on(table.stockCode),
+    yearQuarterIdx: index("financial_indicators_year_quarter_idx").on(table.reportYear, table.reportQuarter),
+    uniqueIdx: index("financial_indicators_unique_idx").on(table.stockCode, table.reportYear, table.reportQuarter, table.reportType),
+  }),
+);
+
+// 原始表格JSON存储 - 10%个性表格
+export const financialRawTables = pgTable(
+  "financial_raw_tables",
+  {
+    id: serial("id").primaryKey(),
+    stockCode: varchar("stock_code", { length: 10 }).notNull(),
+    reportYear: integer("report_year").notNull(),
+    reportQuarter: varchar("report_quarter", { length: 10 }),
+    tableName: varchar("table_name", { length: 100 }).notNull(),
+    tableData: jsonb("table_data").notNull(),
+    pageNum: integer("page_num"),
+    sourceDocumentId: varchar("source_document_id", { length: 64 }),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+  },
+  (table) => ({
+    stockCodeIdx: index("financial_raw_tables_stock_code_idx").on(table.stockCode),
+    yearIdx: index("financial_raw_tables_year_idx").on(table.reportYear),
+    tableNameIdx: index("financial_raw_tables_table_name_idx").on(table.tableName),
+  }),
+);
+
+// 数据冲突日志
+export const financialConflictLog = pgTable(
+  "financial_conflict_log",
+  {
+    id: serial("id").primaryKey(),
+    stockCode: varchar("stock_code", { length: 10 }).notNull(),
+    reportYear: integer("report_year").notNull(),
+    reportQuarter: varchar("report_quarter", { length: 10 }).notNull(),
+    fieldName: varchar("field_name", { length: 50 }).notNull(),
+    oldValue: text("old_value"),
+    oldSource: varchar("old_source", { length: 20 }),
+    newValue: text("new_value"),
+    newSource: varchar("new_source", { length: 20 }),
+    tableName: varchar("table_name", { length: 50 }).notNull(),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+  },
+  (table) => ({
+    stockCodeIdx: index("financial_conflict_log_stock_code_idx").on(table.stockCode),
+    yearQuarterIdx: index("financial_conflict_log_year_quarter_idx").on(table.reportYear, table.reportQuarter),
+  }),
+);
