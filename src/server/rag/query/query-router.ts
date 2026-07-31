@@ -8,12 +8,24 @@
  *
  * 实施进度：
  *   - [x] 3.1 意图识别（classifyIntent 纯函数，规则匹配，不调 LLM）
- *   - [ ] 3.2 公司名识别 + 指标识别（DB 查 stock_mapping / indicator_aliases）
- *   - [ ] 3.3 模板 SQL 查询（drizzle 查 financial_income 等）
- *   - [ ] 3.4 接入 RAG API（routeQuery 整合）
+ *   - [x] 3.2 公司名识别 + 指标识别（DB 查 stock_mapping / indicator_aliases）
+ *   - [x] 3.3 模板 SQL 查询（drizzle 查 financial_income 等）
+ *   - [x] 3.4 接入 RAG API（routeQuery 整合）
  *
  * 详见：docs/spec.md 第五章、docs/adr/011-financial-data-to-postgresql.md
  */
+
+import { db, sql } from "@/server/db/client";
+import {
+  stockMapping,
+  indicatorAliases,
+  financialIncome,
+  financialBalancesheet,
+  financialCashflow,
+  financialIndicators,
+  financialRawTables,
+} from "@/server/db/schema";
+import { eq, and, ilike, sql as dsql } from "drizzle-orm";
 
 // ===== 类型定义 =====
 
@@ -47,6 +59,9 @@ export interface RouteResult {
   route: QueryRoute;
   sqlResult?: Record<string, unknown>[];
   vectorResult?: Array<{ text: string; documentId: string; score: number }>;
+  // 调试信息
+  matchedNumericKeywords?: string[];
+  matchedNonNumericKeywords?: string[];
 }
 
 // ===== 3.1 意图识别（纯函数，不调 LLM）=====
@@ -87,6 +102,8 @@ const NUMERIC_KEYWORDS = [
   "PE", "PB", "市盈率", "市净率", "估值",
   // 分红（数值类）
   "分红", "股息率", "每股股息",
+  // 行业专用指标（建筑类新签合同，覆盖"新签合同额/新签合同/新签订单"）
+  "新签合同",
 ] as const;
 
 const NON_NUMERIC_KEYWORDS = [
@@ -142,38 +159,123 @@ export function classifyIntent(query: string): IntentResult {
   };
 }
 
-// ===== 3.2 公司名识别 + 指标识别（DB 层，下一轮实现）=====
+// ===== 3.2 公司名识别 + 指标识别（DB 层）=====
 
 /**
  * 公司名识别：从 query 中识别公司名，返回 stock_code
  *
  * 逻辑（spec.md 5.2）：
- *   1. 精确匹配 stock_mapping.stock_name_short
- *   2. 未命中 → 模糊匹配 stock_name_alias (pg_trgm, similarity > 0.6)
- *   3. 未命中 → LLM 兜底（首期不接，返回 null）
+ *   1. 精确匹配 stock_mapping.stock_name_short（substring 匹配）
+ *   2. 未命中 → 模糊匹配 stock_name_alias (jsonb 数组包含)
+ *   3. 未命中 → 返回 null（首期不接 LLM 兜底）
  */
 export async function identifyCompany(
-  _query: string,
+  query: string,
 ): Promise<CompanyMatch | null> {
-  // TODO: 阶段3.2 实现 - 查 stock_mapping 表
-  throw new Error("Not implemented: 阶段3.2 identifyCompany（待查 stock_mapping 表）");
+  // 1. 查全部 stock_mapping（10家样本量小，全表扫描即可；5000+公司时可改为 ILIKE 预过滤）
+  const allCompanies = await db
+    .select({
+      stockCode: stockMapping.stockCode,
+      stockNameShort: stockMapping.stockNameShort,
+      stockNameFull: stockMapping.stockNameFull,
+      stockNameAlias: stockMapping.stockNameAlias,
+    })
+    .from(stockMapping);
+
+  // 2. 精确匹配 stock_name_short（query 包含简称）
+  for (const c of allCompanies) {
+    if (query.includes(c.stockNameShort)) {
+      return {
+        stockCode: c.stockCode,
+        stockNameShort: c.stockNameShort,
+        matchedBy: "exact",
+      };
+    }
+  }
+
+  // 3. 模糊匹配 stock_name_alias（jsonb 数组，逐个检查）
+  for (const c of allCompanies) {
+    const aliasList = Array.isArray(c.stockNameAlias) ? c.stockNameAlias : [];
+    for (const alias of aliasList) {
+      if (typeof alias === "string" && query.includes(alias) && alias.length >= 2) {
+        return {
+          stockCode: c.stockCode,
+          stockNameShort: c.stockNameShort,
+          matchedBy: "alias",
+        };
+      }
+    }
+  }
+
+  // 4. 未命中（首期不接 LLM 兜底）
+  return null;
 }
 
 /**
  * 指标识别：从 query 中识别标准化指标名
  *
  * 逻辑（spec.md 5.3）：
- *   1. 正则匹配 indicator_aliases.alias_list
- *   2. 未命中 → LLM 改写（首期不接，返回空数组）
+ *   1. 正则匹配 indicator_aliases.alias_list（query 包含 alias 子串）
+ *   2. 未命中 → 返回空数组（首期不接 LLM 改写）
  */
 export async function identifyIndicators(
-  _query: string,
+  query: string,
 ): Promise<IndicatorMatch[]> {
-  // TODO: 阶段3.2 实现 - 查 indicator_aliases 表
-  throw new Error("Not implemented: 阶段3.2 identifyIndicators（待查 indicator_aliases 表）");
+  // 查全部 indicator_aliases（42条，全表扫描）
+  const allAliases = await db
+    .select({
+      standardName: indicatorAliases.standardName,
+      standardTable: indicatorAliases.standardTable,
+      aliasList: indicatorAliases.aliasList,
+    })
+    .from(indicatorAliases);
+
+  const matches: IndicatorMatch[] = [];
+  const matchedStandardNames = new Set<string>();
+
+  // 按 alias 长度降序排序（长 alias 优先匹配，避免"净利润"误匹配到"归母净利润"）
+  const aliasEntries: Array<{
+    standardName: string;
+    standardTable: string;
+    alias: string;
+  }> = [];
+  for (const a of allAliases) {
+    const aliasList = Array.isArray(a.aliasList) ? a.aliasList : [];
+    for (const alias of aliasList) {
+      if (typeof alias === "string" && alias.length >= 2) {
+        aliasEntries.push({
+          standardName: a.standardName,
+          standardTable: a.standardTable,
+          alias,
+        });
+      }
+    }
+  }
+  aliasEntries.sort((a, b) => b.alias.length - a.alias.length);
+
+  // 逐个匹配
+  for (const entry of aliasEntries) {
+    if (matchedStandardNames.has(entry.standardName)) continue;
+    if (query.includes(entry.alias)) {
+      const fullRecord = allAliases.find(
+        (a) => a.standardName === entry.standardName,
+      );
+      matches.push({
+        standardName: entry.standardName,
+        standardTable: entry.standardTable,
+        aliasList: Array.isArray(fullRecord?.aliasList)
+          ? (fullRecord!.aliasList as string[])
+          : [],
+        matchedAlias: entry.alias,
+      });
+      matchedStandardNames.add(entry.standardName);
+    }
+  }
+
+  return matches;
 }
 
-// ===== 3.3 模板 SQL 查询（DB 层，下一轮实现）=====
+// ===== 3.3 模板 SQL 查询（DB 层）=====
 
 /**
  * 模板 SQL 查询：按 standard_table 分组查询
@@ -181,18 +283,146 @@ export async function identifyIndicators(
  * 模板（spec.md 5.4）：
  *   SELECT {standard_name} FROM {standard_table}
  *   WHERE stock_code = ? AND report_year = ? AND report_quarter = ?;
+ *
+ * 实现：按 standard_table 分组，每组查一次，合并结果
  */
 export async function executeSqlQuery(
-  _stockCode: string,
-  _indicators: IndicatorMatch[],
-  _reportYear: number = 2025,
-  _reportQuarter: string = "annual",
+  stockCode: string,
+  indicators: IndicatorMatch[],
+  reportYear: number = 2025,
+  reportQuarter: string = "annual",
 ): Promise<Record<string, unknown>[]> {
-  // TODO: 阶段3.3 实现 - drizzle 查 financial_income/balancesheet/cashflow/indicators
-  throw new Error("Not implemented: 阶段3.3 executeSqlQuery（待用 drizzle 查 financial 表）");
+  if (indicators.length === 0) return [];
+
+  // 按 standard_table 分组
+  const groupedByTable = new Map<string, IndicatorMatch[]>();
+  for (const ind of indicators) {
+    const list = groupedByTable.get(ind.standardTable) ?? [];
+    list.push(ind);
+    groupedByTable.set(ind.standardTable, list);
+  }
+
+  const results: Record<string, unknown>[] = [];
+
+  // 对每张表执行查询
+  for (const [tableName, tableIndicators] of Array.from(groupedByTable.entries())) {
+    const standardNames = tableIndicators.map((i: IndicatorMatch) => i.standardName);
+    const rows = await queryFinancialTable(tableName, stockCode, reportYear, reportQuarter);
+    // 给每行标注来源表和命中的指标
+    for (const row of rows) {
+      results.push({
+        ...row,
+        _sourceTable: tableName,
+        _matchedIndicators: standardNames,
+      });
+    }
+  }
+
+  return results;
 }
 
-// ===== 3.4 路由整合（下一轮实现）=====
+/**
+ * 查询单张财务表（drizzle）
+ * 只取需要的列（standardName 对应的字段），避免 SELECT *
+ */
+async function queryFinancialTable(
+  tableName: string,
+  stockCode: string,
+  reportYear: number,
+  reportQuarter: string,
+): Promise<Record<string, unknown>[]> {
+  const whereClause = and(
+    eq(financialIncome.stockCode, stockCode),
+    eq(financialIncome.reportYear, reportYear),
+    eq(financialIncome.reportQuarter, reportQuarter),
+  );
+
+  switch (tableName) {
+    case "financial_income": {
+      return await db
+        .select()
+        .from(financialIncome)
+        .where(
+          and(
+            eq(financialIncome.stockCode, stockCode),
+            eq(financialIncome.reportYear, reportYear),
+            eq(financialIncome.reportQuarter, reportQuarter),
+          ),
+        );
+    }
+    case "financial_balancesheet": {
+      return await db
+        .select()
+        .from(financialBalancesheet)
+        .where(
+          and(
+            eq(financialBalancesheet.stockCode, stockCode),
+            eq(financialBalancesheet.reportYear, reportYear),
+            eq(financialBalancesheet.reportQuarter, reportQuarter),
+          ),
+        );
+    }
+    case "financial_cashflow": {
+      return await db
+        .select()
+        .from(financialCashflow)
+        .where(
+          and(
+            eq(financialCashflow.stockCode, stockCode),
+            eq(financialCashflow.reportYear, reportYear),
+            eq(financialCashflow.reportQuarter, reportQuarter),
+          ),
+        );
+    }
+    case "financial_indicators": {
+      return await db
+        .select()
+        .from(financialIndicators)
+        .where(
+          and(
+            eq(financialIndicators.stockCode, stockCode),
+            eq(financialIndicators.reportYear, reportYear),
+            eq(financialIndicators.reportQuarter, reportQuarter),
+          ),
+        );
+    }
+    default:
+      console.warn(`[query-router] 未知财务表: ${tableName}`);
+      return [];
+  }
+}
+
+/**
+ * 查询原始表格（financial_raw_tables）- 模板3：整表查询
+ * 用于标准化指标未命中时的 fallback
+ */
+export async function queryRawTables(
+  stockCode: string,
+  reportYear: number,
+  keyword: string,
+): Promise<Record<string, unknown>[]> {
+  return await db
+    .select({
+      id: financialRawTables.id,
+      stockCode: financialRawTables.stockCode,
+      reportYear: financialRawTables.reportYear,
+      reportQuarter: financialRawTables.reportQuarter,
+      tableName: financialRawTables.tableName,
+      tableData: financialRawTables.tableData,
+      pageNum: financialRawTables.pageNum,
+    })
+    .from(financialRawTables)
+    .where(
+      and(
+        eq(financialRawTables.stockCode, stockCode),
+        eq(financialRawTables.reportYear, reportYear),
+        ilike(financialRawTables.tableName, `%${keyword}%`),
+      ),
+    )
+    .limit(20);
+}
+
+// ===== 3.4 路由整合 =====
 
 /**
  * 查询路由入口：整合意图识别 + 公司名 + 指标 + SQL + 向量 fallback
@@ -202,11 +432,120 @@ export async function executeSqlQuery(
  *         → 未命中但 raw_tables 有相关表 → SQL 查 financial_raw_tables → 整表返回 LLM 读表
  *         → raw_tables 也查不到 → 向量检索 fallback
  *   非数值类 → 直接向量检索
+ *
+ * 注意：本函数只返回路由结果，不实际执行向量检索（由调用方按 route 决定）
  */
 export async function routeQuery(
-  _query: string,
+  query: string,
   _options: { reportYear?: number; reportQuarter?: string } = {},
 ): Promise<RouteResult> {
-  // TODO: 阶段3.4 实现 - 整合 classifyIntent + identifyCompany + identifyIndicators + executeSqlQuery + hybridSearch
-  throw new Error("Not implemented: 阶段3.4 routeQuery（待整合路由）");
+  const options = {
+    reportYear: _options.reportYear ?? 2025,
+    reportQuarter: _options.reportQuarter ?? "annual",
+  };
+
+  // 1. 意图识别
+  const intent = classifyIntent(query);
+
+  // 非数值类 → 直接走向量
+  if (intent.intent === "non_numeric") {
+    return {
+      intent: intent.intent,
+      indicators: [],
+      route: "vector",
+      matchedNumericKeywords: intent.matchedNumericKeywords,
+      matchedNonNumericKeywords: intent.matchedNonNumericKeywords,
+    } as RouteResult;
+  }
+
+  // 2. 数值类 → 公司名识别
+  const company = await identifyCompany(query);
+
+  // 3. 指标识别
+  const indicators = await identifyIndicators(query);
+
+  // 4. 路由决策
+  // 4a. 命中公司 + 命中标准化指标 → SQL 精确查询
+  if (company && indicators.length > 0) {
+    const sqlResult = await executeSqlQuery(
+      company.stockCode,
+      indicators,
+      options.reportYear,
+      options.reportQuarter,
+    );
+    if (sqlResult.length > 0) {
+      return {
+        intent: intent.intent,
+        company,
+        indicators,
+        route: "sql_standard",
+        sqlResult,
+        matchedNumericKeywords: intent.matchedNumericKeywords,
+        matchedNonNumericKeywords: intent.matchedNonNumericKeywords,
+      } as RouteResult;
+    }
+    // SQL 查不到数据（可能是该公司该年份未入库），继续尝试 raw_tables fallback
+  }
+
+  // 4b. 命中公司但指标未命中标准化 → SQL 查 financial_raw_tables（整表查询）
+  if (company && indicators.length === 0) {
+    // 用 query 关键词查 raw_tables（取 query 中除公司名外的关键词）
+    const keyword = extractTableKeyword(query, company.stockNameShort);
+    if (keyword) {
+      const rawResult = await queryRawTables(
+        company.stockCode,
+        options.reportYear,
+        keyword,
+      );
+      if (rawResult.length > 0) {
+        return {
+          intent: intent.intent,
+          company,
+          indicators,
+          route: "sql_raw_tables",
+          sqlResult: rawResult,
+          matchedNumericKeywords: intent.matchedNumericKeywords,
+          matchedNonNumericKeywords: intent.matchedNonNumericKeywords,
+        } as RouteResult;
+      }
+    }
+    // raw_tables 也查不到 → 向量 fallback
+    return {
+      intent: intent.intent,
+      company,
+      indicators,
+      route: "vector",
+      matchedNumericKeywords: intent.matchedNumericKeywords,
+      matchedNonNumericKeywords: intent.matchedNonNumericKeywords,
+    } as RouteResult;
+  }
+
+  // 4c. 未命中公司 → 向量检索 fallback（无法走 SQL，因为没有 stock_code）
+  return {
+    intent: intent.intent,
+    company: company ?? undefined,
+    indicators,
+    route: "vector",
+    matchedNumericKeywords: intent.matchedNumericKeywords,
+    matchedNonNumericKeywords: intent.matchedNonNumericKeywords,
+  } as RouteResult;
+}
+
+/**
+ * 从 query 中提取用于 raw_tables 模糊匹配的关键词
+ * 去掉公司名后，取剩余文本中长度>=2的关键词
+ */
+function extractTableKeyword(query: string, companyName: string): string {
+  let text = query;
+  // 去掉公司名
+  if (companyName) {
+    text = text.replace(companyName, "");
+  }
+  // 去掉常见非关键词
+  text = text.replace(/(多少|是什么|是多少|请问|一下|呢|啊|的|了|吗|？|\?)/g, "");
+  // 去掉年份
+  text = text.replace(/20\d{2}年?/g, "");
+  // 去掉空格
+  text = text.trim();
+  return text.length >= 2 ? text : "";
 }

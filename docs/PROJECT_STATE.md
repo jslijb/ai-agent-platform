@@ -11,6 +11,8 @@
 |------|------|--------|------|------|------|------|------|------|---------|
 | V12 | 2026-07-27 | 自实现 | 0.5679 | 0.2953 | 0.3929 | 0.9449 | 0.4892 | ❌ | tests/reports/evaluation/ragas-report-v12.json |
 | V13 | 2026-07-28 | 自实现 | 0.7804 | 0.6555 | ~0.50 | ~0.97 | 0.8192 | ❌差0.04 | ⚠️JSON报告已丢失(现v13.json是失败轮0分)，需重跑补档 |
+| V13-r2 | 2026-07-28 | 自实现 | 0.8238 | - | - | - | - | ✅达标 | tests/reports/evaluation/ragas-eval-data-v13-r2-baseline.json |
+| V13-r3 | 2026-07-31 | 自实现 | 0.7699 | 0.5636 | 0.5515 | 0.9939 | 0.8291 | ❌ | tests/reports/evaluation/ragas-report-v13-selfimpl-r3.json |
 | V14 | 2026-07-30 | 官方库 | 0.3205 | 0.0 | 0.3333 | 0.5 | 0.0 | ❌ | tests/reports/evaluation/ragas-report-v14-official.json |
 
 **达标线**：CP/CR/AR ≥ 0.8，F ≥ 0.85，综合 ≥ 0.82
@@ -29,6 +31,24 @@
 | L7-合规风控 | 10 | 0.7349 | 0.4500 | 0.9840 | 0.5500 | 合规答案相关性差 |
 | L8-对抗性 | 10 | 0.1533 | 0.8000 | 0.9321 | 0.9400 | CP评估逻辑问题 |
 | L9-无法回答 | 10 | 0.1000 | 0.9000 | 0.9750 | 0.9800 | CP评估逻辑问题 |
+
+### V13-r3 分类指标详情（R001 上线后，2026-07-31，仅 L1/L3/L4 55 条）
+
+| 分类 | 样本 | CP | CR | F | AR | vs V13-r2 CR | 诊断 |
+|------|------|------|------|------|------|------|------|
+| L1-事实提取 | 30 | 0.7000 | 0.6667 | 0.9889 | 0.8267 | +0.20 ✅ | 数据质量限制（中国能建/铁建/江苏银行 null 或错值） |
+| L3-计算推理 | 15 | 0.1333 | 0.4222 | 1.0000 | 0.8000 | +0.12 ✅ | CP 低：SQL JSON context 格式 LLM 判定不相关 |
+| L4-趋势分析 | 10 | 0.8000 | 0.4000 | 1.0000 | 0.8800 | -0.05 ⚠️ | 同比字段依赖 revenue，revenue null 连带失败 |
+
+**V13-r3 关键结论**：
+- R001 路由层工作正常：SQL 命中率 90.9%（55 条中 50 条命中 SQL）
+- F=0.99~1.0（满分）：LLM 忠实于 SQL context
+- CR 未达 0.85 根因：**PostgreSQL 数据质量问题**（非路由问题）
+  - 中国能建：financial_income 全字段 null（回填失败）
+  - 中国铁建：revenue="49.0"（PDF 提取字段映射错误，应为 10297.84 亿）
+  - 江苏银行：revenue=null（银行业特殊格式提取失败）
+  - 中国人保：标准化指标提取失败（保险行业格式特殊）
+- 次要原因：SQL JSON context 格式对 CP 评估不友好（L3 CP=0.13）
 
 ---
 
@@ -63,6 +83,7 @@
 
 ## D. 最近迭代摘要
 
+- **V13-r3（2026-07-31）**：R001 查询路由上线，L1/L3/L4 重跑评估。R001 路由层 SQL 命中率 90.9%，F=0.99 满分，但 CR 受限于 PostgreSQL 数据质量（中国能建全 null、中国铁建错值、江苏银行 null）。综合 0.7699。
 - **V14（2026-07-30）**：切换RAGAS官方库评估，综合0.3205远低于V13。embedding违规改为text-embedding-v3，已识别待修复。结论待评估是否继续。
 - **V13（2026-07-28）**：评估管线对齐生产（rerank+graph+topK=20），综合0.7804差0.04达标。CR/L2/L3/L4/L7未达标。
 - **V12（2026-07-27）**：RAGAS思想自实现，综合0.5679。
@@ -75,32 +96,25 @@
 - [已完成] 修复 LLM fallback 不切换根因（exhausted 用 name→改 name/model）
 - [已完成] 重跑 V13 补有效 JSON 报告（V13-r2 综合0.8238）
 - [已完成] 文档管理体系建立（PROJECT_STATE+门禁+REQUIREMENTS+FUNCTIONS+ADR-011+spec）
-- [进行中-P0] R001 财务数据落 PostgreSQL（spec已审批通过，进入阶段1实施）
-  - ADR-011 已写：docs/adr/011-financial-data-to-postgresql.md
-  - spec.md 已审批：docs/spec.md（指标清单驱动路由：命中走SQL，未命中走向量fallback）
-  - 表结构已建：drizzle/0003_tense_warhawk.sql（7张财务表）
-  - 阶段1.1 已完成：表结构创建 + 4张财务表补加 UNIQUE INDEX（修复 ON CONFLICT）
-  - 阶段1.2 已完成：stock_mapping 导入 5534 条公司映射（Tushare stock_basic）
-  - 阶段1.3 已完成：indicator_aliases 预置 42 个指标 124 个别名（覆盖4张表）
-  - 阶段2.1 已完成：data_service/pdf_extractor.py + main.py 端点 /api/pdf/extract_tables
-  - 阶段2.2 已完成：scripts/extract_financial_from_pdf.py（批量处理+DB回填）
-    - 修复附注列错位 bug：新增 _identify_skip_columns() 跳过"附注"列
-    - 单公司验证：片仔癀2025营收90.01亿、净利率23.81%、营收同比-16.56% 全部正确
-    - 依赖：psycopg2-binary 装到 vendor 目录（绕过系统目录权限）
-  - 阶段2.3 已完成：10 家样本公司全部回填 PostgreSQL（2026-07-31）
-    - ✅ raw_tables 全部入库：10 家共 3052 张原始表格
-    - ✅ 标准化指标 8 家三表完整：片仔癀/华海药业/中国长城/中国铁建/中国能建/五粮液/格力电器/东吴证券
-    - ⚠️ 部分入库 1 家：江苏银行（income 4条/balance 5条，cashflow 0条，银行业特殊格式）
-    - ❌ 标准化指标提取失败 1 家：中国人保（保险行业格式特殊，利润表标题误匹配）
-    - 文本解析 fallback 修复（2026-07-31）：
-      - 根因：pdfplumber extract_tables() 对部分 PDF 表格线识别失败（格力/五粮液/东吴等）
-      - 修复：data_service/pdf_extractor.py 新增 _extract_rows_from_text() 方法
-      - 触发条件：extract_tables 行数<5 或 字段映射 0 个 或 字段值全 None
-      - 解析逻辑：从 extract_text() 文本行解析，从右向左识别数值，跳过附注列
-      - 修复效果：5 家失败公司中 4 家修复（格力/五粮液/东吴/江苏银行部分），仅中国人保未修复
-    - find_pdf_by_stock_code 已修复：支持多目录搜索+多格式匹配
-    - 华海药业修复：_find_statement_pages 新增全页扫描 fallback
-    - 数据规模已锁定 10 家（spec.md 第2/3批已取消，用户决策 2026-07-31）
+- [已完成-P0] R001 阶段3 查询路由改造（2026-07-31）
+  - 阶段3.1 意图识别：classifyIntent（数值/非数值分流，含组合关键词正则）
+  - 阶段3.2 公司名+指标识别：identifyCompany（精确+别名匹配）、identifyIndicators（长别名优先）
+  - 阶段3.3 模板 SQL 查询：executeSqlQuery（按 standard_table 分组查询）
+  - 阶段3.4 接入 simpleAgent：R001 路由预查询 + r001SqlContext 注入 systemPrompt
+  - 单元测试：32 个全绿（src/server/rag/query/__tests__/query-router.test.ts）
+  - 路由层端到端测试：SQL 命中率 90.9%（55 条 L1/L3/L4，50 条命中 SQL）
+    - 报告：tests/reports/evaluation/r001-routing-test.json
+    - 未命中 5 条：中国人保数据未入库（4 条）+ L1-030 已修复（新签合同关键词补充）
+- [已完成-P0] R001 阶段4 验证与评估（2026-07-31）
+  - V13-r3 评估：L1/L3/L4 共 55 条，综合 0.7699
+  - 报告：tests/reports/evaluation/ragas-report-v13-selfimpl-r3.json
+  - 结论：R001 路由工作正常，CR 提升受限于 PostgreSQL 数据质量
+- [阻塞-P0] PostgreSQL 财务数据质量问题（阻塞 V13-r3 CR 达标）
+  - 中国能建：financial_income 全字段 null（回填失败，需重新提取）
+  - 中国铁建：revenue="49.0"（PDF 提取字段映射错误，应为 10297.84 亿）
+  - 江苏银行：revenue=null（银行业特殊格式提取失败）
+  - 中国人保：标准化指标提取失败（保险行业格式特殊）
+  - 修复方向：重新跑 extract_financial_from_pdf.py 并人工校验字段映射
 - [P0] 评估 V14 是否值得继续（R006）
 - [P1] 统一两种拒绝话语（R002）
 - [P1] 多实体并行检索调研（R003，L2依赖）

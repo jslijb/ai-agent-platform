@@ -9,8 +9,36 @@
  *
  * 运行：npx vitest run src/server/rag/query/__tests__/query-router.test.ts
  */
-import { describe, it, expect } from "vitest";
-import { classifyIntent } from "../query-router";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// ===== Mock DB 层（避免连接真实数据库）=====
+// 必须在 import query-router 之前 mock，因为 query-router 顶层 import db
+vi.mock("@/server/db/client", () => ({
+  db: {
+    select: vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn(() => []),
+        })),
+      })),
+    })),
+  },
+  sql: vi.fn(),
+}));
+
+// Mock schema（避免 drizzle 类型问题）
+vi.mock("@/server/db/schema", () => ({
+  stockMapping: {},
+  indicatorAliases: {},
+  financialIncome: {},
+  financialBalancesheet: {},
+  financialCashflow: {},
+  financialIndicators: {},
+  financialRawTables: {},
+}));
+
+import { classifyIntent, identifyCompany, identifyIndicators, routeQuery } from "../query-router";
+import { db } from "@/server/db/client";
 
 describe("classifyIntent - 数值类（应路由到 SQL）", () => {
   it("利润表：营业收入", () => {
@@ -153,5 +181,178 @@ describe("classifyIntent - 边界 case", () => {
   it("公司介绍类问题 → non_numeric", () => {
     const r = classifyIntent("介绍一下这家公司");
     expect(r.intent).toBe("non_numeric");
+  });
+});
+
+// ===== 3.2 公司名识别 + 指标识别（mock DB）=====
+
+// 测试数据：10 家样本公司
+const MOCK_COMPANIES = [
+  { stockCode: "600436", stockNameShort: "片仔癀", stockNameFull: "漳州片仔癀药业股份有限公司", stockNameAlias: ["片仔癀药业"] },
+  { stockCode: "600521", stockNameShort: "华海药业", stockNameFull: "浙江华海药业股份有限公司", stockNameAlias: ["华海"] },
+  { stockCode: "000858", stockNameShort: "五粮液", stockNameFull: "宜宾五粮液股份有限公司", stockNameAlias: ["五粮液集团"] },
+  { stockCode: "000651", stockNameShort: "格力电器", stockNameFull: "珠海格力电器股份有限公司", stockNameAlias: ["格力"] },
+  { stockCode: "600919", stockNameShort: "江苏银行", stockNameFull: "江苏银行股份有限公司", stockNameAlias: ["JSBank"] },
+];
+
+// 测试数据：指标别名
+const MOCK_ALIASES = [
+  { standardName: "revenue", standardTable: "financial_income", aliasList: ["营业收入", "营收", "营业总收入", "主营业务收入"] },
+  { standardName: "net_profit", standardTable: "financial_income", aliasList: ["净利润", "归母净利润", "归属母公司净利润"] },
+  { standardName: "total_assets", standardTable: "financial_balancesheet", aliasList: ["总资产", "资产总计", "资产总额"] },
+  { standardName: "net_margin", standardTable: "financial_income", aliasList: ["净利率", "销售净利率"] },
+];
+
+// Mock db.select().from() 返回的数据
+function mockSelectFrom(mockData: any[]) {
+  return (db.select as any).mockImplementation(() => ({
+    from: vi.fn(() => mockData),
+  }));
+}
+
+describe("identifyCompany - 公司名识别", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("精确匹配 stock_name_short", async () => {
+    mockSelectFrom(MOCK_COMPANIES);
+    const r = await identifyCompany("片仔癀2025年营业收入是多少");
+    expect(r).not.toBeNull();
+    expect(r!.stockCode).toBe("600436");
+    expect(r!.stockNameShort).toBe("片仔癀");
+    expect(r!.matchedBy).toBe("exact");
+  });
+
+  it("别名匹配 stock_name_alias", async () => {
+    mockSelectFrom(MOCK_COMPANIES);
+    const r = await identifyCompany("格力最新财报");
+    expect(r).not.toBeNull();
+    expect(r!.stockCode).toBe("000651");
+    expect(r!.matchedBy).toBe("alias");
+  });
+
+  it("未命中返回 null", async () => {
+    mockSelectFrom(MOCK_COMPANIES);
+    const r = await identifyCompany("某未知公司");
+    expect(r).toBeNull();
+  });
+});
+
+describe("identifyIndicators - 指标识别", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("匹配单指标：营业收入", async () => {
+    mockSelectFrom(MOCK_ALIASES);
+    const r = await identifyIndicators("片仔癀2025年营业收入是多少");
+    expect(r).toHaveLength(1);
+    expect(r[0].standardName).toBe("revenue");
+    expect(r[0].standardTable).toBe("financial_income");
+  });
+
+  it("匹配多指标：营收+净利润", async () => {
+    mockSelectFrom(MOCK_ALIASES);
+    const r = await identifyIndicators("片仔癀2025年营业收入和净利润");
+    expect(r.length).toBeGreaterThanOrEqual(2);
+    const names = r.map((i) => i.standardName);
+    expect(names).toContain("revenue");
+    expect(names).toContain("net_profit");
+  });
+
+  it("长 alias 优先（避免'净利润'误匹配'归母净利润'）", async () => {
+    mockSelectFrom(MOCK_ALIASES);
+    const r = await identifyIndicators("归母净利润");
+    expect(r).toHaveLength(1);
+    expect(r[0].standardName).toBe("net_profit");
+    expect(r[0].matchedAlias).toBe("归母净利润");
+  });
+
+  it("未命中返回空数组", async () => {
+    mockSelectFrom(MOCK_ALIASES);
+    const r = await identifyIndicators("这家公司怎么样");
+    expect(r).toHaveLength(0);
+  });
+});
+
+// ===== 3.4 路由整合（mock DB）=====
+
+describe("routeQuery - 路由整合", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("非数值类 → vector 路由", async () => {
+    const r = await routeQuery("片仔癀的K线形态分析");
+    expect(r.intent).toBe("non_numeric");
+    expect(r.route).toBe("vector");
+  });
+
+  it("技术指标 → vector 路由", async () => {
+    const r = await routeQuery("格力电器MACD金叉");
+    expect(r.intent).toBe("non_numeric");
+    expect(r.route).toBe("vector");
+  });
+
+  it("数值类未命中公司 → vector fallback", async () => {
+    mockSelectFrom([]); // 空公司表
+    const r = await routeQuery("某公司2025年营收");
+    expect(r.intent).toBe("numeric");
+    expect(r.route).toBe("vector");
+  });
+
+  it("数值类命中公司+指标+SQL有数据 → sql_standard", async () => {
+    // identifyCompany: db.select().from() → 直接返回公司数组
+    // identifyIndicators: db.select().from() → 直接返回指标数组
+    // executeSqlQuery → queryFinancialTable: db.select().from().where() → 返回数据
+    let callCount = 0;
+    (db.select as any).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        // identifyCompany: 返回 { from: () => array }
+        return { from: vi.fn(() => MOCK_COMPANIES) };
+      } else if (callCount === 2) {
+        // identifyIndicators: 返回 { from: () => array }
+        return { from: vi.fn(() => MOCK_ALIASES) };
+      } else {
+        // executeSqlQuery → queryFinancialTable: 返回 { from: () => { where: () => array } }
+        return {
+          from: vi.fn(() => ({
+            where: vi.fn(() => [{ revenue: "9001000000", netProfit: "2143000000" }]),
+          })),
+        };
+      }
+    });
+    const r = await routeQuery("片仔癀2025年营业收入");
+    expect(r.intent).toBe("numeric");
+    expect(r.company?.stockCode).toBe("600436");
+    expect(r.indicators.length).toBeGreaterThan(0);
+    expect(r.route).toBe("sql_standard");
+    expect(r.sqlResult).toBeDefined();
+    expect(r.sqlResult!.length).toBeGreaterThan(0);
+  });
+
+  it("数值类命中公司但SQL无数据 → vector fallback", async () => {
+    let callCount = 0;
+    (db.select as any).mockImplementation(() => {
+      callCount++;
+      if (callCount === 1) {
+        return { from: vi.fn(() => MOCK_COMPANIES) };
+      } else if (callCount === 2) {
+        return { from: vi.fn(() => MOCK_ALIASES) };
+      } else {
+        // SQL 返回空
+        return {
+          from: vi.fn(() => ({
+            where: vi.fn(() => []),
+          })),
+        };
+      }
+    });
+    const r = await routeQuery("片仔癀2025年营业收入");
+    expect(r.intent).toBe("numeric");
+    expect(r.company).toBeDefined();
+    expect(r.route).toBe("vector");
   });
 });

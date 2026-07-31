@@ -21,6 +21,7 @@ import {
 } from "@/server/mcp/tools/compliance";
 import { calculateVaR, calculateStressTest, checkRiskLimits, generateRiskReport } from "@/server/mcp/tools/risk_control";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
+import { routeQuery as r001RouteQuery } from "@/server/rag/query/query-router";
 import { rerank } from "@/server/rag/reranking/reranker";
 import { logCompliance } from "@/server/compliance/log";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
@@ -1547,6 +1548,47 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   }
 
   // 事实查询（factual）：走正常 Agent 流程
+  // ========== R001 路由预查询：数值类查询优先走 SQL，结果注入 LLM context ==========
+  let r001SqlContext = "";
+  let r001Route: "sql_standard" | "sql_raw_tables" | "vector" | null = null;
+  try {
+    const routeResult = await r001RouteQuery(query);
+    r001Route = routeResult.route;
+    if (routeResult.route === "sql_standard" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
+      // 命中标准化指标 SQL 查询：把结果格式化为上下文
+      const company = routeResult.company;
+      const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");
+      const rowsJson = JSON.stringify(routeResult.sqlResult, null, 2);
+      r001SqlContext = `\n\n【R001-SQL精确查询结果】（来自 PostgreSQL 财务表，优先级高于文档检索）\n公司: ${company?.stockNameShort ?? ""} (${company?.stockCode ?? ""})\n命中指标: ${indicators}\n查询结果:\n${rowsJson}\n\n请基于上述 SQL 查询结果直接回答用户问题，不要调用 getStockFinancial/getFinancialReport/hybridSearch 重复获取相同数据。`;
+      console.log("[R001] SQL 标准化查询命中，注入上下文: " + routeResult.sqlResult.length + " 行");
+      pushStep({
+        type: "retrieval",
+        round: 0,
+        title: "R001 SQL 精确查询命中",
+        content: `公司: ${company?.stockNameShort} | 指标: ${indicators} | 结果: ${routeResult.sqlResult.length} 行`,
+        detail: { route: routeResult.route, company: routeResult.company, indicators: routeResult.indicators },
+        timestamp: Date.now(),
+      });
+    } else if (routeResult.route === "sql_raw_tables" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
+      // 命中原始表格 fallback：把整表数据返回给 LLM 读表
+      const company = routeResult.company;
+      r001SqlContext = `\n\n【R001-原始表格查询结果】（来自 PostgreSQL financial_raw_tables，LLM 需读表提取数值）\n公司: ${company?.stockNameShort ?? ""} (${company?.stockCode ?? ""})\n原始表格 ${routeResult.sqlResult.length} 张:\n${JSON.stringify(routeResult.sqlResult.slice(0, 5), null, 2)}\n\n请基于上述原始表格数据回答用户问题，必要时可补充调用 hybridSearch。`;
+      console.log("[R001] SQL 原始表格查询命中，注入上下文: " + routeResult.sqlResult.length + " 张表");
+      pushStep({
+        type: "retrieval",
+        round: 0,
+        title: "R001 原始表格查询命中",
+        content: `公司: ${company?.stockNameShort} | 原始表格: ${routeResult.sqlResult.length} 张`,
+        detail: { route: routeResult.route, company: routeResult.company },
+        timestamp: Date.now(),
+      });
+    } else {
+      console.log("[R001] 路由到向量检索: intent=" + routeResult.intent + ", route=" + routeResult.route);
+    }
+  } catch (r001Error) {
+    console.error("[R001] 路由预查询失败，降级到原 Agent 流程: " + (r001Error instanceof Error ? r001Error.message : String(r001Error)));
+  }
+
   const today = new Date();
   const todayStr = today.toISOString().split("T")[0];
   const systemPrompt = `你是一个金融分析AI助手，可以使用以下工具来回答用户的问题：
@@ -1693,7 +1735,10 @@ ${SkillRegistry.listDescriptions()}
 \`\`\`
 系统会自动执行该Skill包含的所有工具步骤。你也可以继续使用单独的工具调用方式。`;
 
-  const finalSystemPrompt = fewShotInjector.inject(systemPrompt);
+  // R001 路由预查询结果注入 systemPrompt（数值类查询走 SQL 的核心入口）
+  // sql_standard / sql_raw_tables 命中时把查询结果拼到 systemPrompt 末尾
+  // vector 路由时 r001SqlContext 为空字符串，不影响原行为
+  const finalSystemPrompt = fewShotInjector.inject(systemPrompt + r001SqlContext);
 
   const modelMaxTokens = 32768;
   let contextMemory: string[] = [];

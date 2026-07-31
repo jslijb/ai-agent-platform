@@ -23,9 +23,17 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
+import * as dotenv from "dotenv";
+
+// 加载 .env.local 环境变量（tsx 直接运行脚本时不会自动加载）
+dotenv.config({ path: join(process.cwd(), ".env.local") });
+
 import { hybridSearch } from "../src/server/rag/retrieval/hybrid-retriever";
+import { graphSearch } from "../src/server/rag/graph/graph-retriever";
+import { rerank } from "../src/server/rag/reranking/reranker";
 import { callWithFallback } from "../src/server/llm/router";
 import { closeDb } from "../src/server/db/client";
+import { routeQuery as r001RouteQuery } from "../src/server/rag/query/query-router";
 
 // 日志工具
 const log = {
@@ -42,12 +50,22 @@ const CONFIG = {
   defaultOutputDir: join(process.cwd(), "tests", "reports", "evaluation"),
   // 默认输出文件名
   defaultOutputFile: "ragas-eval-data.json",
-  // 检索 topK
-  retrievalTopK: 10,
+  // 检索 topK（生产管线：rerank 前的初始召回量）
+  retrievalTopK: 20,
+  // rerank 后保留的文档数（与生产 API search/route.ts 一致）
+  docRerankTopK: 5,
+  // rerank 后保留的图谱数（与生产 API 一致）
+  graphRerankTopK: 3,
+  // 图谱检索结果上限（与生产 API 一致）
+  graphLimit: 5,
   // LLM 调用间隔（毫秒），避免 RPM 限流
   llmCallDelayMs: 1000,
   // 单个检索片段最大长度（避免 token 过多）
   maxContextLength: 1000,
+  // 是否启用图谱检索（与生产 API 默认值一致）
+  useGraph: true,
+  // 是否启用 rerank（与生产 API 默认值一致）
+  useRerank: true,
 };
 
 // 测试项接口
@@ -74,9 +92,9 @@ interface RagasEvalItem {
 }
 
 // 解析命令行参数
-function parseArgs(): { limit?: number; output?: string } {
+function parseArgs(): { limit?: number; output?: string; categories?: string[] } {
   const args = process.argv.slice(2);
-  const result: { limit?: number; output?: string } = {};
+  const result: { limit?: number; output?: string; categories?: string[] } = {};
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--limit" && args[i + 1]) {
@@ -84,6 +102,10 @@ function parseArgs(): { limit?: number; output?: string } {
       i++;
     } else if (args[i] === "--output" && args[i + 1]) {
       result.output = args[i + 1];
+      i++;
+    } else if (args[i] === "--categories" && args[i + 1]) {
+      // 逗号分隔的类别列表，如 "L1-事实提取,L3-计算推理,L4-趋势分析"
+      result.categories = args[i + 1].split(",").map((s) => s.trim()).filter(Boolean);
       i++;
     }
   }
@@ -105,25 +127,116 @@ function loadTestSet(): QATestItem[] {
   return testSet;
 }
 
-// 检索函数
+// 检索函数（对齐生产 API search/route.ts 完整管线）
+// 生产管线：hybridSearch(topK=20) → graphSearch → 分离精排(doc top5, graph top3)
 async function retrieveContexts(
   query: string
-): Promise<{ contexts: string[]; latencyMs: number }> {
+): Promise<{ contexts: string[]; latencyMs: number; debug: Record<string, any> }> {
   const startTime = Date.now();
+  const debug: Record<string, any> = {
+    vectorRecallCount: 0,
+    graphRecallCount: 0,
+    beforeRerankCount: 0,
+    docRerankCount: 0,
+    graphRerankCount: 0,
+    finalCount: 0,
+  };
+
   try {
-    const results = await hybridSearch(query, CONFIG.retrievalTopK);
-    const latencyMs = Date.now() - startTime;
-    const contexts = results
+    // Step 1: 混合检索（与生产 API 一致，rerank 前召回 20 条）
+    const vectorResults = await hybridSearch(query, CONFIG.retrievalTopK);
+    debug.vectorRecallCount = vectorResults.length;
+    log.info(
+      `混合检索完成: query="${query.slice(0, 30)}...", 召回=${vectorResults.length}条`
+    );
+
+    // Step 2: 图谱检索（与生产 API 一致，Neo4j 未运行时降级为空）
+    let graphResults: Array<{ text: string; score: number; entities: string[]; paths: string[] }> = [];
+    if (CONFIG.useGraph) {
+      try {
+        graphResults = await graphSearch(query, 2);
+        debug.graphRecallCount = graphResults.length;
+        log.info(`图谱检索完成: 召回=${graphResults.length}条`);
+      } catch (graphError) {
+        log.warn(`图谱检索失败(降级为空): ${graphError instanceof Error ? graphError.message : String(graphError)}`);
+      }
+    }
+
+    // Step 3: 图谱结果截取 top5（与生产 API 一致）
+    const limitedGraphItems = graphResults
+      .sort((a, b) => b.score - a.score)
+      .slice(0, CONFIG.graphLimit);
+
+    const docItems = vectorResults.map((r, i) => ({
+      id: `vec_${i}`,
+      text: r.text,
+      documentId: r.documentId,
+      score: r.score,
+      source: "vector+bm25",
+    }));
+
+    // Step 4: 分离精排（与生产 API 一致）
+    let docRerankedItems = [...docItems];
+    let graphRerankedItems = [...limitedGraphItems];
+
+    if (CONFIG.useRerank) {
+      try {
+        // 文档精排 top5（截断到 300 字符，BGE-Reranker 限制 query+doc ≤ 512 tokens）
+        if (docItems.length > 0) {
+          const docTexts = docItems.map((r) => r.text.slice(0, 300));
+          const docReranked = await rerank(query, docTexts, CONFIG.docRerankTopK);
+          docRerankedItems = docReranked.map((r) => ({
+            ...docItems[r.index ?? 0],
+            text: docItems[r.index ?? 0]?.text || r.text,
+            score: r.score,
+            reranked: true,
+          }));
+          log.info(`文档精排完成: ${docRerankedItems.length}条`);
+        }
+
+        // 图谱精排 top3
+        if (limitedGraphItems.length > 0) {
+          const graphTexts = limitedGraphItems.map((r) => r.text.slice(0, 300));
+          const graphReranked = await rerank(query, graphTexts, CONFIG.graphRerankTopK);
+          graphRerankedItems = graphReranked.map((r, i) => ({
+            ...limitedGraphItems[r.index ?? i],
+            text: limitedGraphItems[r.index ?? i]?.text || r.text,
+            score: r.score,
+            reranked: true,
+          }));
+          log.info(`图谱精排完成: ${graphRerankedItems.length}条`);
+        }
+      } catch (rerankError) {
+        log.warn(`精排失败(降级为原始排序): ${rerankError instanceof Error ? rerankError.message : String(rerankError)}`);
+        docRerankedItems = docItems.sort((a, b) => b.score - a.score).slice(0, CONFIG.docRerankTopK);
+        graphRerankedItems = limitedGraphItems.sort((a, b) => b.score - a.score).slice(0, CONFIG.graphRerankTopK);
+      }
+    } else {
+      docRerankedItems = docItems.sort((a, b) => b.score - a.score).slice(0, CONFIG.docRerankTopK);
+      graphRerankedItems = limitedGraphItems.sort((a, b) => b.score - a.score).slice(0, CONFIG.graphRerankTopK);
+    }
+
+    debug.docRerankCount = docRerankedItems.length;
+    debug.graphRerankCount = graphRerankedItems.length;
+
+    // Step 5: 合并结果（与生产 API 一致）
+    const combinedItems = [...docRerankedItems, ...graphRerankedItems];
+    debug.finalCount = combinedItems.length;
+
+    const contexts = combinedItems
       .map((r) => r.text.slice(0, CONFIG.maxContextLength))
       .filter((t) => t.length > 0);
+
+    const latencyMs = Date.now() - startTime;
     log.info(
-      `检索完成: query="${query.slice(0, 30)}...", 结果数=${contexts.length}, 耗时=${latencyMs}ms`
+      `检索管线完成: query="${query.slice(0, 30)}...", 文档=${docRerankedItems.length}, 图谱=${graphRerankedItems.length}, 最终=${contexts.length}, 耗时=${latencyMs}ms`
     );
-    return { contexts, latencyMs };
+
+    return { contexts, latencyMs, debug };
   } catch (error) {
     const latencyMs = Date.now() - startTime;
-    log.error(`检索失败: query="${query.slice(0, 30)}...", error=${error}`);
-    return { contexts: [], latencyMs };
+    log.error(`检索管线失败: query="${query.slice(0, 30)}...", error=${error}`);
+    return { contexts: [], latencyMs, debug };
   }
 }
 
@@ -192,10 +305,68 @@ async function collectSingleItem(
     )}..." ===`
   );
 
-  // 检索
-  const { contexts, latencyMs: retrievalLatencyMs } = await retrieveContexts(
-    testItem.query
-  );
+  // ========== R001 路由预查询：数值类查询优先走 SQL，命中则跳过向量检索 ==========
+  let contexts: string[] = [];
+  let retrievalLatencyMs = 0;
+  const retrievalDebug: Record<string, any> = {
+    vectorRecallCount: 0,
+    graphRecallCount: 0,
+    beforeRerankCount: 0,
+    docRerankCount: 0,
+    graphRerankCount: 0,
+    finalCount: 0,
+    r001Route: null as string | null,
+    r001Company: null as string | null,
+    r001Indicators: [] as string[],
+  };
+  let r001SqlContext = "";
+
+  try {
+    const routeResult = await r001RouteQuery(testItem.query);
+    retrievalDebug.r001Route = routeResult.route;
+    retrievalDebug.r001Company = routeResult.company
+      ? `${routeResult.company.stockNameShort}(${routeResult.company.stockCode})`
+      : null;
+    retrievalDebug.r001Indicators = routeResult.indicators.map((i) => i.standardName);
+
+    if (
+      (routeResult.route === "sql_standard" || routeResult.route === "sql_raw_tables") &&
+      routeResult.sqlResult &&
+      routeResult.sqlResult.length > 0
+    ) {
+      // R001 命中 SQL：用 SQL 结果作为唯一 context，跳过向量检索
+      const company = routeResult.company;
+      const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");
+      const rowsJson = JSON.stringify(routeResult.sqlResult, null, 2);
+      r001SqlContext =
+        `【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n` +
+        `公司: ${company?.stockNameShort ?? ""} (${company?.stockCode ?? ""})\n` +
+        `命中指标: ${indicators}\n` +
+        `查询结果:\n${rowsJson}`;
+      contexts = [r001SqlContext];
+      retrievalDebug.finalCount = contexts.length;
+      retrievalLatencyMs = 0;
+      log.info(
+        `R001 命中 ${routeResult.route}: company=${retrievalDebug.r001Company}, indicators=${indicators}, rows=${routeResult.sqlResult.length}, 跳过向量检索`
+      );
+    } else {
+      log.info(
+        `R001 路由到向量检索: intent=${routeResult.intent}, route=${routeResult.route}, 走原 hybridSearch 管线`
+      );
+    }
+  } catch (r001Error) {
+    log.warn(
+      `R001 路由预查询失败，降级到向量检索: ${r001Error instanceof Error ? r001Error.message : String(r001Error)}`
+    );
+  }
+
+  // R001 未命中 SQL → 走原向量检索管线
+  if (contexts.length === 0) {
+    const retrievalResult = await retrieveContexts(testItem.query);
+    contexts = retrievalResult.contexts;
+    retrievalLatencyMs = retrievalResult.latencyMs;
+    Object.assign(retrievalDebug, retrievalResult.debug);
+  }
 
   // 生成答案
   const { answer, latencyMs: generationLatencyMs } = await generateAnswer(
@@ -217,7 +388,7 @@ async function collectSingleItem(
   };
 
   log.info(
-    `第 ${index + 1} 条数据收集完成: 检索=${retrievalLatencyMs}ms, 生成=${generationLatencyMs}ms`
+    `第 ${index + 1} 条数据收集完成: route=${retrievalDebug.r001Route ?? "vector"}, 检索=${retrievalLatencyMs}ms, 生成=${generationLatencyMs}ms, 召回=${retrievalDebug.vectorRecallCount}, 精排=${retrievalDebug.finalCount}`
   );
 
   return evalItem;
@@ -228,15 +399,24 @@ async function main(): Promise<void> {
   log.info("=== RAGAS 评估数据收集脚本启动 ===");
 
   const args = parseArgs();
-  log.info(`参数: limit=${args.limit ?? "无限制"}, output=${args.output ?? "默认"}`);
+  log.info(`参数: limit=${args.limit ?? "无限制"}, output=${args.output ?? "默认"}, categories=${args.categories ? args.categories.join(",") : "全部"}`);
 
   // 加载测试集
   const testSet = loadTestSet();
 
+  // 应用 categories 过滤（R001 评估：只跑 L1/L3/L4 验证 SQL 路径）
+  let filteredTestSet = testSet;
+  if (args.categories && args.categories.length > 0) {
+    filteredTestSet = testSet.filter((item) =>
+      args.categories!.some((cat) => item.category?.includes(cat) || cat.includes(item.category ?? ""))
+    );
+    log.info(`按类别过滤: ${args.categories.join(", ")}，过滤后 ${filteredTestSet.length} 条（原 ${testSet.length} 条）`);
+  }
+
   // 应用 limit
   const itemsToEvaluate = args.limit
-    ? testSet.slice(0, args.limit)
-    : testSet;
+    ? filteredTestSet.slice(0, args.limit)
+    : filteredTestSet;
   log.info(`将收集 ${itemsToEvaluate.length} 条数据`);
 
   // 收集数据
