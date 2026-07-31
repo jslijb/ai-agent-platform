@@ -293,19 +293,49 @@ class FinancialPDFExtractor:
         # 字段映射：遍历每一行，匹配 field_map
         # 注意：按 key 长度降序排序，长 key 优先匹配，避免 "净利润" 误匹配到 "归属于母公司股东的净利润"
         sorted_field_map = sorted(field_map.items(), key=lambda x: len(x[0]), reverse=True)
+        fields = self._match_fields(all_rows, sorted_field_map, skip_cols)
+
+        # Fallback: 如果 extract_tables() 返回行数过少（<5）或字段映射全部失败（0字段/全None值），
+        # 改用 extract_text() 解析文本行（格力/五粮液/东吴等 PDF 会出现此问题）
+        fields_has_value = any(
+            vals and any(v is not None for v in vals)
+            for vals in fields.values()
+        )
+        if len(all_rows) < 5 or not fields_has_value:
+            if len(all_rows) < 5:
+                reason = f"extract_tables 仅 {len(all_rows)} 行"
+            elif len(fields) == 0:
+                reason = f"extract_tables {len(all_rows)} 行但字段映射 0 个"
+            else:
+                reason = f"extract_tables {len(all_rows)} 行但字段值全 None"
+            logger.info(f"{table_name}: {reason}，启用文本解析 fallback")
+            text_rows, text_skip_cols = self._extract_rows_from_text(pages)
+            if text_rows:
+                all_rows = text_rows
+                skip_cols = text_skip_cols
+                periods = self._identify_periods(all_rows)
+                fields = self._match_fields(all_rows, sorted_field_map, skip_cols)
+
+        return {
+            "fields": fields,
+            "periods": periods,
+            "table_name": table_name,
+            "pages": [p + 1 for p in pages],  # 转为 1-based 页码
+        }
+
+    def _match_fields(self, all_rows: list[list], sorted_field_map: list, skip_cols: set) -> dict:
+        """字段映射：遍历每一行，匹配 field_map"""
         fields = {}
         for row in all_rows:
             if not row or not row[0]:
                 continue
             row_label = str(row[0]).strip().replace(" ", "").replace("\n", "")
-            # 清理行标签：去掉括号内容（如"（净亏损以"－"号填列）"）、去掉前缀序号（如"五、""1."）
+            # 清理行标签：去掉括号内容、前缀序号
             clean_label = re.sub(r'[（(].*?[）)]', '', row_label)
             clean_label = re.sub(r'^[一二三四五六七八九十\d]+\.[\s]*', '', clean_label)
             clean_label = re.sub(r'^[一二三四五六七八九十]+、', '', clean_label)
             clean_label = clean_label.strip()
             # 模糊匹配：只检查 cn_key 是否是 clean_label 的子串
-            # 注意：不检查 clean_label in cn_key，避免短 label 误匹配到长 key
-            # （如 "净利润" 误匹配到 "归属于母公司股东的净利润"）
             for cn_key, standard_name in sorted_field_map:
                 if cn_key in clean_label:
                     if standard_name in fields:
@@ -322,13 +352,100 @@ class FinancialPDFExtractor:
                             values.append(parsed)
                     fields[standard_name] = values
                     break
+        return fields
 
-        return {
-            "fields": fields,
-            "periods": periods,
-            "table_name": table_name,
-            "pages": [p + 1 for p in pages],  # 转为 1-based 页码
+    def _extract_rows_from_text(self, pages: list[int]) -> tuple[list[list], set]:
+        """从页面文本提取表格行（extract_tables 失败时的 fallback）
+
+        当 pdfplumber.extract_tables() 返回行数过少时使用。
+        从 extract_text() 的文本行中解析行标签和数值列。
+
+        返回 (all_rows, skip_cols)
+        - all_rows: 每行第一列是行标签，后续列是数值（附注列已删除）
+        - skip_cols: 空集合（附注已删除，无需跳过）
+        """
+        all_rows = []
+        skip_cols = set()  # 文本解析模式下附注已删除，返回空集合
+
+        # 跳过的行（页眉/页脚/标题/表头）
+        skip_line_prefixes = (
+            "编制单位", "项 目", "项目 ", "项目附注",
+            "法定代表人", "主管会计工作", "会计机构负责人",
+        )
+        skip_exact_lines = {
+            "合并利润表", "合并资产负债表", "合并现金流量表",
+            "合并及母公司利润表", "合并及银行资产负债表", "合并及银行现金流量表",
+            "合并及母公司现金流量表", "合并及母公司资产负债表",
+            "银行资产负债表", "银行现金流量表", "母公司利润表",
         }
+
+        # 附注列正则："五、54" / "五、54(1)" / "注1" 格式
+        note_re = re.compile(r'^[一二三四五六七八九十]+、\d+(?:\(\d+\))?$')
+        # 数值正则：数字开头，可带逗号/小数点/括号/负号
+        value_re = re.compile(r'^-?\(?\d[\d,]*\.?\d*\)?$|^-?$|^--$|^－$|^—$')
+
+        for page_idx in pages:
+            text = self._get_page_text(page_idx)
+            if not text:
+                continue
+            lines = text.split("\n")
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                # 跳过页眉（公司名+年度报告）
+                if "年度报告" in line and ("公司" in line or "银行" in line):
+                    continue
+                # 跳过页码
+                if line.isdigit():
+                    continue
+                # 跳过标题/表头
+                if line in skip_exact_lines:
+                    continue
+                if any(line.startswith(p) for p in skip_line_prefixes):
+                    continue
+                if "1-12月" in line or line.startswith("单位："):
+                    continue
+
+                # 解析行：用空格分割
+                parts = line.split()
+                if len(parts) < 2:
+                    continue  # 只有行标签没有数值
+
+                # 从右向左识别数值和附注 token
+                values = []  # 只保留数值（附注跳过）
+                label_end = len(parts)
+                for i in range(len(parts) - 1, 0, -1):
+                    p = parts[i]
+                    # 检查是否是附注（"五、54"格式）→ 跳过
+                    if note_re.match(p):
+                        label_end = i
+                        continue
+                    # 检查是否是数值
+                    if value_re.match(p):
+                        cleaned = p.replace(",", "").replace("(", "-").replace(")", "")
+                        if cleaned in ("-", "--", "---", "－", "—"):
+                            values.insert(0, None)
+                        else:
+                            try:
+                                float(cleaned)
+                                values.insert(0, p)
+                            except ValueError:
+                                break  # 非数值，停止
+                        label_end = i
+                        continue
+                    # 非数值非附注，停止
+                    break
+
+                if not values:
+                    continue
+
+                label = " ".join(parts[:label_end])
+                row = [label] + values
+                all_rows.append(row)
+
+        logger.info(f"文本解析 fallback: 提取 {len(all_rows)} 行（附注列已删除）")
+        return all_rows, skip_cols
 
     def _identify_periods(self, rows: list[list]) -> list[str]:
         """从表格行中识别报告期（年份/季度）
