@@ -38,9 +38,13 @@ INCOME_FIELD_MAP = {
     "营业收入": "revenue",
     "营业总收入": "revenue",
     "主营业务收入": "revenue",
+    # 注："利息净收入"不映射到任何标准字段
+    # 银行报表有"营业收入"行（=利息净收入+手续费净收入+投资收益+...），revenue应取"营业收入"
+    # 若映射"利息净收入"→revenue，会因key长度(5)>"营业收入"(4)先匹配，导致revenue=利息净收入(非营业收入)
     "营业成本": "operating_cost",
     "营业总成本": "operating_cost",
     "主营业务成本": "operating_cost",
+    "营业支出": "operating_cost",  # 银行业：营业支出（负数，计算毛利率时取abs）
     "营业利润": "operating_profit",
     "净利润": "net_profit",
     "归属于母公司股东的净利润": "net_profit_attributable",
@@ -52,8 +56,10 @@ INCOME_FIELD_MAP = {
     "研发投入": "rd_expense",
     "销售费用": "selling_expense",
     "管理费用": "administrative_expense",
+    "业务及管理费": "administrative_expense",  # 银行业：业务及管理费（负数）
     "财务费用": "financial_expense",
     "保费收入": "premium_income",
+    "保险服务收入": "premium_income",  # 保险业：保险服务收入
     "手续费及佣金收入": "commission_income",
     "经纪业务收入": "commission_income",
     "新签合同额": "new_signed_contract",
@@ -95,12 +101,32 @@ DERIVED_FIELDS = {"gross_margin", "net_margin", "debt_ratio", "free_cash_flow"}
 
 
 # ===== 报表标题关键词 =====
-INCOME_TITLES = ["合并利润表", "利润表", "母公司利润表"]
-BALANCE_TITLES = ["合并资产负债表", "资产负债表", "母公司资产负债表"]
-CASHFLOW_TITLES = ["合并现金流量表", "现金流量表", "母公司现金流量表"]
+# 注意：标题匹配时会去掉空格，所以"合 并 利 润 表"会被转成"合并利润表"匹配
+# 排除"(续)"页：起始页不匹配含"(续)"的标题
+INCOME_TITLES = [
+    "合并利润表", "利润表", "母公司利润表",
+    "合并及母公司利润表", "银行利润表", "合并及银行利润表",
+    "合并及公司利润表",  # 中国人保用
+]
+BALANCE_TITLES = [
+    "合并资产负债表", "资产负债表", "母公司资产负债表",
+    "合并及母公司资产负债表", "银行资产负债表", "合并及银行资产负债表",
+    "合并及公司资产负债表",  # 中国人保用
+]
+CASHFLOW_TITLES = [
+    "合并现金流量表", "现金流量表", "母公司现金流量表",
+    "合并及母公司现金流量表", "银行现金流量表", "合并及银行现金流量表",
+    "合并及公司现金流量表",  # 中国人保用
+]
 
 # 报表结束标志（遇到这些标题说明当前报表已结束）
 STATEMENT_END_TITLES = ["合并所有者权益变动表", "所有者权益变动表", "母公司所有者权益变动表", "股东权益变动表"]
+
+# 正文行排除关键词（标题匹配时排除含这些词的行，避免误匹配正文章节）
+STATEMENT_TITLE_EXCLUDE_KWS = [
+    "项目", "变动分析", "附注", "日后事项", "补充资料",
+    "包括在", "中的", "日存在", "日可获取",
+]
 
 
 class FinancialPDFExtractor:
@@ -155,18 +181,41 @@ class FinancialPDFExtractor:
             self._page_texts[page_idx] = self.pdf.pages[page_idx].extract_text() or ""
         return self._page_texts[page_idx]
 
+    def _is_valid_statement_title(self, line_compact: str, title: str) -> bool:
+        """判断行是否是有效的报表标题（排除正文行和续页）
+
+        排除规则：
+        1. 行包含正文排除关键词（项目/变动分析/附注等）
+        2. 行包含"(续)"或"（续）"标记（续页不是起始页）
+        3. 行长度<30（标题行通常很短）
+        """
+        if len(line_compact) >= 30:
+            return False
+        # 排除续页
+        if "（续）" in line_compact or "(续)" in line_compact:
+            return False
+        # 排除正文行
+        for kw in STATEMENT_TITLE_EXCLUDE_KWS:
+            if kw in line_compact:
+                return False
+        return title in line_compact
+
     def _find_statement_pages(self, titles: list[str], end_titles: list[str] = None) -> list[int]:
         """查找报表所在页码范围
 
         逻辑：
         1. 遍历所有页，先检查页面前5行是否有标题行（快速路径，避免正文误匹配）
-        2. 若未命中，全页扫描（任意行），仍要求行长度<20（防止匹配段落正文）
+        2. 若未命中，全页扫描（任意行），仍要求行长度<30（防止匹配段落正文）
         3. 找到起始页后，向后扫描直到遇到其他主表标题或结束标题
 
         修复历史：
         - 2026-07-31：华海药业利润表标题在 Page 110 Line 34（不在前5行），
           原逻辑漏匹配，新增全页扫描 fallback。同样修复资产负债表（Line 9）、
           现金流量表（Line 13）的标题位置偏离问题。
+        - 2026-07-31：中国人保 Page 23 "利润表项目 年 年 变动幅度" 被误匹配为
+          利润表起始页（正文表格标题），新增 _is_valid_statement_title 排除正文行。
+        - 2026-07-31：江苏银行 Page 115 "合并及母公司利润表 (续)" 被误匹配为
+          起始页（应为 Page 114），新增"(续)"排除。
         """
         end_titles = end_titles or STATEMENT_END_TITLES
         start_page = -1
@@ -180,7 +229,7 @@ class FinancialPDFExtractor:
             for line in lines[:5]:  # 检查前5行
                 line_compact = line.strip().replace(" ", "")
                 for title in titles:
-                    if title in line_compact and len(line_compact) < 20:
+                    if self._is_valid_statement_title(line_compact, title):
                         start_page = idx
                         logger.info(
                             f"找到报表 '{titles[0]}' 起始页: {idx + 1} "
@@ -193,8 +242,8 @@ class FinancialPDFExtractor:
                 break
 
         # 第二步：前5行未命中，全页扫描 fallback（标题在页面中间的情况）
-        # 仍要求行长度<20，避免匹配到正文中包含标题字样的长段落
         # 典型场景：华海药业利润表标题在 Page 110 Line 34
+        # 中国人保 "合 并 利 润 表" 在 Page 130 Line 1
         if start_page < 0:
             for idx in range(len(self.pdf.pages)):
                 text = self._get_page_text(idx)
@@ -204,7 +253,7 @@ class FinancialPDFExtractor:
                 for li, line in enumerate(lines):
                     line_compact = line.strip().replace(" ", "")
                     for title in titles:
-                        if title in line_compact and len(line_compact) < 20:
+                        if self._is_valid_statement_title(line_compact, title):
                             start_page = idx
                             logger.info(
                                 f"找到报表 '{titles[0]}' 起始页: {idx + 1} "
@@ -236,7 +285,10 @@ class FinancialPDFExtractor:
             for line in lines[:5]:
                 line_compact = line.strip().replace(" ", "")
                 for other_title in other_titles:
-                    if other_title in line_compact and len(line_compact) < 20:
+                    if other_title in line_compact and len(line_compact) < 30:
+                        # 续页不算结束标志
+                        if "（续）" in line_compact or "(续)" in line_compact:
+                            continue
                         should_stop = True
                         break
                 if should_stop:
@@ -251,21 +303,64 @@ class FinancialPDFExtractor:
         """识别需要跳过的非数据列（如"附注"列）
 
         年报表格常见结构：[项目, 附注, 2025年度, 2024年度]
-        "附注"列通常是文本（如"七、61"），不是数值，会干扰数据列对齐。
+        "附注"列通常是文本（如"七、61"或"49"），不是数值，会干扰数据列对齐。
 
-        扫描前 5 行找表头行，识别"附注"列位置。
+        扫描前 20 行找表头行，识别"附注"列位置。
         返回：需要跳过的列绝对索引集合（0-based，对应 row 中的位置）
+
+        修复历史：
+        - 2026-07-31：中国能建 Page 173 表格前5行是资产负债表尾部（无附注表头），
+          利润表表头在第8行，原逻辑漏识别附注列，导致附注值"七、51"被当成数值。
+          扫描范围从5行扩大到20行。
+        - 2026-07-31：中国铁建附注列值是"49"（数字），表头是"附注五"（非精确"附注"），
+          原逻辑不匹配。新增"附注"前缀匹配（如"附注五"、"附注七"）。
         """
         skip_cols = set()
-        for row in rows[:5]:
+        # 扩大扫描范围到前20行（覆盖前一个报表尾部+当前报表表头）
+        for row in rows[:20]:
             if not row:
                 continue
             for ci, cell in enumerate(row):
-                if cell and str(cell).strip() in ("附注", "附注 /", "注释", "注"):
+                if not cell:
+                    continue
+                cell_str = str(cell).strip()
+                # 精确匹配
+                if cell_str in ("附注", "附注 /", "注释", "注"):
+                    skip_cols.add(ci)
+                    break
+                # 前缀匹配：附注五、附注七、附注八等
+                if cell_str.startswith("附注") and len(cell_str) <= 5:
                     skip_cols.add(ci)
                     break
             if skip_cols:
                 break
+
+        # 补充：如果表头行没有"附注"字样，但某列值是附注编号（如"49"、"七、51"），
+        # 通过数值列对齐检测：真正的数值列应该有千分位逗号或大数值
+        if not skip_cols and len(rows) >= 3:
+            # 检查每列：如果某列值都是小的整数（<1000）且其他列有大数值，可能是附注列
+            for ci in range(1, min(5, len(rows[0])) if rows[0] else 1):
+                small_int_count = 0
+                large_num_count = 0
+                total_count = 0
+                for row in rows[:20]:
+                    if not row or ci >= len(row) or not row[ci]:
+                        continue
+                    try:
+                        val = float(str(row[ci]).replace(",", "").replace("(", "-").replace(")", ""))
+                        total_count += 1
+                        if abs(val) < 1000 and val == int(val):
+                            small_int_count += 1
+                        else:
+                            large_num_count += 1
+                    except (ValueError, TypeError):
+                        pass
+                # 如果某列全是小整数（>=3个）且其他列有大数值，判定为附注列
+                if small_int_count >= 3 and large_num_count == 0:
+                    skip_cols.add(ci)
+                    logger.info(f"附注列检测（小整数列）: 列{ci}, 小整数={small_int_count}")
+                    break
+
         return skip_cols
 
     def _extract_statement(self, titles: list[str], field_map: dict, table_name: str) -> dict:
@@ -379,8 +474,13 @@ class FinancialPDFExtractor:
             "银行资产负债表", "银行现金流量表", "母公司利润表",
         }
 
-        # 附注列正则："五、54" / "五、54(1)" / "注1" 格式
-        note_re = re.compile(r'^[一二三四五六七八九十]+、\d+(?:\(\d+\))?$')
+        # 附注列正则：
+        #   "五、54" / "五、54(1)" / "注1" 格式
+        #   纯整数 1-3 位（银行/保险报表附注编号，如"33"、"37"、"40"）
+        # 修复历史：
+        #   2026-07-31：江苏银行"利息净收入 33 67,517,837"中"33"是附注编号，
+        #   原逻辑未识别纯整数附注，导致revenue=33.0。新增 ^\d{1,3}$ 匹配。
+        note_re = re.compile(r'^[一二三四五六七八九十]+、\d+(?:\(\d+\))?$|^\d{1,3}$')
         # 数值正则：数字开头，可带逗号/小数点/括号/负号
         value_re = re.compile(r'^-?\(?\d[\d,]*\.?\d*\)?$|^-?$|^--$|^－$|^—$')
 
@@ -417,7 +517,7 @@ class FinancialPDFExtractor:
                 label_end = len(parts)
                 for i in range(len(parts) - 1, 0, -1):
                     p = parts[i]
-                    # 检查是否是附注（"五、54"格式）→ 跳过
+                    # 检查是否是附注（"五、54"或纯整数"33"格式）→ 跳过
                     if note_re.match(p):
                         label_end = i
                         continue
@@ -439,6 +539,14 @@ class FinancialPDFExtractor:
 
                 if not values:
                     continue
+
+                # 限制每行最多保留 2 个数值列（本期+上期）
+                # 修复历史：
+                #   2026-07-31：银行报表有4列（本集团2025/2024 + 本行2025/2024），
+                #   原逻辑取全部4列导致生成5行错误记录（2025/2024/2023/2022/2021）。
+                #   年报标准格式为2列（本期+上期），限制为2列可正确处理银行报表。
+                if len(values) > 2:
+                    values = values[:2]
 
                 label = " ".join(parts[:label_end])
                 row = [label] + values

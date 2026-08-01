@@ -480,9 +480,11 @@ def compute_derived_indicators(
         total_liabilities = bal.get("total_liabilities")
 
         # 毛利率
+        # 注：银行报表"营业支出"用负数(括号)表示，需取abs()统一为正数
+        # 非银行"营业成本"已是正数，abs()无影响
         gross_margin = None
         if revenue and operating_cost is not None and revenue != 0:
-            gross_margin = (revenue - operating_cost) / revenue
+            gross_margin = (revenue - abs(operating_cost)) / revenue
 
         # 净利率
         net_margin = None
