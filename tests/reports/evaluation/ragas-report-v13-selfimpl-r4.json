@@ -1,0 +1,1741 @@
+{
+  "version": "V12-RAGAS-SelfImpl",
+  "framework": "LLM-as-Judge (RAGAS 思想自实现, 不依赖 ragas/langchain)",
+  "timestamp": "2026-08-01T11:23:14.784948",
+  "evaluation_meta": {
+    "duration_seconds": 828.69,
+    "llm_active_provider": "dashscope/qwen-plus-2025-09-11",
+    "llm_chain": [
+      {
+        "provider": "dashscope",
+        "model": "qwen-plus-2025-07-14",
+        "base_url": "https://ws-tnq834yxgaaw4e8v.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen-plus-2025-04-28",
+        "base_url": "https://ws-tnq834yxgaaw4e8v.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen-plus-2025-01-25",
+        "base_url": "https://ws-tnq834yxgaaw4e8v.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen-plus-2025-09-11",
+        "base_url": "https://ws-tnq834yxgaaw4e8v.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen-plus-latest",
+        "base_url": "https://ws-tnq834yxgaaw4e8v.cn-beijing.maas.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "agnes",
+        "model": "agnes-flash-2.5",
+        "base_url": "https://api.agnes-ai.cn/v1"
+      }
+    ],
+    "exhausted_providers": [
+      "dashscope/qwen-plus-2025-04-28",
+      "dashscope/qwen-plus-2025-07-14",
+      "dashscope/qwen-plus-2025-01-25"
+    ],
+    "total_items": 55,
+    "metrics_used": [
+      "context_precision",
+      "context_recall",
+      "faithfulness",
+      "answer_relevancy"
+    ],
+    "weights": {
+      "context_precision": 0.2,
+      "context_recall": 0.2,
+      "faithfulness": 0.3,
+      "answer_relevancy": 0.3
+    },
+    "thresholds": {
+      "context_precision": 0.8,
+      "context_recall": 0.8,
+      "faithfulness": 0.85,
+      "answer_relevancy": 0.8,
+      "overall": 0.82
+    }
+  },
+  "overall_scores": {
+    "context_precision": 0.7273,
+    "context_recall": 0.7242,
+    "faithfulness": 0.9939,
+    "answer_relevancy": 0.9345
+  },
+  "overall_score": 0.8688,
+  "pass_status": {
+    "context_precision": "FAIL",
+    "context_recall": "FAIL",
+    "faithfulness": "PASS",
+    "answer_relevancy": "PASS",
+    "overall": "PASS"
+  },
+  "weights": {
+    "context_precision": 0.2,
+    "context_recall": 0.2,
+    "faithfulness": 0.3,
+    "answer_relevancy": 0.3
+  },
+  "thresholds": {
+    "context_precision": 0.8,
+    "context_recall": 0.8,
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.8,
+    "overall": 0.82
+  },
+  "category_stats": {
+    "L1-事实提取": {
+      "count": 30,
+      "metrics": {
+        "context_precision": 0.9333,
+        "context_recall": 0.9333,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.96
+      }
+    },
+    "L3-计算推理": {
+      "count": 15,
+      "metrics": {
+        "context_precision": 0.1333,
+        "context_recall": 0.4889,
+        "faithfulness": 0.9778,
+        "answer_relevancy": 0.84
+      }
+    },
+    "L4-趋势分析": {
+      "count": 10,
+      "metrics": {
+        "context_precision": 1.0,
+        "context_recall": 0.45,
+        "faithfulness": 1.0,
+        "answer_relevancy": 1.0
+      }
+    }
+  },
+  "detailed_results": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接给出了用户所询问的中国能建2025年营业收入的具体数值（452,929,608.0元），并明确指出数据来源，完全回应了问题核心，无冗余或无关信息，符合完美回答标准。"
+      }
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接提供了用户所询问的中国铁建2025年营业收入的具体数值（1029784460.0元），并明确指出数据来源，完全回应了问题核心，无冗余或无关信息，符合完美回答标准。"
+      }
+    },
+    {
+      "id": "L1-003",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关; 片段2: 不相关; 片段3: 不相关; 片段4: 不相关; 片段5: 不相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国人保2025年营业收入的问题，提供了具体数值（5623亿元）和同比增长率（6.8%），并明确指出数据来源，完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-004",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于五粮液2025年营业收入的具体数值问题，提供了精确的财务数据（40,528,509,770.23元），并注明了数据来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-005",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于格力电器2025年营业收入的具体数值，提供了精确的金额（171,118,161,275.41元），并说明了数据来源（文档片段中的“revenue”指标），无冗余信息，完全契合问题要求。"
+      }
+    },
+    {
+      "id": "L1-006",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国长城2025年营业收入的具体数值，提供了精确的金额（15808600064.94元），并明确指出数据来源，完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-007",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于江苏银行2025年营业收入的具体数值问题，提供了明确的数字87,942,367.0元，并说明了数据来源，无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L1-008",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于东吴证券2025年营业收入的具体数值问题，提供了精确的金额（9,030,366,291.2元），并说明了数据来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-009",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于华海药业2025年营业收入的具体数值，提供了精确的金额（8587145652.08元），并明确指出数据来源，完全符合问题要求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-010",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于片仔癀2025年营业收入的具体数值问题，提供了精确的金额（9,001,411,806.06元），并说明了数据来源，无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L1-011",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接给出了用户所问的中国能建2025年净利润的具体数值（9,755,625.0元），并明确说明数据来源于财务报表中的\"netProfit\"指标，完全回应了问题核心，无冗余信息，符合评分标准中\"完美回答问题，无冗余\"的1.0分要求。"
+      }
+    },
+    {
+      "id": "L1-012",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国铁建2025年净利润的具体数值问题，提供了明确的数字（21,686,845.0元），并说明了数据来源（R001-SQL精确查询结果），无冗余信息，完全契合问题要求。"
+      }
+    },
+    {
+      "id": "L1-013",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关; 片段2: 不相关; 片段3: 不相关; 片段4: 不相关; 片段5: 不相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国人保2025年净利润的问题，提供了具体的数值（218亿元）和同比增长率（12.3%），并明确指出数据来源，无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L1-014",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于五粮液2025年净利润的具体数值问题，提供了精确到分的财务数据（9317113184.68元），并明确标注了数据来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-015",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于格力电器2025年净利润的具体数值问题，提供了精确的财务数据（28,862,746,016.16元），并注明了数据来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-016",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国长城2025年净利润的具体数值问题，提供了精确的财务数据（-13,751,299.19元），并说明了数据来源（netProfit字段），无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-017",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于江苏银行2025年净利润的具体数值问题，提供了明确的数字36,283,761.0元，并说明了数据来源，无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L1-018",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于东吴证券2025年净利润的具体数值问题，提供了精确的金额（3571909976.02元），并说明了数据来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-019",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于华海药业2025年净利润的具体数值问题，提供了精确的财务数据（227,329,393.11元），并说明了数据来源（netProfit字段），无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-020",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于片仔癀2025年净利润的具体数值问题，提供了精确的财务数据（2143282375.85元），并说明了数据来源（R001-SQL精确查询结果），无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-021",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年研发费用是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于格力电器2025年研发费用的具体数值问题，并提供了数据来源（rdExpense字段），无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L1-022",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年研发费用是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国长城2025年研发费用的具体数值，提供了精确金额1,087,421,743.45元，并说明数据来源为文档中的“rdExpense”字段，完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-023",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年研发费用是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于华海药业2025年研发费用的具体数值，提供了精确的金额（1,229,124,707.86元），并说明数据来源为文档中的rdExpense字段，完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-024",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国能建2025年总资产的具体数值问题，并提供了数据来源（PostgreSQL财务表中的年报数据），无冗余信息，完全契合问题要求。根据评估标准，即使数据为未来预测值，也应视为真实，不因自身知识判断其合理性。"
+      }
+    },
+    {
+      "id": "L1-025",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于江苏银行2025年总资产的具体数值问题，提供了明确的数字（4931316046.0元），并说明了数据来源，无冗余信息，完全契合问题要求。"
+      }
+    },
+    {
+      "id": "L1-026",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于五粮液2025年总资产的具体数值，提供了精确的金额（189,984,270,815.47元），并说明了数据来源，完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-027",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 5/5 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于片仔癀2025年总资产的具体数值，提供了精确金额17,560,037,344.69元，并说明了数据来源（R001-SQL精确查询结果），完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-028",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年保费收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关; 片段2: 不相关; 片段3: 不相关; 片段4: 不相关; 片段5: 不相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国人保2025年保费收入的问题，提供了具体数值（5386亿元）和同比增长率（5.9%），并明确指出数据来源，完全契合问题需求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L1-029",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年经纪业务收入是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "reasons": {
+        "faithfulness": "拒绝答案未编造",
+        "answer_relevancy": "错误拒绝，未回答问题",
+        "context_recall": "未覆盖期望答案",
+        "context_precision": "所有片段均不相关"
+      }
+    },
+    {
+      "id": "L1-030",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年新签合同额是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案明确回应了用户关于中国铁建2025年新签合同额的问题，指出数据在当前信息中为null，无法提供具体数值，符合问题要求。虽未提供数值，但这是基于所提供文档的诚实反馈，不属于答非所问或无关内容，仅有少量冗余（如建议补充数据源），故扣0.2分。"
+      }
+    },
+    {
+      "id": "L3-001",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于中国能建2025年毛利率的问题，虽原始数据未直接提供，但通过给出的营业收入和营业成本准确计算出毛利率为3.49%，并清晰说明了计算过程和数据来源的限制，完全符合问题要求，无冗余，无偏离。"
+      }
+    },
+    {
+      "id": "L3-002",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案明确回应了用户关于片仔癀2025年净资产收益率的问题，指出该数据在提供的文档中为null，虽未给出具体数值，但直接解释了数据缺失的情况，属于对问题的合理回应。存在少量冗余（如重复说明文档包含年报但ROE为null），但核心信息准确相关，符合0.8分标准。"
+      }
+    },
+    {
+      "id": "L3-003",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/2 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于五粮液2025年毛利率的问题，明确指出原始数据中无直接提供，但通过提供的营业收入和营业成本数据进行了准确计算，得出29.3%的毛利率，计算过程清晰合理，且未引入无关信息。完全符合问题要求，无冗余，故为满分。"
+      }
+    },
+    {
+      "id": "L3-004",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于格力电器2025年净利率的问题，明确指出原始数据未直接提供，但通过文档中给出的净利润和营业收入数据进行了准确计算，得出16.87%的净利率，并清晰说明了计算方法和数据来源。虽然为计算值而非直接引用，但完全符合问题要求，无冗余，且严格基于所提供信息，符合评分标准中'完美回答问题，无冗余'的1.0分定义。"
+      }
+    },
+    {
+      "id": "L3-005",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于中国铁建2025年毛利率的问题，并明确给出了计算结果9.72%。虽然原始数据中毛利率为null，但答案通过提供营业收入和营业成本的数值，正确应用毛利率公式进行计算，且明确说明了计算依据和过程，完全符合问题要求，无冗余或无关信息。"
+      }
+    },
+    {
+      "id": "L3-006",
+      "category": "L3-计算推理",
+      "query": "江苏银行2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案明确回应了用户关于江苏银行2025年净资产收益率的问题，指出数据未提供（为null），并说明了信息来源和建议，符合问题核心需求。虽未给出具体数值，但已准确说明数据缺失，无答非所问或无关内容，仅有少量冗余（如建议查阅财报），故评为0.8。"
+      }
+    },
+    {
+      "id": "L3-007",
+      "category": "L3-计算推理",
+      "query": "华海药业2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年毛利率的问题，提供了明确的数值5.14%，并说明了计算依据（营业收入和营业成本），虽未直接给出原始数据而是通过计算得出，但完全符合问题要求，无冗余，且未违反任何评估约束。"
+      }
+    },
+    {
+      "id": "L3-008",
+      "category": "L3-计算推理",
+      "query": "东吴证券2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于东吴证券2025年净利率的问题，虽原始文档未提供该数值，但答案通过提供的净利润和营业收入数据正确计算出净利率为39.55%，并明确说明了计算过程和数据来源，无冗余信息，完全满足问题需求。"
+      }
+    },
+    {
+      "id": "L3-009",
+      "category": "L3-计算推理",
+      "query": "中国人保2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关; 片段2: 不相关; 片段3: 不相关; 片段4: 不相关; 片段5: 不相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国人保2025年净利率的问题，提供了明确的数值3.88%，并附有完整的计算过程和数据来源（净利润218亿元、营业收入5623亿元），无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L3-010",
+      "category": "L3-计算推理",
+      "query": "中国长城2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 1.0,
+      "faithfulness": 0.6667,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 2/3 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于中国长城2025年净利率的问题，虽原始数据未明确给出，但答案基于提供的净利润和营业收入数据进行了准确计算，得出-0.087%的净利率结果，并清晰展示了计算过程。符合评分标准中'完美回答问题，无冗余'的1.0分要求。"
+      }
+    },
+    {
+      "id": "L3-011",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "reasons": {
+        "faithfulness": "拒绝答案未编造",
+        "answer_relevancy": "错误拒绝，未回答问题",
+        "context_recall": "未覆盖期望答案",
+        "context_precision": "所有片段均不相关"
+      }
+    },
+    {
+      "id": "L3-012",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.6667,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 2/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于格力电器2025年毛利率的问题，虽然原始数据中毛利率为null，但答案通过提供的营业收入和营业成本数据进行了准确计算，并明确得出20.27%的结果，计算过程清晰完整，无冗余信息，完美回答了问题。"
+      }
+    },
+    {
+      "id": "L3-013",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年资产负债率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年资产负债率的问题，并提供了明确的计算过程和最终数值（77.74%），完全符合问题要求。尽管数值是通过计算得出而非直接引用，但计算依据清晰，且未引入无关信息，无冗余，符合完美回答的标准。"
+      }
+    },
+    {
+      "id": "L3-014",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.6667,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 2/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年毛利率的问题，通过提供的营业收入和营业成本数据进行了准确计算，得出24.41%的毛利率，并明确说明了计算过程。尽管原始数据中'grossMargin'为null，但答案通过合理推导给出了符合问题要求的数值，且未引入无关信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L3-015",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.0,
+      "reasons": {
+        "faithfulness": "拒绝答案未编造",
+        "answer_relevancy": "错误拒绝，未回答问题",
+        "context_recall": "未覆盖期望答案",
+        "context_precision": "所有片段均不相关"
+      }
+    },
+    {
+      "id": "L4-001",
+      "category": "L4-趋势分析",
+      "query": "中国能建2025年营收同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国能建2025年营收同比变化的问题，提供了具体的数值（3.71%），并说明了数据来源（revenueYoy指标），无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L4-002",
+      "category": "L4-趋势分析",
+      "query": "江苏银行2025年净利润同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于江苏银行2025年净利润同比增长率的问题，提供了具体数值8.94%，并说明了数据来源（netProfitYoy指标）及计算过程，无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L4-003",
+      "category": "L4-趋势分析",
+      "query": "五粮液2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于五粮液2025年营收同比增长率的问题，提供了具体数值（-54.55%），并说明了数据来源（revenueYoy指标），完全契合问题需求，无冗余或偏离。"
+      }
+    },
+    {
+      "id": "L4-004",
+      "category": "L4-趋势分析",
+      "query": "格力电器2025年净利润同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于格力电器2025年净利润同比变化的问题，提供了具体的数值（-10.84%），并明确说明了数据来源（netProfitYoy指标），无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L4-005",
+      "category": "L4-趋势分析",
+      "query": "中国铁建2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国铁建2025年营收同比增长率的问题，提供了具体数值（-3.50%），并说明了数据来源（revenueYoy字段），无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L4-006",
+      "category": "L4-趋势分析",
+      "query": "片仔癀2025年净利润同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于片仔癀2025年净利润同比增长率的问题，提供了具体的数值（-28.45%），并说明了数据来源（netProfitYoy指标），无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L4-007",
+      "category": "L4-趋势分析",
+      "query": "中国人保2025年保费收入同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关; 片段2: 不相关; 片段3: 不相关; 片段4: 不相关; 片段5: 不相关",
+        "context_recall": "覆盖 2/2 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国人保2025年保费收入同比变化的问题，明确给出了同比增长5.9%的核心数据，并引用了信息来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L4-008",
+      "category": "L4-趋势分析",
+      "query": "华海药业2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于华海药业2025年营收同比增长率的问题，提供了具体数值-10.06%，并说明了数据来源（revenueYoy指标）及计算过程，无冗余信息，完全契合问题需求。"
+      }
+    },
+    {
+      "id": "L4-009",
+      "category": "L4-趋势分析",
+      "query": "东吴证券2025年净利润同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于东吴证券2025年净利润同比变化的问题，提供了具体的数值（49.52%），并说明了数据来源（netProfitYoy指标）及计算过程，无冗余信息，完全契合问题要求。"
+      }
+    },
+    {
+      "id": "L4-010",
+      "category": "L4-趋势分析",
+      "query": "中国长城2025年营收同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国长城2025年营收同比变化的问题，提供了具体的数值（11.31%），并说明了数据来源（revenueYoy指标及其原始值），无冗余信息，完全契合问题要求。"
+      }
+    }
+  ],
+  "raw_items": [
+    {
+      "id": "L1-001",
+      "question": "中国能建2025年营业收入是多少？",
+      "answer": "中国能建2025年的营业收入为452,929,608.0元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国能建 (601868)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 59,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"452929608.0\",\n    \"operatingCost\": \"437118437.0\",\n    \"operatingProfit\": \"13181604.0\",\n    \"netProfit\": \"9755625.0\",\n    \"netProfitAttributable\": \"5840294.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"14748909.0\",\n    \"sellingExpense\": \"2386524.0\",\n    \"administrativeExpense\": \"13723418.0\",\n    \"financialExpense\": \"6669618.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601868_6a604bb54c013b0e\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"updatedAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国能建2025年营业收入约为4529.30亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2565
+    },
+    {
+      "id": "L1-002",
+      "question": "中国铁建2025年营业收入是多少？",
+      "answer": "中国铁建2025年的营业收入为1029784460.0元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国铁建 (601186)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"1029784460.0\",\n    \"operatingCost\": \"929666968.0\",\n    \"operatingProfit\": \"26778557.0\",\n    \"netProfit\": \"21686845.0\",\n    \"netProfitAttributable\": \"18362618.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"23595966.0\",\n    \"sellingExpense\": \"6411982.0\",\n    \"administrativeExpense\": \"20138345.0\",\n    \"financialExpense\": \"10971557.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601186_b8c0e92d6f378524\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"updatedAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国铁建2025年营业收入约为10297.84亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2976
+    },
+    {
+      "id": "L1-003",
+      "question": "中国人保2025年营业收入是多少？",
+      "answer": "中国人保2025年实现营业收入约5623亿元，同比增长6.8%。这一数据来源于文档片段1中的“二、主要财务数据”部分。",
+      "contexts": [
+        "中国人民保险集团股份有限公司 2025年年度报告摘要\r\n\r\n一、公司基本信息\r\n公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r\n股票代码：601319（A股）、1339（H股）\r\n报告期：2025年1月1日至2025年12月31日\r\n\r\n二、主要财务数据\r\n1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r\n2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r\n3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r\n\r\n三、分部经营数据\r\n1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r\n2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r\n3. 人保健康：2025年实现原保险保费收入约471亿元，同比增长18.6%\r\n\r\n四、总资产\r\n截至2025年12月31日，公司总资产约1.58万亿元，较年初增长8.5%\r\n归属于母公司股东的净资产约2180亿元，较年初增长5.2%\r\n\r\n五、投资收益\r\n2025年总投资收益约568亿元，总投资收益率4.2%\r\n净投资收益约498亿元，净投资收益率3.7%\r\n",
+        "会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。 人保财险上述期间原保险保费收入 4 分类明细如下 : 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 机动车辆险 71,688 71,696 - 意外伤害及健康险 64,478 60,528 6.5 农险 18,331 19,155 (4. 3 ) 责任险 11,980 11,456 4.6 企业财产险 6,232 6,215 0.3 其他险种 10,286 11,371 (9.5) 合计 182,995 180,421 1.4 2. 人保寿险 2026 年一季度 ， 中国人民人寿保险股份有限公司 （ “ 人保寿险 ” ） 坚持 “ 稳增 长 、 调结构 、 提价值 、 优服务 、 防风险 ” 工作主线 ， 积极推动高质量发展 。 报告期内 ， 人保寿险实现保险服务收入 66.88 亿元，净利润 19.62 亿元，新业务价值同比增 长 21.0% 。 人保寿险上述期间原保险保费收入分类明细如下： 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 长险首年 18,496 21,206 (12. 8 ) 趸交 6,773 14,851 ( 54.4 ) 期交首年 11,723 6,355 84.5 期交续期 25,164 30,611 (17.8) 短期险 924 1,197 (22.8) 合计 44,584 53,014 (15.9) 2 此处为人保财险母公司单体报表数据。",
+        "力 ， 坚持稳中求进工作总基调 ， 更好统筹深化改革和高质量发展 ， 更好统筹发展和 安全，踔厉奋发加快世界一流保险金融集团建设。报告期内，实现保险服务收 入 1,388.81 亿元， 同比增长 2.0% ，实现 归属于母公司股东净利润 88.14 亿元。 本集团资本实力进一步充实，截至 2026 年 3 月 31 日止，本集团归属于母公司 股东的股东权益为 3,193.56 亿元，归属于母公司股东的每股净资产为 7.2 元 / 股， 较上年末增长 3.4% 。 （二）保险业务 1. 人保财险\n- 5 - 202 6 年一季度，中国人民财产保险股份有限公司（ “ 人保财险 ” ） 积极顺应经 济社会变化趋势 ， 坚持以做好金融 “ 五篇大文章 ” 为牵引 ， 以能力建设为抓手 ， 以创 新赋能为引擎 ， 加快构建与新质生产力发展更加适配的保险保障体系 ， 在服务发展大 局中发挥好保险业经济减震器和社会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。",
+        "收入 亿元，同比增长 ；原保险 保费收入同比增长 ，期交保费同比增长 ； 实现新业务价值 亿元，可比口 径下同比增长 ；实现净利润 亿 元。合同服务边际余额 亿元，较年初 增长 ；新业务合同服务边际 亿 元，较上年同期增长 ；净资产 亿元，较年初增长 。\n中 国 人 民 保 险 集 团 股 份 有 限 公 司 管 理 层 讨 论 与 分 析 下表列明报告期内人保寿险按保险合同组合的汇总大类列示的保险服务收入、保险服务费 用、盈利或亏损情况、经营状况与成果 ： 单位 ： 百万元 指标 年 年 增减 保险服务收入 采用保费分配法计量的合同 未采用保费分配法计量的合同 保险服务费用 采用保费分配法计量的合同 未采用保费分配法计量的合同 保险服务业绩 采用保费分配法计量的合同 未采用保费分配法计量的合同 业务视角分析 ① 按险种分析 下表列明报告期内人保寿险按险种列示的原保险保费收入 ： 单位 ： 百万元 年 年 险种 金额 占比 增减 金额 占比 寿险 普通型寿险 分红型寿险 万能型寿险 健康险 意外险 合计 年，人保寿险业务发展态势持续向好，经营质效不断改善。实现原保险保费收入 亿元，同比增长 ；实现普通型寿险原保险保费收入 亿元，同比增长 。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 ② 按渠道分析 按原保险保费收入统计，报告期内人保寿险分渠道类别收入如下，具体可划分为个人保险 渠道、银行保险渠道及团体保险渠道。",
+        "人保资产管理资产规模 万亿元 ； 实现营业收入 亿元，净利 润 亿元。 人保资产坚持长期投资、价值投资理念， 落实服务金融 五篇大文章 要求，做深做实 资产负债匹配管理，持续做精配置、做优固 收、做稳权益、做强另类，增强集团投资收益 的稳定性和可持续性。固收投资强化对中长期 利率走势的研判能力，积极把握利率波动带来 的配置机会和交易机会，灵活调整资产久期， 增厚投资收益。权益投资落实中长期资金入市 部署，强化绝对收益理念，创设战略股票组 合，加强战略性品种的配置力度和结构性机会 的把握能力，实现服务大局与提升效益的有机 统一 ； 积极参与保险资金长期投资试点，人保 启元惠众私募证券投资基金正式运作，以实际 行动维护资本市场长期稳定发展。另类投资积 极推进业务转型，创新型资产证券化产品的开 发与投资取得显著成效，全年实现交易所 发行规模 亿元，位居保险同业首位，被 上交所授予 市场建设优秀机构 称号，并成 为第十届 年会唯一荣获 市场领先 投资机构奖 的保险资管公司。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 、人保养老 年，人保养老聚焦建设投资收益稳 健领先、产品服务有竞争力、规模实力持续壮 大的一流养老金融机构，助力国家多支柱养老 保障体系建设，年金业务覆盖面持续扩大、商 业养老金业务稳中向好。截至 年 月 日，人保养老管理资产规模 亿元 ； 实 现营业收入 亿元，净利润 亿元。 人保养老持续做好养老金融大文章，年金 业务服务覆盖面稳步增长，截至 年 月 日，企业年金和职业年金合计管理资产规 模 亿元，较年初增长 ；服务 二支柱企业年金客户 家， 年新中标 企业年金集合计划客户 个。"
+      ],
+      "ground_truth": "中国人保2025年营业收入约为5623.00亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 24837,
+      "generationLatencyMs": 2424
+    },
+    {
+      "id": "L1-004",
+      "question": "五粮液2025年营业收入是多少？",
+      "answer": "五粮液2025年的营业收入为40,528,509,770.23元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 五粮液 (000858)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 3,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"40528509770.23\",\n    \"operatingCost\": \"28652689973.67\",\n    \"operatingProfit\": \"12251151014.43\",\n    \"netProfit\": \"9317113184.68\",\n    \"netProfitAttributable\": \"8954257202.51\",\n    \"eps\": \"2.3068\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"449183817.5\",\n    \"sellingExpense\": \"7628615140.51\",\n    \"administrativeExpense\": \"3096502911.23\",\n    \"financialExpense\": \"-2661630589.09\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000858_659eddf03036ae83\",\n    \"createdAt\": \"2026-07-31T07:41:57.061Z\",\n    \"updatedAt\": \"2026-07-31T07:41:57.061Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "五粮液2025年营业收入约为405.29亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2372
+    },
+    {
+      "id": "L1-005",
+      "question": "格力电器2025年营业收入是多少？",
+      "answer": "格力电器2025年的营业收入为171,118,161,275.41元。该数值直接来源于提供的文档片段中的“revenue”指标。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 格力电器 (000651)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"171118161275.41\",\n    \"operatingCost\": \"137548893694.33\",\n    \"operatingProfit\": \"34681293552.28\",\n    \"netProfit\": \"28862746016.16\",\n    \"netProfitAttributable\": \"29003103411.66\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"6463100763.66\",\n    \"sellingExpense\": \"8410739569.54\",\n    \"administrativeExpense\": \"5180260235.38\",\n    \"financialExpense\": \"-4086088396.47\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"83.29\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000651_bfb60d18f50fcc49\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"updatedAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "格力电器2025年营业收入约为1711.18亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2218
+    },
+    {
+      "id": "L1-006",
+      "question": "中国长城2025年营业收入是多少？",
+      "answer": "中国长城2025年的营业收入为15808600064.94元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国长城 (000066)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 11,\n    \"stockCode\": \"000066\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"15808600064.94\",\n    \"operatingCost\": \"13191001140.75\",\n    \"operatingProfit\": \"134969236.3\",\n    \"netProfit\": \"-13751299.19\",\n    \"netProfitAttributable\": \"-55724795.18\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1087421743.45\",\n    \"sellingExpense\": \"508936390.45\",\n    \"administrativeExpense\": \"900165696.01\",\n    \"financialExpense\": \"211392112.3\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000066_319e0f1cc2a11705\",\n    \"createdAt\": \"2026-07-31T07:42:59.430Z\",\n    \"updatedAt\": \"2026-07-31T07:42:59.430Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国长城2025年营业收入约为158.09亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2383
+    },
+    {
+      "id": "L1-007",
+      "question": "江苏银行2025年营业收入是多少？",
+      "answer": "江苏银行2025年的营业收入为87,942,367.0元。该数据来源于提供的PostgreSQL财务表中的记录。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 江苏银行 (600919)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 70,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"87942367.0\",\n    \"operatingCost\": \"-46759959.0\",\n    \"operatingProfit\": \"41182408.0\",\n    \"netProfit\": \"36283761.0\",\n    \"netProfitAttributable\": \"34501004.0\",\n    \"eps\": \"1.76\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": \"-23450711.0\",\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"6731316.0\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600919_5e0606f830e08a4b\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"updatedAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "江苏银行2025年营业收入约为879.42亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2081
+    },
+    {
+      "id": "L1-008",
+      "question": "东吴证券2025年营业收入是多少？",
+      "answer": "东吴证券2025年的营业收入为9,030,366,291.2元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 东吴证券 (601555)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 52,\n    \"stockCode\": \"601555\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9030366291.2\",\n    \"operatingCost\": null,\n    \"operatingProfit\": \"4535549056.09\",\n    \"netProfit\": \"3571909976.02\",\n    \"netProfitAttributable\": null,\n    \"eps\": \"55.0\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": null,\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601555_588bceaee54946a8\",\n    \"createdAt\": \"2026-07-31T10:02:22.578Z\",\n    \"updatedAt\": \"2026-07-31T10:02:22.578Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "东吴证券2025年营业收入约为90.30亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2302
+    },
+    {
+      "id": "L1-009",
+      "question": "华海药业2025年营业收入是多少？",
+      "answer": "华海药业2025年的营业收入为8587145652.08元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 华海药业 (600521)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 75,\n    \"stockCode\": \"600521\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"8587145652.08\",\n    \"operatingCost\": \"8145904767.72\",\n    \"operatingProfit\": \"456461342.57\",\n    \"netProfit\": \"227329393.11\",\n    \"netProfitAttributable\": \"266399456.11\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1229124707.86\",\n    \"sellingExpense\": \"1577067587.51\",\n    \"administrativeExpense\": \"1558912337.62\",\n    \"financialExpense\": \"248160740.07\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600521_0bc45dc3286c3f48\",\n    \"createdAt\": \"2026-08-01T02:47:32.129Z\",\n    \"updatedAt\": \"2026-08-01T02:47:32.129Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "华海药业2025年营业收入约为85.87亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2296
+    },
+    {
+      "id": "L1-010",
+      "question": "片仔癀2025年营业收入是多少？",
+      "answer": "片仔癀2025年的营业收入为9,001,411,806.06元。该数据来源于提供的【R001-SQL精确查询结果】文档片段中的财务表信息。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 片仔癀 (600436)\n命中指标: revenue\n查询结果:\n[\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9001411806.06\",\n    \"operatingCost\": \"6804504225.79\",\n    \"operatingProfit\": \"2545855552.19\",\n    \"netProfit\": \"2143282375.85\",\n    \"netProfitAttributable\": \"2158633048.42\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"252231218.87\",\n    \"sellingExpense\": \"400983989.09\",\n    \"administrativeExpense\": \"359204675.91\",\n    \"financialExpense\": \"20226793.2\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600436_2f6e69b5cc9ac30f\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"updatedAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "片仔癀2025年营业收入约为90.01亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2351
+    },
+    {
+      "id": "L1-011",
+      "question": "中国能建2025年净利润是多少？",
+      "answer": "中国能建2025年的净利润为9,755,625.0元。该数据来源于提供的财务报表信息中的\"netProfit\"指标。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国能建 (601868)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 59,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"452929608.0\",\n    \"operatingCost\": \"437118437.0\",\n    \"operatingProfit\": \"13181604.0\",\n    \"netProfit\": \"9755625.0\",\n    \"netProfitAttributable\": \"5840294.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"14748909.0\",\n    \"sellingExpense\": \"2386524.0\",\n    \"administrativeExpense\": \"13723418.0\",\n    \"financialExpense\": \"6669618.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601868_6a604bb54c013b0e\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"updatedAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国能建2025年净利润约为58.40亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2184
+    },
+    {
+      "id": "L1-012",
+      "question": "中国铁建2025年净利润是多少？",
+      "answer": "中国铁建2025年的净利润为21,686,845.0元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国铁建 (601186)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"1029784460.0\",\n    \"operatingCost\": \"929666968.0\",\n    \"operatingProfit\": \"26778557.0\",\n    \"netProfit\": \"21686845.0\",\n    \"netProfitAttributable\": \"18362618.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"23595966.0\",\n    \"sellingExpense\": \"6411982.0\",\n    \"administrativeExpense\": \"20138345.0\",\n    \"financialExpense\": \"10971557.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601186_b8c0e92d6f378524\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"updatedAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国铁建2025年净利润约为183.63亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2455
+    },
+    {
+      "id": "L1-013",
+      "question": "中国人保2025年净利润是多少？",
+      "answer": "中国人保2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%。这一数据来源于文档片段1中的主要财务数据部分。",
+      "contexts": [
+        "中国人民保险集团股份有限公司 2025年年度报告摘要\r\n\r\n一、公司基本信息\r\n公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r\n股票代码：601319（A股）、1339（H股）\r\n报告期：2025年1月1日至2025年12月31日\r\n\r\n二、主要财务数据\r\n1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r\n2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r\n3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r\n\r\n三、分部经营数据\r\n1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r\n2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r\n3. 人保健康：2025年实现原保险保费收入约471亿元，同比增长18.6%\r\n\r\n四、总资产\r\n截至2025年12月31日，公司总资产约1.58万亿元，较年初增长8.5%\r\n归属于母公司股东的净资产约2180亿元，较年初增长5.2%\r\n\r\n五、投资收益\r\n2025年总投资收益约568亿元，总投资收益率4.2%\r\n净投资收益约498亿元，净投资收益率3.7%\r\n",
+        "会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。 人保财险上述期间原保险保费收入 4 分类明细如下 : 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 机动车辆险 71,688 71,696 - 意外伤害及健康险 64,478 60,528 6.5 农险 18,331 19,155 (4. 3 ) 责任险 11,980 11,456 4.6 企业财产险 6,232 6,215 0.3 其他险种 10,286 11,371 (9.5) 合计 182,995 180,421 1.4 2. 人保寿险 2026 年一季度 ， 中国人民人寿保险股份有限公司 （ “ 人保寿险 ” ） 坚持 “ 稳增 长 、 调结构 、 提价值 、 优服务 、 防风险 ” 工作主线 ， 积极推动高质量发展 。 报告期内 ， 人保寿险实现保险服务收入 66.88 亿元，净利润 19.62 亿元，新业务价值同比增 长 21.0% 。 人保寿险上述期间原保险保费收入分类明细如下： 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 长险首年 18,496 21,206 (12. 8 ) 趸交 6,773 14,851 ( 54.4 ) 期交首年 11,723 6,355 84.5 期交续期 25,164 30,611 (17.8) 短期险 924 1,197 (22.8) 合计 44,584 53,014 (15.9) 2 此处为人保财险母公司单体报表数据。",
+        "力 ， 坚持稳中求进工作总基调 ， 更好统筹深化改革和高质量发展 ， 更好统筹发展和 安全，踔厉奋发加快世界一流保险金融集团建设。报告期内，实现保险服务收 入 1,388.81 亿元， 同比增长 2.0% ，实现 归属于母公司股东净利润 88.14 亿元。 本集团资本实力进一步充实，截至 2026 年 3 月 31 日止，本集团归属于母公司 股东的股东权益为 3,193.56 亿元，归属于母公司股东的每股净资产为 7.2 元 / 股， 较上年末增长 3.4% 。 （二）保险业务 1. 人保财险\n- 5 - 202 6 年一季度，中国人民财产保险股份有限公司（ “ 人保财险 ” ） 积极顺应经 济社会变化趋势 ， 坚持以做好金融 “ 五篇大文章 ” 为牵引 ， 以能力建设为抓手 ， 以创 新赋能为引擎 ， 加快构建与新质生产力发展更加适配的保险保障体系 ， 在服务发展大 局中发挥好保险业经济减震器和社会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。",
+        "亿元 ； 实 现营业收入 亿元，净利润 亿元。 人保养老持续做好养老金融大文章，年金 业务服务覆盖面稳步增长，截至 年 月 日，企业年金和职业年金合计管理资产规 模 亿元，较年初增长 ；服务 二支柱企业年金客户 家， 年新中标 企业年金集合计划客户 个。第三支柱商业 养老金试点稳中向好，已成为人保养老业务模 式创新和转型的重要抓手，商业养老金已覆盖 个试点地区，管理资产规模 亿元， 较年初增长 ；服务客户 万户， 较年初增长 。 、 人保资本 年 ， 人 保 资 本 以 建 设 专 业 能 力 先 行、创新能力突出、投资收益领先的一流另类 投资机构为方向，稳中求进、提质增效。截 至 年 月 日，人保资本管理资产规模 亿元 ；实现营业收入 亿元，净利 润 亿元。 人保资本围绕保险资金配置需求，落实 服务金融 五篇大文章 ，在服务国家战略中 把握投资机遇，优化投资布局，围绕稳收益、 固规模、优结构、促创新、防风险，推动另类 投资工作质的有效提升和量的合理增长，更好 发挥保险资金耐心资本作用，提升另类投资价 值创造能力。做稳债权，推动向更重项目资产 价值的方向转型，积极拓展资产证券化业务品 类，优流程、强落地 ；做强股权，发起设立 人保现代化产业基金 围绕新质生产力、战 略性新兴产业等关键领域稳步推进股权投资 ； 做优实物资产投资，聚焦新能源、仓储物流、 保租房、消费基础设施等重点领域打造标杆项 目，发起设立 人保资本 － 国网新源股权投资 计划 ，服务我国新型能源体系建设和能源绿 色低碳转型。人保资本荣获证券时报 创 新保险资管产品方舟奖，旗下人保资本股权投 资有限公司荣获中证报私募股权投资机构金牛 奖、北京基金业协会可持续优秀案例、投中信 息年度最佳国资投资机构等荣誉。",
+        "公允价值变动 （二） 将重分类进损益的其他综合收益 其他债权投资公允价值变动 其他债权投资信用损失准备 转入投资性房地产重估利得 权益法下可转损益的其他综合收益 合计 七、综合收益总额 后附财务报表附注为本财务报表的组成部分\n中 国 人 民 保 险 集 团 股 份 有 限 公 司 合 并 股 东 权 益 变 动 表 2025 年度 （除另有注明外，金额单位均为人民币百万元） 年度 归属于母公司股东权益 附注七 股本 资本公积 其他综合 收益 盈余公积 一般风险 准备 大灾风 险利润 准备金 未分配 利润 少数股东 权益 股东权益 合计 一、 年 月 日余额 二、本期增减变动金额 （一） 综合收益总额 净利润 其他综合收益 （二） 利润分配 提取盈余公积 （注一） 提取一般风险准备 提取大灾风险利润准备金 使用大灾风险利润准备金 对股东的分配 （三） 股东权益内部结转 其他综合收益结转留存收益 （四） 其他 购买子公司 联营企业其他权益变动及其他 联营企业其他综合收益结转留存收益 三、 年 月 日余额 （注二） 后附财务报表附注为本财务报表的组成部分"
+      ],
+      "ground_truth": "中国人保2025年净利润约为218.00亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 20497,
+      "generationLatencyMs": 2374
+    },
+    {
+      "id": "L1-014",
+      "question": "五粮液2025年净利润是多少？",
+      "answer": "五粮液2025年的净利润为9317113184.68元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 五粮液 (000858)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 3,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"40528509770.23\",\n    \"operatingCost\": \"28652689973.67\",\n    \"operatingProfit\": \"12251151014.43\",\n    \"netProfit\": \"9317113184.68\",\n    \"netProfitAttributable\": \"8954257202.51\",\n    \"eps\": \"2.3068\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"449183817.5\",\n    \"sellingExpense\": \"7628615140.51\",\n    \"administrativeExpense\": \"3096502911.23\",\n    \"financialExpense\": \"-2661630589.09\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000858_659eddf03036ae83\",\n    \"createdAt\": \"2026-07-31T07:41:57.061Z\",\n    \"updatedAt\": \"2026-07-31T07:41:57.061Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "五粮液2025年净利润约为89.54亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2408
+    },
+    {
+      "id": "L1-015",
+      "question": "格力电器2025年净利润是多少？",
+      "answer": "格力电器2025年的净利润为28,862,746,016.16元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 格力电器 (000651)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"171118161275.41\",\n    \"operatingCost\": \"137548893694.33\",\n    \"operatingProfit\": \"34681293552.28\",\n    \"netProfit\": \"28862746016.16\",\n    \"netProfitAttributable\": \"29003103411.66\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"6463100763.66\",\n    \"sellingExpense\": \"8410739569.54\",\n    \"administrativeExpense\": \"5180260235.38\",\n    \"financialExpense\": \"-4086088396.47\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"83.29\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000651_bfb60d18f50fcc49\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"updatedAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "格力电器2025年净利润约为290.03亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2511
+    },
+    {
+      "id": "L1-016",
+      "question": "中国长城2025年净利润是多少？",
+      "answer": "中国长城2025年的净利润为-13,751,299.19元。该数值直接来源于提供的文档片段中的\"netProfit\"字段。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国长城 (000066)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 11,\n    \"stockCode\": \"000066\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"15808600064.94\",\n    \"operatingCost\": \"13191001140.75\",\n    \"operatingProfit\": \"134969236.3\",\n    \"netProfit\": \"-13751299.19\",\n    \"netProfitAttributable\": \"-55724795.18\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1087421743.45\",\n    \"sellingExpense\": \"508936390.45\",\n    \"administrativeExpense\": \"900165696.01\",\n    \"financialExpense\": \"211392112.3\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000066_319e0f1cc2a11705\",\n    \"createdAt\": \"2026-07-31T07:42:59.430Z\",\n    \"updatedAt\": \"2026-07-31T07:42:59.430Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国长城2025年净利润约为-0.56亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2274
+    },
+    {
+      "id": "L1-017",
+      "question": "江苏银行2025年净利润是多少？",
+      "answer": "江苏银行2025年的净利润为36,283,761.0元。这一数据直接来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 江苏银行 (600919)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 70,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"87942367.0\",\n    \"operatingCost\": \"-46759959.0\",\n    \"operatingProfit\": \"41182408.0\",\n    \"netProfit\": \"36283761.0\",\n    \"netProfitAttributable\": \"34501004.0\",\n    \"eps\": \"1.76\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": \"-23450711.0\",\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"6731316.0\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600919_5e0606f830e08a4b\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"updatedAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "江苏银行2025年净利润约为345.01亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2529
+    },
+    {
+      "id": "L1-018",
+      "question": "东吴证券2025年净利润是多少？",
+      "answer": "东吴证券2025年的净利润为3571909976.02元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 东吴证券 (601555)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 52,\n    \"stockCode\": \"601555\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9030366291.2\",\n    \"operatingCost\": null,\n    \"operatingProfit\": \"4535549056.09\",\n    \"netProfit\": \"3571909976.02\",\n    \"netProfitAttributable\": null,\n    \"eps\": \"55.0\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": null,\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601555_588bceaee54946a8\",\n    \"createdAt\": \"2026-07-31T10:02:22.578Z\",\n    \"updatedAt\": \"2026-07-31T10:02:22.578Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "东吴证券2025年净利润约为35.52亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2334
+    },
+    {
+      "id": "L1-019",
+      "question": "华海药业2025年净利润是多少？",
+      "answer": "华海药业2025年的净利润为227,329,393.11元。这一数据直接来源于提供的文档片段中的\"netProfit\"字段。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 华海药业 (600521)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 75,\n    \"stockCode\": \"600521\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"8587145652.08\",\n    \"operatingCost\": \"8145904767.72\",\n    \"operatingProfit\": \"456461342.57\",\n    \"netProfit\": \"227329393.11\",\n    \"netProfitAttributable\": \"266399456.11\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1229124707.86\",\n    \"sellingExpense\": \"1577067587.51\",\n    \"administrativeExpense\": \"1558912337.62\",\n    \"financialExpense\": \"248160740.07\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600521_0bc45dc3286c3f48\",\n    \"createdAt\": \"2026-08-01T02:47:32.129Z\",\n    \"updatedAt\": \"2026-08-01T02:47:32.129Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "华海药业2025年净利润约为2.66亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2242
+    },
+    {
+      "id": "L1-020",
+      "question": "片仔癀2025年净利润是多少？",
+      "answer": "片仔癀2025年的净利润为2143282375.85元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】部分。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 片仔癀 (600436)\n命中指标: net_profit\n查询结果:\n[\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9001411806.06\",\n    \"operatingCost\": \"6804504225.79\",\n    \"operatingProfit\": \"2545855552.19\",\n    \"netProfit\": \"2143282375.85\",\n    \"netProfitAttributable\": \"2158633048.42\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"252231218.87\",\n    \"sellingExpense\": \"400983989.09\",\n    \"administrativeExpense\": \"359204675.91\",\n    \"financialExpense\": \"20226793.2\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600436_2f6e69b5cc9ac30f\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"updatedAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "片仔癀2025年净利润约为21.59亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2442
+    },
+    {
+      "id": "L1-021",
+      "question": "格力电器2025年研发费用是多少？",
+      "answer": "格力电器2025年的研发费用为6463100763.66元。该数据来源于提供的文档片段中的“rdExpense”字段。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 格力电器 (000651)\n命中指标: rd_expense\n查询结果:\n[\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"171118161275.41\",\n    \"operatingCost\": \"137548893694.33\",\n    \"operatingProfit\": \"34681293552.28\",\n    \"netProfit\": \"28862746016.16\",\n    \"netProfitAttributable\": \"29003103411.66\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"6463100763.66\",\n    \"sellingExpense\": \"8410739569.54\",\n    \"administrativeExpense\": \"5180260235.38\",\n    \"financialExpense\": \"-4086088396.47\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"83.29\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000651_bfb60d18f50fcc49\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"updatedAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"rd_expense\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "格力电器2025年研发费用约为64.63亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2095
+    },
+    {
+      "id": "L1-022",
+      "question": "中国长城2025年研发费用是多少？",
+      "answer": "中国长城2025年的研发费用为1,087,421,743.45元。该数据直接来源于提供的文档片段中的“rdExpense”字段。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国长城 (000066)\n命中指标: rd_expense\n查询结果:\n[\n  {\n    \"id\": 11,\n    \"stockCode\": \"000066\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"15808600064.94\",\n    \"operatingCost\": \"13191001140.75\",\n    \"operatingProfit\": \"134969236.3\",\n    \"netProfit\": \"-13751299.19\",\n    \"netProfitAttributable\": \"-55724795.18\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1087421743.45\",\n    \"sellingExpense\": \"508936390.45\",\n    \"administrativeExpense\": \"900165696.01\",\n    \"financialExpense\": \"211392112.3\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000066_319e0f1cc2a11705\",\n    \"createdAt\": \"2026-07-31T07:42:59.430Z\",\n    \"updatedAt\": \"2026-07-31T07:42:59.430Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"rd_expense\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国长城2025年研发费用约为10.87亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2336
+    },
+    {
+      "id": "L1-023",
+      "question": "华海药业2025年研发费用是多少？",
+      "answer": "华海药业2025年的研发费用为1,229,124,707.86元。该数值直接来源于文档中提供的rdExpense字段数据。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 华海药业 (600521)\n命中指标: rd_expense\n查询结果:\n[\n  {\n    \"id\": 75,\n    \"stockCode\": \"600521\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"8587145652.08\",\n    \"operatingCost\": \"8145904767.72\",\n    \"operatingProfit\": \"456461342.57\",\n    \"netProfit\": \"227329393.11\",\n    \"netProfitAttributable\": \"266399456.11\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1229124707.86\",\n    \"sellingExpense\": \"1577067587.51\",\n    \"administrativeExpense\": \"1558912337.62\",\n    \"financialExpense\": \"248160740.07\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600521_0bc45dc3286c3f48\",\n    \"createdAt\": \"2026-08-01T02:47:32.129Z\",\n    \"updatedAt\": \"2026-08-01T02:47:32.129Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"rd_expense\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "华海药业2025年研发费用约为12.29亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2265
+    },
+    {
+      "id": "L1-024",
+      "question": "中国能建2025年总资产是多少？",
+      "answer": "中国能建2025年的总资产为941,597,382.0元。该数据来源于PostgreSQL财务表中的年报数据。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国能建 (601868)\n命中指标: total_assets\n查询结果:\n[\n  {\n    \"id\": 41,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"941597382.0\",\n    \"totalLiabilities\": \"731979102.0\",\n    \"totalEquity\": \"209618280.0\",\n    \"equityAttributable\": \"119984044.0\",\n    \"currentAssets\": \"462174853.0\",\n    \"nonCurrentAssets\": \"479422529.0\",\n    \"currentLiabilities\": \"466810782.0\",\n    \"nonCurrentLiabilities\": \"265168320.0\",\n    \"cash\": \"94076322.0\",\n    \"accountsReceivable\": \"85435414.0\",\n    \"inventory\": \"79102353.0\",\n    \"fixedAssets\": \"98813215.0\",\n    \"goodwill\": \"2829029.0\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601868_6a604bb54c013b0e\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"updatedAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_assets\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国能建2025年总资产约为9415.97亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2098
+    },
+    {
+      "id": "L1-025",
+      "question": "江苏银行2025年总资产是多少？",
+      "answer": "江苏银行2025年的总资产为4931316046.0元。该数据来源于提供的PostgreSQL财务表中的查询结果。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 江苏银行 (600919)\n命中指标: total_assets\n查询结果:\n[\n  {\n    \"id\": 52,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"4931316046.0\",\n    \"totalLiabilities\": \"4581733981.0\",\n    \"totalEquity\": \"349582065.0\",\n    \"equityAttributable\": \"337961238.0\",\n    \"currentAssets\": null,\n    \"nonCurrentAssets\": null,\n    \"currentLiabilities\": null,\n    \"nonCurrentLiabilities\": null,\n    \"cash\": null,\n    \"accountsReceivable\": null,\n    \"inventory\": null,\n    \"fixedAssets\": \"7499265.0\",\n    \"goodwill\": \"72135.0\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600919_5e0606f830e08a4b\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"updatedAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_assets\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "江苏银行2025年总资产约为49313.16亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2108
+    },
+    {
+      "id": "L1-026",
+      "question": "五粮液2025年总资产是多少？",
+      "answer": "五粮液2025年的总资产为189,984,270,815.47元。该数据来源于PostgreSQL财务表中的年报数据。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 五粮液 (000858)\n命中指标: total_assets\n查询结果:\n[\n  {\n    \"id\": 23,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"189984270815.47\",\n    \"totalLiabilities\": \"67803587170.33\",\n    \"totalEquity\": \"122180683645.14\",\n    \"equityAttributable\": \"119932271234.99\",\n    \"currentAssets\": \"164751563109.67\",\n    \"nonCurrentAssets\": \"25232707705.8\",\n    \"currentLiabilities\": \"67351815353.24\",\n    \"nonCurrentLiabilities\": \"451771817.09\",\n    \"cash\": \"127014443016.86\",\n    \"accountsReceivable\": \"37745419.51\",\n    \"inventory\": \"20065336751.2\",\n    \"fixedAssets\": \"7641231013.35\",\n    \"goodwill\": \"1621619.53\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000858_659eddf03036ae83\",\n    \"createdAt\": \"2026-07-31T10:00:51.894Z\",\n    \"updatedAt\": \"2026-07-31T10:00:51.894Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_assets\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "五粮液2025年总资产约为1899.84亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2205
+    },
+    {
+      "id": "L1-027",
+      "question": "片仔癀2025年总资产是多少？",
+      "answer": "片仔癀2025年的总资产为17,560,037,344.69元。该数据来源于提供的文档片段中的【R001-SQL精确查询结果】，公司为片仔癀（600436），报告年度为2025年，报表类型为年报。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 片仔癀 (600436)\n命中指标: total_assets\n查询结果:\n[\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"17560037344.69\",\n    \"totalLiabilities\": \"2471958553.92\",\n    \"totalEquity\": \"15088078790.77\",\n    \"equityAttributable\": \"14539495290.14\",\n    \"currentAssets\": \"10668724451.65\",\n    \"nonCurrentAssets\": \"6891312893.04\",\n    \"currentLiabilities\": \"2124586194.09\",\n    \"nonCurrentLiabilities\": \"347372359.83\",\n    \"cash\": \"1255932193.56\",\n    \"accountsReceivable\": \"753174429.93\",\n    \"inventory\": \"6678981146.15\",\n    \"fixedAssets\": \"529039602.87\",\n    \"goodwill\": null,\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600436_2f6e69b5cc9ac30f\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"updatedAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_assets\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "片仔癀2025年总资产约为175.60亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3019
+    },
+    {
+      "id": "L1-028",
+      "question": "中国人保2025年保费收入是多少？",
+      "answer": "中国人保2025年实现原保险保费收入约5386亿元，同比增长5.9%。这一数据来源于文档片段1中的“保费收入”部分。",
+      "contexts": [
+        "中国人民保险集团股份有限公司 2025年年度报告摘要\r\n\r\n一、公司基本信息\r\n公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r\n股票代码：601319（A股）、1339（H股）\r\n报告期：2025年1月1日至2025年12月31日\r\n\r\n二、主要财务数据\r\n1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r\n2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r\n3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r\n\r\n三、分部经营数据\r\n1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r\n2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r\n3. 人保健康：2025年实现原保险保费收入约471亿元，同比增长18.6%\r\n\r\n四、总资产\r\n截至2025年12月31日，公司总资产约1.58万亿元，较年初增长8.5%\r\n归属于母公司股东的净资产约2180亿元，较年初增长5.2%\r\n\r\n五、投资收益\r\n2025年总投资收益约568亿元，总投资收益率4.2%\r\n净投资收益约498亿元，净投资收益率3.7%\r\n",
+        "会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。 人保财险上述期间原保险保费收入 4 分类明细如下 : 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 机动车辆险 71,688 71,696 - 意外伤害及健康险 64,478 60,528 6.5 农险 18,331 19,155 (4. 3 ) 责任险 11,980 11,456 4.6 企业财产险 6,232 6,215 0.3 其他险种 10,286 11,371 (9.5) 合计 182,995 180,421 1.4 2. 人保寿险 2026 年一季度 ， 中国人民人寿保险股份有限公司 （ “ 人保寿险 ” ） 坚持 “ 稳增 长 、 调结构 、 提价值 、 优服务 、 防风险 ” 工作主线 ， 积极推动高质量发展 。 报告期内 ， 人保寿险实现保险服务收入 66.88 亿元，净利润 19.62 亿元，新业务价值同比增 长 21.0% 。 人保寿险上述期间原保险保费收入分类明细如下： 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 长险首年 18,496 21,206 (12. 8 ) 趸交 6,773 14,851 ( 54.4 ) 期交首年 11,723 6,355 84.5 期交续期 25,164 30,611 (17.8) 短期险 924 1,197 (22.8) 合计 44,584 53,014 (15.9) 2 此处为人保财险母公司单体报表数据。",
+        "祉。人保寿险业务发展 态 势 持 续 向 好 ， 经 营 质 效 不 断 提 升 。 年，实现原保险保费收入 亿元，同 比增长 ，首年期交保费 亿元， 同 比 增 长 ；续 期 保 费 亿 元 ， 同比增长 ；实现新业务价值 亿 元，可比口径下同比增长 。人保健康 坚持特色化、差异化经营，持续向优向新高 质量发展， 年度，实现原保险保费收入 亿元，同比增长 ；实现首年期 交保费 亿元，同比增长 ；实现 新业务价值 亿元，可比口径下同比增长 ； 健康险保费增速领先人身险公司健康 险市场 个百分点 ； 互联网健康险业务原保 险保费收入 亿元，同比增长 ， 继续保持在人身险公司中的市场领先地位。 、 投资板块 ：投资收益显著增长，战略服务 能力增强 投资板块贯彻落实集团高质量发展要求， 持续提升投资服务国家战略质效，更好地服务 人民群众财富管理需求，强化主动投资管理能 力建设，推动集团投资业绩稳步提升。 年，集团实现总投资收益 亿元，同比 增长 ；总投资收益率 ，保持相对 稳定。全面落实中长期资金入市要求，积极参 与保险资金长期投资改革试点，持续优化二级 权益投资结构。以资产证券化业务为突破口， 加大另类投资转型和创新力度， 年人保 集团机构间 发行规模在保险同业中排名 第一，推动多个行业首单、标杆项目落地，实 现助力盘活存量资产、优化企业融资结构、参 与构建多层次证券化产品体系与满足保险资金 配置需要的有效融合。以服务人民群众财富管 理为宗旨，积极推动第三方业务发展，打造有 地位、有影响力的人保品牌。截至 年 月 日，集团第三方资产管理规模 万亿 元。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 、 科技板块 ： 推进科技项目建设，科技赋能基层显效 科技板块积极推进集团科技改革和建设工作，积极赋能金融 五篇大文章 ，为集团高质量 发展贡献科技力量。",
+        "增长 ；实现普通型寿险原保险保费收入 亿元，同比增长 。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 ② 按渠道分析 按原保险保费收入统计，报告期内人保寿险分渠道类别收入如下，具体可划分为个人保险 渠道、银行保险渠道及团体保险渠道。 单位 ： 百万元 年 年 渠道 金额 占比 增减 金额 占比 个人保险渠道 长险首年 趸交 期交首年 期交续期 短期险 银行保险渠道 长险首年 趸交 期交首年 期交续期 短期险 团体保险渠道 长险首年 趸交 期交首年 期交续期 短期险 合计 截 至 年 月 日 ， 个 人 保 险 渠 道 实 现 原 保 险 保 费 收 入 亿 元 ， 同 比 增 长 ； 实现新业务价值 亿元，可比口径下同比增长 。营销员规模人力 人， 月均有效人力 人。新军渠道十年期及以上首年期交保费同比增长 。职域经营业 务首年期交保费 亿元，同比增长 ，其中十年期及以上首年期交保费 亿元，同比 增长 。综金渠道坚持 产寿联动、网点经营 发展目标，通过网点经营精准触达及专员 全流程服务赋能，将财险客户资源优势转化为寿险增长新动能，个人养老金规模保费同比增长 ，十年期及以上首年期交保费同比增长 ，短期险保费同比增长 ，月均有 效人力同比增长 、月均钻石人力同比增长 。 银保渠道坚持以 客户为中心 的经营理念，不断深化与国有大行和重点股份制银行的 合作，通过完善制度和优化系统，强化刚性管控，严格落实监管 报行合一 要求，推动渠道 高质量发展。实现新业务价值 亿元，可比口径下同比增长 ；首年期交同比增长 。 团体保险渠道聚焦团险高质量发展新路径，在政治战略高度上与国家战略相结合，推动短 险业务扩量提质。实现原保险保费收入 亿元，同比增长 ，其中短期险原保险保费收 入 亿元，同比增长 。",
+        "保险原保险保费收入 亿元，同比增长 ；加大政策性和商业性护理险业务开拓力度，实现护理保险原保险保费收入 亿 元，同比增长 。 ② 按渠道分析 按原保险保费收入统计，报告期内人保健康分渠道类别收入如下，具体可划分为个人保险 渠道、银行保险渠道及团体保险渠道。 单位 ： 百万元 年 年 渠道 金额 占比 增减 金额 占比 个人保险渠道 长险首年 趸交 期交首年 期交续期 短期险 银行保险渠道 长险首年 趸交 期交首年 期交续期 短期险 团体保险渠道 长险首年 趸交 期交首年 期交续期 短期险 合计\n中 国 人 民 保 险 集 团 股 份 有 限 公 司 管 理 层 讨 论 与 分 析 人保健康持续精耕个人保险业务。在互联网保险业务方面，紧跟市场动态和客户需求，升 级好医保系列主力产品，扩展好医好药保障，开发完成覆盖先进药械的好医保 长期医疗 （旗 舰版 ） 产品、好医保 中老年长期医疗 （ 版） 产品 ； 积极探索重疾险领域普惠新路径， 通过自然费率定价、分段给付理赔方式等，有效降低投保成本，上线了健康福少儿百万、成人 百万等新形态重疾产品 ；针对带病体和慢病群体，借助智能核保和核保智能体方式，为非健 康体客户提供千人千面的核保方案，在风险稳定的情况下实现对带病群体的有效保障覆盖 ； 构 建完成涵盖公司 、综合电商门户、支付宝、微信、小红书等多个生态圈的自营账号体系， 形成了立体化、分层次、多维度的自营平台矩阵，上线和迭代自营产品 个，平台累计粉丝 万。在个人代理人业务方面，践行高质量发展核心要义，坚持以客户为中心，立足品质性 定位、坚持精兵化路线，围绕智慧营销改革，提升销售人员营销技能，推动服务型销售队伍建 设。个人保险渠道实现原保险保费收入 亿元，同比增长 。"
+      ],
+      "ground_truth": "中国人保2025年保费收入约为5386.00亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 25002,
+      "generationLatencyMs": 2510
+    },
+    {
+      "id": "L1-029",
+      "question": "东吴证券2025年经纪业务收入是多少？",
+      "answer": "根据提供的文档片段，东吴证券2025年的经纪业务收入（commission_income）数据并未提供具体数值，因此无法直接回答该问题。文档中包含的其他财务数据如营业收入、营业利润、净利润等均不涉及具体的经纪业务收入。 \n\n虽然文档中提到了“commission_income”这个指标，但对应的数值为null，即无数据。所以针对东吴证券2025年经纪业务收入的具体金额，我们无法从当前信息中得出结论。 \n\n如果有更多相关数据或文档，请提供进一步的信息以便准确回答。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 东吴证券 (601555)\n命中指标: commission_income\n查询结果:\n[\n  {\n    \"id\": 52,\n    \"stockCode\": \"601555\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9030366291.2\",\n    \"operatingCost\": null,\n    \"operatingProfit\": \"4535549056.09\",\n    \"netProfit\": \"3571909976.02\",\n    \"netProfitAttributable\": null,\n    \"eps\": \"55.0\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": null,\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601555_588bceaee54946a8\",\n    \"createdAt\": \"2026-07-31T10:02:22.578Z\",\n    \"updatedAt\": \"2026-07-31T10:02:22.578Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"commission_income\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "东吴证券2025年经纪业务收入约为23.93亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 4408
+    },
+    {
+      "id": "L1-030",
+      "question": "中国铁建2025年新签合同额是多少？",
+      "answer": "根据提供的文档片段，中国铁建（601186）2025年的新签合同额数据未给出具体数值，字段 `newSignedContract` 的值为 null。因此，无法从当前信息中获取2025年的新签合同额。请确认是否有其他相关文档或数据源补充此信息。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国铁建 (601186)\n命中指标: new_signed_contract\n查询结果:\n[\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"1029784460.0\",\n    \"operatingCost\": \"929666968.0\",\n    \"operatingProfit\": \"26778557.0\",\n    \"netProfit\": \"21686845.0\",\n    \"netProfitAttributable\": \"18362618.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"23595966.0\",\n    \"sellingExpense\": \"6411982.0\",\n    \"administrativeExpense\": \"20138345.0\",\n    \"financialExpense\": \"10971557.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601186_b8c0e92d6f378524\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"updatedAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"new_signed_contract\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国铁建2025年新签合同额约为30764.97亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2845
+    },
+    {
+      "id": "L3-001",
+      "question": "中国能建2025年毛利率是多少？",
+      "answer": "根据提供的文档片段，中国能建2025年的毛利率数据并未直接给出（\"grossMargin\": null）。但是，我们可以基于营业收入和营业成本计算出毛利率。\n\n<details><summary>计算过程</summary>\n毛利率 = (营业收入 - 营业成本) / 营业收入 * 100%\n\n= (452,929,608.0 - 437,118,437.0) / 452,929,608.0 * 100%\n= 15,811,171.0 / 452,929,608.0 * 100%\n≈ 3.49%\n</details>\n\n因此，中国能建2025年的毛利率约为3.49%。 \n\n请注意，该数值是通过计算得出的，因为文档中没有直接提供毛利率的具体数值。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国能建 (601868)\n命中指标: gross_margin\n查询结果:\n[\n  {\n    \"id\": 59,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"452929608.0\",\n    \"operatingCost\": \"437118437.0\",\n    \"operatingProfit\": \"13181604.0\",\n    \"netProfit\": \"9755625.0\",\n    \"netProfitAttributable\": \"5840294.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"14748909.0\",\n    \"sellingExpense\": \"2386524.0\",\n    \"administrativeExpense\": \"13723418.0\",\n    \"financialExpense\": \"6669618.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601868_6a604bb54c013b0e\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"updatedAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"gross_margin\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国能建2025年毛利率约为12.2%，根据营业收入约4529.30亿元和营业成本约3977.11亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 5713
+    },
+    {
+      "id": "L3-002",
+      "question": "片仔癀2025年净资产收益率是多少？",
+      "answer": "根据提供的文档片段，片仔癀2025年的净资产收益率（ROE）数据未提供具体数值，显示为 null。\n\n说明：文档中包含片仔癀2025年年报的数据，但净资产收益率（ROE）一项显示为 null，意味着该值在文档提供的数据中未给出具体数值。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 片仔癀 (600436)\n命中指标: roe, roa, total_equity\n查询结果:\n[\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.2440625568081421\",\n    \"netMargin\": \"0.23810513528634286\",\n    \"debtRatio\": \"0.14077182783825334\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.1655982533500182187527627439\",\n    \"netProfitYoy\": \"-0.2845056473959661456930663300\",\n    \"totalAssetsYoy\": \"0.001161692145942125907852621301\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"roe\",\n      \"roa\"\n    ]\n  },\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"17560037344.69\",\n    \"totalLiabilities\": \"2471958553.92\",\n    \"totalEquity\": \"15088078790.77\",\n    \"equityAttributable\": \"14539495290.14\",\n    \"currentAssets\": \"10668724451.65\",\n    \"nonCurrentAssets\": \"6891312893.04\",\n    \"currentLiabilities\": \"2124586194.09\",\n    \"nonCurrentLiabilities\": \"347372359.83\",\n    \"cash\": \"1255932193.56\",\n    \"accountsReceivable\": \"753174429.93\",\n    \"inventory\": \"6678981146.15\",\n    \"fixedAssets\": \"529039602.87\",\n    \"goodwill\": null,\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600436_2f6e69b5cc9ac30f\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"updatedAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_equity\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "片仔癀2025年净资产收益率约为14.8%，根据净利润约21.59亿元和净资产约145.39亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2847
+    },
+    {
+      "id": "L3-003",
+      "question": "五粮液2025年毛利率是多少？",
+      "answer": "根据提供的文档片段，五粮液2025年的毛利率数据并未直接给出（\"grossMargin\": null）。但是，我们可以基于营业收入和营业成本计算出毛利率。\n\n<details><summary>计算过程</summary>\n毛利率 = (营业收入 - 营业成本) / 营业收入\n= (40528509770.23 - 28652689973.67) / 40528509770.23\n= 11875819796.56 / 40528509770.23\n≈ 0.293 或 29.3%\n</details>\n\n五粮液2025年的毛利率约为29.3%。这个结果是通过计算得出的，因为原始文档中没有直接提供毛利率数值。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 五粮液 (000858)\n命中指标: gross_margin\n查询结果:\n[\n  {\n    \"id\": 3,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"40528509770.23\",\n    \"operatingCost\": \"28652689973.67\",\n    \"operatingProfit\": \"12251151014.43\",\n    \"netProfit\": \"9317113184.68\",\n    \"netProfitAttributable\": \"8954257202.51\",\n    \"eps\": \"2.3068\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"449183817.5\",\n    \"sellingExpense\": \"7628615140.51\",\n    \"administrativeExpense\": \"3096502911.23\",\n    \"financialExpense\": \"-2661630589.09\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000858_659eddf03036ae83\",\n    \"createdAt\": \"2026-07-31T07:41:57.061Z\",\n    \"updatedAt\": \"2026-07-31T07:41:57.061Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"gross_margin\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "五粮液2025年毛利率约为83.8%，根据文档直接陈述的酒类业务毛利率83.75%得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 5347
+    },
+    {
+      "id": "L3-004",
+      "question": "格力电器2025年净利率是多少？",
+      "answer": "根据提供的文档片段，格力电器2025年的净利率数据并未直接给出。文档中包含了营业收入、营业成本、营业利润、净利润等数据，但净利率（net_margin）字段为空，因此无法直接提供具体的净利率数值。\n\n不过，可以根据已有数据计算净利率：\n<details>\n<summary>计算过程</summary>\n净利率 = 净利润 / 营业收入\n\n净利润：28,862,746,016.16元\n营业收入：171,118,161,275.41元\n\n净利率 = 28,862,746,016.16 / 171,118,161,275.41 ≈ 16.87%\n</details>\n\n基于上述计算，格力电器2025年的净利率约为16.87%。请注意，该值是通过计算得出，并非文档中直接提供的数据。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 格力电器 (000651)\n命中指标: net_margin, net_profit\n查询结果:\n[\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"171118161275.41\",\n    \"operatingCost\": \"137548893694.33\",\n    \"operatingProfit\": \"34681293552.28\",\n    \"netProfit\": \"28862746016.16\",\n    \"netProfitAttributable\": \"29003103411.66\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"6463100763.66\",\n    \"sellingExpense\": \"8410739569.54\",\n    \"administrativeExpense\": \"5180260235.38\",\n    \"financialExpense\": \"-4086088396.47\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"83.29\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000651_bfb60d18f50fcc49\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"updatedAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_margin\",\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "格力电器2025年净利率约为16.9%，根据净利润约290.03亿元和营业收入约1711.18亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 7052
+    },
+    {
+      "id": "L3-005",
+      "question": "中国铁建2025年毛利率是多少？",
+      "answer": "根据提供的文档片段，中国铁建2025年的毛利率数据并未直接给出（\"grossMargin\": null）。但是，我们可以基于营业收入和营业成本计算出毛利率。\n\n<details><summary>计算过程</summary>\n毛利率 = (营业收入 - 营业成本) / 萫业收入 * 100%\n= (1029784460.0 - 929666968.0) / 1029784460.0 * 100%\n= 9.72%\n</details>\n\n因此，中国铁建2025年的毛利率为9.72%。这一结果是通过计算得出的，因为原始文档中没有提供具体的毛利率数值。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国铁建 (601186)\n命中指标: gross_margin\n查询结果:\n[\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"1029784460.0\",\n    \"operatingCost\": \"929666968.0\",\n    \"operatingProfit\": \"26778557.0\",\n    \"netProfit\": \"21686845.0\",\n    \"netProfitAttributable\": \"18362618.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"23595966.0\",\n    \"sellingExpense\": \"6411982.0\",\n    \"administrativeExpense\": \"20138345.0\",\n    \"financialExpense\": \"10971557.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601186_b8c0e92d6f378524\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"updatedAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"gross_margin\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国铁建2025年毛利率约为9.7%，根据营业收入约10297.84亿元和营业成本约9296.67亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 4980
+    },
+    {
+      "id": "L3-006",
+      "question": "江苏银行2025年净资产收益率是多少？",
+      "answer": "根据提供的文档片段，江苏银行2025年的净资产收益率（ROE）数据未提供具体数值，显示为 null。因此，无法直接给出净资产收益率的具体数值。\n\n相关信息来源于【R001-SQL精确查询结果】中的财务表数据，其中提到的净资产收益率（roe）字段值为空。 \n\n如果需要进一步准确的数据，建议查阅最新的财报或相关公告。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 江苏银行 (600919)\n命中指标: roe, roa, total_equity\n查询结果:\n[\n  {\n    \"id\": 70,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.4682886008742521\",\n    \"netMargin\": \"0.4125856767080195\",\n    \"debtRatio\": \"0.9291097829181805\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"0.08819076042267883922645652405\",\n    \"netProfitYoy\": \"0.08939296146749920728455726666\",\n    \"totalAssetsYoy\": \"0.2477895180642039653444232369\",\n    \"eps\": \"1.76\",\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"roe\",\n      \"roa\"\n    ]\n  },\n  {\n    \"id\": 52,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"4931316046.0\",\n    \"totalLiabilities\": \"4581733981.0\",\n    \"totalEquity\": \"349582065.0\",\n    \"equityAttributable\": \"337961238.0\",\n    \"currentAssets\": null,\n    \"nonCurrentAssets\": null,\n    \"currentLiabilities\": null,\n    \"nonCurrentLiabilities\": null,\n    \"cash\": null,\n    \"accountsReceivable\": null,\n    \"inventory\": null,\n    \"fixedAssets\": \"7499265.0\",\n    \"goodwill\": \"72135.0\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600919_5e0606f830e08a4b\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"updatedAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_equity\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "江苏银行2025年净资产收益率约为10.2%，根据净利润约345.01亿元和净资产约3379.61亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3229
+    },
+    {
+      "id": "L3-007",
+      "question": "华海药业2025年毛利率是多少？",
+      "answer": "根据提供的文档片段，华海药业2025年的毛利率数据并未直接给出（\"grossMargin\": null）。但是，我们可以基于营业收入和营业成本计算出毛利率。\n\n<details><summary>计算过程</summary>\n毛利率 = (营业收入 - 营业成本) / 萫业收入 * 100%\n= (8587145652.08 - 8145904767.72) / 8587145652.08 * 100%\n= 5.14%\n</details>\n\n华海药业2025年的毛利率为5.14%。这是通过计算营业收入和营业成本得出的结果。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 华海药业 (600521)\n命中指标: gross_margin\n查询结果:\n[\n  {\n    \"id\": 75,\n    \"stockCode\": \"600521\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"8587145652.08\",\n    \"operatingCost\": \"8145904767.72\",\n    \"operatingProfit\": \"456461342.57\",\n    \"netProfit\": \"227329393.11\",\n    \"netProfitAttributable\": \"266399456.11\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1229124707.86\",\n    \"sellingExpense\": \"1577067587.51\",\n    \"administrativeExpense\": \"1558912337.62\",\n    \"financialExpense\": \"248160740.07\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600521_0bc45dc3286c3f48\",\n    \"createdAt\": \"2026-08-01T02:47:32.129Z\",\n    \"updatedAt\": \"2026-08-01T02:47:32.129Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"gross_margin\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "华海药业2025年毛利率约为60.1%，根据营业收入约85.87亿元和营业成本约34.22亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 4669
+    },
+    {
+      "id": "L3-008",
+      "question": "东吴证券2025年净利率是多少？",
+      "answer": "根据提供的文档片段，东吴证券2025年的净利率数据并未直接给出。文档中包含了营业收入、营业利润和净利润等数据，但净利率（net_margin）字段为空，因此无法直接提供净利率的具体数值。\n\n<details><summary>计算过程</summary>\n净利率可以通过以下公式计算：\n\\[ \\text{净利率} = \\left( \\frac{\\text{净利润}}{\\text{营业收入}} \\right) \\times 100\\% \\]\n\n使用文档中的数据：\n\\[ \\text{净利率} = \\left( \\frac{3571909976.02}{9030366291.2} \\right) \\times 100\\% \\approx 39.55\\% \\]\n</details>\n\n虽然文档未直接提供净利率，但通过上述计算得出东吴证券2025年的净利率约为39.55%。请注意，该计算基于提供的净利润和营业收入数据。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 东吴证券 (601555)\n命中指标: net_margin, net_profit\n查询结果:\n[\n  {\n    \"id\": 52,\n    \"stockCode\": \"601555\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9030366291.2\",\n    \"operatingCost\": null,\n    \"operatingProfit\": \"4535549056.09\",\n    \"netProfit\": \"3571909976.02\",\n    \"netProfitAttributable\": null,\n    \"eps\": \"55.0\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": null,\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601555_588bceaee54946a8\",\n    \"createdAt\": \"2026-07-31T10:02:22.578Z\",\n    \"updatedAt\": \"2026-07-31T10:02:22.578Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_margin\",\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "东吴证券2025年净利率约为39.3%，根据净利润约35.52亿元和营业收入约90.30亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 6334
+    },
+    {
+      "id": "L3-009",
+      "question": "中国人保2025年净利率是多少？",
+      "answer": "中国人保2025年净利率约为3.88%。\n\n计算过程如下：\n- 2025年实现归属于母公司股东的净利润约218亿元\n- 2025年实现营业收入约5623亿元\n\n净利率 = (净利润 / 营业收入) * 100% = (218 / 5623) * 100% ≈ 3.88%\n\n<details><summary>计算过程</summary>\n净利率计算步骤：\n1. 净利润：218亿元\n2. 营业收入：5623亿元\n3. 净利率 = (218 / 5623) * 100% ≈ 3.88%\n</details>",
+      "contexts": [
+        "中国人民保险集团股份有限公司 2025年年度报告摘要\r\n\r\n一、公司基本信息\r\n公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r\n股票代码：601319（A股）、1339（H股）\r\n报告期：2025年1月1日至2025年12月31日\r\n\r\n二、主要财务数据\r\n1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r\n2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r\n3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r\n\r\n三、分部经营数据\r\n1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r\n2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r\n3. 人保健康：2025年实现原保险保费收入约471亿元，同比增长18.6%\r\n\r\n四、总资产\r\n截至2025年12月31日，公司总资产约1.58万亿元，较年初增长8.5%\r\n归属于母公司股东的净资产约2180亿元，较年初增长5.2%\r\n\r\n五、投资收益\r\n2025年总投资收益约568亿元，总投资收益率4.2%\r\n净投资收益约498亿元，净投资收益率3.7%\r\n",
+        "会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。 人保财险上述期间原保险保费收入 4 分类明细如下 : 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 机动车辆险 71,688 71,696 - 意外伤害及健康险 64,478 60,528 6.5 农险 18,331 19,155 (4. 3 ) 责任险 11,980 11,456 4.6 企业财产险 6,232 6,215 0.3 其他险种 10,286 11,371 (9.5) 合计 182,995 180,421 1.4 2. 人保寿险 2026 年一季度 ， 中国人民人寿保险股份有限公司 （ “ 人保寿险 ” ） 坚持 “ 稳增 长 、 调结构 、 提价值 、 优服务 、 防风险 ” 工作主线 ， 积极推动高质量发展 。 报告期内 ， 人保寿险实现保险服务收入 66.88 亿元，净利润 19.62 亿元，新业务价值同比增 长 21.0% 。 人保寿险上述期间原保险保费收入分类明细如下： 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 长险首年 18,496 21,206 (12. 8 ) 趸交 6,773 14,851 ( 54.4 ) 期交首年 11,723 6,355 84.5 期交续期 25,164 30,611 (17.8) 短期险 924 1,197 (22.8) 合计 44,584 53,014 (15.9) 2 此处为人保财险母公司单体报表数据。",
+        "短期险 13,603 12,909 5.4 合计 33,312 28,069 18.7 （三） 资产管理业务 2026 年一季度，我国经济运行总体平稳、稳中有进，高质量发展扎实推进，经 济转型不断涌现创新亮点 ， 但外部地缘政治冲突带来了资本市场波动 。 本集团坚持长 期投资 、 价值投资理念 ， 落实服务金融 “ 五篇大文章 ” 和资产负债匹配管理要求 ， 优 化大类资产配置和品种投资策略 ， 进一步增强投资收益的稳定性 。 在固收投资方面 ， 强化对中长期利率走势的研判能力 ， 做好久期与收益的有效平衡 ， 守好资产配置 “ 基 本盘 ” ； 在权益投资方面 ， 积极响应中长期资金入市要求 ， 充分发挥保险资金耐心资 本优势 ， 强化绝对收益导向 ， 优化权益持仓结构 ， 增强新准则下投资业绩的长期稳定 性 ； 聚焦做稳债权 、 做强股权 、 做优实物资产 ， 持续深化另类转型创新 ， 积极把握机 构间 REITs 、 CMBS 等创新品种投资机会 ， 拓宽投资收益来源 。 报告期内实现总投资收 益 89.31 亿元，总投资收益率 5 0.5% ，总投资资产 19,037.70 亿元 。 四、其他提醒事项 本公司不存在需提醒投资者关注的关于公司报告期经营情况的其他重要信息。 5 总投资收益率未年化，计算总投资收益率的分母不考虑以公允价值计量且其变动计入其他综合收益的债权类投资的 公允价值变动额。，",
+        "力 ， 坚持稳中求进工作总基调 ， 更好统筹深化改革和高质量发展 ， 更好统筹发展和 安全，踔厉奋发加快世界一流保险金融集团建设。报告期内，实现保险服务收 入 1,388.81 亿元， 同比增长 2.0% ，实现 归属于母公司股东净利润 88.14 亿元。 本集团资本实力进一步充实，截至 2026 年 3 月 31 日止，本集团归属于母公司 股东的股东权益为 3,193.56 亿元，归属于母公司股东的每股净资产为 7.2 元 / 股， 较上年末增长 3.4% 。 （二）保险业务 1. 人保财险\n- 5 - 202 6 年一季度，中国人民财产保险股份有限公司（ “ 人保财险 ” ） 积极顺应经 济社会变化趋势 ， 坚持以做好金融 “ 五篇大文章 ” 为牵引 ， 以能力建设为抓手 ， 以创 新赋能为引擎 ， 加快构建与新质生产力发展更加适配的保险保障体系 ， 在服务发展大 局中发挥好保险业经济减震器和社会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。",
+        "年 ， 人 保 财 险 实 现 保 险 服 务 收 入 亿元，同比增长 ；实现承保利 润 亿元，同比增长 ；综合成本 率 ，同比下降 个百分点 ；综合赔付 率 ，同比上升 个百分点 ；综合费用 率 ，同比下降 个百分点 ；实现净利 润 亿元，同比增长 。人保财险 三年平均综合成本率 为 ，三年平均综 合赔付率 为 。 三年平均综合成本率为最近三个完整年度 （ 年 － 年） 综合成本率平均数。 三年平均综合赔付率为最近三个完整年度 （ 年 － 年） 综合赔付率平均数。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 下表列明报告期内人保财险的承保利润情况 ： 单位 ： 百万元 指标 年 年 增减 保险服务收入 减 ： 保险服务费用 减 ： 分出保费的分摊 加 ： 摊回保险服务费用 减 ： 承保财务损失 加 ： 分出再保险财务收益 减 ： 提取保费准备金 承保利润 为方便投资者理解主要险种经营成果，人保财险将再保业务对应的保险服务收入、保险服 务费用及其他损益科目分摊至各险种，模拟测算了各险种再保后经营成果。下表列明报告期内 人保财险各险种经营信息情况节选 ： 单位 ： 百万元 险种 保险服务 收入 保险服务 费用 承保利润 综合 成本率 保险金额 机动车辆险 意外伤害及健康险 农险 责任险 企业财产险 其他险类 合计 注 ： 数据因四舍五入，直接相加未必等于总数，下同。 机动车辆险 人保财险始终坚持车险业务高质量发展， 不断迭代升级精算定价模型，持续加强风险选 择，优化业务结构。围绕客户需求和业务场 景，加强渠道专业化建设，强新车、提续保、 优转保，提升服务质效，机动车辆险业务实现 保险服务收入 亿元，同比增长 。"
+      ],
+      "ground_truth": "中国人保2025年净利率约为3.9%，根据净利润约218.00亿元和营业收入约5623.00亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18868,
+      "generationLatencyMs": 5678
+    },
+    {
+      "id": "L3-010",
+      "question": "中国长城2025年净利率是多少？",
+      "answer": "根据文档提供的信息，中国长城2025年的净利率数据未直接给出。我们知道其净利润为-13,751,299.19元，营业收入为15,808,600,064.94元。净利率通常通过净利润除以营业收入计算得出。\n\n<details><summary>计算过程</summary>\n净利率 = (净利润 / 营业收入) * 100%\n= (-13,751,299.19 / 15,808,600,064.94) * 100%\n≈ -0.087% \n</details>\n\n因此，中国长城2025年的净利率约为-0.087%。请注意，这是一次基于给定数据的计算结果。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国长城 (000066)\n命中指标: net_margin, net_profit\n查询结果:\n[\n  {\n    \"id\": 11,\n    \"stockCode\": \"000066\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"15808600064.94\",\n    \"operatingCost\": \"13191001140.75\",\n    \"operatingProfit\": \"134969236.3\",\n    \"netProfit\": \"-13751299.19\",\n    \"netProfitAttributable\": \"-55724795.18\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1087421743.45\",\n    \"sellingExpense\": \"508936390.45\",\n    \"administrativeExpense\": \"900165696.01\",\n    \"financialExpense\": \"211392112.3\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000066_319e0f1cc2a11705\",\n    \"createdAt\": \"2026-07-31T07:42:59.430Z\",\n    \"updatedAt\": \"2026-07-31T07:42:59.430Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_margin\",\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国长城2025年净利率约为-0.4%，根据净利润约-0.56亿元和营业收入约158.09亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 5367
+    },
+    {
+      "id": "L3-011",
+      "question": "五粮液2025年净资产收益率是多少？",
+      "answer": "根据文档片段，五粮液2025年的净资产收益率（ROE）数据未提供，显示为null。这意味着在提供的财务数据中没有记录该指标的具体数值。 \n\n详细说明：文档中的财务数据包含了五粮液2025年年报的部分财务指标，但其中的roe字段值为null，因此无法直接提供净资产收益率的具体数值。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 五粮液 (000858)\n命中指标: roe, roa, total_equity\n查询结果:\n[\n  {\n    \"id\": 3,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.29302384577888735\",\n    \"netMargin\": \"0.22989034725189514\",\n    \"debtRatio\": \"0.35689053035441554\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.5455180406416607128604339647\",\n    \"netProfitYoy\": \"-0.7193087720070271535885866967\",\n    \"totalAssetsYoy\": \"0.009200699589213569692249153897\",\n    \"eps\": \"2.3068\",\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T07:41:57.061Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"roe\",\n      \"roa\"\n    ]\n  },\n  {\n    \"id\": 23,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"189984270815.47\",\n    \"totalLiabilities\": \"67803587170.33\",\n    \"totalEquity\": \"122180683645.14\",\n    \"equityAttributable\": \"119932271234.99\",\n    \"currentAssets\": \"164751563109.67\",\n    \"nonCurrentAssets\": \"25232707705.8\",\n    \"currentLiabilities\": \"67351815353.24\",\n    \"nonCurrentLiabilities\": \"451771817.09\",\n    \"cash\": \"127014443016.86\",\n    \"accountsReceivable\": \"37745419.51\",\n    \"inventory\": \"20065336751.2\",\n    \"fixedAssets\": \"7641231013.35\",\n    \"goodwill\": \"1621619.53\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000858_659eddf03036ae83\",\n    \"createdAt\": \"2026-07-31T10:00:51.894Z\",\n    \"updatedAt\": \"2026-07-31T10:00:51.894Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_equity\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "五粮液2025年净资产收益率约为7.5%，根据净利润约89.54亿元和净资产约1199.32亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2987
+    },
+    {
+      "id": "L3-012",
+      "question": "格力电器2025年毛利率是多少？",
+      "answer": "根据提供的文档片段，格力电器2025年的毛利率数据并未直接给出（\"grossMargin\": null）。但是，我们可以基于营业收入和营业成本计算出毛利率。\n\n<details><summary>计算过程</summary>\n毛利率 = (营业收入 - 营业成本) / 萫业收入\n= (171118161275.41 - 137548893694.33) / 171118161275.41\n= 34681293552.28 / 171118161275.41\n≈ 0.2027 或 20.27%\n</details>\n\n格力电器2025年的毛利率约为20.27%。这是通过计算营业收入与营业成本之差后除以营业收入得出的。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 格力电器 (000651)\n命中指标: gross_margin\n查询结果:\n[\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"171118161275.41\",\n    \"operatingCost\": \"137548893694.33\",\n    \"operatingProfit\": \"34681293552.28\",\n    \"netProfit\": \"28862746016.16\",\n    \"netProfitAttributable\": \"29003103411.66\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"6463100763.66\",\n    \"sellingExpense\": \"8410739569.54\",\n    \"administrativeExpense\": \"5180260235.38\",\n    \"financialExpense\": \"-4086088396.47\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"83.29\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000651_bfb60d18f50fcc49\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"updatedAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"gross_margin\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "格力电器2025年毛利率约为30.1%，根据营业收入约1711.18亿元和营业成本约1196.41亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 5557
+    },
+    {
+      "id": "L3-013",
+      "question": "中国能建2025年资产负债率是多少？",
+      "answer": "根据提供的文档片段，中国能建2025年的资产负债率（debt_ratio）没有直接给出具体数值，但是我们可以基于总负债和总资产的数据计算出来。\n\n<details><summary>计算过程</summary>\n资产负债率 = 总负债 / 总资产\n= 731979102.0 / 941597382.0\n≈ 0.7774 或 77.74%\n</details>\n\n因此，中国能建2025年的资产负债率约为77.74%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国能建 (601868)\n命中指标: debt_ratio\n查询结果:\n[\n  {\n    \"id\": 41,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"941597382.0\",\n    \"totalLiabilities\": \"731979102.0\",\n    \"totalEquity\": \"209618280.0\",\n    \"equityAttributable\": \"119984044.0\",\n    \"currentAssets\": \"462174853.0\",\n    \"nonCurrentAssets\": \"479422529.0\",\n    \"currentLiabilities\": \"466810782.0\",\n    \"nonCurrentLiabilities\": \"265168320.0\",\n    \"cash\": \"94076322.0\",\n    \"accountsReceivable\": \"85435414.0\",\n    \"inventory\": \"79102353.0\",\n    \"fixedAssets\": \"98813215.0\",\n    \"goodwill\": \"2829029.0\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601868_6a604bb54c013b0e\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"updatedAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"debt_ratio\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国能建2025年资产负债率约为49.6%，根据总负债约4668.11亿元和总资产约9415.97亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3852
+    },
+    {
+      "id": "L3-014",
+      "question": "片仔癀2025年毛利率是多少？",
+      "answer": "根据提供的文档片段，片仔癀2025年的毛利率数据并未直接给出（\"grossMargin\": null）。但是，我们可以基于营业收入和营业成本计算出毛利率。\n\n<details><summary>计算过程</summary>\n毛利率 = (营业收入 - 营业成本) / 营业收入\n= (9,001,411,806.06 - 6,804,504,225.79) / 9,001,411,806.06\n= 2,196,907,580.27 / 9,001,411,806.06\n≈ 0.2441 或 24.41%\n</details>\n\n片仔癀2025年的毛利率约为24.41%。这是通过计算营业收入与营业成本的差值占营业收入的比例得出的结果。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 片仔癀 (600436)\n命中指标: gross_margin\n查询结果:\n[\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9001411806.06\",\n    \"operatingCost\": \"6804504225.79\",\n    \"operatingProfit\": \"2545855552.19\",\n    \"netProfit\": \"2143282375.85\",\n    \"netProfitAttributable\": \"2158633048.42\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"252231218.87\",\n    \"sellingExpense\": \"400983989.09\",\n    \"administrativeExpense\": \"359204675.91\",\n    \"financialExpense\": \"20226793.2\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600436_2f6e69b5cc9ac30f\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"updatedAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"gross_margin\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "片仔癀2025年毛利率约为36.4%，根据营业收入约90.01亿元和营业成本约57.23亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 5563
+    },
+    {
+      "id": "L3-015",
+      "question": "中国铁建2025年净资产收益率是多少？",
+      "answer": "根据提供的文档片段，中国铁建2025年的净资产收益率（ROE）数据未提供具体数值，显示为 null。这意味着在该文档中没有记录到2025年中国铁建的净资产收益率的具体数据。 \n\n请注意，虽然文档中包含了其他财务信息，如总负债、总资产和股东权益等，但净资产收益率并未给出具体数值。如果需要进一步分析或获取该数据，建议查阅更详细的财务报告或官方公告。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国铁建 (601186)\n命中指标: roe, roa, total_equity\n查询结果:\n[\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.09722179338383102\",\n    \"netMargin\": \"0.021059596296491016\",\n    \"debtRatio\": \"0.7951100441841329\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.03503362178476500817037967353\",\n    \"netProfitYoy\": \"-0.1991083882169156593100096066\",\n    \"totalAssetsYoy\": \"0.1186266065919231792154677904\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"roe\",\n      \"roa\"\n    ]\n  },\n  {\n    \"id\": 43,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"totalAssets\": \"2083825209.0\",\n    \"totalLiabilities\": \"1656870354.0\",\n    \"totalEquity\": \"426954855.0\",\n    \"equityAttributable\": \"340286440.0\",\n    \"currentAssets\": \"1244681782.0\",\n    \"nonCurrentAssets\": \"839143427.0\",\n    \"currentLiabilities\": \"1211365969.0\",\n    \"nonCurrentLiabilities\": \"445504385.0\",\n    \"cash\": \"191922113.0\",\n    \"accountsReceivable\": \"241023952.0\",\n    \"inventory\": \"265926559.0\",\n    \"fixedAssets\": \"72919328.0\",\n    \"goodwill\": \"49762.0\",\n    \"debtRatio\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601186_b8c0e92d6f378524\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"updatedAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_balancesheet\",\n    \"_matchedIndicators\": [\n      \"total_equity\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国铁建2025年净资产收益率约为5.4%，根据净利润约183.63亿元和净资产约3402.86亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3557
+    },
+    {
+      "id": "L4-001",
+      "question": "中国能建2025年营收同比变化多少？",
+      "answer": "中国能建2025年营业收入同比增长3.71%。该数值来源于文档中提供的`revenueYoy`指标，其值为0.03713390721947698908186462710，对应百分比即为3.71%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国能建 (601868)\n命中指标: revenue_yoy, revenue\n查询结果:\n[\n  {\n    \"id\": 59,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.034908671724547535\",\n    \"netMargin\": \"0.02153894297853012\",\n    \"debtRatio\": \"0.7773801371932871\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"0.03713390721947698908186462710\",\n    \"netProfitYoy\": \"-0.1749145260291235244243061120\",\n    \"totalAssetsYoy\": \"0.08353533605895855283538740873\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"revenue_yoy\"\n    ]\n  },\n  {\n    \"id\": 59,\n    \"stockCode\": \"601868\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"452929608.0\",\n    \"operatingCost\": \"437118437.0\",\n    \"operatingProfit\": \"13181604.0\",\n    \"netProfit\": \"9755625.0\",\n    \"netProfitAttributable\": \"5840294.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"14748909.0\",\n    \"sellingExpense\": \"2386524.0\",\n    \"administrativeExpense\": \"13723418.0\",\n    \"financialExpense\": \"6669618.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601868_6a604bb54c013b0e\",\n    \"createdAt\": \"2026-07-31T11:51:04.108Z\",\n    \"updatedAt\": \"2026-07-31T11:51:04.108Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国能建2025年营收约为4529.30亿元，同比增长约3.7%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2863
+    },
+    {
+      "id": "L4-002",
+      "question": "江苏银行2025年净利润同比增长率是多少？",
+      "answer": "江苏银行2025年净利润同比增长率为8.94%。该数据来源于文档中提供的\"netProfitYoy\"指标，数值为0.08939296146749920728455726666，转换为百分比即为8.94%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 江苏银行 (600919)\n命中指标: net_profit_yoy, net_profit\n查询结果:\n[\n  {\n    \"id\": 70,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.4682886008742521\",\n    \"netMargin\": \"0.4125856767080195\",\n    \"debtRatio\": \"0.9291097829181805\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"0.08819076042267883922645652405\",\n    \"netProfitYoy\": \"0.08939296146749920728455726666\",\n    \"totalAssetsYoy\": \"0.2477895180642039653444232369\",\n    \"eps\": \"1.76\",\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"net_profit_yoy\"\n    ]\n  },\n  {\n    \"id\": 70,\n    \"stockCode\": \"600919\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"87942367.0\",\n    \"operatingCost\": \"-46759959.0\",\n    \"operatingProfit\": \"41182408.0\",\n    \"netProfit\": \"36283761.0\",\n    \"netProfitAttributable\": \"34501004.0\",\n    \"eps\": \"1.76\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": \"-23450711.0\",\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"6731316.0\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600919_5e0606f830e08a4b\",\n    \"createdAt\": \"2026-08-01T02:34:38.524Z\",\n    \"updatedAt\": \"2026-08-01T02:34:38.524Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "江苏银行2025年净利润约为345.01亿元，同比增长约8.3%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2842
+    },
+    {
+      "id": "L4-003",
+      "question": "五粮液2025年营收同比增长率是多少？",
+      "answer": "五粮液2025年营收同比增长率为-54.55%。该数值直接来源于文档中提供的 `revenueYoy` 指标，其值为 `-0.5455180406416607128604339647`，表示同比下降了54.55%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 五粮液 (000858)\n命中指标: revenue_yoy, revenue\n查询结果:\n[\n  {\n    \"id\": 3,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.29302384577888735\",\n    \"netMargin\": \"0.22989034725189514\",\n    \"debtRatio\": \"0.35689053035441554\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.5455180406416607128604339647\",\n    \"netProfitYoy\": \"-0.7193087720070271535885866967\",\n    \"totalAssetsYoy\": \"0.009200699589213569692249153897\",\n    \"eps\": \"2.3068\",\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T07:41:57.061Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"revenue_yoy\"\n    ]\n  },\n  {\n    \"id\": 3,\n    \"stockCode\": \"000858\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"40528509770.23\",\n    \"operatingCost\": \"28652689973.67\",\n    \"operatingProfit\": \"12251151014.43\",\n    \"netProfit\": \"9317113184.68\",\n    \"netProfitAttributable\": \"8954257202.51\",\n    \"eps\": \"2.3068\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"449183817.5\",\n    \"sellingExpense\": \"7628615140.51\",\n    \"administrativeExpense\": \"3096502911.23\",\n    \"financialExpense\": \"-2661630589.09\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000858_659eddf03036ae83\",\n    \"createdAt\": \"2026-07-31T07:41:57.061Z\",\n    \"updatedAt\": \"2026-07-31T07:41:57.061Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "五粮液2025年营收约为405.29亿元，同比下降约54.5%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3028
+    },
+    {
+      "id": "L4-004",
+      "question": "格力电器2025年净利润同比变化多少？",
+      "answer": "格力电器2025年净利润同比变化为-10.84%。该数据来源于文档中提供的\"netProfitYoy\"指标，其值为\"-0.1083783559958269961550887508\"，表示同比下降了10.84%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 格力电器 (000651)\n命中指标: net_profit_yoy, net_profit\n查询结果:\n[\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.19617594842578515\",\n    \"netMargin\": \"0.16867143616454713\",\n    \"debtRatio\": \"0.6172662307375406\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.09955852619214912221200168817\",\n    \"netProfitYoy\": \"-0.1083783559958269961550887508\",\n    \"totalAssetsYoy\": \"0.06341925168346531923995146674\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"net_profit_yoy\"\n    ]\n  },\n  {\n    \"id\": 44,\n    \"stockCode\": \"000651\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"171118161275.41\",\n    \"operatingCost\": \"137548893694.33\",\n    \"operatingProfit\": \"34681293552.28\",\n    \"netProfit\": \"28862746016.16\",\n    \"netProfitAttributable\": \"29003103411.66\",\n    \"eps\": \"5.2\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"6463100763.66\",\n    \"sellingExpense\": \"8410739569.54\",\n    \"administrativeExpense\": \"5180260235.38\",\n    \"financialExpense\": \"-4086088396.47\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": \"83.29\",\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000651_bfb60d18f50fcc49\",\n    \"createdAt\": \"2026-07-31T10:01:17.881Z\",\n    \"updatedAt\": \"2026-07-31T10:01:17.881Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "格力电器2025年净利润约为290.03亿元，同比下降约9.9%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3028
+    },
+    {
+      "id": "L4-005",
+      "question": "中国铁建2025年营收同比增长率是多少？",
+      "answer": "中国铁建2025年营收同比增长率为-3.50%。该数据来源于文档中的`revenueYoy`字段，其值为`-0.03503362178476500817037967353`，表示同比下降了3.50%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国铁建 (601186)\n命中指标: revenue_yoy, revenue\n查询结果:\n[\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.09722179338383102\",\n    \"netMargin\": \"0.021059596296491016\",\n    \"debtRatio\": \"0.7951100441841329\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.03503362178476500817037967353\",\n    \"netProfitYoy\": \"-0.1991083882169156593100096066\",\n    \"totalAssetsYoy\": \"0.1186266065919231792154677904\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"revenue_yoy\"\n    ]\n  },\n  {\n    \"id\": 61,\n    \"stockCode\": \"601186\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"1029784460.0\",\n    \"operatingCost\": \"929666968.0\",\n    \"operatingProfit\": \"26778557.0\",\n    \"netProfit\": \"21686845.0\",\n    \"netProfitAttributable\": \"18362618.0\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"23595966.0\",\n    \"sellingExpense\": \"6411982.0\",\n    \"administrativeExpense\": \"20138345.0\",\n    \"financialExpense\": \"10971557.0\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601186_b8c0e92d6f378524\",\n    \"createdAt\": \"2026-07-31T11:52:44.634Z\",\n    \"updatedAt\": \"2026-07-31T11:52:44.634Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国铁建2025年营收约为10297.84亿元，同比增长约15.1%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2893
+    },
+    {
+      "id": "L4-006",
+      "question": "片仔癀2025年净利润同比增长率是多少？",
+      "answer": "片仔癀2025年净利润同比增长率为-28.45%。该数据来源于文档中提供的\"netProfitYoy\"指标，其值为\"-0.2845056473959661456930663300\"，表示同比下降了28.45%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 片仔癀 (600436)\n命中指标: net_profit_yoy, net_profit\n查询结果:\n[\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.2440625568081421\",\n    \"netMargin\": \"0.23810513528634286\",\n    \"debtRatio\": \"0.14077182783825334\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.1655982533500182187527627439\",\n    \"netProfitYoy\": \"-0.2845056473959661456930663300\",\n    \"totalAssetsYoy\": \"0.001161692145942125907852621301\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"net_profit_yoy\"\n    ]\n  },\n  {\n    \"id\": 1,\n    \"stockCode\": \"600436\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9001411806.06\",\n    \"operatingCost\": \"6804504225.79\",\n    \"operatingProfit\": \"2545855552.19\",\n    \"netProfit\": \"2143282375.85\",\n    \"netProfitAttributable\": \"2158633048.42\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"252231218.87\",\n    \"sellingExpense\": \"400983989.09\",\n    \"administrativeExpense\": \"359204675.91\",\n    \"financialExpense\": \"20226793.2\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600436_2f6e69b5cc9ac30f\",\n    \"createdAt\": \"2026-07-31T07:40:13.267Z\",\n    \"updatedAt\": \"2026-07-31T07:40:13.267Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "片仔癀2025年净利润约为21.59亿元，同比下降约27.5%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2877
+    },
+    {
+      "id": "L4-007",
+      "question": "中国人保2025年保费收入同比变化多少？",
+      "answer": "中国人保2025年实现原保险保费收入约5386亿元，同比增长5.9%。\n\n该数据来源于文档片段1中的“保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%”。",
+      "contexts": [
+        "中国人民保险集团股份有限公司 2025年年度报告摘要\r\n\r\n一、公司基本信息\r\n公司名称：中国人民保险集团股份有限公司（简称\"中国人保\"）\r\n股票代码：601319（A股）、1339（H股）\r\n报告期：2025年1月1日至2025年12月31日\r\n\r\n二、主要财务数据\r\n1. 营业收入：2025年实现营业收入约5623亿元，同比增长6.8%\r\n2. 净利润：2025年实现归属于母公司股东的净利润约218亿元，同比增长12.3%\r\n3. 保费收入：2025年实现原保险保费收入约5386亿元，同比增长5.9%\r\n\r\n三、分部经营数据\r\n1. 人保财险：2025年实现原保险保费收入约3892亿元，综合成本率97.8%\r\n2. 人保寿险：2025年实现原保险保费收入约1023亿元，新业务价值同比增长15.2%\r\n3. 人保健康：2025年实现原保险保费收入约471亿元，同比增长18.6%\r\n\r\n四、总资产\r\n截至2025年12月31日，公司总资产约1.58万亿元，较年初增长8.5%\r\n归属于母公司股东的净资产约2180亿元，较年初增长5.2%\r\n\r\n五、投资收益\r\n2025年总投资收益约568亿元，总投资收益率4.2%\r\n净投资收益约498亿元，净投资收益率3.7%\r\n",
+        "会稳定器功能。 报告期内，人保财险 2 实现保险服 务收入 1,230.15 亿元 ， 同比增长 1.9% ， 承保利润 3 71.54 亿元 ， 同比增长 7.5% ； 综合 成本率 94.2% ，同比下降 0.3 个百分点，净利润 86.31 亿元 。 人保财险上述期间原保险保费收入 4 分类明细如下 : 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 机动车辆险 71,688 71,696 - 意外伤害及健康险 64,478 60,528 6.5 农险 18,331 19,155 (4. 3 ) 责任险 11,980 11,456 4.6 企业财产险 6,232 6,215 0.3 其他险种 10,286 11,371 (9.5) 合计 182,995 180,421 1.4 2. 人保寿险 2026 年一季度 ， 中国人民人寿保险股份有限公司 （ “ 人保寿险 ” ） 坚持 “ 稳增 长 、 调结构 、 提价值 、 优服务 、 防风险 ” 工作主线 ， 积极推动高质量发展 。 报告期内 ， 人保寿险实现保险服务收入 66.88 亿元，净利润 19.62 亿元，新业务价值同比增 长 21.0% 。 人保寿险上述期间原保险保费收入分类明细如下： 单位：百万元，百分比除外 2026 年 1-3 月 2025 年 1-3 月 增减（ % ） 长险首年 18,496 21,206 (12. 8 ) 趸交 6,773 14,851 ( 54.4 ) 期交首年 11,723 6,355 84.5 期交续期 25,164 30,611 (17.8) 短期险 924 1,197 (22.8) 合计 44,584 53,014 (15.9) 2 此处为人保财险母公司单体报表数据。",
+        "祉。人保寿险业务发展 态 势 持 续 向 好 ， 经 营 质 效 不 断 提 升 。 年，实现原保险保费收入 亿元，同 比增长 ，首年期交保费 亿元， 同 比 增 长 ；续 期 保 费 亿 元 ， 同比增长 ；实现新业务价值 亿 元，可比口径下同比增长 。人保健康 坚持特色化、差异化经营，持续向优向新高 质量发展， 年度，实现原保险保费收入 亿元，同比增长 ；实现首年期 交保费 亿元，同比增长 ；实现 新业务价值 亿元，可比口径下同比增长 ； 健康险保费增速领先人身险公司健康 险市场 个百分点 ； 互联网健康险业务原保 险保费收入 亿元，同比增长 ， 继续保持在人身险公司中的市场领先地位。 、 投资板块 ：投资收益显著增长，战略服务 能力增强 投资板块贯彻落实集团高质量发展要求， 持续提升投资服务国家战略质效，更好地服务 人民群众财富管理需求，强化主动投资管理能 力建设，推动集团投资业绩稳步提升。 年，集团实现总投资收益 亿元，同比 增长 ；总投资收益率 ，保持相对 稳定。全面落实中长期资金入市要求，积极参 与保险资金长期投资改革试点，持续优化二级 权益投资结构。以资产证券化业务为突破口， 加大另类投资转型和创新力度， 年人保 集团机构间 发行规模在保险同业中排名 第一，推动多个行业首单、标杆项目落地，实 现助力盘活存量资产、优化企业融资结构、参 与构建多层次证券化产品体系与满足保险资金 配置需要的有效融合。以服务人民群众财富管 理为宗旨，积极推动第三方业务发展，打造有 地位、有影响力的人保品牌。截至 年 月 日，集团第三方资产管理规模 万亿 元。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 、 科技板块 ： 推进科技项目建设，科技赋能基层显效 科技板块积极推进集团科技改革和建设工作，积极赋能金融 五篇大文章 ，为集团高质量 发展贡献科技力量。",
+        "增长 ；实现普通型寿险原保险保费收入 亿元，同比增长 。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 ② 按渠道分析 按原保险保费收入统计，报告期内人保寿险分渠道类别收入如下，具体可划分为个人保险 渠道、银行保险渠道及团体保险渠道。 单位 ： 百万元 年 年 渠道 金额 占比 增减 金额 占比 个人保险渠道 长险首年 趸交 期交首年 期交续期 短期险 银行保险渠道 长险首年 趸交 期交首年 期交续期 短期险 团体保险渠道 长险首年 趸交 期交首年 期交续期 短期险 合计 截 至 年 月 日 ， 个 人 保 险 渠 道 实 现 原 保 险 保 费 收 入 亿 元 ， 同 比 增 长 ； 实现新业务价值 亿元，可比口径下同比增长 。营销员规模人力 人， 月均有效人力 人。新军渠道十年期及以上首年期交保费同比增长 。职域经营业 务首年期交保费 亿元，同比增长 ，其中十年期及以上首年期交保费 亿元，同比 增长 。综金渠道坚持 产寿联动、网点经营 发展目标，通过网点经营精准触达及专员 全流程服务赋能，将财险客户资源优势转化为寿险增长新动能，个人养老金规模保费同比增长 ，十年期及以上首年期交保费同比增长 ，短期险保费同比增长 ，月均有 效人力同比增长 、月均钻石人力同比增长 。 银保渠道坚持以 客户为中心 的经营理念，不断深化与国有大行和重点股份制银行的 合作，通过完善制度和优化系统，强化刚性管控，严格落实监管 报行合一 要求，推动渠道 高质量发展。实现新业务价值 亿元，可比口径下同比增长 ；首年期交同比增长 。 团体保险渠道聚焦团险高质量发展新路径，在政治战略高度上与国家战略相结合，推动短 险业务扩量提质。实现原保险保费收入 亿元，同比增长 ，其中短期险原保险保费收 入 亿元，同比增长 。",
+        "收入 亿元，同比增长 ；原保险 保费收入同比增长 ，期交保费同比增长 ； 实现新业务价值 亿元，可比口 径下同比增长 ；实现净利润 亿 元。合同服务边际余额 亿元，较年初 增长 ；新业务合同服务边际 亿 元，较上年同期增长 ；净资产 亿元，较年初增长 。\n中 国 人 民 保 险 集 团 股 份 有 限 公 司 管 理 层 讨 论 与 分 析 下表列明报告期内人保寿险按保险合同组合的汇总大类列示的保险服务收入、保险服务费 用、盈利或亏损情况、经营状况与成果 ： 单位 ： 百万元 指标 年 年 增减 保险服务收入 采用保费分配法计量的合同 未采用保费分配法计量的合同 保险服务费用 采用保费分配法计量的合同 未采用保费分配法计量的合同 保险服务业绩 采用保费分配法计量的合同 未采用保费分配法计量的合同 业务视角分析 ① 按险种分析 下表列明报告期内人保寿险按险种列示的原保险保费收入 ： 单位 ： 百万元 年 年 险种 金额 占比 增减 金额 占比 寿险 普通型寿险 分红型寿险 万能型寿险 健康险 意外险 合计 年，人保寿险业务发展态势持续向好，经营质效不断改善。实现原保险保费收入 亿元，同比增长 ；实现普通型寿险原保险保费收入 亿元，同比增长 。\n二 零 二 五 年 年 度 报 告 管 理 层 讨 论 与 分 析 ② 按渠道分析 按原保险保费收入统计，报告期内人保寿险分渠道类别收入如下，具体可划分为个人保险 渠道、银行保险渠道及团体保险渠道。"
+      ],
+      "ground_truth": "中国人保2025年保费收入约为5386.00亿元，同比增长约5.9%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 20716,
+      "generationLatencyMs": 3257
+    },
+    {
+      "id": "L4-008",
+      "question": "华海药业2025年营收同比增长率是多少？",
+      "answer": "华海药业2025年营收同比增长率为-10.06%。该数据来源于文档中提供的revenueYoy指标，其值为-0.1005799698704960159841468258，转换为百分比即为-10.06%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 华海药业 (600521)\n命中指标: revenue_yoy, revenue\n查询结果:\n[\n  {\n    \"id\": 75,\n    \"stockCode\": \"600521\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.05138388263545072\",\n    \"netMargin\": \"0.026473219661172945\",\n    \"debtRatio\": \"0.5602449616174423\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"-0.1005799698704960159841468258\",\n    \"netProfitYoy\": \"-0.7947296034917107154491275231\",\n    \"totalAssetsYoy\": \"0.06127965337477636483410280577\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-08-01T02:47:32.129Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"revenue_yoy\"\n    ]\n  },\n  {\n    \"id\": 75,\n    \"stockCode\": \"600521\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"8587145652.08\",\n    \"operatingCost\": \"8145904767.72\",\n    \"operatingProfit\": \"456461342.57\",\n    \"netProfit\": \"227329393.11\",\n    \"netProfitAttributable\": \"266399456.11\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1229124707.86\",\n    \"sellingExpense\": \"1577067587.51\",\n    \"administrativeExpense\": \"1558912337.62\",\n    \"financialExpense\": \"248160740.07\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_600521_0bc45dc3286c3f48\",\n    \"createdAt\": \"2026-08-01T02:47:32.129Z\",\n    \"updatedAt\": \"2026-08-01T02:47:32.129Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "华海药业2025年营收约为85.87亿元，同比增长约7.5%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3176
+    },
+    {
+      "id": "L4-009",
+      "question": "东吴证券2025年净利润同比变化多少？",
+      "answer": "东吴证券2025年净利润同比增长了49.52%。该数据来源于文档中的\"netProfitYoy\"指标，数值为0.4951535583709516862461944912，转换为百分比即为49.52%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 东吴证券 (601555)\n命中指标: net_profit_yoy, net_profit\n查询结果:\n[\n  {\n    \"id\": 52,\n    \"stockCode\": \"601555\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": null,\n    \"netMargin\": \"0.39554430693479065\",\n    \"debtRatio\": \"0.797621729244847\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"0.2770275816161264716128616543\",\n    \"netProfitYoy\": \"0.4951535583709516862461944912\",\n    \"totalAssetsYoy\": \"0.2160510393549351286926174955\",\n    \"eps\": \"55.0\",\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T10:02:22.578Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"net_profit_yoy\"\n    ]\n  },\n  {\n    \"id\": 52,\n    \"stockCode\": \"601555\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"9030366291.2\",\n    \"operatingCost\": null,\n    \"operatingProfit\": \"4535549056.09\",\n    \"netProfit\": \"3571909976.02\",\n    \"netProfitAttributable\": null,\n    \"eps\": \"55.0\",\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": null,\n    \"sellingExpense\": null,\n    \"administrativeExpense\": null,\n    \"financialExpense\": null,\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_601555_588bceaee54946a8\",\n    \"createdAt\": \"2026-07-31T10:02:22.578Z\",\n    \"updatedAt\": \"2026-07-31T10:02:22.578Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"net_profit\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "东吴证券2025年净利润约为35.52亿元，同比增长约50.1%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 2912
+    },
+    {
+      "id": "L4-010",
+      "question": "中国长城2025年营收同比变化多少？",
+      "answer": "中国长城2025年营收同比增长了11.31%。该数值来源于文档中提供的 `revenueYoy` 指标，其值为 \"0.1130659406615571492805378018\"，转换为百分比即为11.31%。",
+      "contexts": [
+        "【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n公司: 中国长城 (000066)\n命中指标: revenue_yoy, revenue\n查询结果:\n[\n  {\n    \"id\": 11,\n    \"stockCode\": \"000066\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"roe\": null,\n    \"roa\": null,\n    \"grossMargin\": \"0.1655806911071942\",\n    \"netMargin\": \"-0.0008698619190510966\",\n    \"debtRatio\": \"0.6186404943938528\",\n    \"currentRatio\": null,\n    \"quickRatio\": null,\n    \"revenueYoy\": \"0.1130659406615571492805378018\",\n    \"netProfitYoy\": \"-0.9903660804132204317121531341\",\n    \"totalAssetsYoy\": \"-0.01928171236818126844550520640\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"operatingCashFlowPerShare\": null,\n    \"source\": \"pdf_extract\",\n    \"createdAt\": \"2026-07-31T07:42:59.430Z\",\n    \"_sourceTable\": \"financial_indicators\",\n    \"_matchedIndicators\": [\n      \"revenue_yoy\"\n    ]\n  },\n  {\n    \"id\": 11,\n    \"stockCode\": \"000066\",\n    \"reportYear\": 2025,\n    \"reportQuarter\": \"annual\",\n    \"reportType\": \"年报\",\n    \"revenue\": \"15808600064.94\",\n    \"operatingCost\": \"13191001140.75\",\n    \"operatingProfit\": \"134969236.3\",\n    \"netProfit\": \"-13751299.19\",\n    \"netProfitAttributable\": \"-55724795.18\",\n    \"eps\": null,\n    \"bvps\": null,\n    \"grossMargin\": null,\n    \"netMargin\": null,\n    \"rdExpense\": \"1087421743.45\",\n    \"sellingExpense\": \"508936390.45\",\n    \"administrativeExpense\": \"900165696.01\",\n    \"financialExpense\": \"211392112.3\",\n    \"premiumIncome\": null,\n    \"commissionIncome\": null,\n    \"newSignedContract\": null,\n    \"source\": \"pdf_extract\",\n    \"sourcePriority\": 10,\n    \"documentId\": \"pdf_extract_000066_319e0f1cc2a11705\",\n    \"createdAt\": \"2026-07-31T07:42:59.430Z\",\n    \"updatedAt\": \"2026-07-31T07:42:59.430Z\",\n    \"_sourceTable\": \"financial_income\",\n    \"_matchedIndicators\": [\n      \"revenue\"\n    ]\n  }\n]"
+      ],
+      "ground_truth": "中国长城2025年营收约为158.09亿元，同比增长约11.3%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 3083
+    }
+  ]
+}
