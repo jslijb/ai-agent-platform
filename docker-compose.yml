@@ -75,7 +75,7 @@ services:
       --host 0.0.0.0
       --embedding
       --pooling cls
-      -c 8192
+      -c 2048
       -b 1024
       -ub 1024
       -t ${EMBEDDING_THREADS:-4}
@@ -101,7 +101,7 @@ services:
       --port 8010
       --host 0.0.0.0
       --reranking
-      -c 8192
+      -c 512
       -t ${RERANKER_THREADS:-4}
     networks:
       - aiagent_net
@@ -156,10 +156,7 @@ services:
       - aiagent_net
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+
       embedding:
         condition: service_healthy
       reranker:
@@ -207,14 +204,17 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
     container_name: aiagent_main_service
     ports:
-      - "${MAIN_SERVICE_PORT:-3000}:3000"
+      - "${MAIN_SERVICE_PORT:-3005}:3000"
     environment:
       NODE_ENV: production
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
       DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY}
+      AGNES_KEY: ${AGNES_KEY}
       DATABASE_URL: postgresql://${PG_USER:-aiagent}:${PG_PASSWORD:-aiagent_secret}@postgres:5432/${PG_DB:-agentdb}
       REDIS_URL: redis://redis:6379
       REDIS_HOST: redis
@@ -226,19 +226,21 @@ services:
       RERANKER_SERVICE_URL: http://reranker:8010
       RAG_SERVICE_URL: http://rag-service:3001
       LLM_GATEWAY_URL: http://llm-gateway:3002
-      EVALUATION_SERVICE_URL: http://rag-service:3001
+      EVALUATION_SERVICE_URL: http://evaluation-service:3003
       DATA_SERVICE_URL: http://data-service:8001
       USE_MICROSERVICE: "true"
-      AUTH_SECRET: ${AUTH_SECRET:-aiagent-dev-secret-change-in-production-2024}
-      AUTH_URL: ${AUTH_URL:-http://localhost:3000}
+      AUTH_SECRET: ${AUTH_SECRET:-86a2f79587e77e111478fe872a01e89034e1bde9ca0c9da0f6ddf0069d9dadb1}
+      AUTH_URL: ${AUTH_URL:-http://localhost}
+    env_file:
+      - path: .env.docker
+        required: false
+    volumes:
+      - ./config/api_keys.yaml:/app/config/api_keys.yaml:ro
     networks:
       - aiagent_net
     restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
+
       neo4j:
         condition: service_healthy
       embedding:
@@ -255,6 +257,45 @@ services:
       timeout: 10s
       retries: 5
       start_period: 60s
+
+  evaluation-service:
+    build:
+      context: .
+      dockerfile: services/evaluation-service/Dockerfile
+    container_name: aiagent_evaluation_service
+    ports:
+      - "${EVALUATION_SERVICE_PORT:-3003}:3003"
+    environment:
+      NODE_ENV: production
+      EVALUATION_SERVICE_PORT: "3003"
+      EVALUATION_SERVICE_HOST: "0.0.0.0"
+      DATABASE_URL: postgresql://${PG_USER:-aiagent}:${PG_PASSWORD:-aiagent_secret}@postgres:5432/${PG_DB:-agentdb}
+      REDIS_URL: redis://redis:6379
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      EMBEDDING_SERVICE_URL: http://embedding:8011
+      RERANKER_SERVICE_URL: http://reranker:8010
+      RAG_SERVICE_URL: http://rag-service:3001
+    networks:
+      - aiagent_net
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      embedding:
+        condition: service_healthy
+      reranker:
+        condition: service_healthy
+      rag-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3003/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   nginx:
     image: nginx:alpine
@@ -273,6 +314,7 @@ services:
         condition: service_healthy
       data-service:
         condition: service_healthy
+
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:80/nginx-health"]
       interval: 30s

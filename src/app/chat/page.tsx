@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+
+// 动态导入 MarkdownRenderer，将 react-markdown + remark-gfm 拆分到独立 chunk
+// 原因：react-markdown + remark-gfm 拉入大量模块（micromark、mdast、character-entities 等），
+// 导致 /chat 页面 chunk 超过 500KB，触发 webpack eval-source-map 截断 bug，
+// 最后一个模块的 eval 字符串被截断 → SyntaxError → ChunkLoadError → 页面无法 hydrate
+const MarkdownRenderer = dynamic(() => import("@/components/MarkdownRenderer"), {
+  ssr: false,
+  loading: () => <span className="text-xs text-gray-400">渲染中...</span>,
+});
 
 interface AgentStep {
   type: "thinking" | "tool_call" | "tool_result" | "reflection" | "retrieval" | "answer";
@@ -192,6 +202,14 @@ function StepCard({ step }: { step: AgentStep }) {
   const params = d.params as Record<string, unknown> | undefined;
   const resultPreview = d.resultPreview as string | undefined;
   const toolName = d.toolName as string | undefined;
+  const llmMs = d.llmMs as number | undefined;
+  const toolMs = d.toolMs as number | undefined;
+  const roundMs = d.roundMs as number | undefined;
+  const totalMs = d.totalMs as number | undefined;
+  const executionTimeMs = d.executionTimeMs as number | undefined;
+
+  const formatMs = (ms: number) => ms >= 1000 ? `${(ms / 1000).toFixed(2)}s` : `${ms}ms`;
+  const hasTiming = llmMs || toolMs || roundMs || totalMs || executionTimeMs;
 
   return (
     <div className={`border-l-4 ${color} rounded-r-lg mb-2`}>
@@ -201,6 +219,14 @@ function StepCard({ step }: { step: AgentStep }) {
       >
         <span className="text-base">{icon}</span>
         <span className="text-xs font-medium text-gray-700 flex-1">{step.title}</span>
+        {hasTiming && (
+          <span className="text-xs font-mono text-blue-500">
+            {llmMs && `LLM:${formatMs(llmMs)}`}
+            {toolMs && ` Tool:${formatMs(toolMs)}`}
+            {roundMs && !llmMs && !toolMs && ` ${formatMs(roundMs)}`}
+            {executionTimeMs && ` ${formatMs(executionTimeMs)}`}
+          </span>
+        )}
         <span className="text-xs text-gray-400">
           {(hasDetail || hasLongContent) && (open ? "▼" : "▶")}
         </span>
@@ -209,8 +235,8 @@ function StepCard({ step }: { step: AgentStep }) {
       {open && (
         <div className="px-3 pb-3 text-xs text-gray-600 space-y-2">
           {step.content && (
-            <div className="whitespace-pre-wrap break-words bg-white/60 rounded p-2">
-              {step.content}
+            <div className="break-words bg-white/60 rounded p-2">
+              <MarkdownRenderer content={step.content} />
             </div>
           )}
           {needMore !== undefined && (
@@ -751,6 +777,12 @@ export default function ChatPage() {
   const fetchConversations = useCallback(async () => {
     try {
       const res = await fetch("/api/conversations");
+      if (res.status === 401) {
+        console.warn("[chat] fetchConversations got 401, redirecting to login");
+        setConversations([]);
+        router.push("/login");
+        return;
+      }
       const data = await res.json();
       if (data.success) {
         setConversations(data.conversations || []);
@@ -758,9 +790,10 @@ export default function ChatPage() {
     } catch (err) {
       console.error("获取对话列表失败:", err);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
+
     if (status === "authenticated") {
       fetch("/api/agent/models")
         .then((res) => res.json())
@@ -776,6 +809,19 @@ export default function ChatPage() {
   }, [status, fetchConversations]);
 
   useEffect(() => {
+    if (status !== "authenticated") return;
+    const onFocus = () => fetchConversations();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") fetchConversations();
+    });
+    return () => {
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [status, fetchConversations]);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -784,9 +830,11 @@ export default function ChatPage() {
       const res = await fetch(`/api/conversations?conversationId=${convId}`);
       const data = await res.json();
       if (data.success && data.conversation) {
-        const convMessages: Message[] = data.conversation.messages.map((m: { role: string; content: string }) => ({
+        const convMessages: Message[] = data.conversation.messages.map((m: { role: string; content: string; steps?: AgentStep[]; iterations?: number }) => ({
           role: m.role as "user" | "assistant",
           content: m.content,
+          steps: m.steps || undefined,
+          iterations: m.iterations,
         }));
         setMessages(convMessages);
         setCurrentConvId(convId);
@@ -1169,15 +1217,20 @@ export default function ChatPage() {
               >
                 <div className={`max-w-[85%] ${msg.role === "user" ? "" : "w-full"}`}>
                   <div
-                    className={`rounded-xl px-4 py-3 text-sm whitespace-pre-wrap ${
+                    className={`rounded-xl px-4 py-3 text-sm ${
                       msg.role === "user"
-                        ? "bg-blue-600 text-white"
+                        ? "bg-blue-600 text-white whitespace-pre-wrap"
                         : msg.content.startsWith("[Error]") || msg.content.startsWith("[Network Error]")
-                          ? "bg-red-50 border border-red-200 text-red-700"
+                          ? "bg-red-50 border border-red-200 text-red-700 whitespace-pre-wrap"
                           : "bg-white border text-gray-800 shadow-sm"
                     }`}
                   >
-                    {msg.content || (msg.streaming ? " " : "(empty)")}
+                    {msg.role === "user"
+                      ? (msg.content || (msg.streaming ? " " : "(empty)"))
+                      : (msg.content || (msg.streaming ? " " : "(empty)"))
+                        ? <MarkdownRenderer content={msg.content} />
+                        : (msg.streaming ? " " : "(empty)")
+                    }
                   </div>
 
                   {msg.role === "assistant" && msg.steps && msg.steps.length > 0 && (

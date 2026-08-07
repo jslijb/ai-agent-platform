@@ -1,27 +1,11 @@
 import { callBailian, type BailianMessage, type BailianTool, type BailianToolCall } from "@/server/llm/providers/bailian";
 import { callWithFallback } from "@/server/llm/router";
 import { saveAgentLog, saveLLMUsage } from "./agent-logger";
-import {
-  calculateMA,
-  calculateMACD,
-  calculateRSI,
-  calculateBollinger,
-  calculateKDJ,
-  calculateVWAP,
-  calculateSharpeRatio,
-  calculateMaxDrawdown,
-  calculateVolatility,
-  calculateCorrelation,
-} from "@/server/mcp/tools/quant_analysis";
-import {
-  checkTradeCompliance,
-  checkPositionLimit,
-  checkRestrictedStock,
-  getComplianceReport,
-} from "@/server/mcp/tools/compliance";
-import { calculateVaR, calculateStressTest, checkRiskLimits, generateRiskReport } from "@/server/mcp/tools/risk_control";
 import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
+import { graphSearch } from "@/server/rag/graph/graph-retriever";
+import { isNeo4jAvailable } from "@/server/rag/graph/graph-builder";
 import { routeQuery as r001RouteQuery } from "@/server/rag/query/query-router";
+import { formatSqlResultAsText, formatRawTablesAsText } from "@/server/rag/query/sql-result-formatter";
 import { rerank } from "@/server/rag/reranking/reranker";
 import { logCompliance } from "@/server/compliance/log";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
@@ -35,6 +19,13 @@ import { toolDescriptionEnhancer } from "@/server/description/tool-description-e
 import { fewShotInjector } from "@/server/description/fewshot-injector";
 import { ToolCallValidator } from "@/server/validation/tool-call-validator";
 import { CallLimiter } from "@/server/validation/call-limiter";
+import { technicalAnalysisTool } from "@/server/agents/tools/technical-analysis";
+import { riskAnalysisTool } from "@/server/agents/tools/risk-analysis";
+import { complianceCheckTool } from "@/server/agents/tools/compliance-check";
+import { marketDataTool } from "@/server/agents/tools/market-data";
+import { toolSearchTool } from "@/server/agents/tools/tool-search";
+import { compactContext } from "@/server/agents/context-compaction";
+import { saveCheckpoint, loadCheckpoint, recordError, canRetry, buildRecoveryContext, clearCheckpoint } from "@/server/agents/checkpoint";
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || "http://localhost:8001";
 
@@ -301,753 +292,20 @@ export interface AgentStep {
   timestamp: number;
 }
 
-interface ToolDefinition {
+export interface ToolDefinition {
   name: string;
   description: string;
-  parameters: Record<string, { type: string; description: string; required?: boolean }>;
+  parameters: Record<string, { type: string; description: string; required?: boolean; items?: { type: string } }>;
   execute: (params: Record<string, unknown>) => Promise<string> | string;
   category?: string;
 }
 
 const tools: ToolDefinition[] = [
-  {
-    name: "calculateMA",
-    category: "technical-analysis",
-    description: "计算移动平均线（MA）。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回结果包含最近30个有效值和最新MA值。",
-    parameters: {
-      data: { type: "number[]", description: "价格序列，如收盘价数组。如已调用getStockHistory可不传，自动使用缓存数据" },
-      period: { type: "number", description: "移动平均周期，如5、10、20", required: true },
-    },
-    execute: (params) => {
-      let data = params.data as number[] | undefined;
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 0) {
-          data = lastStockData.closes;
-          console.log("[calculateMA] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const period = params.period as number;
-      const result = calculateMA(data, period);
-      const validValues = result.values.filter((v) => v !== null) as number[];
-      const latestMA = validValues.length > 0 ? validValues[validValues.length - 1] : null;
-      const recentValues = validValues.slice(-30);
-
-      const formula = "MA" + period + " = (Sum of last " + period + " closing prices) / " + period;
-
-      const lastNPrices = data.slice(-period);
-      const lastNSum = lastNPrices.reduce((a, b) => a + b, 0);
-      const lastNCalc = Number((lastNSum / period).toFixed(4));
-
-      const recentDates = lastStockData?.dates?.slice(-period) || [];
-      const priceDetail = lastNPrices.map((p, i) => {
-        const dateStr = recentDates[i] || ("Day " + (data.length - period + i + 1));
-        return `${dateStr}: ${p}`;
-      }).join(" + ");
-
-      const calcDetail = "Calc: (" + priceDetail + ") / " + period + " = " + lastNSum.toFixed(4) + " / " + period + " = " + lastNCalc;
-
-      return JSON.stringify({
-        period: result.period,
-        latestMA,
-        totalPoints: result.values.length,
-        validPoints: validValues.length,
-        recentValues,
-        formula,
-        calcDetail,
-        latestTradeDate: lastStockData?.latestTradeDate || null,
-      });
-    },
-  },
-  {
-    name: "calculateMACD",
-    category: "technical-analysis",
-    description: "计算MACD指标。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回DIF、DEA、MACD柱状图的最近30个有效值。",
-    parameters: {
-      data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      fast: { type: "number", description: "快线周期，默认12" },
-      slow: { type: "number", description: "慢线周期，默认26" },
-      signal: { type: "number", description: "信号线周期，默认9" },
-    },
-    execute: (params) => {
-      let data = params.data as number[] | undefined;
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 0) {
-          data = lastStockData.closes;
-          console.log("[calculateMACD] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const result = calculateMACD(
-        data,
-        params.fast as number | undefined,
-        params.slow as number | undefined,
-        params.signal as number | undefined
-      );
-      const validDif = result.dif.filter((v) => v !== null) as number[];
-      const validDea = result.dea.filter((v) => v !== null) as number[];
-      const validMacd = result.macd.filter((v) => v !== null) as number[];
-      return JSON.stringify({
-        fast: result.fast,
-        slow: result.slow,
-        signal: result.signal,
-        latestDif: validDif.length > 0 ? validDif[validDif.length - 1] : null,
-        latestDea: validDea.length > 0 ? validDea[validDea.length - 1] : null,
-        latestMacd: validMacd.length > 0 ? validMacd[validMacd.length - 1] : null,
-        recentDif: validDif.slice(-30),
-        recentDea: validDea.slice(-30),
-        recentMacd: validMacd.slice(-30),
-        latestTradeDate: lastStockData?.latestTradeDate || null,
-      });
-    },
-  },
-  {
-    name: "calculateRSI",
-    category: "technical-analysis",
-    description: "计算RSI指标（相对强弱指数）。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回最近30个有效值和最新RSI值。",
-    parameters: {
-      data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      period: { type: "number", description: "RSI周期，默认14" },
-    },
-    execute: (params) => {
-      let data = params.data as number[] | undefined;
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 0) {
-          data = lastStockData.closes;
-          console.log("[calculateRSI] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const period = (params.period as number) || 14;
-      const result = calculateRSI(data, period);
-      const validValues = result.values.filter((v) => v !== null) as number[];
-      const latestRSI = validValues.length > 0 ? validValues[validValues.length - 1] : null;
-      const recentValues = validValues.slice(-30);
-
-      const formula = "RSI(" + period + ") = 100 - 100 / (1 + RS), RS = Avg Gain / Avg Loss (Wilder smoothing)";
-
-      const recentDates = lastStockData?.dates || [];
-      const last15Closes = data.slice(-(period + 1));
-      const last15Dates = recentDates.slice(-(period + 1));
-      const changes: Array<{ date: string; close: number; change: number; gain: number; loss: number }> = [];
-      for (let i = 1; i < last15Closes.length; i++) {
-        const change = last15Closes[i] - last15Closes[i - 1];
-        changes.push({
-          date: last15Dates[i] || ("Day " + (data.length - period - 1 + i)),
-          close: last15Closes[i],
-          change: Number(change.toFixed(4)),
-          gain: change > 0 ? Number(change.toFixed(4)) : 0,
-          loss: change < 0 ? Number(Math.abs(change).toFixed(4)) : 0,
-        });
-      }
-
-      let avgGain = 0;
-      let avgLoss = 0;
-      for (let i = 0; i < period && i < changes.length; i++) {
-        avgGain += changes[i].gain;
-        avgLoss += changes[i].loss;
-      }
-      avgGain /= period;
-      avgLoss /= period;
-
-      for (let i = period; i < changes.length; i++) {
-        avgGain = (avgGain * (period - 1) + changes[i].gain) / period;
-        avgLoss = (avgLoss * (period - 1) + changes[i].loss) / period;
-      }
-
-      const rs = avgLoss === 0 ? Infinity : avgGain / avgLoss;
-      const calcRSI = avgLoss === 0 ? 100 : Number((100 - 100 / (1 + rs)).toFixed(4));
-
-      const calcDetail = "Last " + (period + 1) + " days close changes:\n" + changes.map((c) => c.date + ": close=" + c.close + ", change=" + (c.change > 0 ? "+" : "") + c.change + ", gain=" + c.gain + ", loss=" + c.loss).join("\n") + "\n\nFinal avgGain=" + avgGain.toFixed(4) + ", avgLoss=" + avgLoss.toFixed(4) + ", RS=" + (rs === Infinity ? "inf" : rs.toFixed(4)) + ", RSI=" + calcRSI;
-
-      return JSON.stringify({
-        period: result.period,
-        latestRSI,
-        totalPoints: result.values.length,
-        validPoints: validValues.length,
-        recentValues,
-        formula,
-        calcDetail,
-        latestTradeDate: lastStockData?.latestTradeDate || null,
-      });
-    },
-  },
-  {
-    name: "calculateBollinger",
-    category: "technical-analysis",
-    description: "计算布林带指标。如已调用getStockHistory获取过数据，可不传data参数，自动使用缓存的收盘价序列。返回最近30个有效值和最新上轨/中轨/下轨。",
-    parameters: {
-      data: { type: "number[]", description: "价格序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      period: { type: "number", description: "周期，默认20" },
-      stdDev: { type: "number", description: "标准差倍数，默认2" },
-    },
-    execute: (params) => {
-      let data = params.data as number[] | undefined;
-      if (!data || !Array.isArray(data) || data.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 0) {
-          data = lastStockData.closes;
-          console.log("[calculateBollinger] Using cached data: " + lastStockData.code + ", " + data.length + " closes");
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const result = calculateBollinger(
-        data,
-        params.period as number | undefined,
-        params.stdDev as number | undefined
-      );
-      const validUpper = result.upper.filter((v) => v !== null) as number[];
-      const validMiddle = result.middle.filter((v) => v !== null) as number[];
-      const validLower = result.lower.filter((v) => v !== null) as number[];
-      return JSON.stringify({
-        period: result.period,
-        stdDev: result.stdDev,
-        latestUpper: validUpper.length > 0 ? validUpper[validUpper.length - 1] : null,
-        latestMiddle: validMiddle.length > 0 ? validMiddle[validMiddle.length - 1] : null,
-        latestLower: validLower.length > 0 ? validLower[validLower.length - 1] : null,
-        recentUpper: validUpper.slice(-30),
-        recentMiddle: validMiddle.slice(-30),
-        recentLower: validLower.slice(-30),
-        latestTradeDate: lastStockData?.latestTradeDate || null,
-      });
-    },
-  },
-  {
-    name: "calculateKDJ",
-    category: "technical-analysis",
-    description: "计算KDJ指标。如已调用getStockHistory获取过数据，可不传highs/lows/closes参数，自动使用缓存数据。返回最近30个有效值和最新K/D/J值。",
-    parameters: {
-      highs: { type: "number[]", description: "最高价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      lows: { type: "number[]", description: "最低价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      closes: { type: "number[]", description: "收盘价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      period: { type: "number", description: "KDJ周期，默认9" },
-    },
-    execute: (params) => {
-      let highs = params.highs as number[] | undefined;
-      let lows = params.lows as number[] | undefined;
-      let closes = params.closes as number[] | undefined;
-      if ((!highs || !Array.isArray(highs) || highs.length === 0) && lastStockData) {
-        highs = lastStockData.highs;
-        lows = lastStockData.lows;
-        closes = lastStockData.closes;
-        console.log("[calculateKDJ] Using cached data: " + lastStockData.code + ", " + closes.length + " rows");
-      }
-      if (!highs || !lows || !closes) {
-        return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-      }
-      const result = calculateKDJ(
-        highs,
-        lows,
-        closes,
-        params.period as number | undefined
-      );
-      const validK = result.k.filter((v) => v !== null) as number[];
-      const validD = result.d.filter((v) => v !== null) as number[];
-      const validJ = result.j.filter((v) => v !== null) as number[];
-      return JSON.stringify({
-        period: result.period,
-        latestK: validK.length > 0 ? validK[validK.length - 1] : null,
-        latestD: validD.length > 0 ? validD[validD.length - 1] : null,
-        latestJ: validJ.length > 0 ? validJ[validJ.length - 1] : null,
-        recentK: validK.slice(-30),
-        recentD: validD.slice(-30),
-        recentJ: validJ.slice(-30),
-        latestTradeDate: lastStockData?.latestTradeDate || null,
-      });
-    },
-  },
-  {
-    name: "calculateVWAP",
-    category: "technical-analysis",
-    description: "计算VWAP（成交量加权平均价）。如已调用getStockHistory获取过数据，可不传参数，自动使用缓存的收盘价和成交量序列。",
-    parameters: {
-      closes: { type: "number[]", description: "收盘价序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-      volumes: { type: "number[]", description: "成交量序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-    },
-    execute: (params) => {
-      let closes = params.closes as number[] | undefined;
-      let volumes = params.volumes as number[] | undefined;
-      if ((!closes || !Array.isArray(closes) || closes.length === 0) && lastStockData) {
-        closes = lastStockData.closes;
-        volumes = lastStockData.volumes;
-        console.log("[calculateVWAP] Using cached data: " + lastStockData.code);
-      }
-      if (!closes || !volumes) {
-        return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-      }
-      const result = calculateVWAP(closes, volumes);
-      return JSON.stringify({ vwap: result, latestTradeDate: lastStockData?.latestTradeDate || null });
-    },
-  },
-  {
-    name: "calculateSharpeRatio",
-    category: "technical-analysis",
-    description: "计算夏普比率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
-    parameters: {
-      returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
-      riskFreeRate: { type: "number", description: "无风险利率，默认0.03" },
-    },
-    execute: (params) => {
-      let returns = params.returns as number[] | undefined;
-      if (!returns || !Array.isArray(returns) || returns.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 1) {
-          returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
-          console.log("[calculateSharpeRatio] Using cached data for returns: " + lastStockData.code + ", " + returns.length + " rows");
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const result = calculateSharpeRatio(
-        returns,
-        params.riskFreeRate as number | undefined
-      );
-      return JSON.stringify({ sharpeRatio: result, latestTradeDate: lastStockData?.latestTradeDate || null });
-    },
-  },
-  {
-    name: "calculateMaxDrawdown",
-    category: "technical-analysis",
-    description: "计算最大回撤。如已调用getStockHistory获取过数据，可不传values参数，自动使用缓存的收盘价序列。",
-    parameters: {
-      values: { type: "number[]", description: "资产净值序列。如已调用getStockHistory可不传，自动使用缓存数据" },
-    },
-    execute: (params) => {
-      let values = params.values as number[] | undefined;
-      if (!values || !Array.isArray(values) || values.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 0) {
-          values = lastStockData.closes;
-          console.log("[calculateMaxDrawdown] Using cached data: " + lastStockData.code);
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const result = calculateMaxDrawdown(values);
-      return JSON.stringify({ ...result, latestTradeDate: lastStockData?.latestTradeDate || null });
-    },
-  },
-  {
-    name: "calculateVolatility",
-    category: "technical-analysis",
-    description: "计算波动率。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。当同一轮调用了多只股票的getStockHistory时，需传入code参数指定使用哪只股票的数据。",
-    parameters: {
-      returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
-      annualize: { type: "boolean", description: "是否年化，默认true" },
-      code: { type: "string", description: "指定使用哪只股票的缓存数据（如sz.000858）。同一轮调用多只股票时必传，否则使用最近一次getStockHistory的数据" },
-    },
-    execute: (params) => {
-      let returns = params.returns as number[] | undefined;
-      // 优先使用code参数指定的股票数据
-      const codeKey = params.code as string | undefined;
-      const targetData: CachedStockData | null = (codeKey ? stockDataByCode.get(codeKey) : null) || lastStockData;
-      if (!returns || !Array.isArray(returns) || returns.length === 0) {
-        if (targetData && targetData.closes.length > 1) {
-          returns = targetData.closes.slice(1).map((c, i) => (c - targetData.closes[i]) / targetData.closes[i]);
-          console.log("[calculateVolatility] Using cached data for returns: " + targetData.code);
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const result = calculateVolatility(
-        returns!,
-        params.annualize as boolean | undefined
-      );
-      return JSON.stringify({ volatility: result, code: targetData?.code, latestTradeDate: targetData?.latestTradeDate || null });
-    },
-  },
-  {
-    name: "calculateCorrelation",
-    category: "technical-analysis",
-    description: "计算两个股票的相关系数。支持两种方式：1) 传入code1和code2，自动获取数据计算；2) 传入series1和series2数组。推荐使用方式1，只需提供股票代码即可。",
-    parameters: {
-      code1: { type: "string", description: "第一只股票代码，如sh.600036。如已调用getStockHistory获取过数据，可不传code1，自动使用缓存数据" },
-      code2: { type: "string", description: "第二只股票代码，如sz.000858" },
-      series1: { type: "number[]", description: "第一组数据数组（可选，优先使用code1）" },
-      series2: { type: "number[]", description: "第二组数据数组（可选，优先使用code2）" },
-    },
-    execute: async (params) => {
-      let series1 = params.series1 as number[] | undefined;
-      let series2 = params.series2 as number[] | undefined;
-
-      if (!series1 || !Array.isArray(series1) || series1.length === 0) {
-        // 优先使用code1从多股票缓存查找
-        const code1Key = params.code1 as string | undefined;
-        const code1Data: CachedStockData | null = (code1Key ? stockDataByCode.get(code1Key) : null) || lastStockData;
-        if (code1Data && code1Data.closes.length > 0) {
-          series1 = code1Data.closes;
-          console.log("[calculateCorrelation] Using cached data as series1: " + code1Data.code);
-        }
-      }
-
-      if ((!series2 || !Array.isArray(series2) || series2.length === 0) && params.code2) {
-        // 优先从多股票缓存查找
-        const code2Data = stockDataByCode.get(params.code2 as string);
-        if (code2Data && code2Data.closes.length > 0) {
-          series2 = code2Data.closes;
-          console.log("[calculateCorrelation] Using cached data as series2: " + code2Data.code);
-        } else {
-          // 缓存中没有，从数据服务获取
-          try {
-          const endDate = new Date().toISOString().split("T")[0];
-          const oneYearAgo = new Date();
-          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-          const startDate = oneYearAgo.toISOString().split("T")[0];
-          const fetchStart = Date.now();
-          const res = await fetch(`${DATA_SERVICE_URL}/api/market/history`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ source: "baostock", code: params.code2, start_date: startDate, end_date: endDate, frequency: "d" }),
-            signal: AbortSignal.timeout(30000),
-          });
-          const data = await res.json();
-          console.log("[calculateCorrelation] Fetch code2=" + params.code2 + " data time: " + ((Date.now() - fetchStart) / 1000).toFixed(2) + "s");
-          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-            series2 = data.data.map((r: Record<string, unknown>) => Number(r.close));
-          }
-        } catch (err) {
-          console.error("[calculateCorrelation] Fetch code2 data failed: " + (err instanceof Error ? err.message : String(err)));
-        }
-        } // end of else (cache miss, fetch from data service)
-      }
-
-      if (!series1 || !series2) {
-        return JSON.stringify({ error: "缺少数据：请提供code1+code2或series1+series2" });
-      }
-
-      const minLen = Math.min(series1.length, series2.length);
-      const s1 = series1.slice(-minLen);
-      const s2 = series2.slice(-minLen);
-      const result = calculateCorrelation(s1, s2);
-      return JSON.stringify({ correlation: result, dataPoints: minLen, code1: params.code1 || lastStockData?.code, code2: params.code2 });
-    },
-  },
-  {
-    name: "checkTradeCompliance",
-    category: "risk-compliance",
-    description: "A股交易合规检查，包括涨跌停、交易单位、T+1等规则。",
-    parameters: {
-      code: { type: "string", description: "股票代码", required: true },
-      direction: { type: "string", description: "交易方向 buy/sell", required: true },
-      quantity: { type: "number", description: "数量", required: true },
-      price: { type: "number", description: "价格", required: true },
-      prevClose: { type: "number", description: "昨收价", required: true },
-      isST: { type: "boolean", description: "是否ST股" },
-      boardType: { type: "string", description: "板块类型 main/gem/star" },
-    },
-    execute: (params) => {
-      const result = checkTradeCompliance({
-        code: params.code as string,
-        direction: params.direction as string,
-        quantity: params.quantity as number,
-        price: params.price as number,
-        prevClose: params.prevClose as number,
-        isST: (params.isST as boolean) || false,
-        boardType: (params.boardType as "main" | "gem" | "star") || "main",
-      });
-      return JSON.stringify(result);
-    },
-  },
-  {
-    name: "checkPositionLimit",
-    category: "risk-compliance",
-    description: "持仓限制检查，单只股票不超过总资产30%。",
-    parameters: {
-      accountId: { type: "string", description: "账户ID", required: true },
-      code: { type: "string", description: "股票代码", required: true },
-      quantity: { type: "number", description: "持仓市值", required: true },
-      totalAssets: { type: "number", description: "总资产", required: true },
-    },
-    execute: (params) => {
-      const result = checkPositionLimit({
-        accountId: params.accountId as string,
-        code: params.code as string,
-        quantity: params.quantity as number,
-        totalAssets: params.totalAssets as number,
-      });
-      return JSON.stringify(result);
-    },
-  },
-  {
-    name: "checkRestrictedStock",
-    category: "risk-compliance",
-    description: "检查是否为受限股票（新股、退市整理期等）。",
-    parameters: {
-      code: { type: "string", description: "股票代码", required: true },
-    },
-    execute: (params) => {
-      const result = checkRestrictedStock(params.code as string);
-      return JSON.stringify(result);
-    },
-  },
-  {
-    name: "calculateVaR",
-    category: "risk-compliance",
-    description: "计算VaR（在险价值）。如已调用getStockHistory获取过数据，可不传returns参数，自动使用缓存的收盘价计算日收益率。",
-    parameters: {
-      returns: { type: "number[]", description: "收益率序列。如已调用getStockHistory可不传，自动使用缓存数据计算" },
-      confidence: { type: "number", description: "置信水平，如0.95", required: true },
-      horizon: { type: "number", description: "持有期天数", required: true },
-    },
-    execute: (params) => {
-      let returns = params.returns as number[] | undefined;
-      if (!returns || !Array.isArray(returns) || returns.length === 0) {
-        if (lastStockData && lastStockData.closes.length > 1) {
-          returns = lastStockData.closes.slice(1).map((c, i) => (c - lastStockData!.closes[i]) / lastStockData!.closes[i]);
-          console.log("[calculateVaR] Using cached data for returns: " + lastStockData.code);
-        } else {
-          return JSON.stringify({ error: "未提供数据且无缓存数据，请先调用getStockHistory获取股票数据" });
-        }
-      }
-      const result = calculateVaR({
-        returns,
-        confidence: params.confidence as number,
-        horizon: params.horizon as number,
-      });
-      return JSON.stringify({ ...result, latestTradeDate: lastStockData?.latestTradeDate || null });
-    },
-  },
-  {
-    name: "calculateStressTest",
-    category: "risk-compliance",
-    description: "压力测试，评估不同市场情景下的潜在损失。",
-    parameters: {
-      portfolio: { type: "object", description: "投资组合", required: true },
-      scenarios: { type: "array", description: "压力情景列表", required: true },
-    },
-    execute: (params) => {
-      const result = calculateStressTest({
-        portfolio: params.portfolio as Record<string, { quantity: number; currentPrice: number }>,
-        scenarios: params.scenarios as { name: string; priceChange: number }[],
-      });
-      return JSON.stringify({ ...result, latestTradeDate: lastStockData?.latestTradeDate || null });
-    },
-  },
-  {
-    name: "checkRiskLimits",
-    category: "risk-compliance",
-    description: "风险限额检查（单日2%、单周5%、单月10%）。",
-    parameters: {
-      accountId: { type: "string", description: "账户ID", required: true },
-    },
-    execute: (params) => {
-      const result = checkRiskLimits({ accountId: params.accountId as string });
-      return JSON.stringify(result);
-    },
-  },
-  {
-    name: "getStockHistory",
-    category: "market-data",
-    description: "获取A股股票历史K线数据，并自动计算常用技术指标（MA5/10/20/60、RSI14、MACD、布林带、KDJ）。返回数据中已包含计算好的指标值，无需再单独调用calculateMA/calculateRSI等工具。如果需要非标准周期（如MA30、RSI6等），则仍需单独调用计算工具。支持日K、周K、月K。返回结果中包含最新交易日日期，回答用户时必须使用该日期作为数据截止日期，不要使用end_date或其他日期。",
-    parameters: {
-      code: { type: "string", description: "股票代码，如 sh.600036（招商银行）、sz.000858（五粮液），baostock格式需带sh./sz.前缀", required: true },
-      frequency: { type: "string", description: "K线频率: d=日K, w=周K, m=月K，默认d" },
-      source: { type: "string", description: "数据源: baostock(默认), efinance, mootdx, tushare" },
-      start_date: { type: "string", description: "开始日期，格式YYYY-MM-DD。当用户指定某个日期查询指标时，start_date应设为该日期前约3个月（确保有足够数据计算MA60等指标）。不指定时默认最近1年" },
-      end_date: { type: "string", description: "结束日期，格式YYYY-MM-DD。当用户指定某个日期查询指标时，end_date设为该日期。不指定时默认到今天" },
-    },
-    execute: async (params) => {
-      try {
-        const source = (params.source as string) || "baostock";
-        const endDate = (params.end_date as string) || new Date().toISOString().split("T")[0];
-        let startDate: string;
-        if (params.start_date) {
-          startDate = params.start_date as string;
-        } else {
-          const oneYearAgo = new Date();
-          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-          startDate = oneYearAgo.toISOString().split("T")[0];
-        }
-
-        console.log("[getStockHistory] Request: code=" + params.code + ", start=" + startDate + ", end=" + endDate + ", source=" + source);
-        const fetchStartTime = Date.now();
-
-        const res = await fetch(`${DATA_SERVICE_URL}/api/market/history`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            source,
-            code: params.code,
-            start_date: startDate,
-            end_date: endDate,
-            frequency: (params.frequency as string) || "d",
-          }),
-          signal: AbortSignal.timeout(30000),
-        });
-        const data = await res.json();
-        console.log("[getStockHistory] Data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + data.success);
-        if (!data.success) return "Failed to get history: " + (data.error || "Unknown error");
-        const rows = data.data || [];
-        if (rows.length === 0) return "未查询到数据，请检查股票代码和日期范围";
-        const fromCache = data.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-
-        const closes = rows.map((r: Record<string, unknown>) => Number(r.close));
-        const highs = rows.map((r: Record<string, unknown>) => Number(r.high));
-        const lows = rows.map((r: Record<string, unknown>) => Number(r.low));
-        const volumes = rows.map((r: Record<string, unknown>) => Number(r.volume));
-        const dates = rows.map((r: Record<string, unknown>) => String(r.date || r.tradeDate || ""));
-
-        const latestTradeDate = dates[dates.length - 1] || endDate;
-
-        lastStockData = {
-          closes,
-          highs,
-          lows,
-          volumes,
-          dates,
-          code: params.code as string,
-          dateRange: `${startDate} ~ ${endDate}`,
-          latestTradeDate,
-          rowCount: rows.length,
-        };
-        setStockCache(currentUserId, lastStockData);
-        // 同时存储到多股票缓存，支持同一轮调用多只股票后分别计算
-        stockDataByCode.set(params.code as string, lastStockData);
-        console.log("[getStockHistory] Data cached: code=" + params.code + ", " + rows.length + " rows, date range=" + startDate + "~" + endDate + ", latestTradeDate=" + latestTradeDate);
-
-        trackStockQuery(currentUserId, params.code as string, "").catch(() => {});
-
-        const latestRow = rows[rows.length - 1];
-        const summary = rows.slice(-10).map((r: Record<string, unknown>) =>
-          (r.date || r.tradeDate) + ": O=" + r.open + " H=" + r.high + " L=" + r.low + " C=" + r.close + " V=" + r.volume
-        ).join("\n");
-
-        const latestClose = closes[closes.length - 1];
-        const maxClose = Math.max(...closes);
-        const minClose = Math.min(...closes);
-        const avgVolume = volumes.reduce((a: number, b: number) => a + b, 0) / volumes.length;
-
-        return "Total " + rows.length + " records" + fromCache + ", date range: " + startDate + "~" + endDate + ", latestTradeDate: " + latestTradeDate + "\n\nLast 10 K-lines:\n" + summary + "\n\nKey stats: latestClose=" + latestClose + ", rangeHigh=" + maxClose + ", rangeLow=" + minClose + ", avgVolume=" + avgVolume.toFixed(0) + "\n\n[Important] Full price data cached. Subsequent calculateMA/calculateRSI/calculateMACD/calculateBollinger/calculateKDJ/calculateVWAP/calculateSharpeRatio/calculateMaxDrawdown/calculateVolatility/calculateVaR calls do not need data param, system will use cache automatically. Just specify period etc. When answering, must use latestTradeDate " + latestTradeDate + " as data cutoff date, do not use end_date or other dates.";
-      } catch (error) {
-        return "History fetch error: " + (error instanceof Error ? error.message : String(error));
-      }
-    },
-  },
-  {
-    name: "getStockRealtime",
-    category: "market-data",
-    description: "获取A股股票实时行情快照。返回当前最新价、涨跌幅、成交量等实时数据。",
-    parameters: {
-      code: { type: "string", description: "股票代码，如 600036（不需要sh./sz.前缀）", required: true },
-      source: { type: "string", description: "数据源: efinance(默认), mootdx" },
-    },
-    execute: async (params) => {
-      try {
-        const source = (params.source as string) || "efinance";
-        const fetchStartTime = Date.now();
-        const res = await fetch(`${DATA_SERVICE_URL}/api/market/realtime`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ source, code: params.code }),
-          signal: AbortSignal.timeout(15000),
-        });
-        const data = await res.json();
-        console.log("[getStockRealtime] Data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + data.success);
-        if (!data.success) return "Failed to get realtime data: " + (data.error || "Unknown error");
-        const records = data.data;
-        if (!records || !Array.isArray(records) || records.length === 0) return "未查询到实时数据";
-        const r = records[0];
-        return "Realtime: " + r.股票名称 + " price=" + r.最新价 + " change=" + r.涨跌幅 + "% open=" + r.开盘价 + " high=" + r.最高价 + " low=" + r.最低价 + " vol=" + r.成交量 + " amount=" + r.成交额 + " turnover=" + r.换手率;
-      } catch (error) {
-        return "Realtime fetch error: " + (error instanceof Error ? error.message : String(error));
-      }
-    },
-  },
-  {
-    name: "getStockFinancial",
-    category: "market-data",
-    description: "获取A股股票财务数据（盈利能力指标）。返回营收、净利润、ROE、毛利率、净利率等关键财务指标。当用户询问营收、利润、ROE等财务指标时，必须调用此工具。不指定year/quarter时自动获取最新可用财报数据。优先使用efinance数据源（数据更全面），baostock需要指定year和quarter。",
-    parameters: {
-      code: { type: "string", description: "股票代码。efinance格式: 600519（无前缀）；baostock格式: sh.600519（带sh./sz.前缀）", required: true },
-      source: { type: "string", description: "数据源: efinance(推荐，默认), baostock。efinance返回更全面的财务指标且无需指定year/quarter" },
-      year: { type: "number", description: "年份，如 2024（仅baostock需要，efinance无需指定）" },
-      quarter: { type: "number", description: "季度 1-4（仅baostock需要，efinance无需指定）" },
-    },
-    execute: async (params) => {
-      try {
-        const source = (params.source as string) || "efinance";
-        const body: Record<string, unknown> = { source, code: params.code };
-        if (source === "baostock" && params.year) body.year = params.year;
-        if (source === "baostock" && params.quarter) body.quarter = params.quarter;
-        const fetchStartTime = Date.now();
-        const res = await fetch(`${DATA_SERVICE_URL}/api/market/financial`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-          signal: AbortSignal.timeout(30000),
-        });
-        const data = await res.json();
-        console.log("[getStockFinancial] Data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + data.success);
-        if (!data.success) return "Failed to get financial data: " + (data.error || "Unknown error");
-        const rows = data.data || [];
-        if (rows.length === 0) return "未查询到财务数据";
-        const fromCache = data.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-        return "Financial data" + fromCache + ":\n" + JSON.stringify(rows, null, 2);
-      } catch (error) {
-        return "Financial data fetch error: " + (error instanceof Error ? error.message : String(error));
-      }
-    },
-  },
-  {
-    name: "getFinancialReport",
-    category: "market-data",
-    description: "获取A股股票详细财务报表，同时自动补充关键盈利能力指标（ROE、毛利率、净利率等）。返回利润表/资产负债表/现金流量表的详细数据，以及盈利能力指标摘要。无需再单独调用getStockFinancial。",
-    parameters: {
-      code: { type: "string", description: "股票代码，如 600519（不需要sh./sz.前缀）", required: true },
-      report_type: { type: "string", description: "报表类型: income=利润表(默认), balance=资产负债表, cashflow=现金流量表" },
-    },
-    execute: async (params) => {
-      try {
-        const fetchStartTime = Date.now();
-        const reportRes = await fetch(`${DATA_SERVICE_URL}/api/market/financial_report`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            code: params.code,
-            report_type: (params.report_type as string) || "income",
-          }),
-          signal: AbortSignal.timeout(30000),
-        });
-        const reportData = await reportRes.json();
-        console.log("[getFinancialReport] Report data service response time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + reportData.success);
-
-        const rows = reportData.data || [];
-        const fromCache = reportData.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-        const reportNames: Record<string, string> = { income: "利润表", balance: "资产负债表", cashflow: "现金流量表" };
-        const reportName = reportNames[(params.report_type as string) || "income"] || "利润表";
-
-        let reportResult = "";
-        if (!reportData.success || rows.length === 0) {
-          reportResult = reportName + " fetch failed: " + (reportData.error || "No data found");
-        } else {
-          reportResult = reportName + fromCache + " (last " + rows.length + " periods):\n" + JSON.stringify(rows, null, 2);
-        }
-
-        let financialSummary = "";
-        try {
-          const financialRes = await fetch(`${DATA_SERVICE_URL}/api/market/financial`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ source: "efinance", code: params.code }),
-            signal: AbortSignal.timeout(15000),
-          });
-          const financialData = await financialRes.json();
-          console.log("[getFinancialReport] Profitability metrics supplement time: " + ((Date.now() - fetchStartTime) / 1000).toFixed(2) + "s, success=" + financialData.success);
-          if (financialData.success && Array.isArray(financialData.data) && financialData.data.length > 0) {
-            const finCache = financialData.from_cache ? "（来自本地缓存）" : "（来自网络接口）";
-            financialSummary = "\n\n[Auto-supplement] Profitability metrics" + finCache + ":\n" + JSON.stringify(financialData.data, null, 2);
-          }
-        } catch (finErr) {
-          console.error("[getFinancialReport] Profitability metrics supplement failed: " + (finErr instanceof Error ? finErr.message : String(finErr)));
-        }
-
-        return `${reportResult}${financialSummary}`;
-      } catch (error) {
-        return "Financial report fetch error: " + (error instanceof Error ? error.message : String(error));
-      }
-    },
-  },
+  technicalAnalysisTool,
+  riskAnalysisTool,
+  complianceCheckTool,
+  marketDataTool,
+  toolSearchTool,
   {
     name: "hybridSearch",
     category: "knowledge-documents",
@@ -1098,6 +356,25 @@ const tools: ToolDefinition[] = [
         // 保存精排结果（精排后）
         lastHybridSearchRawResults = rerankedResults;
 
+        // 第三步：图谱检索补充（如果 Neo4j 可用）
+        let graphText = "";
+        try {
+          const neo4jOk = await isNeo4jAvailable();
+          if (neo4jOk) {
+            const graphStartTime = Date.now();
+            const graphResults = await graphSearch(params.query as string, 2);
+            console.log("[hybridSearch] 图谱检索完成, 耗时: " + ((Date.now() - graphStartTime) / 1000).toFixed(2) + "s, 结果: " + graphResults.length + " 条");
+            if (graphResults.length > 0) {
+              graphText = "\n\n--- 知识图谱补充 ---\n" + graphResults
+                .slice(0, 3)
+                .map((r, i) => `[图谱${i + 1}] (score: ${r.score.toFixed(4)}) ${r.text}`)
+                .join("\n");
+            }
+          }
+        } catch (graphErr) {
+          console.warn("[hybridSearch] 图谱检索失败, 跳过:", graphErr instanceof Error ? graphErr.message : String(graphErr));
+        }
+
         console.log("[hybridSearch] 总检索耗时: " + ((Date.now() - searchStartTime) / 1000).toFixed(2) + "s, 最终结果: " + rerankedResults.length + " 条");
 
         const formatted = rerankedResults
@@ -1108,7 +385,7 @@ const tools: ToolDefinition[] = [
             return "[" + (i + 1) + "] (score: " + r.score.toFixed(4) + ")" + sourceRef + " " + r.text;
           })
           .join("\n\n");
-        return formatted || "未找到相关结果";
+        return formatted + graphText || "未找到相关结果";
       } catch (error) {
         console.error("[simpleAgent] hybridSearch 执行失败:", error);
         return "Search failed: " + (error instanceof Error ? error.message : String(error));
@@ -1555,11 +832,15 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
     const routeResult = await r001RouteQuery(query);
     r001Route = routeResult.route;
     if (routeResult.route === "sql_standard" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
-      // 命中标准化指标 SQL 查询：把结果格式化为上下文
+      // 命中标准化指标 SQL 查询：格式化为自然语言上下文（V13-r6 优化：替代 JSON.stringify）
       const company = routeResult.company;
       const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");
-      const rowsJson = JSON.stringify(routeResult.sqlResult, null, 2);
-      r001SqlContext = `\n\n【R001-SQL精确查询结果】（来自 PostgreSQL 财务表，优先级高于文档检索）\n公司: ${company?.stockNameShort ?? ""} (${company?.stockCode ?? ""})\n命中指标: ${indicators}\n查询结果:\n${rowsJson}\n\n请基于上述 SQL 查询结果直接回答用户问题，不要调用 getStockFinancial/getFinancialReport/hybridSearch 重复获取相同数据。`;
+      const formattedText = formatSqlResultAsText(
+        routeResult.sqlResult,
+        company?.stockNameShort,
+        company?.stockCode,
+      );
+      r001SqlContext = `\n\n${formattedText}\n命中指标: ${indicators}\n\n请基于上述 SQL 查询结果直接回答用户问题，不要调用 marketData(financial)/marketData(financialReport)/hybridSearch 重复获取相同数据。`;
       console.log("[R001] SQL 标准化查询命中，注入上下文: " + routeResult.sqlResult.length + " 行");
       pushStep({
         type: "retrieval",
@@ -1570,9 +851,9 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
         timestamp: Date.now(),
       });
     } else if (routeResult.route === "sql_raw_tables" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
-      // 命中原始表格 fallback：把整表数据返回给 LLM 读表
+      // 命中原始表格 fallback：格式化为自然语言上下文（V13-r6 优化）
       const company = routeResult.company;
-      r001SqlContext = `\n\n【R001-原始表格查询结果】（来自 PostgreSQL financial_raw_tables，LLM 需读表提取数值）\n公司: ${company?.stockNameShort ?? ""} (${company?.stockCode ?? ""})\n原始表格 ${routeResult.sqlResult.length} 张:\n${JSON.stringify(routeResult.sqlResult.slice(0, 5), null, 2)}\n\n请基于上述原始表格数据回答用户问题，必要时可补充调用 hybridSearch。`;
+      r001SqlContext = `\n\n${formatRawTablesAsText(routeResult.sqlResult, company?.stockNameShort, company?.stockCode)}\n\n请基于上述原始表格数据回答用户问题，必要时可补充调用 hybridSearch。`;
       console.log("[R001] SQL 原始表格查询命中，注入上下文: " + routeResult.sqlResult.length + " 张表");
       pushStep({
         type: "retrieval",
@@ -1610,26 +891,31 @@ ${getToolDescriptions()}
 
 【核心规则 - 必须严格遵守】：
 
-1. 【严禁编造数据】所有具体的股价、财务数字（营收、利润、ROE等）、技术指标数值必须来自工具调用结果，绝不能凭空编造！如果工具未返回数据，必须明确告知用户"未获取到数据"，不能猜测或编造数字。
+1. 【严禁编造数据】所有具体的股价、财务数字（营收、利润、ROE等）、技术指标数值必须来自工具调用结果，绝不能凭空编造！如果工具未返回数据，必须明确告知用户"未获取到该数据"。
+   【禁止猜测原因】当工具未返回数据时，你不得声称"财报未发布"、"数据尚未公布"、"还未到披露时间"等理由——你无法判断财报是否已发布，只能说"系统未获取到该数据"。财报是否已发布是客观事实，不由你推测。
+   【知识库覆盖范围】本系统知识库仅覆盖部分公司的财务数据，并非所有A股公司都在覆盖范围内。当工具返回空数据时，应告知用户"该数据可能不在系统当前覆盖范围内，或数据源暂时无法获取"。
 
 2. 【必须调用工具的场景】以下场景必须先调用对应工具获取数据，不能直接回答：
-   - 用户询问营收、利润、ROE、毛利率等财务指标 → 必须调用 getStockFinancial（优先efinance数据源，code格式如600519）
-   - 用户询问具体股价、涨跌幅 → 必须调用 getStockRealtime
-   - 用户要求计算技术指标（MA、RSI、MACD等）→ 必须先调用 getStockHistory 获取股价数据
-   - 用户询问详细财务报表项目 → 调用 getFinancialReport（已自动包含盈利能力指标，无需再调用getStockFinancial）
+   - 用户询问营收、利润、ROE、毛利率等财务指标 → 必须调用 marketData(dataType:"financial", code:"600519")
+   - 用户询问具体股价、涨跌幅 → 必须调用 marketData(dataType:"realtime", code:"600036")
+   - 用户要求计算技术指标（MA、RSI、MACD等）→ 调用 technicalAnalysis（传入code参数自动获取数据）
+   - 用户要求获取历史K线 → 调用 marketData(dataType:"history", code:"sh.600036")
+   - 用户询问详细财务报表项目 → 调用 marketData(dataType:"financialReport", code:"600519")
    - 用户询问公司财报、行业分析等文档内容 → 使用 hybridSearch
-   - 用户要求计算两只股票相关系数 → 同时调用 getStockHistory + calculateCorrelation（见规则9）
+   - 用户要求计算风险指标（VWAP/Sharpe/MaxDD/Vol/Corr/VaR）→ 调用 riskAnalysis
+   - 用户要求合规检查 → 调用 complianceCheck
+   - 不确定工具参数详情时 → 调用 toolSearch 获取工具说明
 
 3. 【工具选择优先级】当用户询问财务数据时：
-   - 首选 getFinancialReport（返回完整利润表/资产负债表/现金流量表数据，同时自动补充盈利能力指标）
-   - 如果只需要关键财务指标（ROE、毛利率等），使用 getStockFinancial（efinance数据源，无需指定year/quarter）
+   - 首选 marketData(dataType:"financialReport")（返回完整报表+盈利能力指标）
+   - 如果只需要关键财务指标（ROE、毛利率等），使用 marketData(dataType:"financial")
    - 不要使用 hybridSearch 来查找财务数字（hybridSearch是检索文档的，不是获取实时财务数据的）
-   - 不要同时调用 getStockFinancial 和 getFinancialReport，它们有重叠，选一个即可
-   - 当用户问利润表中的具体项目（营业利润、利润总额、净利润等），必须用 getFinancialReport 而不是 getStockFinancial
+   - 不要同时调用 marketData financial 和 financialReport，它们有重叠，选一个即可
+   - 当用户问利润表中的具体项目，必须用 marketData(dataType:"financialReport")
 
 4. 【股票代码格式 - 必须严格遵守】：
-   - efinance/getStockFinancial/getFinancialReport/getStockRealtime: 不需要前缀，如 600519、000858、000066、000651
-   - baostock/getStockHistory/getStockFinancial(baostock): 需要 sh./sz. 前缀
+   - marketData realtime/financial/financialReport: 不需要前缀，如 600519、000858
+   - marketData history(baostock): 需要 sh./sz. 前缀
      * 沪市（6开头）: sh.600519、sh.600036
      * 深市（0开头）: sz.000858、sz.000066、sz.000651
      * 绝对不能把深市股票用sh.前缀！000066是深市，必须用sz.000066，不能用sh.000066
@@ -1644,38 +930,14 @@ ${getToolDescriptions()}
 
 6. 如果工具调用失败或返回空数据，应如实告知用户，不要用编造的数据来回答。可以尝试换一个数据源重新获取。
 
-7. 【技术指标计算流程】当用户要求计算技术指标时，你必须在同一次响应中同时输出两个工具调用，以减少迭代轮次：
-   步骤1（同一轮中）: 同时输出 getStockHistory 和 calculateMA/calculateRSI 等计算工具的调用，格式如下：
+7. 【技术指标计算流程】当用户要求计算技术指标时，调用 technicalAnalysis 工具，传入 indicator 和 code 参数即可：
+   - technicalAnalysis 会自动获取数据（如未缓存），无需先单独调用 marketData(history)
+   - 示例：technicalAnalysis(indicator:"MA", code:"sh.600036", period:20)
+   - 如果用户指定了某个日期（如"2026-05-06的MA20"），需先调用 marketData(dataType:"history", code:"sh.600036", start_date:"2026-02-06", end_date:"2026-05-06")，再调用 technicalAnalysis
 
-   我需要先获取股价数据，然后计算MA20指标。
+8. 【重要】计算技术指标时，technicalAnalysis 传入 code 参数会自动获取数据。对于多公司查询，也应在同一轮中同时调用。riskAnalysis 同理，传入 code 参数自动获取数据。
 
-   \`\`\`json
-   {"tool": "getStockHistory", "parameters": {"code": "sh.600036"}}
-   \`\`\`
-
-   \`\`\`json
-   {"tool": "calculateMA", "parameters": {"period": 20}}
-   \`\`\`
-
-   系统会按顺序执行：先执行getStockHistory缓存数据，再执行calculateMA使用缓存数据计算。
-   注意：不要在工具调用中传入大量价格数据数组，系统会自动从缓存中读取
-   - 如果用户指定了某个日期（如"2026-05-06的MA20"），getStockHistory需传入 start_date 和 end_date 参数
-
-8. 【重要】计算技术指标时，必须在同一次响应中同时输出 getStockHistory 和计算工具的调用（见规则7）。对于多公司查询，也应在同一轮中同时调用多家公司的工具，以减少迭代轮次。当同一轮调用多只股票的getStockHistory后，计算波动率时必须传入code参数指定使用哪只股票的数据，例如：calculateVolatility(code="sz.000858")。
-
-9. 【相关系数计算流程】当用户要求计算两只股票的相关系数时，你必须在同一次响应中同时输出 getStockHistory 和 calculateCorrelation 的调用，格式如下：
-
-   我需要获取招商银行的股价数据，然后计算招商银行和五粮液的相关系数。
-
-   \`\`\`json
-   {"tool": "getStockHistory", "parameters": {"code": "sh.600036"}}
-   \`\`\`
-
-   \`\`\`json
-   {"tool": "calculateCorrelation", "parameters": {"code2": "sz.000858"}}
-   \`\`\`
-
-   注意：calculateCorrelation 只需传 code2 参数（第二只股票代码），code1 会自动使用 getStockHistory 缓存的数据。不要传 series1/series2 数组，系统会自动获取。
+9. 【相关系数计算流程】当用户要求计算两只股票的相关系数时，调用 riskAnalysis(metric:"Correlation", code:"sh.600036", code2:"sz.000858")。riskAnalysis 会自动获取两只股票的数据。
 
 10. 【回答格式要求 - 时间相关数据必须标注日期（最高优先级规则）】当你回答涉及股价、技术指标、财务数据等与时间相关的数据时，必须在回答中明确标注数据的查询日期或截止日期。这是最高优先级规则，不可违反！
    - 股价数据："截至2026-06-03（最新交易日），格力电器最新价为39.50元"
@@ -1696,35 +958,35 @@ ${getToolDescriptions()}
 12. 【回答完整性原则】你的回答必须覆盖用户查询的所有方面。如果用户同时问了财务数据和行情数据，你必须两类数据都获取并回答。如果用户问了A和B的对比，你必须两家公司都分析。当你已经获取到足够覆盖查询所有方面的数据后，立即输出最终答案，不要调用与查询无关的额外工具。
 
 13. 【禁止重复调用 - 严重错误】绝对不要重复调用已经调用过的工具！
-   - 如果getStockFinancial已经返回了数据，不要再次调用它（即使数据不完整），也不要改用baostock源再调一次
-   - 如果getStockHistory已经返回了K线数据，不要再次调用它
-   - 如果getFinancialReport已经返回了报表数据，不要再次调用它，也不要再调getStockFinancial（它们有重叠）
-   - 如果calculateVolatility已经返回了波动率，不要再次调用它
-   - 不要对同一个工具用不同参数重复调用（如checkTradeCompliance用不同价格调两次）
+   - 如果marketData(financial)已经返回了数据，不要再次调用它
+   - 如果marketData(history)已经返回了K线数据，不要再次调用它
+   - 如果marketData(financialReport)已经返回了报表数据，不要再次调用它，也不要再调marketData(financial)
+   - 如果technicalAnalysis已经返回了指标值，不要再次调用它
+   - 不要对同一个工具用相同参数重复调用
    - 重复调用相同的工具是严重错误，会浪费时间和资源
    - 一旦获取到数据，立即基于已有数据回答问题
    - 如果某个工具调用失败，不要用相同参数重试，应该换数据源或换工具
 
 14. 【迭代效率】每个工具最多调用1次。如果某个工具返回了数据但你觉得不够完整，应该使用hybridSearch补充文档信息，而不是再次调用同一个工具。如果所有工具都已调用过，必须立即输出最终答案。
 
-15. 【数据真实性原则】当工具调用返回错误（如"fetch failed"、"获取失败"、"Error"等）时，你绝对不能编造或幻觉该工具本应返回的数据。你必须如实告知用户该工具调用失败，无法获取相关数据。例如：如果getStockFinancial返回错误，你不能编造财务数据；如果getStockHistory返回错误，你不能编造股价数据。你只能使用工具实际成功返回的数据来回答问题。
+15. 【数据真实性原则】当工具调用返回错误（如"fetch failed"、"获取失败"、"Error"等）时，你绝对不能编造或幻觉该工具本应返回的数据。你必须如实告知用户该工具调用失败，无法获取相关数据。你只能使用工具实际成功返回的数据来回答问题。
 
 16. 【工具失败处理】如果某个工具调用失败或返回空数据，不要用相同参数重复调用该工具！你应该：
    - 换一个数据源（如从efinance切换到baostock）
-   - 或者换一个工具（如从getStockFinancial切换到getFinancialReport）
+   - 或者换一个工具（如从marketData(financial)切换到marketData(financialReport)）
    - 如果没有替代方案，直接告知用户该数据暂时无法获取，不要浪费轮次重试
 
 17. 【立即回答原则 - 最高优先级】当你在某一轮中成功获取了用户所需的数据后，必须立即输出最终答案，不要进入下一轮！
-   - 如果getFinancialReport返回了利润表数据，不要再去调hybridSearch或getStockFinancial补充，直接基于已有数据回答
-   - 如果getStockHistory+calculateMA返回了MA值，直接回答，不要再调其他工具
-   - 如果getStockRealtime返回了实时行情，直接回答，不要再调getStockFinancial
+   - 如果marketData(financialReport)返回了利润表数据，不要再去调hybridSearch补充，直接基于已有数据回答
+   - 如果technicalAnalysis返回了MA值，直接回答，不要再调其他工具
+   - 如果marketData(realtime)返回了实时行情，直接回答，不要再调marketData(financial)
    - 不要为了"补充信息"或"验证数据"而额外调用工具，除非用户明确要求了该信息
    - 每多一轮迭代都是浪费时间和资源
    - 第一轮获取到数据后，第二轮必须输出最终答案，绝不允许第三轮
 
 18. 【数据已足够判断】当工具返回了数据，即使你觉得数据可能不够完整，也必须基于已有数据直接回答。不要因为"想获取更多信息"而继续迭代。例如：
-   - getFinancialReport返回了利润表，其中包含营业利润和利润总额，直接计算差额回答，不要再调hybridSearch
-   - getStockHistory+calculateVolatility返回了波动率，直接比较回答，不要再调其他工具验证
+   - marketData(financialReport)返回了利润表，其中包含营业利润和利润总额，直接计算差额回答，不要再调hybridSearch
+   - technicalAnalysis/riskAnalysis返回了计算结果，直接比较回答，不要再调其他工具验证
    - 你的目标是：用最少的工具调用、最少的迭代轮次，给出准确的答案
 
 19. 【Skill能力】当用户需要进行综合分析时，以下Skill可以一次性编排多个工具：
@@ -1817,6 +1079,27 @@ ${SkillRegistry.listDescriptions()}
   const callLimiter = new CallLimiter({ maxToolCalls: maxIterations * 3 });
 
   for (let i = 0; i < maxIterations; i++) {
+    if (i > 0 && messages.length > 20) {
+      try {
+        const { messages: compacted, result: compactionResult } = await compactContext(messages);
+        if (compactionResult.compacted) {
+          messages.length = 0;
+          messages.push(...compacted);
+          console.log(`[simpleAgent] Context compacted: ${compactionResult.originalMessageCount}→${compactionResult.compactedMessageCount} messages, saved ${compactionResult.savedTokens} tokens`);
+          pushStep({
+            type: "thinking",
+            round: i + 1,
+            title: "Context Compaction",
+            content: `对话历史压缩: ${compactionResult.originalMessageCount}→${compactionResult.compactedMessageCount}条, 节省${compactionResult.savedTokens}tokens`,
+            detail: compactionResult as unknown as Record<string, unknown>,
+            timestamp: Date.now(),
+          });
+        }
+      } catch (compactionErr) {
+        console.error("[simpleAgent] Context compaction failed:", compactionErr);
+      }
+    }
+
     if (Date.now() - startTime > AGENT_TIMEOUT_MS) {
       const elapsedMs = Date.now() - startTime;
       const elapsedSec = (elapsedMs / 1000).toFixed(1);
@@ -1942,6 +1225,7 @@ ${SkillRegistry.listDescriptions()}
           }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
           if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
+          clearCheckpoint(convId).catch(() => {});
           return { answer: assistantContent, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
         }
 
@@ -1966,10 +1250,10 @@ ${SkillRegistry.listDescriptions()}
             "[simpleAgent] Reflection result: need more info, suggestion: \"" + reflection.refinedQuery + "\""
           );
 
-          const isToolSuggestion = reflection.refinedQuery.includes("getStockFinancial") ||
-            reflection.refinedQuery.includes("getStockHistory") ||
-            reflection.refinedQuery.includes("getFinancialReport") ||
-            reflection.refinedQuery.includes("getStockRealtime");
+          const isToolSuggestion = reflection.refinedQuery.includes("marketData") ||
+            reflection.refinedQuery.includes("technicalAnalysis") ||
+            reflection.refinedQuery.includes("riskAnalysis") ||
+            reflection.refinedQuery.includes("complianceCheck");
 
           pushStep({
             type: "reflection",
@@ -2104,6 +1388,7 @@ ${SkillRegistry.listDescriptions()}
         }).catch((e) => console.error("[simpleAgent] 保存日志失败:", e));
 
         if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
+        clearCheckpoint(convId).catch(() => {});
         return { answer: assistantContent, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
       }
 
@@ -2281,18 +1566,18 @@ ${SkillRegistry.listDescriptions()}
             },
             timestamp: Date.now(),
           });
-        } else if (toolCall.name === "getStockFinancial" || toolCall.name === "getFinancialReport" || toolCall.name === "getStockHistory" || toolCall.name === "getStockRealtime") {
-          // 收集数据源引用
+        } else if (toolCall.name === "marketData") {
+          const dataType = toolCall.params.dataType as string;
           const endpointMap: Record<string, string> = {
-            getStockFinancial: "/api/market/financial",
-            getFinancialReport: "/api/market/financial_report",
-            getStockHistory: "/api/market/history",
-            getStockRealtime: "/api/market/realtime",
+            history: "/api/market/history",
+            realtime: "/api/market/realtime",
+            financial: "/api/market/financial",
+            financialReport: "/api/market/financial_report",
           };
           citations.push({
             type: "sql",
-            dataSource: toolCall.name,
-            apiEndpoint: endpointMap[toolCall.name] || "",
+            dataSource: `marketData(${dataType})`,
+            apiEndpoint: endpointMap[dataType] || "",
             query: JSON.stringify(toolCall.params),
           });
 
@@ -2369,13 +1654,13 @@ ${SkillRegistry.listDescriptions()}
 
         // 如果已获取关键数据，强制要求立即回答
         const hasFinancialData = toolObservations.some(o =>
-          o.includes('[getFinancialReport]') || o.includes('[getStockFinancial]')
+          o.includes('[marketData]') && (o.includes('financial') || o.includes('financialReport'))
         );
         const hasHistoryData = toolObservations.some(o =>
-          o.includes('[getStockHistory]')
+          o.includes('[marketData]') && o.includes('history')
         );
         const hasRealtimeData = toolObservations.some(o =>
-          o.includes('[getStockRealtime]')
+          o.includes('[marketData]') && o.includes('realtime')
         );
         const hasSuccessfulToolData = toolObservations.some(o =>
           !o.includes('Error') && !o.includes('未查询到') && !o.includes('fetch error')
@@ -2383,7 +1668,7 @@ ${SkillRegistry.listDescriptions()}
 
         // 场景1: 已获取财报数据，不需要再调hybridSearch补充
         if (hasFinancialData && iterations >= 1) {
-          observationContent += "\n\n[SYSTEM CRITICAL] You have already obtained financial report data from getFinancialReport/getStockFinancial. This data is SUFFICIENT to answer the user's question. Do NOT call hybridSearch or any other tools. Output your final answer NOW based on the financial data you have.";
+          observationContent += "\n\n[SYSTEM CRITICAL] You have already obtained financial report data from marketData. This data is SUFFICIENT to answer the user's question. Do NOT call hybridSearch or any other tools. Output your final answer NOW based on the financial data you have.";
         }
         // 场景2: 已获取历史数据+计算工具结果，不需要再调其他工具
         else if (hasHistoryData && hasSuccessfulToolData && iterations >= 1) {
@@ -2404,6 +1689,11 @@ ${SkillRegistry.listDescriptions()}
       const roundMs = Date.now() - roundStartTime;
       const toolNames = toolCallsList.map((tc) => tc.name).join("+");
       console.log("[simpleAgent] Round " + (i + 1) + " total: " + (roundMs / 1000).toFixed(2) + "s (LLM=" + (llmMs / 1000).toFixed(2) + "s, tools=" + toolNames + "=" + (totalToolMs / 1000).toFixed(2) + "s), total: " + ((Date.now() - startTime) / 1000).toFixed(1) + "s");
+
+      saveCheckpoint(convId, i + 1, regularCalls.map((tc, idx) => ({
+        name: tc.name,
+        resultPreview: observationParts[idx]?.substring(0, 200) || "",
+      })), `Round ${i + 1}: called ${toolNames}`).catch(() => {});
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       console.error("[simpleAgent] Iteration error: " + errorMsg);
@@ -2448,9 +1738,16 @@ ${SkillRegistry.listDescriptions()}
         timestamp: Date.now(),
       });
 
+      const checkpointData = await recordError(convId, errorMsg);
+      let recoveryContext = `Observation: Tool execution error - ${errorMsg}\n\n请根据此错误信息决定下一步：可以尝试其他工具、修改参数重试，或者直接基于已有信息回答用户问题。`;
+      if (checkpointData && canRetry(checkpointData)) {
+        recoveryContext = buildRecoveryContext(checkpointData) + "\n\n" + recoveryContext;
+        console.log("[simpleAgent] Checkpoint recovery context injected, retry " + checkpointData.retryCount + "/" + 2);
+      }
+
       messages.push({
         role: "user",
-        content: `Observation: Tool execution error - ${errorMsg}\n\n请根据此错误信息决定下一步：可以尝试其他工具、修改参数重试，或者直接基于已有信息回答用户问题。`,
+        content: recoveryContext,
       });
       console.log("[simpleAgent] Error recovery: feeding error to LLM, continuing iteration");
     }

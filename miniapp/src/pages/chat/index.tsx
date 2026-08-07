@@ -1,6 +1,6 @@
 import { View, Text, Input, ScrollView, Image } from "@tarojs/components";
 import { useState, useRef, useCallback } from "react";
-import Taro from "@tarojs/taro";
+import Taro, { useDidShow } from "@tarojs/taro";
 import { request } from "../../services/request";
 import { useAuthStore } from "../../store/auth";
 import "./index.scss";
@@ -23,6 +23,35 @@ export default function ChatPage() {
     const id = `msg-${Date.now()}`;
     scrollViewRef.current = id;
   }, []);
+
+  useDidShow(() => {
+    const pendingId = Taro.getStorageSync("pendingConversationId");
+    if (pendingId) {
+      Taro.removeStorageSync("pendingConversationId");
+      loadConversation(pendingId);
+    }
+  });
+
+  async function loadConversation(convId: string) {
+    try {
+      const res = await request<{ success: boolean; conversation: { messages: Array<{ role: string; content: string }> } }>({
+        url: `/api/miniapp/conversations?conversationId=${convId}`,
+        method: "GET",
+      });
+      if (res.success && res.conversation) {
+        const loaded: Message[] = res.conversation.messages.map((m, i) => ({
+          id: `msg-${i}`,
+          role: m.role as "user" | "assistant",
+          content: m.content,
+          timestamp: Date.now(),
+        }));
+        setMessages(loaded);
+        scrollToBottom();
+      }
+    } catch (err) {
+      console.error("[chat] 加载对话失败:", err);
+    }
+  }
 
   const handleSend = useCallback(async () => {
     const query = inputValue.trim();

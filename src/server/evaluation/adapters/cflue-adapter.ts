@@ -9,6 +9,8 @@ const TASK_TYPE_MAP: Record<string, string> = {
   classification: "金融文本分类",
   sentiment: "金融情感分析",
   relation_extraction: "金融关系抽取",
+  ner: "金融实体识别",
+  reading_comprehension: "金融阅读理解",
 };
 
 const LABEL_MAP: Record<string, string> = {

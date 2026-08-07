@@ -5,7 +5,11 @@ import { listConversations, getConversationHistory, updateConversationTitle, del
 export async function GET(request: Request) {
   try {
     const session = await auth();
-    const userId = session?.user?.id || "default-user";
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const url = new URL(request.url);
     const conversationId = url.searchParams.get("conversationId");
@@ -14,6 +18,9 @@ export async function GET(request: Request) {
       const history = await getConversationHistory(conversationId);
       if (!history) {
         return NextResponse.json({ success: false, error: "会话不存在" }, { status: 404 });
+      }
+      if (history.userId !== userId) {
+        return NextResponse.json({ success: false, error: "无权访问" }, { status: 403 });
       }
       return NextResponse.json({
         success: true,
@@ -25,6 +32,8 @@ export async function GET(request: Request) {
             role: m.role,
             content: m.content,
             createdAt: m.createdAt,
+            steps: (m as { steps?: unknown[] }).steps || [],
+            iterations: (m as { iterations?: number }).iterations,
           })),
         },
       });

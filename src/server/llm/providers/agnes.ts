@@ -13,7 +13,7 @@ export type AgnesTool = BailianTool;
 export type AgnesToolCall = BailianToolCall;
 export type AgnesResponse = BailianResponse;
 
-const AGNES_DEFAULT_BASE_URL = "https://apihub.agnes-ai.com/v1";
+const AGNES_DEFAULT_BASE_URL = "https://api.agnes-ai.cn/v1";
 // AGNES AI 免费用户限流严格：减少重试次数，更快降级到备用provider
 const MAX_RETRIES = 3;
 // 重试退避基础时间5秒（429限流需要更长等待）
@@ -72,8 +72,14 @@ function getModel(model?: string): string {
   return resolved;
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export let sleepFn: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export function __setSleep(fn: (ms: number) => Promise<void>) {
+  sleepFn = fn;
+}
+
+export function __resetSleep() {
+  sleepFn = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -133,7 +139,7 @@ export async function callAgnes(
             `[agnes] ⚠️ 收到 429 限流错误 (第${attempt}/${MAX_RETRIES}次)，等待 ${waitSeconds} 秒后重试...`
           );
           if (attempt < MAX_RETRIES) {
-            await sleep(waitSeconds * 1000);
+            await sleepFn(waitSeconds * 1000);
             continue;
           }
           throw new Error(
@@ -151,7 +157,7 @@ export async function callAgnes(
           );
         }
         if (attempt < MAX_RETRIES) {
-          await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
+          await sleepFn(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
           continue;
         }
         throw new Error(
@@ -195,7 +201,7 @@ export async function callAgnes(
           `[agnes] API 返回内容为空且无tool_calls (第${attempt}次)`
         );
         if (attempt < MAX_RETRIES) {
-          await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
+          await sleepFn(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
           continue;
         }
         throw new Error("AGNES API 返回内容为空且无tool_calls");
@@ -239,7 +245,7 @@ export async function callAgnes(
       }
 
       if (attempt < MAX_RETRIES) {
-        await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
+        await sleepFn(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
         continue;
       }
       throw error;

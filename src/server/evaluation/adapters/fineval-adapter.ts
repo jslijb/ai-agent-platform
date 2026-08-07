@@ -9,6 +9,10 @@ const CATEGORY_MAP: Record<string, string> = {
   financial_knowledge: "金融专业知识",
   financial_calculation: "金融计算",
   financial_compliance: "金融合规",
+  Accounting: "会计",
+  Certificate: "金融从业资格",
+  Economy: "经济学",
+  Finance: "金融学",
 };
 
 const DIFFICULTY_MAP: Record<string, "easy" | "medium" | "hard"> = {

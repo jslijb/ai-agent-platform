@@ -33,7 +33,7 @@ export default function ConversationsPage() {
   }
 
   function handleConversationClick(id: string) {
-    // 跳转到聊天页并加载该对话
+    Taro.setStorageSync("pendingConversationId", id);
     Taro.switchTab({ url: "/pages/chat/index" });
   }
 

@@ -1,5 +1,5 @@
 import { db } from "@/server/db/client";
-import { conversations, messages, users, memoryProfiles, memorySummaries, memoryFragments } from "@/server/db/schema";
+import { conversations, messages, users, memoryProfiles, memorySummaries, memoryFragments, agentLogs } from "@/server/db/schema";
 import { eq, desc, asc, sql, and, cosineDistance } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
@@ -11,11 +11,21 @@ const DEFAULT_USER_ID = "default-user";
 interface ConversationWithMessages {
   id: string;
   title: string;
+  userId: string;
   messages: Array<{
     id: string;
     role: string;
     content: string;
     createdAt: Date;
+    steps?: Array<{
+      type: string;
+      round: number;
+      title: string;
+      content: string;
+      detail?: Record<string, unknown>;
+      timestamp: number;
+    }>;
+    iterations?: number;
   }>;
 }
 
@@ -76,6 +86,10 @@ export async function addMessage(
 ): Promise<void> {
   console.log(`[memory] 添加消息, conversationId: ${conversationId}, role: ${role}, 内容长度: ${content.length}`);
   await db.insert(messages).values({ conversationId, role, content });
+  await db
+    .update(conversations)
+    .set({ updatedAt: new Date() })
+    .where(eq(conversations.id, conversationId));
 
   if (userId && role !== "system") {
     checkAndGenerateSummary(conversationId, userId).catch((err) => {
@@ -106,7 +120,42 @@ export async function getConversationHistory(
   }
 
   console.log(`[memory] 获取到 ${conversation.messages.length} 条历史消息`);
-  return conversation as unknown as ConversationWithMessages;
+
+  // 查询该会话的所有 AgentLog，获取 agent 执行步骤
+  const logs = await db
+    .select({
+      answer: agentLogs.answer,
+      steps: agentLogs.steps,
+      iterations: agentLogs.iterations,
+      status: agentLogs.status,
+    })
+    .from(agentLogs)
+    .where(eq(agentLogs.conversationId, conversationId))
+    .orderBy(asc(agentLogs.createdAt));
+
+  console.log(`[memory] 获取到 ${logs.length} 条 AgentLog`);
+
+  // 将 AgentLog 的 steps 挂载到匹配的 assistant 消息上
+  const messagesWithSteps = conversation.messages.map((msg) => {
+    if (msg.role !== "assistant") return msg;
+    // 通过 answer 内容匹配对应的 AgentLog
+    const matchedLog = logs.find((log) => log.answer === msg.content);
+    if (matchedLog && Array.isArray(matchedLog.steps) && matchedLog.steps.length > 0) {
+      return {
+        ...msg,
+        steps: matchedLog.steps as unknown as ConversationWithMessages["messages"][0]["steps"],
+        iterations: matchedLog.iterations,
+      };
+    }
+    return msg;
+  });
+
+  return {
+    id: conversation.id,
+    title: conversation.title,
+    userId: conversation.userId,
+    messages: messagesWithSteps as unknown as ConversationWithMessages["messages"],
+  };
 }
 
 export async function getRecentMessages(
@@ -140,12 +189,12 @@ export async function getRecentMessages(
   }));
 }
 
-export async function listConversations(userId: string): Promise<Array<{ id: string; title: string; createdAt: Date }>> {
+export async function listConversations(userId: string): Promise<Array<{ id: string; title: string; createdAt: Date; updatedAt: Date }>> {
   console.log(`[memory] 列出用户会话, userId: ${userId}`);
   const result = await db.query.conversations.findMany({
     where: eq(conversations.userId, userId),
     orderBy: desc(conversations.updatedAt),
-    columns: { id: true, title: true, createdAt: true },
+    columns: { id: true, title: true, createdAt: true, updatedAt: true },
   });
   return result;
 }
@@ -481,7 +530,7 @@ async function getL4Profile(userId: string): Promise<string> {
   return formatted;
 }
 
-const SUMMARY_TRIGGER_THRESHOLD = 20;
+const SUMMARY_TRIGGER_THRESHOLD = 6;
 
 export async function checkAndGenerateSummary(conversationId: string, userId: string): Promise<void> {
   try {
