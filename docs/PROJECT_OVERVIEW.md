@@ -91,9 +91,34 @@
 ### 4.1 架构设计优点
 
 **1. 工具合并策略（21→6），解决LLM工具选择困难**
-- 问题：21个工具的JSON Schema约4000 token，LLM选择准确率低
-- 方案：按功能内聚合并为6个（技术分析/风险分析/合规检查/行情数据/工具搜索/混合检索）
-- 效果：token减少60%，合并工具自动获取数据减少调用轮次
+
+**核心问题**：OpenAI function calling 机制要求每次调用 LLM 时，所有工具的 JSON Schema 定义都放进 system prompt。21个工具约4000 token，每次调用都带，不管用不用。
+
+**两种解决思路**：
+
+| | 两层 Skill | 合并工具（本项目选择） |
+|--|----------|---------|
+| system prompt token | ~200（极省） | ~1600（中等） |
+| 单次工具调用轮次 | 2轮（查详情→调工具） | 1轮（直接调） |
+| "查MA+RSI"总轮次 | 3轮（查详情→调MA→调RSI） | 1轮（一次调完） |
+| LLM 选择准确率 | 高（6选1） | 高（6选1） |
+| 参数传错风险 | 低（第二层有完整定义） | 中（靠 ToolCallValidator 校验+重试） |
+| 实现复杂度 | 高（需要 toolSearch 中间步骤） | 中（合并工具内部编排） |
+
+**为什么选合并工具**：金融分析中"查MA+RSI"是高频组合，合并后1次调用完成，比两层Skill的3次调用快3倍、省3倍token。
+
+**合并工具的参数设计**——高层语义 vs 底层参数：
+
+| 旧方案（21个细粒度） | 新方案（6个合并） |
+|---|---|
+| `getMA({stockCode, window:20})` | `technicalAnalysis({stockCode, indicators:["MA"]})` |
+| `getMACD({stockCode, fast:12, slow:26, signal:9})` | `technicalAnalysis({stockCode, indicators:["MACD"]})` |
+| `getRSI({stockCode, period:14})` | `technicalAnalysis({stockCode, indicators:["RSI"]})` |
+| 需要3次调用+3次数据获取 | 1次调用，内部自动获取数据+计算所有指标 |
+
+**toolSearch 元工具保留了按需加载能力**——当LLM不确定参数时，可调 `toolSearch("technicalAnalysis")` 获取完整说明。这就是两层Skill的"第二层"，只是不作为必经步骤，而是可选的辅助步骤。
+
+**本质上两种方案思路相同**——减少LLM同时看到的工具数量，降低选择难度。区别在于"工具详情"放在哪里：两层Skill放在第二轮LLM调用中按需加载；合并工具内化到工具实现代码中，LLM只需传高层参数。
 
 **2. 三层错误恢复，保证金融分析不中断**
 - Checkpoint+Resume：每轮保存进度到Redis，失败从断点恢复
