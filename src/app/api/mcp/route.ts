@@ -3,6 +3,8 @@ import { registerAllMCPTools } from "@/server/mcp/register-tools";
 
 let toolsRegistered = false;
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   if (!toolsRegistered) {
     await registerAllMCPTools();
