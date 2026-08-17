@@ -5,6 +5,36 @@
   background-color: #f5f5f5;
 }
 
+.chat-header {
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  padding: 8px 24px;
+  border-radius: 20px;
+  background-color: #e8f0fe;
+  cursor: pointer;
+}
+
+.mode-toggle.rag {
+  background-color: #e8f0fe;
+}
+
+.mode-toggle.agent {
+  background-color: #fef3e8;
+}
+
+.mode-label {
+  font-size: 24px;
+  color: #333;
+}
+
 .chat-messages {
   flex: 1;
   padding: 20px;

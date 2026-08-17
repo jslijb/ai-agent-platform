@@ -9,7 +9,7 @@ llm:
   DASHSCOPE_API_KEY: YOUR_DASHSCOPE_API_KEY
   DASHSCOPE_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
   models:
-    - id: agnes-2.0-flash
+    - id: agnes-2.5-flash
       provider: agnes
       functionCalling: true
     - id: qwen-plus

@@ -34,6 +34,7 @@ import { rerank } from "../src/server/rag/reranking/reranker";
 import { callWithFallback } from "../src/server/llm/router";
 import { closeDb } from "../src/server/db/client";
 import { routeQuery as r001RouteQuery } from "../src/server/rag/query/query-router";
+import { formatSqlResultAsText, formatRawTablesAsText } from "../src/server/rag/query/sql-result-formatter";
 
 // 日志工具
 const log = {
@@ -62,8 +63,8 @@ const CONFIG = {
   llmCallDelayMs: 1000,
   // 单个检索片段最大长度（避免 token 过多）
   maxContextLength: 1000,
-  // 是否启用图谱检索（与生产 API 默认值一致）
-  useGraph: true,
+  // 是否启用图谱检索（V13-r6 数据收集临时关闭，避免 LLM 超时拖慢收集）
+  useGraph: false,
   // 是否启用 rerank（与生产 API 默认值一致）
   useRerank: true,
 };
@@ -334,15 +335,22 @@ async function collectSingleItem(
       routeResult.sqlResult &&
       routeResult.sqlResult.length > 0
     ) {
-      // R001 命中 SQL：用 SQL 结果作为唯一 context，跳过向量检索
+      // R001 命中 SQL：用自然语言格式化的 SQL 结果作为唯一 context，跳过向量检索（V13-r6 优化）
       const company = routeResult.company;
       const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");
-      const rowsJson = JSON.stringify(routeResult.sqlResult, null, 2);
-      r001SqlContext =
-        `【R001-SQL精确查询结果】（来自 PostgreSQL 财务表）\n` +
-        `公司: ${company?.stockNameShort ?? ""} (${company?.stockCode ?? ""})\n` +
-        `命中指标: ${indicators}\n` +
-        `查询结果:\n${rowsJson}`;
+      if (routeResult.route === "sql_standard") {
+        r001SqlContext = formatSqlResultAsText(
+          routeResult.sqlResult,
+          company?.stockNameShort,
+          company?.stockCode,
+        ) + `\n命中指标: ${indicators}`;
+      } else {
+        r001SqlContext = formatRawTablesAsText(
+          routeResult.sqlResult,
+          company?.stockNameShort,
+          company?.stockCode,
+        );
+      }
       contexts = [r001SqlContext];
       retrievalDebug.finalCount = contexts.length;
       retrievalLatencyMs = 0;

@@ -9,8 +9,8 @@ vi.mock("@/server/lib/config", () => ({
 // mock circuit-breaker 模块
 vi.mock("@/server/lib/circuit-breaker", () => ({
   withCircuitBreaker: vi.fn((name, fn) => fn()),
-  isCircuitOpen: vi.fn(() => false),
-  forceOpenCircuit: vi.fn(),
+  isCircuitOpen: vi.fn(async () => false),
+  forceOpenCircuit: vi.fn(async () => {}),
 }));
 
 // mock provider 模块

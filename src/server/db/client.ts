@@ -26,6 +26,9 @@ function createPgClient(): ReturnType<typeof postgres> {
       application_name: "ai-agent-platform",
       client_encoding: "UTF8",
     },
+    max: 10,
+    idle_timeout: 20,
+    connect_timeout: 10,
   });
 }
 

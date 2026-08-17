@@ -1,0 +1,1 @@
+SELECT 'financial_indicators' as tbl, column_name, data_type FROM information_schema.columns WHERE table_name = 'financial_indicators' ORDER BY ordinal_position;

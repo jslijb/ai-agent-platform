@@ -1,0 +1,504 @@
+{
+  "timestamp": "2026-08-07T04:48:04.983Z",
+  "baseUrl": "http://localhost:80",
+  "passCount": 5,
+  "total": 5,
+  "passRate": "1.00",
+  "totalTimeMs": 229625,
+  "avgTimeMs": 45925,
+  "withinBudgetCount": 4,
+  "results": [
+    {
+      "queryId": "Q1-事实查询",
+      "query": "招商银行的营业收入是多少？",
+      "category": "L1-事实提取",
+      "success": true,
+      "answer": "\n\n根据2025年年报（报告期：2025-12-31，发布日期：2026-03-28），**招商银行营业收入为3375.32亿元**。\n\n其他报告期营业收入数据如下：\n- 2026年一季报：869.40亿元\n- 2025年三季报：2514.20亿元\n- 2025年半年报：1699.69亿元\n- 2025年一季报：837.51亿元\n\n2025年全年营业收入同比增长约1.30%，净利润1501.81亿元，同比增长1.21%。",
+      "answerLength": 212,
+      "iterations": 2,
+      "totalMs": 22071,
+      "withinTimeBudget": true,
+      "steps": [
+        {
+          "type": "thinking",
+          "round": 0,
+          "title": "Received User Query"
+        },
+        {
+          "type": "thinking",
+          "round": 1,
+          "title": "Round 1 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: marketData",
+          "llmMs": 1945,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: marketData",
+          "toolMs": 7123,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: marketData",
+          "llmMs": 1945,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: marketData",
+          "toolMs": 8917,
+          "toolName": "marketData"
+        },
+        {
+          "type": "thinking",
+          "round": 2,
+          "title": "Round 2 - LLM Reasoning"
+        },
+        {
+          "type": "answer",
+          "round": 2,
+          "title": "Final Answer",
+          "llmMs": 3202
+        }
+      ],
+      "toolCalls": [
+        "marketData",
+        "marketData"
+      ],
+      "keywordsFound": [
+        "招商银行",
+        "亿"
+      ],
+      "keywordsMissing": []
+    },
+    {
+      "queryId": "Q2-技术分析",
+      "query": "计算招商银行(sh.600036)的MA20和RSI14指标",
+      "category": "L6-技术指标",
+      "success": true,
+      "answer": "\n\n很抱歉，招商银行（sh.600036）的MA20和RSI14指标计算失败。\n\n**失败原因：**\n- baostock数据源：登录失败（黑名单用户）\n- efinance数据源：连接被远程端重置\n\n**结论：** 由于数据源暂时无法获取历史K线数据，无法计算MA20和RSI14指标。建议您稍后重试，或联系管理员解决数据源访问问题。",
+      "answerLength": 168,
+      "iterations": 4,
+      "totalMs": 15171,
+      "withinTimeBudget": true,
+      "steps": [
+        {
+          "type": "thinking",
+          "round": 0,
+          "title": "Received User Query"
+        },
+        {
+          "type": "thinking",
+          "round": 1,
+          "title": "Round 1 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: technicalAnalysis",
+          "llmMs": 3063,
+          "toolName": "technicalAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: technicalAnalysis",
+          "toolMs": 3,
+          "toolName": "technicalAnalysis"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: technicalAnalysis",
+          "llmMs": 3063,
+          "toolName": "technicalAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: technicalAnalysis",
+          "toolMs": 2,
+          "toolName": "technicalAnalysis"
+        },
+        {
+          "type": "thinking",
+          "round": 2,
+          "title": "Round 2 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 2,
+          "title": "Round 2 - Calling Tool: marketData",
+          "llmMs": 3909,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 2,
+          "title": "Round 2 - Tool Result: marketData",
+          "toolMs": 319,
+          "toolName": "marketData"
+        },
+        {
+          "type": "thinking",
+          "round": 3,
+          "title": "Round 3 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 3,
+          "title": "Round 3 - Calling Tool: marketData",
+          "llmMs": 1360,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 3,
+          "title": "Round 3 - Tool Result: marketData",
+          "toolMs": 963,
+          "toolName": "marketData"
+        },
+        {
+          "type": "thinking",
+          "round": 4,
+          "title": "Round 4 - LLM Reasoning"
+        },
+        {
+          "type": "answer",
+          "round": 4,
+          "title": "Final Answer",
+          "llmMs": 4732
+        }
+      ],
+      "toolCalls": [
+        "technicalAnalysis",
+        "technicalAnalysis",
+        "marketData",
+        "marketData"
+      ],
+      "keywordsFound": [
+        "MA",
+        "RSI",
+        "招商银行"
+      ],
+      "keywordsMissing": []
+    },
+    {
+      "queryId": "Q3-风险分析",
+      "query": "招商银行(sh.600036)的波动率和最大回撤是多少？",
+      "category": "L7-合规风控",
+      "success": true,
+      "answer": "\n\n抱歉，招商银行（sh.600036）的波动率和最大回撤数据暂时无法获取。\n\n**原因说明：**\n- baostock 数据源：登录失败（黑名单用户）\n- efinance 数据源：连接被远程断开\n\n由于无法获取历史价格数据，波动率和最大回撤无法计算。建议您稍后重试，或确认股票代码是否正确（招商银行正确代码应为 **sh.600036**，但 baostock 中可能存在编码问题）。\n\n如需分析其他股票，我可以尝试使用不同的数据源。",
+      "answerLength": 219,
+      "iterations": 4,
+      "totalMs": 11963,
+      "withinTimeBudget": true,
+      "steps": [
+        {
+          "type": "thinking",
+          "round": 0,
+          "title": "Received User Query"
+        },
+        {
+          "type": "thinking",
+          "round": 1,
+          "title": "Round 1 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: riskAnalysis",
+          "llmMs": 3211,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: riskAnalysis",
+          "toolMs": 6,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: riskAnalysis",
+          "llmMs": 3211,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: riskAnalysis",
+          "toolMs": 3,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "thinking",
+          "round": 2,
+          "title": "Round 2 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 2,
+          "title": "Round 2 - Calling Tool: marketData",
+          "llmMs": 2182,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 2,
+          "title": "Round 2 - Tool Result: marketData",
+          "toolMs": 345,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_call",
+          "round": 2,
+          "title": "Round 2 - Calling Tool: riskAnalysis",
+          "llmMs": 2182,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 2,
+          "title": "Round 2 - Tool Result: riskAnalysis",
+          "toolMs": 0,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_call",
+          "round": 2,
+          "title": "Round 2 - Calling Tool: riskAnalysis",
+          "llmMs": 2182,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 2,
+          "title": "Round 2 - Tool Result: riskAnalysis",
+          "toolMs": 0,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "thinking",
+          "round": 3,
+          "title": "Round 3 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 3,
+          "title": "Round 3 - Calling Tool: marketData",
+          "llmMs": 2455,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 3,
+          "title": "Round 3 - Tool Result: marketData",
+          "toolMs": 833,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_call",
+          "round": 3,
+          "title": "Round 3 - Calling Tool: riskAnalysis",
+          "llmMs": 2455,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 3,
+          "title": "Round 3 - Tool Result: riskAnalysis",
+          "toolMs": 0,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_call",
+          "round": 3,
+          "title": "Round 3 - Calling Tool: riskAnalysis",
+          "llmMs": 2455,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "tool_result",
+          "round": 3,
+          "title": "Round 3 - Tool Result: riskAnalysis",
+          "toolMs": 0,
+          "toolName": "riskAnalysis"
+        },
+        {
+          "type": "thinking",
+          "round": 4,
+          "title": "Round 4 - LLM Reasoning"
+        },
+        {
+          "type": "answer",
+          "round": 4,
+          "title": "Final Answer",
+          "llmMs": 1946
+        }
+      ],
+      "toolCalls": [
+        "riskAnalysis",
+        "riskAnalysis",
+        "marketData",
+        "riskAnalysis",
+        "riskAnalysis",
+        "marketData",
+        "riskAnalysis",
+        "riskAnalysis"
+      ],
+      "keywordsFound": [
+        "波动率",
+        "回撤",
+        "招商银行"
+      ],
+      "keywordsMissing": []
+    },
+    {
+      "queryId": "Q4-合规检查",
+      "query": "检查买入招商银行100股，价格35.5元，昨收35.0元是否合规",
+      "category": "L5-交易规则",
+      "success": true,
+      "answer": "\n\n根据合规检查结果，**买入招商银行100股，价格35.5元，昨收35.0元的交易是合规的**。\n\n- **检查结果**：通过（passed: true）\n- **违规项**：无\n- **警告项**：无\n\n该交易未触发任何合规限制，可以正常执行。",
+      "answerLength": 124,
+      "iterations": 2,
+      "totalMs": 6913,
+      "withinTimeBudget": true,
+      "steps": [
+        {
+          "type": "thinking",
+          "round": 0,
+          "title": "Received User Query"
+        },
+        {
+          "type": "thinking",
+          "round": 1,
+          "title": "Round 1 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 1,
+          "title": "Round 1 - Calling Tool: complianceCheck",
+          "llmMs": 1862,
+          "toolName": "complianceCheck"
+        },
+        {
+          "type": "tool_result",
+          "round": 1,
+          "title": "Round 1 - Tool Result: complianceCheck",
+          "toolMs": 1,
+          "toolName": "complianceCheck"
+        },
+        {
+          "type": "thinking",
+          "round": 2,
+          "title": "Round 2 - LLM Reasoning"
+        },
+        {
+          "type": "answer",
+          "round": 2,
+          "title": "Final Answer",
+          "llmMs": 4333
+        }
+      ],
+      "toolCalls": [
+        "complianceCheck"
+      ],
+      "keywordsFound": [
+        "合规",
+        "招商银行"
+      ],
+      "keywordsMissing": []
+    },
+    {
+      "queryId": "Q5-RAG检索",
+      "query": "五粮液2025年年报中的主要财务数据有哪些？",
+      "category": "L1-事实提取",
+      "success": true,
+      "answer": "\n\n根据2025年年报（报告期：2025-12-31，发布日期：2026-04-30），五粮液主要财务数据如下：\n\n| 指标 | 数值 |\n|------|------|\n| **营业收入** | 405.29亿元 |\n| **净利润** | 89.54亿元 |\n| **扣非净利润** | 88.91亿元 |\n| **每股收益（EPS）** | 2.31元 |\n| **扣非每股收益** | 2.27元 |\n| **净资产收益率（ROE）** | 6.89% |\n| **每股净资产（BPS）** | 30.90元 |\n| **毛利率** | 77.54% |\n| **每股经营现金流** | 7.65元 |\n| **股息率** | 3.38% |\n| **分红方案** | 10派25.80元（含税） |\n\n**关键观察：**\n- 毛利率维持在77.54%的高位，显示品牌溢价能力强劲\n- 经营现金流（7.65元/股）显著高于EPS（2.31元），盈利质量较好\n- 分红方案较为慷慨，股息率3.38%在白酒板块中具备吸引力",
+      "answerLength": 463,
+      "iterations": 4,
+      "totalMs": 173507,
+      "withinTimeBudget": false,
+      "steps": [
+        {
+          "type": "thinking",
+          "round": 0,
+          "title": "Received User Query"
+        },
+        {
+          "type": "thinking",
+          "round": 1,
+          "title": "Round 1 - LLM Reasoning"
+        },
+        {
+          "type": "thinking",
+          "round": 2,
+          "title": "Round 2 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 2,
+          "title": "Round 2 - Calling Tool: marketData",
+          "llmMs": 4179,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 2,
+          "title": "Round 2 - Tool Result: marketData",
+          "toolMs": 6678,
+          "toolName": "marketData"
+        },
+        {
+          "type": "thinking",
+          "round": 3,
+          "title": "Round 3 - LLM Reasoning"
+        },
+        {
+          "type": "tool_call",
+          "round": 3,
+          "title": "Round 3 - Calling Tool: marketData",
+          "llmMs": 126209,
+          "toolName": "marketData"
+        },
+        {
+          "type": "tool_result",
+          "round": 3,
+          "title": "Round 3 - Tool Result: marketData",
+          "toolMs": 6793,
+          "toolName": "marketData"
+        },
+        {
+          "type": "thinking",
+          "round": 4,
+          "title": "Round 4 - LLM Reasoning"
+        },
+        {
+          "type": "answer",
+          "round": 4,
+          "title": "Final Answer",
+          "llmMs": 4917
+        }
+      ],
+      "toolCalls": [
+        "marketData",
+        "marketData"
+      ],
+      "keywordsFound": [
+        "五粮液",
+        "财务"
+      ],
+      "keywordsMissing": []
+    }
+  ]
+}

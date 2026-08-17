@@ -79,10 +79,14 @@ PostgreSQL
   │   ├─ financial_raw_tables（非标准化表格，jsonb）
   │   └─ stock_mapping + indicator_aliases（辅助表）
   ├─ 缓存表（PgCache，取代SQLite）
+  ├─ 语义缓存表（semantic_cache，pgvector存储embedding，R021）
   └─ 记忆表（L1-L4分层记忆）
 
-Neo4j（知识图谱）
-  └─ 实体+三元组（GraphRAG多跳推理）
+Neo4j（知识图谱，R020重构后）
+  ├─ 实体节点（多标签：Entity+Company/Indicator/Amount/Product/Location）
+  ├─ 语义关系（有向：HAS_REVENUE/OWNS_SHARE/LOCATED_IN等，替代统一RELATION）
+  ├─ 关系属性（value字段存储数值，替代数值节点）
+  └─ 别名索引（entity_aliases表，支持归一化检索）
 ```
 
 ### 3.4 评估层
@@ -190,7 +194,129 @@ Neo4j（知识图谱）
 - 输入：conversationId 或时间范围
 - 输出：Top5最慢工具、Top5最常失败工具、平均迭代次数、P50/P95总耗时
 
-## 七、注意事项（从踩坑提炼）
+## 七、R020 知识图谱深度重构设计
+
+### 7.1 实体类型标签化
+
+```
+提取三元组后 → 实体分类器 → 添加Neo4j标签
+  ├─ Company: 匹配PostgreSQL companies表（stockNameShort/stockNameFull）
+  ├─ Indicator: 关键词列表（营业收入/净利润/ROE/毛利率/资产负债率等）
+  ├─ Amount: 正则检测（^[0-9\-,.%元万亿]+$）→ 不创建独立节点
+  ├─ Product: 匹配产品名库
+  └─ Location: 匹配地名库
+```
+
+### 7.2 数值内联化
+
+```
+当前：(营业收入, 增长, 12.67%)  →  12.67%是独立Entity节点
+改进：(五粮液, 营业收入增长, 12.67%)  →  数值存在关系属性value上
+
+MERGE (h:Entity:Company {name: '五粮液'})
+MERGE (t:Entity:Indicator {name: '营业收入'})
+MERGE (h)-[r:HAS_INDICATOR {type: '增长', value: '12.67%', sourceDocId: $docId}]->(t)
+```
+
+### 7.3 实体归一化
+
+```
+别名映射表（从PostgreSQL companies表生成）:
+  "五粮液" / "宜宾五粮液股份有限公司" / "五粮液集团公司" → canonical: "五粮液"
+  "格力" / "格力电器" / "珠海格力电器股份有限公司" → canonical: "格力电器"
+
+提取三元组后 → 查别名映射 → 替换为canonical名 → 写入Neo4j
+```
+
+### 7.4 关系语义化
+
+```
+当前：统一RELATION标签，type存在属性中
+改进：按语义拆分为有向关系类型
+
+关系类型映射:
+  营收 → HAS_REVENUE（公司→指标，value存数值）
+  利润 → HAS_PROFIT
+  持股 → OWNS_SHARE（公司→公司，ratio存比例）
+  位于 → LOCATED_IN（公司→地点）
+  生产 → PRODUCES（公司→产品）
+  合作 → COOPERATES_WITH（公司→公司）
+  竞争 → COMPETES_WITH（公司→公司）
+  增长/下降 → HAS_INDICATOR（公司→指标，type=增长/下降，value存数值）
+```
+
+### 7.5 增量更新
+
+```
+文档更新 → 提取新三元组 → 对比旧三元组:
+  ├─ 新增三元组 → MERGE写入
+  ├─ 删除三元组 → DETACH DELETE
+  └─ 不变三元组 → 跳过
+
+断点续传:
+  Redis key: graph:progress:{docId}
+  value: {processedChunks: N, totalChunks: M, status: 'processing'|'completed'}
+  中断后重跑 → 读取progress → 从第N+1个chunk继续
+```
+
+### 7.6 提取脚本设计
+
+```
+scripts/rebuild-graph.ts（独立可执行脚本）:
+  1. 读取所有已上传文档的chunks
+  2. 逐文档提取三元组（Agnes AI，agnes-2.5-flash）
+  3. 实体分类+归一化+数值内联
+  4. 写入Neo4j（带断点续传）
+  5. 输出进度日志+统计报告
+
+参数:
+  --doc-id: 指定单个文档（测试用）
+  --dry-run: 只提取不写入
+  --resume: 从断点继续（默认开启）
+  --model: 指定LLM模型（默认agnes-2.5-flash）
+```
+
+## 八、R021 语义缓存设计
+
+### 8.1 分层缓存架构
+
+```
+LLM调用 → 精确匹配缓存（现有，快速路径）
+  ├─ 命中 → 返回（0ms延迟）
+  └─ 未命中 → 语义匹配缓存（新增）
+       ├─ 计算input embedding（bge-m3，端口8011，~50ms）
+       ├─ pgvector cosine相似度查询（同promptTemplate内）
+       ├─ 相似度≥0.95 → 返回缓存结果
+       └─ 未命中 → 调用LLM → 写入语义缓存
+```
+
+### 8.2 缓存存储
+
+```
+PostgreSQL表: semantic_cache
+  id: UUID
+  prompt_template: VARCHAR（如'reflection-eval'/'entity-extract'/'r001-intent'）
+  input_text: TEXT
+  input_embedding: VECTOR(1024)（bge-m3维度）
+  response: JSONB
+  model: VARCHAR
+  created_at: TIMESTAMP
+  hit_count: INT
+
+索引: ivfflat或hnsw（cosine距离）按prompt_template分区
+TTL: 30min（通过created_at+定时清理）
+```
+
+### 8.3 适用场景
+
+| 场景 | promptTemplate | 预估命中率 |
+|------|---------------|-----------|
+| 反思节点 | reflection-eval | 20%+ |
+| 实体提取 | entity-extract | 30%+ |
+| 图谱查询实体提取 | graph-entity-extract | 40%+ |
+| R001意图识别 | r001-intent | 30%+ |
+
+## 九、注意事项（从踩坑提炼）
 
 - LLM Provider 额度耗尽会导致评估全0，评估前需检查可用性
 - AGNES 用训练截止时间否定正确答案，需在 prompt 中明确约束

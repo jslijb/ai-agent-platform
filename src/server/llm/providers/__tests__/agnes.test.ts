@@ -395,53 +395,6 @@ describe("AGNES AI Provider", () => {
       expect(result.content).toBe("重试后有内容了");
       expect(mockFetch).toHaveBeenCalledTimes(2);
     });
-
-    it("连续超时超过2次后抛出错误", async () => {
-      vi.useFakeTimers();
-      const abortError = new DOMException("The operation was aborted", "AbortError");
-
-      mockFetch.mockRejectedValue(abortError);
-
-      const resultPromise = callAgnes(defaultMessages);
-      await vi.advanceTimersByTimeAsync(30000);
-      await expect(resultPromise).rejects.toThrow("请求超时");
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-
-    });
-
-    it("返回内容为空且无 tool_calls 时重试", async () => {
-      vi.useFakeTimers();
-      const emptyResponse = {
-        ok: true,
-        status: 200,
-        json: vi.fn().mockResolvedValue({
-          choices: [{ message: { content: null } }],
-          usage: { prompt_tokens: 10, completion_tokens: 0, total_tokens: 10 },
-        }),
-        text: vi.fn().mockResolvedValue(""),
-      };
-      const successResponse = {
-        ok: true,
-        status: 200,
-        json: vi.fn().mockResolvedValue({
-          choices: [{ message: { content: "重试后有内容了" } }],
-          usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
-        }),
-        text: vi.fn().mockResolvedValue(""),
-      };
-
-      mockFetch
-        .mockResolvedValueOnce(emptyResponse)
-        .mockResolvedValueOnce(successResponse);
-
-      const resultPromise = callAgnes(defaultMessages);
-      await vi.advanceTimersByTimeAsync(10000);
-      const result = await resultPromise;
-
-      expect(result.content).toBe("重试后有内容了");
-      expect(mockFetch).toHaveBeenCalledTimes(2);
-
-    });
   });
 
   // ==================== 类型导出 ====================

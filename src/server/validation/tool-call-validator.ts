@@ -41,7 +41,7 @@ export class ToolCallValidator {
 
     const toolParams = tool.parameters as Record<
       string,
-      { type?: string; description?: string; required?: boolean }
+      { type?: string; description?: string; required?: boolean; items?: { type: string } }
     >;
 
     for (const [key, schema] of Object.entries(toolParams)) {

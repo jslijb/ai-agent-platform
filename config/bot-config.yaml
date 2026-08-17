@@ -1,0 +1,24 @@
+# Bot 平台配置
+# 飞书、钉钉、企微、微信机器人的 AppID/Secret 配置
+# 请勿将真实的 App Secret 提交到版本控制
+
+feishu:
+  app_id: "cli_aaf7176853b8dd2b"
+  app_secret: ""  # 请填写飞书 App Secret
+  verification_token: ""  # 可选：事件订阅验证令牌
+  encrypt_key: ""  # 可选：事件加密密钥
+
+dingtalk:
+  app_id: ""  # 钉钉 AppKey
+  app_secret: ""  # 钉钉 AppSecret
+  verification_token: ""  # 可选：回调验证令牌
+
+wecom:
+  app_id: ""  # 企微 CorpID
+  app_secret: ""  # 企微 Secret
+  token: ""  # 接收消息的 Token
+  encoding_aes_key: ""  # 消息加解密密钥
+
+wechat:
+  app_id: ""  # 微信 AppID（需企业资质）
+  app_secret: ""  # 微信 AppSecret

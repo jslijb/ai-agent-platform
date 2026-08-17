@@ -1,12 +1,15 @@
 FROM node:20 AS base
 WORKDIR /app
 
+
 FROM base AS install
 COPY package.json package-lock.json ./
 RUN npm install
 
 FROM base AS build
 ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV DATABASE_URL="postgresql://aiagent:aiagent_secret@host.docker.internal:5432/agentdb"
+ENV REDIS_URL="redis://host.docker.internal:6379"
 COPY --from=install /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

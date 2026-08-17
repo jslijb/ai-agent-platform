@@ -8,7 +8,10 @@ import { eq } from "drizzle-orm";
 export async function GET(request: Request) {
   try {
     const session = await auth();
-    const userId = session?.user?.id || "default-user";
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const memberOf = await db
       .select({ teamId: teamMembers.teamId, role: teamMembers.role })

@@ -2,12 +2,14 @@
 R001 阶段2.1/2.2：财报 PDF 表格提取器
 用途：从年报 PDF 提取三张主表（利润表/资产负债表/现金流量表）结构化数据
 
-依赖：pdfplumber（已装到 vendor 目录）
+依赖：pdfplumber（已装到 vendor 目录）、PyMuPDF+PaddleOCR（OCR fallback，R014）
 设计原则：
   1. 用 pdfplumber.extract_tables() 提取表格，保留行列结构
   2. 字段映射基于 indicator_aliases 别名词典（与数据库同源）
   3. 数值解析处理千分位/括号负数/单位转换
   4. 非标准化表格整表存入 raw_tables（jsonb）
+  5. OCR fallback（R014）：pdfplumber 提取不到数值时，用 PyMuPDF 渲染图片 + PaddleOCR 识别
+     工具分工：pdfplumber（文本层）→ extract_text fallback → PyMuPDF+PaddleOCR（图片型PDF）
 
 使用方法：
     from data_service.pdf_extractor import FinancialPDFExtractor
@@ -16,12 +18,13 @@ R001 阶段2.1/2.2：财报 PDF 表格提取器
 """
 import re
 import logging
+import tempfile
 from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-# vendor 目录支持（pdfplumber 装在项目本地 vendor 目录）
+# vendor 目录支持（pdfplumber + PyMuPDF 装在项目本地 vendor 目录）
 import sys
 import os
 _VENDOR_DIR = Path(__file__).resolve().parent.parent / "vendor"
@@ -29,6 +32,39 @@ if _VENDOR_DIR.exists():
     sys.path.insert(0, str(_VENDOR_DIR))
 
 import pdfplumber
+
+# ===== OCR fallback 懒加载（R014）=====
+# PyMuPDF 和 PaddleOCR 仅在 OCR fallback 时加载，避免影响正常提取流程
+_fitz = None
+_ocr_engine = None
+
+
+def _get_fitz():
+    """懒加载 PyMuPDF（fitz），用于渲染 PDF 页面为图片"""
+    global _fitz
+    if _fitz is None:
+        try:
+            import fitz
+            _fitz = fitz
+            logger.info("PyMuPDF 加载成功（OCR fallback 就绪）")
+        except ImportError:
+            logger.warning("PyMuPDF(fitz)未安装，OCR fallback 不可用。安装: pip install --target=vendor PyMuPDF")
+    return _fitz
+
+
+def _get_ocr_engine():
+    """懒加载 PaddleOCR 引擎，用于图片文字识别"""
+    global _ocr_engine
+    if _ocr_engine is None:
+        try:
+            from paddleocr import PaddleOCR
+            _ocr_engine = PaddleOCR(lang='ch', use_textline_orientation=True)
+            logger.info("PaddleOCR 引擎初始化成功（OCR fallback）")
+        except ImportError:
+            logger.warning("PaddleOCR 未安装，OCR fallback 不可用")
+        except Exception as e:
+            logger.error(f"PaddleOCR 初始化失败: {type(e).__name__}: {e}", exc_info=True)
+    return _ocr_engine
 
 
 # ===== 字段映射表（与 indicator_aliases 同源）=====
@@ -99,6 +135,26 @@ CASHFLOW_FIELD_MAP = {
 # 衍生指标（从主表计算，不直接提取）
 DERIVED_FIELDS = {"gross_margin", "net_margin", "debt_ratio", "free_cash_flow"}
 
+# ===== "主要会计数据"表格（R015：同比值优先从财报提取）=====
+# 年报"主要会计数据"表格通常在前15页，包含"本期比上年同期增减(%)"列
+# 该列是权威同比值，优先级高于 (本期-上期)/上期 计算值
+KEY_ACCOUNTING_TITLES = ["主要会计数据", "主要财务数据"]
+
+# 主要会计数据行标签 → 标准同比字段
+# 注意：按 key 长度降序排序后匹配，长 key 优先（如"归属于上市公司股东的净利润"优先于"净利润"）
+KEY_ACCOUNTING_YOY_MAP = {
+    "营业总收入": "revenue_yoy",
+    "营业收入": "revenue_yoy",
+    "主营业务收入": "revenue_yoy",
+    "归属于上市公司股东的净利润": "net_profit_yoy",
+    "归属于母公司股东的净利润": "net_profit_yoy",
+    "归属于母公司所有者的净利润": "net_profit_yoy",
+    "净利润": "net_profit_yoy",
+    "总资产": "total_assets_yoy",
+    "资产总额": "total_assets_yoy",
+    "资产总计": "total_assets_yoy",
+}
+
 
 # ===== 报表标题关键词 =====
 # 注意：标题匹配时会去掉空格，所以"合 并 利 润 表"会被转成"合并利润表"匹配
@@ -155,19 +211,22 @@ class FinancialPDFExtractor:
             balance = self._extract_statement(BALANCE_TITLES, BALANCE_FIELD_MAP, "financial_balancesheet")
             cashflow = self._extract_statement(CASHFLOW_TITLES, CASHFLOW_FIELD_MAP, "financial_cashflow")
             raw_tables = self._extract_raw_tables()
+            key_accounting_yoy = self._extract_key_accounting_data()
 
             result = {
                 "income_statement": income,
                 "balance_sheet": balance,
                 "cashflow_statement": cashflow,
                 "raw_tables": raw_tables,
+                "key_accounting_yoy": key_accounting_yoy,
                 "page_count": len(self.pdf.pages),
             }
             logger.info(
                 f"提取完成: income={len(income['fields'])}字段, "
                 f"balance={len(balance['fields'])}字段, "
                 f"cashflow={len(cashflow['fields'])}字段, "
-                f"raw_tables={len(raw_tables)}张"
+                f"raw_tables={len(raw_tables)}张, "
+                f"key_accounting_yoy={len(key_accounting_yoy)}个"
             )
             return result
         finally:
@@ -393,7 +452,7 @@ class FinancialPDFExtractor:
         sorted_field_map = sorted(field_map.items(), key=lambda x: len(x[0]), reverse=True)
         fields = self._match_fields(all_rows, sorted_field_map, skip_cols)
 
-        # Fallback: 如果 extract_tables() 返回行数过少（<5）或字段映射全部失败（0字段/全None值），
+        # Fallback 1: 如果 extract_tables() 返回行数过少（<5）或字段映射全部失败（0字段/全None值），
         # 改用 extract_text() 解析文本行（格力/五粮液/东吴等 PDF 会出现此问题）
         fields_has_value = any(
             vals and any(v is not None for v in vals)
@@ -413,6 +472,24 @@ class FinancialPDFExtractor:
                 skip_cols = text_skip_cols
                 periods = self._identify_periods(all_rows)
                 fields = self._match_fields(all_rows, sorted_field_map, skip_cols)
+
+        # Fallback 2 (R014): 如果文本解析后仍无有效数值，启用 OCR fallback
+        # 典型场景：中国人保 PDF 数值不在文本层（图片型PDF）
+        fields_has_value = any(
+            vals and any(v is not None for v in vals)
+            for vals in fields.values()
+        )
+        if not fields_has_value:
+            logger.info(f"{table_name}: 文本解析后仍无有效数值，启用 OCR fallback（R014）")
+            ocr_rows, ocr_skip_cols = self._extract_statement_ocr(pages)
+            if ocr_rows:
+                all_rows = ocr_rows
+                skip_cols = ocr_skip_cols
+                periods = self._identify_periods(all_rows)
+                fields = self._match_fields(all_rows, sorted_field_map, skip_cols)
+                logger.info(
+                    f"{table_name}: OCR fallback 完成，提取到 {len(fields)} 个字段"
+                )
 
         return {
             "fields": fields,
@@ -465,98 +542,281 @@ class FinancialPDFExtractor:
         all_rows = []
         skip_cols = set()  # 文本解析模式下附注已删除，返回空集合
 
-        # 跳过的行（页眉/页脚/标题/表头）
-        skip_line_prefixes = (
-            "编制单位", "项 目", "项目 ", "项目附注",
-            "法定代表人", "主管会计工作", "会计机构负责人",
-        )
-        skip_exact_lines = {
-            "合并利润表", "合并资产负债表", "合并现金流量表",
-            "合并及母公司利润表", "合并及银行资产负债表", "合并及银行现金流量表",
-            "合并及母公司现金流量表", "合并及母公司资产负债表",
-            "银行资产负债表", "银行现金流量表", "母公司利润表",
-        }
-
-        # 附注列正则：
-        #   "五、54" / "五、54(1)" / "注1" 格式
-        #   纯整数 1-3 位（银行/保险报表附注编号，如"33"、"37"、"40"）
-        # 修复历史：
-        #   2026-07-31：江苏银行"利息净收入 33 67,517,837"中"33"是附注编号，
-        #   原逻辑未识别纯整数附注，导致revenue=33.0。新增 ^\d{1,3}$ 匹配。
-        note_re = re.compile(r'^[一二三四五六七八九十]+、\d+(?:\(\d+\))?$|^\d{1,3}$')
-        # 数值正则：数字开头，可带逗号/小数点/括号/负号
-        value_re = re.compile(r'^-?\(?\d[\d,]*\.?\d*\)?$|^-?$|^--$|^－$|^—$')
-
         for page_idx in pages:
             text = self._get_page_text(page_idx)
             if not text:
                 continue
             lines = text.split("\n")
-            for line in lines:
-                line = line.strip()
-                if not line:
-                    continue
-                # 跳过页眉（公司名+年度报告）
-                if "年度报告" in line and ("公司" in line or "银行" in line):
-                    continue
-                # 跳过页码
-                if line.isdigit():
-                    continue
-                # 跳过标题/表头
-                if line in skip_exact_lines:
-                    continue
-                if any(line.startswith(p) for p in skip_line_prefixes):
-                    continue
-                if "1-12月" in line or line.startswith("单位："):
-                    continue
-
-                # 解析行：用空格分割
-                parts = line.split()
-                if len(parts) < 2:
-                    continue  # 只有行标签没有数值
-
-                # 从右向左识别数值和附注 token
-                values = []  # 只保留数值（附注跳过）
-                label_end = len(parts)
-                for i in range(len(parts) - 1, 0, -1):
-                    p = parts[i]
-                    # 检查是否是附注（"五、54"或纯整数"33"格式）→ 跳过
-                    if note_re.match(p):
-                        label_end = i
-                        continue
-                    # 检查是否是数值
-                    if value_re.match(p):
-                        cleaned = p.replace(",", "").replace("(", "-").replace(")", "")
-                        if cleaned in ("-", "--", "---", "－", "—"):
-                            values.insert(0, None)
-                        else:
-                            try:
-                                float(cleaned)
-                                values.insert(0, p)
-                            except ValueError:
-                                break  # 非数值，停止
-                        label_end = i
-                        continue
-                    # 非数值非附注，停止
-                    break
-
-                if not values:
-                    continue
-
-                # 限制每行最多保留 2 个数值列（本期+上期）
-                # 修复历史：
-                #   2026-07-31：银行报表有4列（本集团2025/2024 + 本行2025/2024），
-                #   原逻辑取全部4列导致生成5行错误记录（2025/2024/2023/2022/2021）。
-                #   年报标准格式为2列（本期+上期），限制为2列可正确处理银行报表。
-                if len(values) > 2:
-                    values = values[:2]
-
-                label = " ".join(parts[:label_end])
-                row = [label] + values
-                all_rows.append(row)
+            rows = self._parse_text_lines_to_rows(lines)
+            all_rows.extend(rows)
 
         logger.info(f"文本解析 fallback: 提取 {len(all_rows)} 行（附注列已删除）")
         return all_rows, skip_cols
+
+    # 文本行解析的静态配置（供 _parse_text_lines_to_rows 使用）
+    _SKIP_LINE_PREFIXES = (
+        "编制单位", "项 目", "项目 ", "项目附注",
+        "法定代表人", "主管会计工作", "会计机构负责人",
+    )
+    _SKIP_EXACT_LINES = {
+        "合并利润表", "合并资产负债表", "合并现金流量表",
+        "合并及母公司利润表", "合并及银行资产负债表", "合并及银行现金流量表",
+        "合并及母公司现金流量表", "合并及母公司资产负债表",
+        "银行资产负债表", "银行现金流量表", "母公司利润表",
+        "合并及公司利润表", "合并及公司资产负债表", "合并及公司现金流量表",
+    }
+    # 附注列正则："五、54" / "五、54(1)" / "注1" 格式 / 纯整数 1-3 位
+    _NOTE_RE = re.compile(r'^[一二三四五六七八九十]+、\d+(?:\(\d+\))?$|^\d{1,3}$')
+    # 数值正则：数字开头，可带逗号/小数点/括号/负号
+    _VALUE_RE = re.compile(r'^-?\(?\d[\d,]*\.?\d*\)?$|^-?$|^--$|^－$|^—$')
+
+    def _parse_text_lines_to_rows(self, lines: list[str]) -> list[list]:
+        """将文本行解析为表格行（供 _extract_rows_from_text 和 OCR fallback 复用）
+
+        解析逻辑：
+        1. 跳过页眉/页脚/标题/表头行
+        2. 用空格分割每行，从右向左识别数值和附注 token
+        3. 限制每行最多保留 2 个数值列（本期+上期）
+
+        返回 all_rows: 每行第一列是行标签，后续列是数值字符串（附注已删除）
+        """
+        all_rows = []
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            # 跳过页眉（公司名+年度报告）
+            if "年度报告" in line and ("公司" in line or "银行" in line):
+                continue
+            # 跳过页码
+            if line.isdigit():
+                continue
+            # 跳过标题/表头
+            if line in self._SKIP_EXACT_LINES:
+                continue
+            if any(line.startswith(p) for p in self._SKIP_LINE_PREFIXES):
+                continue
+            if "1-12月" in line or line.startswith("单位："):
+                continue
+            # 跳过"后附财务报表附注"等页脚
+            if "后附" in line or "二零" in line:
+                continue
+
+            # 解析行：用空格分割
+            parts = line.split()
+            if len(parts) < 2:
+                continue  # 只有行标签没有数值
+
+            # 从右向左识别数值和附注 token
+            values = []  # 只保留数值（附注跳过）
+            label_end = len(parts)
+            for i in range(len(parts) - 1, 0, -1):
+                p = parts[i]
+                # 检查是否是附注（"五、54"或纯整数"33"格式）→ 跳过
+                if self._NOTE_RE.match(p):
+                    label_end = i
+                    continue
+                # 检查是否是数值
+                if self._VALUE_RE.match(p):
+                    cleaned = p.replace(",", "").replace("(", "-").replace(")", "")
+                    if cleaned in ("-", "--", "---", "－", "—"):
+                        values.insert(0, None)
+                    else:
+                        try:
+                            float(cleaned)
+                            values.insert(0, p)
+                        except ValueError:
+                            break  # 非数值，停止
+                    label_end = i
+                    continue
+                # 非数值非附注，停止
+                break
+
+            if not values:
+                continue
+
+            # 限制每行最多保留 2 个数值列（本期+上期）
+            if len(values) > 2:
+                values = values[:2]
+
+            label = " ".join(parts[:label_end])
+            row = [label] + values
+            all_rows.append(row)
+
+        return all_rows
+
+    def _combine_ocr_lines(self, lines: list[str]) -> list[str]:
+        """将 OCR 逐行文本合并为表格行格式（R014）
+
+        PaddleOCR 返回每个文本元素为独立行（如"营业总收入"一行，"669,044"一行），
+        需合并为 "行标签 数值1 数值2" 格式供 _parse_text_lines_to_rows 解析。
+
+        合并规则：
+        1. 文本行（非数值）→ 累积为 label
+        2. 数值/附注行 → 累积为 value
+        3. 新文本行出现且已有 value → flush 前一行，开始新行
+        4. 多行文本（如"二、" + "营业总支出"）自动合并为一个 label
+        """
+        combined = []
+        current_label = []
+        current_values = []
+
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            # 跳过页眉/标题/页脚
+            if line in self._SKIP_EXACT_LINES:
+                continue
+            if "年度报告" in line and ("公司" in line or "银行" in line):
+                continue
+            if line.startswith("单位：") or "除另有注明" in line:
+                continue
+            if "后附" in line or "二零" in line:
+                continue
+            if line in ("附注七", "附注", "附注 /", "注释", "注"):
+                continue
+
+            # 判断是数值还是文本
+            # 数值：纯数字（可带逗号/括号/小数点/负号）
+            cleaned = line.replace(",", "").replace("(", "-").replace(")", "").replace("－", "-").replace("—", "-")
+            is_numeric = False
+            try:
+                float(cleaned)
+                is_numeric = True
+            except ValueError:
+                pass
+
+            # 附注编号（小整数）
+            is_note = bool(self._NOTE_RE.match(line))
+
+            if is_numeric or is_note:
+                # 数值或附注 → 加入当前行的 values
+                current_values.append(line)
+            else:
+                # 文本行
+                if current_values:
+                    # 前一行有 values → flush
+                    if current_label:
+                        combined.append(" ".join(current_label + current_values))
+                    current_label = []
+                    current_values = []
+                current_label.append(line)
+
+        # flush 最后一行
+        if current_label and current_values:
+            combined.append(" ".join(current_label + current_values))
+
+        return combined
+
+    def _extract_statement_ocr(self, pages: list[int]) -> tuple[list[list], set]:
+        """OCR fallback：用 PyMuPDF 渲染页面为图片，PaddleOCR 识别文本（R014）
+
+        当 pdfplumber extract_tables 和 extract_text 都无法提取到数值时使用。
+        典型场景：中国人保 PDF 数值不在文本层（图片型PDF，281字符全是行标签无一数字）。
+
+        工具分工链路：
+          pdfplumber（文本层）→ extract_text fallback → PyMuPDF+PaddleOCR（本方法）
+
+        返回 (all_rows, skip_cols)
+        - all_rows: 每行第一列是行标签，后续列是数值（附注列已删除）
+        - skip_cols: 空集合
+        """
+        fitz = _get_fitz()
+        ocr_engine = _get_ocr_engine()
+        if fitz is None or ocr_engine is None:
+            logger.warning("OCR fallback 不可用（PyMuPDF 或 PaddleOCR 未安装）")
+            return [], set()
+
+        all_rows = []
+        skip_cols = set()
+
+        import gc
+
+        # 用 PyMuPDF 打开 PDF（独立于 pdfplumber 的句柄）
+        doc = fitz.open(self.pdf_path)
+        try:
+            for page_idx in pages:
+                if page_idx >= len(doc):
+                    continue
+                page = doc[page_idx]
+
+                # 渲染页面为图片（DPI 可通过环境变量配置，默认 200）
+                # 300 DPI 在多页 OCR 时会 OOM，200 DPI 对数字识别足够
+                # 某些图片型 PDF（如中国人保）在 200 DPI 下 PaddleOCR 会原生崩溃，降至 150 可缓解
+                _ocr_dpi = int(os.environ.get("OCR_DPI", "200"))
+                pix = page.get_pixmap(dpi=_ocr_dpi)
+                img_path = tempfile.mktemp(suffix=".png")
+                pix.save(img_path)
+                # 立即释放 pixmap 内存
+                del pix
+
+                try:
+                    logger.info(f"OCR fallback: 渲染 Page {page_idx + 1} 为图片，调用 PaddleOCR...")
+                    result = ocr_engine.ocr(img_path)
+                    if not result:
+                        logger.warning(f"OCR fallback: Page {page_idx + 1} 无识别结果")
+                        continue
+
+                    # 提取识别文本行（兼容 PaddleOCR v3.x 多种返回格式）
+                    lines = self._extract_ocr_text_lines(result)
+                    logger.info(f"OCR fallback: Page {page_idx + 1} 识别到 {len(lines)} 行文本")
+
+                    # 释放 OCR 结果对象内存
+                    del result
+
+                    # 先合并 OCR 逐行文本为表格行格式（PaddleOCR 每个元素一行）
+                    combined_lines = self._combine_ocr_lines(lines)
+                    logger.info(f"OCR fallback: Page {page_idx + 1} 合并后 {len(combined_lines)} 行")
+
+                    # 复用文本行解析逻辑
+                    rows = self._parse_text_lines_to_rows(combined_lines)
+                    all_rows.extend(rows)
+                except Exception as e:
+                    logger.error(
+                        f"OCR fallback: Page {page_idx + 1} 处理失败: {type(e).__name__}: {e}",
+                        exc_info=True,
+                    )
+                    continue  # 跳过失败页，继续处理下一页
+                finally:
+                    if os.path.exists(img_path):
+                        os.unlink(img_path)
+                    # 每页处理后强制 GC，避免多页 OCR 内存累积导致 OOM
+                    gc.collect()
+        finally:
+            doc.close()
+
+        logger.info(f"OCR fallback: 共提取 {len(all_rows)} 行")
+        return all_rows, skip_cols
+
+    @staticmethod
+    def _extract_ocr_text_lines(result) -> list[str]:
+        """从 PaddleOCR 结果中提取文本行（兼容多种返回格式）
+
+        PaddleOCR v3.x 返回格式可能为：
+        1. 对象列表：[page_result], page_result.rec_texts = [str, ...]
+        2. 字典列表：[{"rec_texts": [...], "rec_scores": [...]}]
+        3. 旧格式：[[[bbox, (text, confidence)], ...], ...]
+        """
+        lines = []
+        for page_result in result:
+            # 格式1: 对象属性
+            rec_texts = getattr(page_result, 'rec_texts', None)
+            if not rec_texts and isinstance(page_result, dict):
+                rec_texts = page_result.get('rec_texts')
+            if rec_texts:
+                lines.extend(rec_texts)
+                continue
+
+            # 格式3: 旧版 [[bbox, (text, conf)], ...]
+            if isinstance(page_result, (list, tuple)):
+                for line_info in page_result:
+                    if isinstance(line_info, (list, tuple)) and len(line_info) == 2:
+                        text = line_info[1][0] if isinstance(line_info[1], (list, tuple)) else str(line_info[1])
+                        lines.append(text)
+        return lines
 
     def _identify_periods(self, rows: list[list]) -> list[str]:
         """从表格行中识别报告期（年份/季度）
@@ -645,6 +905,133 @@ class FinancialPDFExtractor:
             value = value / 100.0  # 百分比转小数
 
         return value
+
+    def _extract_key_accounting_data(self) -> dict:
+        """提取"主要会计数据"表格中的同比值（R015）
+
+        年报"主要会计数据"表格通常在前15页，结构：
+        | 主要会计数据 | 2025年 | 2024年 | 本期比上年同期增减(%) | 2023年 |
+        | 营业收入     | ...    | ...    | -3.50                | ...    |
+
+        该列是财报披露的权威同比值，优先级高于 (本期-上期)/上期 计算值。
+
+        返回：{"revenue_yoy": -0.035, "net_profit_yoy": ..., "total_assets_yoy": ...}
+              同比值已转为小数格式（-0.035 表示 -3.5%）
+        """
+        yoy_values = {}
+
+        # 1. 在前15页查找"主要会计数据"表格
+        for idx in range(min(15, len(self.pdf.pages))):
+            text = self._get_page_text(idx)
+            if not text:
+                continue
+            # 检查页面是否包含"主要会计数据"或"主要财务数据"
+            text_compact = text.replace(" ", "")
+            has_title = any(t in text_compact for t in KEY_ACCOUNTING_TITLES)
+            if not has_title:
+                continue
+
+            logger.info(f"找到'主要会计数据'表格: Page {idx + 1}")
+
+            # 2. 提取页面表格
+            page = self.pdf.pages[idx]
+            tables = page.extract_tables()
+            for table in tables:
+                if not table or len(table) < 2:
+                    continue
+
+                # 3. 识别同比列（表头行包含"增减"的列）
+                yoy_col = self._find_yoy_column(table)
+                if yoy_col is None:
+                    continue
+
+                # 4. 遍历数据行，匹配行标签到同比字段
+                sorted_yoy_map = sorted(
+                    KEY_ACCOUNTING_YOY_MAP.items(),
+                    key=lambda x: len(x[0]),
+                    reverse=True,
+                )
+                for row in table[1:]:  # 跳过表头
+                    if not row or not row[0]:
+                        continue
+                    row_label = str(row[0]).strip().replace(" ", "").replace("\n", "")
+                    # 清理行标签：去掉括号内容
+                    clean_label = re.sub(r'[（(].*?[）)]', '', row_label)
+                    clean_label = clean_label.strip()
+
+                    for cn_key, yoy_field in sorted_yoy_map:
+                        if cn_key in clean_label and yoy_field not in yoy_values:
+                            # 提取同比值
+                            if yoy_col < len(row) and row[yoy_col]:
+                                val = self._parse_yoy_value(str(row[yoy_col]))
+                                if val is not None:
+                                    yoy_values[yoy_field] = val
+                                    logger.info(
+                                        f"  提取同比 {yoy_field}={val} "
+                                        f"(来源: 主要会计数据 Page {idx + 1}, 行='{row_label[:30]}')"
+                                    )
+                            break  # 匹配到第一个就跳出（长 key 优先）
+
+            if yoy_values:
+                break  # 已找到同比值，不再继续查找后续页
+
+        if not yoy_values:
+            logger.warning("未找到'主要会计数据'表格的同比值")
+
+        return yoy_values
+
+    def _find_yoy_column(self, table: list[list]) -> Optional[int]:
+        """识别"本期比上年同期增减"列的索引
+
+        年报表格表头可能有多种写法：
+        - "本期比上年同期增减(%)"
+        - "本年比上年增减"
+        - "本期比上年同期增减"
+        - "比上年增减"
+        """
+        for row in table[:3]:  # 检查前3行（表头可能跨多行）
+            if not row:
+                continue
+            for ci, cell in enumerate(row):
+                if not cell:
+                    continue
+                cell_str = str(cell).strip().replace(" ", "")
+                # 匹配包含"增减"的列头
+                if "增减" in cell_str:
+                    return ci
+        return None
+
+    def _parse_yoy_value(self, text: str) -> Optional[float]:
+        """解析同比值文本，转为小数格式
+
+        输入可能是：
+        - "-3.50%" → -0.035
+        - "-3.50" → -0.035（无百分号也按百分比处理，因为"增减"列单位是%）
+        - "3.71%" → 0.0371
+        - "15.14" → 0.1514
+        - "-" / "" → None
+        """
+        if not text:
+            return None
+        text = text.strip()
+        # 空值标记
+        if text in ("-", "--", "---", "", "N/A", "n/a", "NA", "－", "—"):
+            return None
+        # 去除千分位逗号
+        text = text.replace(",", "").replace("，", "")
+        # 检查是否带百分号
+        is_percent = "%" in text or "％" in text
+        text = text.replace("%", "").replace("％", "")
+        # 去除括号
+        text = text.strip("()")
+        try:
+            val = float(text)
+            # "主要会计数据"表格的"增减"列单位是%，无论是否带%号都按百分比处理
+            val = val / 100.0
+            return val
+        except ValueError:
+            logger.debug(f"无法解析同比值: '{text}'")
+            return None
 
     def _extract_raw_tables(self) -> list[dict]:
         """提取非标准化表格（附注表等），整表存为 JSON

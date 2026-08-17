@@ -8,7 +8,10 @@ import { eq, and, desc } from "drizzle-orm";
 export async function GET(request: Request) {
   try {
     const session = await auth();
-    const userId = session?.user?.id || "default-user";
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const url = new URL(request.url);
     const tab = url.searchParams.get("tab") || "profile";

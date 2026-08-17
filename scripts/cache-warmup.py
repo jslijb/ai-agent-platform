@@ -187,20 +187,27 @@ def cache_concept(stock):
 
 def cache_minute(stock):
     for freq in ["5", "15", "30", "60"]:
-        payload = {"source": "efinance", "code": stock["code"], "frequency": freq}
-        result = post("/api/market/minute", payload, timeout=30)
-        if result.get("success"):
-            records = len(result.get("data", []))
-            record(
-                f"分钟K线 {stock['name']} ({freq}min)",
-                "PASS",
-                f"{records} 条记录",
-            )
-        else:
+        success = False
+        last_error = None
+        for source in ["efinance", "mootdx"]:
+            payload = {"source": source, "code": stock["code"], "frequency": freq}
+            result = post("/api/market/minute", payload, timeout=30)
+            if result.get("success") and result.get("data"):
+                records = len(result.get("data", []))
+                record(
+                    f"分钟K线 {stock['name']} ({freq}min, {source})",
+                    "PASS",
+                    f"{records} 条记录",
+                )
+                success = True
+                break
+            last_error = result.get("error", "返回空数据")
+
+        if not success:
             record(
                 f"分钟K线 {stock['name']} ({freq}min)",
                 "WARN",
-                result.get("error", "未知"),
+                last_error or "未知",
             )
 
 

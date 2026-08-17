@@ -1193,6 +1193,20 @@ ${SkillRegistry.listDescriptions()}
           console.log("[simpleAgent] 检测到答案中包含未解析的工具调用: " + missedToolCall.name + "，转为执行工具");
           toolCalls = [missedToolCall];
           // 不走return路径，继续执行工具调用
+        } else if (assistantContent.trim().length < 20 && toolObservations.length === 0 && i < maxIterations - 1) {
+          console.log("[simpleAgent] LLM返回空/极短答案且无工具调用，强制要求LLM调用工具");
+          messages.push({
+            role: "user",
+            content: "[Important] Your previous response was empty or too short. You MUST call the appropriate tools to answer the user's question. For financial data queries, call marketData. For technical indicators, call technicalAnalysis. For risk metrics, call riskAnalysis. For compliance checks, call complianceCheck. For document searches, call hybridSearch. Do NOT respond without calling tools first.",
+          });
+          continue;
+        } else if (toolObservations.length === 0 && i < maxIterations - 1 && /```json/.test(assistantContent) && /"tool"\s*:/.test(assistantContent)) {
+          console.log("[simpleAgent] LLM返回了工具调用JSON但未被解析，强制要求使用native function calling");
+          messages.push({
+            role: "user",
+            content: "[Important] Your previous response contained a tool call in JSON format, but it was not executed. Please use the function calling feature (tool_calls) instead of writing JSON in your response. The system will automatically execute the tool for you. Try again with the same tool call.",
+          });
+          continue;
         } else if (toolObservations.length > 0) {
           const roundMs = Date.now() - roundStartTime;
           console.log("[simpleAgent] Has tool results and LLM final answer, done. Round: " + (roundMs / 1000).toFixed(2) + "s");

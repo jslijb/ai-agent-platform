@@ -1,25 +1,26 @@
 import { NextResponse } from "next/server";
 import { metrics } from "@/server/lib/metrics";
+import { semanticCacheStats } from "@/server/llm/semantic-cache";
 
 export const dynamic = "force-dynamic";
 
-/**
- * GET /api/metrics
- * Prometheus 兼容格式的指标端点
- * 也可通过 ?format=json 获取 JSON 格式
- */
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const format = url.searchParams.get("format");
 
   if (format === "json") {
+    const cacheStats = await semanticCacheStats().catch(() => ({
+      totalEntries: 0,
+      byTemplate: {},
+    }));
+
     return NextResponse.json({
       timestamp: new Date().toISOString(),
       ...metrics.toJSON(),
+      semanticCache: cacheStats,
     });
   }
 
-  // Prometheus 文本格式
   const prometheusText = metrics.toPrometheusFormat();
   return new Response(prometheusText, {
     headers: {

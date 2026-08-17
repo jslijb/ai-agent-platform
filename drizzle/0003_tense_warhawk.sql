@@ -270,10 +270,11 @@ CREATE TABLE "Team" (
 	"updatedAt" timestamp (3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "User" ADD COLUMN "wechatOpenId" text;--> statement-breakpoint
-ALTER TABLE "User" ADD COLUMN "wechatUnionId" text;--> statement-breakpoint
-ALTER TABLE "User" ADD COLUMN "wechatNickname" text;--> statement-breakpoint
-ALTER TABLE "User" ADD COLUMN "wechatAvatarUrl" text;--> statement-breakpoint
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "role" text NOT NULL DEFAULT 'user';--> statement-breakpoint
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wechatOpenId" text;--> statement-breakpoint
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wechatUnionId" text;--> statement-breakpoint
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wechatNickname" text;--> statement-breakpoint
+ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "wechatAvatarUrl" text;--> statement-breakpoint
 ALTER TABLE "MemoryFragment" ADD CONSTRAINT "MemoryFragment_userId_User_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "MemoryProfile" ADD CONSTRAINT "MemoryProfile_userId_User_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint
 ALTER TABLE "MemorySummary" ADD CONSTRAINT "MemorySummary_conversationId_Conversation_id_fk" FOREIGN KEY ("conversationId") REFERENCES "public"."Conversation"("id") ON DELETE cascade ON UPDATE cascade;--> statement-breakpoint

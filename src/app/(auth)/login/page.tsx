@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -14,15 +14,18 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const errorParam = searchParams.get("error");
 
-  if (errorParam) {
-    switch (errorParam) {
-      case "CredentialsSignin":
-        setError("邮箱或密码错误");
-        break;
-      default:
-        setError("登录失败，请重试");
+  // 必须在 useEffect 中调用 setError，否则在渲染体中调用会导致无限重渲染
+  useEffect(() => {
+    if (errorParam) {
+      switch (errorParam) {
+        case "CredentialsSignin":
+          setError("邮箱或密码错误");
+          break;
+        default:
+          setError("登录失败，请重试");
+      }
     }
-  }
+  }, [errorParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +41,7 @@ function LoginForm() {
     if (result?.error) {
       setError("邮箱或密码错误");
     } else if (result?.ok) {
-      window.location.href = "/dashboard";
+      window.location.href = "/chat";
     }
 
     setLoading(false);

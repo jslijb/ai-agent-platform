@@ -18,9 +18,10 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "shared-types": ["./packages/shared-types/src"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "scripts", "tests", "services", "packages", "miniapp"]
+  "exclude": ["node_modules", "scripts", "tests", "services", "packages", "miniapp", "capacitor.config.ts", "harmony-app"]
 }

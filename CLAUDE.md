@@ -1,7 +1,7 @@
 # AI Agent Platform - 项目记忆索引
 
 > 本文件是 agent 每次会话的"开机自检清单"。新会话开始时自动读取。
-> 最后更新：2026-08-05
+> 最后更新：2026-08-14
 
 ## 快速恢复：项目当前状态
 
@@ -20,31 +20,62 @@
 3. **不要反复问用户已说过的事**——重要信息必须写入文档
 4. **踩坑必须记录**——会话压缩后不能丢失关键信息
 
-## 文档索引（按需读取）
+## 文档索引（3类目录）
+
+### 第1类：需求 + 踩坑 + Bug → `docs/1-requirements-bugs/`
 
 | 文档 | 路径 | 用途 |
 |------|------|------|
-| **功能代码索引** | **`docs/CODE_INDEX.md`** | **每个功能的WHAT/WHY/WHERE/HOW，不需要搜索代码库** |
-| 项目全景文档 | `docs/PROJECT_OVERVIEW.md` | 技术栈+选择理由+架构图+项目优点+设计决策 |
-| 项目状态卡 | `docs/PROJECT_STATE.md` | 评估基线、版本历史、当前阻塞 |
-| Agent技术审计 | `docs/agent-technology-audit.md` | 18项Agent技术详解+面试话术 |
-| 踩坑记录 | `docs/pitfalls/` | 按日期归档的踩坑 |
-| 架构演进 | `docs/ARCHITECTURE_EVOLUTION.md` | 架构变更历史 |
-| 测试与评估 | `docs/TESTING_AND_EVALUATION.md` | 测试策略 |
-| 规格说明 | `docs/spec.md` | SDD 规格 |
-| 设计文档 | `docs/design.md` | SDD 设计 |
-| 任务文档 | `docs/task.md` | SDD 任务 |
-| 改进计划 | `docs/improvement-plan.md` | 5大改进问题方案 |
-| 硬件档案 | `docs/hardware-profile.md` | 本地/服务器硬件约束 |
-| 评估可靠性调研 | `docs/evaluation-reliability-research.md` | 评估可靠性专题 |
-| 评估改造详细方案 | `docs/evaluation-improvement-plan.md` | 自动评估改造方案（⏳需审批） |
+| 踩坑记录 | `1-requirements-bugs/` | 按日期归档（8份） |
+| 需求清单 | `1-requirements-bugs/REQUIREMENTS.md` | 全局需求 |
+| 改进方案 | `1-requirements-bugs/improvement-plan.md` | 5大改进问题 |
+| 评估调研 | `1-requirements-bugs/evaluation-reliability-research.md` | 评估可靠性 |
+| 知识图谱方案 | `1-requirements-bugs/knowledge-graph-improvement-plan.md` | 图谱改进 |
+| 语义缓存方案 | `1-requirements-bugs/semantic-cache-plan.md` | 缓存方案 |
+| CRM/OA接入调研 | `1-requirements-bugs/ai-agent-crm-oa-integration-research.md` | R022调研(SaaS) |
+| 开源OA/CRM调研 | `1-requirements-bugs/open-source-oa-crm-research.md` | R022调研(自部署) |
+| 框架融合分析 | `1-requirements-bugs/agent-framework-fusion-analysis.md` | R023调研(初版) |
+| Harness/Hermes/OpenClaw | `1-requirements-bugs/harness-hermes-openclaw-research.md` | R023调研(纠正版) |
+| 多端前端调研 | `1-requirements-bugs/multi-platform-frontend-research.md` | R024调研 |
+| JD特征分析 | `1-requirements-bugs/ai-agent-jd-research-2026.md` | R027调研 |
+| V3.0升级调研 | `1-requirements-bugs/v3-upgrade-research-report.md` | R026调研 |
+| 个人账号限制调研 | `1-requirements-bugs/wecom-dingtalk-feishu-personal-account-research.md` | R022/R028调研 |
+| OA/CRM业务测试指南 | `1-requirements-bugs/oa-crm-business-test-guide.md` | R022测试规范 |
+| Flutter迁移分析 | `1-requirements-bugs/flutter-migration-feasibility-research.md` | R024补充调研 |
+| **V3.0系统使用指南** | **`1-requirements-bugs/v3-system-user-guide.md`** | **端到端测试依据** |
+| 开源OA/CRM调研 | `1-requirements-bugs/open-source-oa-crm-research.md` | R022自部署方案 |
+| Harness/Hermes/OpenClaw纠正版 | `1-requirements-bugs/harness-hermes-openclaw-research.md` | R023纠正调研 |
+
+### 第2类：技术讨论 + 面试准备 → `docs/2-tech-interview/` ⭐
+
+| 文档 | 路径 | 用途 |
+|------|------|------|
+| **技术全景+面试** | **`2-tech-interview/agent-tech-and-interview.md`** | **18项技术+5个决策对比+14个问答+量化数据** |
+| **Vibe Coding复盘** | **`2-tech-interview/vibe-coding-retrospective.md`** | **8项优势+10项不足+效率模型+成熟度自评** |
+| 功能代码索引 | `2-tech-interview/CODE_INDEX.md` | 每个功能的WHAT/WHY/WHERE/HOW |
+| 项目全景 | `2-tech-interview/PROJECT_OVERVIEW.md` | 技术栈+选择理由+架构图 |
+| 项目状态卡 | `2-tech-interview/PROJECT_STATE.md` | 评估基线+迭代历史 |
+| 架构演进 | `2-tech-interview/ARCHITECTURE_EVOLUTION.md` | 架构变更历史 |
+| ADR决策记录 | `2-tech-interview/adr/` | 11份技术决策记录 |
+
+### 第3类：开发规范（SDD+TDD） → `docs/3-standards/`
+
+| 文档 | 路径 | 用途 |
+|------|------|------|
+| 规格说明 | `3-standards/spec.md` | SDD 规格（WHAT） |
+| 设计文档 | `3-standards/design.md` | SDD 设计（HOW） |
+| 任务文档 | `3-standards/task.md` | SDD 任务（WHEN） |
+| 检查清单 | `3-standards/checklists/` | 评估/代码变更/归档门禁 |
+| 版本快照 | `3-standards/versions/` | 各版本spec/design/task |
 
 ## 容器架构（当前运行）
 
 ```
 nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8001)
            + embedding(8011) + reranker(8010) + neo4j(7474/7687)
+           + odoo(8069) + twenty(3003)
 复用: ai_novel_postgres(5432) + ai_novel_redis(6379)
+新增: odoo-db(5432内部) + twenty-db(5432内部)
 ```
 
 启动命令：`docker compose up -d`（确保 Docker Desktop 运行）
@@ -59,18 +90,73 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 6. **AUTH_SECRET必须全环境一致**：.env.local / .env.docker / docker-compose.yml 三处必须相同
 7. **历史对话bug根因**：AUTH_SECRET不一致→JWT验证失败→API返回401→前端静默吞掉→显示"暂无历史对话"
 8. **Docker配置变更后必须重建容器**：改了docker-compose.yml或.env.docker后，必须 `docker compose up -d --build`
+9. **vitest测试中async工厂函数必须await**：`createBotAdapter`改为async后，测试中调用必须await
+10. **DingTalk签名验证**：传了appSecret会走HMAC校验，测试中需传空字符串才能跳过校验
+11. **vitest导入DB模块会导致0 tests**：源文件顶层import DB会在测试加载时执行连接，纯函数需拆到独立utils文件
+12. **Harness H4上下文感知不能降级**：H3升级后violationCount重置为0，H4会误降级，修复为只升不降
+13. **Capacitor未安装时npx cap init失败**：需先pnpm add @capacitor/core @capacitor/cli
+14. **vitest环境中window.location可能undefined**：需typeof检查后再访问
+15. **Next.js output:export不兼容API路由**：项目有`export const dynamic = "force-dynamic"`的API路由，Capacitor构建需要独立SPA策略而非全站静态导出
+16. **Odoo首次启动需初始化数据库**：`docker run --rm odoo:17 -- -i base -d odoo --stop-after-init`，否则ir_module_module表不存在
+17. **Twenty CRM镜像阿里云源403**：twentycrm/twenty在阿里云镜像源被拒绝，需直接从Docker Hub拉取
+18. **registerAllMCPTools必须async**：内部有await import动态加载Odoo/Twenty/SaaS工具，调用处也必须await
+19. **raw-table-search.ts import路径错误**：从`../../db/schema`改为`../db/schema`（文件在src/server/routing/）
+20. **JSONRPCRequest.id是optional**：传给createResponse/createErrorResponse时需`id ?? null`
+21. **capacitor.config.ts需排除在tsconfig外**：否则Next.js type check报错；同时需改为`import type { CapacitorConfig }`格式
+22. **shared-types包需tsconfig paths映射**：`"shared-types": ["./packages/shared-types/src"]`
+23. **RegisteredTool接口缺requiredParameters**：mcp-handler引用了但接口没定义，需添加`requiredParameters?: string[]`
+24. **Odoo uid === false类型不兼容**：TypeScript严格模式下`number === false`报错，改为`uid === 0`
 
 ## 当前任务
 
+### V14 已完成
 - [x] 容器化部署完成
 - [x] 容器合并（rag+evaluation → rag-service，llm-gateway → main-service）
 - [x] 内存状态迁移Redis（限流/熔断/LLM缓存）
 - [x] 本地性能优化（Redis连接池/DB连接池/pgvector HNSW索引）
-- [x] 工具参数JSON Schema修复（number[]→array+items，AGNES API兼容）
-- [x] R016: 工具合并+按需加载（21→6工具，technicalAnalysis/riskAnalysis/complianceCheck/marketData/toolSearch/hybridSearch）
-- [x] R017: Context Compaction（对话>20条时压缩早期消息为结构化摘要）
-- [x] R018: Agent错误恢复（Checkpoint+Resume，Redis存储，最多重试2次）
-- [x] R019: Transcript分析+耗时追踪（前端StepCard显示耗时+CLI分析脚本）
-- [ ] E2E测试：5个query完整链路+耗时报告
-- [ ] 评估可靠性调研（需审批，见 docs/evaluation-reliability-research.md）
-- [ ] 服务器环境：负载均衡、压测、GPU部署、Reranker GPU加速
+- [x] R016-R019: Agent架构升级（工具合并/上下文压缩/错误恢复/耗时追踪）
+- [x] R020: 知识图谱深度重构（a~g,i,j完成）
+- [x] R021: 语义缓存方案A
+
+### V3.0 大版本升级（对外V3.0.0，内部V15）
+- [x] 8项调研完成（CRM/OA/框架融合/JD/升级理论/多端前端/个人账号限制/Flutter迁移）
+- [x] 调研报告：`docs/1-requirements-bugs/` 下9份报告
+- [x] spec.md/design.md/task.md/REQUIREMENTS.md 已更新（R022-R028）
+- [x] OA/CRM业务测试指南（32个场景，5级分级）
+- [x] R024确认不选Flutter（3大致命理由：小程序缺失/SEO缺失/代码复用率0%）
+- [x] R028机器人：飞书优先（免费组织可用），钉钉次优先，企微/微信预留
+- [x] Phase 0: 规划（升级路线图/兼容性矩阵/回滚方案）
+- [x] Phase 1: 基础设施（API Gateway/MCP Server/LangSmith/多端API抽象）
+- [x] Phase 2: 核心功能（Odoo OA/Twenty CRM/飞书机器人/钉钉机器人/MCP Tool迁移/微信小程序/附注表路由优化/SaaS备选通道）
+- [x] Phase 3: 集成验证（多端联调/E2E/性能/安全审计/OA/CRM业务测试/灰度发布方案）
+- [x] Phase 4: 发布（灰度方案/监控/v1 deprecated标记）
+- [x] R024-e: Capacitor MVP（native-bridge + capacitor.config.ts）
+- [x] R024-f: 鸿蒙ArkTS原型（ChatPage.ets）
+- [x] 测试基线：827个测试通过（8个skip是已有it.skip）
+
+### V3.0 真实环境部署（2026-08-14 进行中）
+- [x] Odoo Docker部署：容器已启动healthy，JSON-RPC认证成功（uid=2）
+- [x] Odoo数据库初始化：`docker run --rm odoo:17 -- -i base -d odoo --stop-after-init`
+- [x] 飞书AppID配置：cli_aaf7176853b8dd2b（config/bot-config.yaml + .env.docker）
+- [x] Bot配置加载器：bot-config.ts（YAML解析+环境变量优先+isBotConfigured检查）
+- [x] 真实Odoo E2E测试：odoo-real-e2e.test.ts（7个测试，Docker容器运行时自动执行）
+- [x] 真实飞书E2E测试：feishu-real-e2e.test.ts（7个测试，配置AppSecret后自动执行）
+- [x] Capacitor依赖安装：@capacitor/core@8.5.0 + @capacitor/cli@8.5.0 + @capacitor/preferences@8.0.1
+- [x] capacitor.config.ts修复：JSON格式→TypeScript import type格式
+- [x] 代码bug修复：registerAllMCPTools async、raw-table-search路径、mcp-handler id??null、langgraph-patterns callWithFallback类型
+- [ ] Twenty CRM Docker部署：阿里云镜像源403，需直接从Docker Hub拉取
+- [ ] Capacitor原生构建：Next.js export模式不兼容API路由，需独立SPA策略
+- [ ] 鸿蒙App构建：需安装DevEco Studio
+- [ ] 飞书App Secret：用户需在config/bot-config.yaml填写
+
+### 遗留项
+- [ ] R020-h: 全量重建（用户手动执行 `npx tsx scripts/rebuild-graph.ts --all --resume`）
+- [ ] E2E回归测试（R020+R021）
+- [ ] R002: 统一拒绝话语
+- [ ] 冒烟测试（V14 Agent）
+- [ ] 评估可靠性调研（需审批）
+- [ ] 服务器环境：负载均衡、压测、GPU部署
+- [ ] Twenty CRM Docker部署（镜像拉取403）
+- [ ] Capacitor独立SPA构建策略
+- [ ] 鸿蒙App构建（需DevEco Studio）
+- [ ] 飞书App Secret配置（用户填写）

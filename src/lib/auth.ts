@@ -8,6 +8,7 @@ import { z } from "zod";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET || "dev-only-fallback-secret-change-in-production",
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -45,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: {
     strategy: "jwt",
-    maxAge: 8 * 60 * 60,
+    maxAge: 30 * 24 * 60 * 60, // 30 天，避免频繁过期导致历史对话"消失"
   },
   pages: {
     signIn: "/login",

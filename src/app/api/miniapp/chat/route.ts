@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
   }
 
   const clientId = request.headers.get("x-forwarded-for") || "miniapp";
-  const rateLimitResult = checkRateLimit(clientId);
+  const rateLimitResult = await checkRateLimit(clientId);
   if (!rateLimitResult.allowed) {
     return new Response(JSON.stringify({ success: false, error: "请求过于频繁" }), {
       status: 429,

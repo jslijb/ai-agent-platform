@@ -793,3 +793,25 @@ export const financialConflictLog = pgTable(
     yearQuarterIdx: index("financial_conflict_log_year_quarter_idx").on(table.reportYear, table.reportQuarter),
   }),
 );
+
+export const semanticCache = pgTable(
+  "semantic_cache",
+  {
+    id: serial("id").primaryKey(),
+    promptTemplate: varchar("prompt_template", { length: 100 }).notNull(),
+    inputHash: varchar("input_hash", { length: 64 }).notNull(),
+    inputText: text("input_text").notNull(),
+    embedding: vector("embedding"),
+    response: text("response").notNull(),
+    model: varchar("model", { length: 50 }),
+    provider: varchar("provider", { length: 50 }),
+    hitCount: integer("hit_count").notNull().default(0),
+    createdAt: timestamp("created_at", { precision: 3 }).notNull().defaultNow(),
+    expiresAt: timestamp("expires_at", { precision: 3 }),
+  },
+  (table) => ({
+    templateIdx: index("semantic_cache_template_idx").on(table.promptTemplate),
+    inputHashIdx: index("semantic_cache_input_hash_idx").on(table.inputHash),
+
+  }),
+);

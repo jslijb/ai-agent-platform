@@ -7,7 +7,10 @@ import { eq, desc, sql, and } from "drizzle-orm";
 export async function GET(request: Request) {
   try {
     const session = await auth();
-    const userId = session?.user?.id || "default-user";
+    if (!session?.user?.id) {
+      return NextResponse.json({ success: false, error: "未登录" }, { status: 401 });
+    }
+    const userId = session.user.id;
 
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get("page") || "1");

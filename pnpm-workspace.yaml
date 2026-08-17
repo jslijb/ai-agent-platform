@@ -1,0 +1,7 @@
+allowBuilds:
+  esbuild: set this to true or false
+  msgpackr-extract: set this to true or false
+  nodejieba: set this to true or false
+  sharp: set this to true or false
+  tesseract.js: set this to true or false
+  tree-sitter: set this to true or false

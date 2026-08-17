@@ -11,6 +11,30 @@ scrape_configs:
         labels:
           service: "main"
 
+  # RAG 检索服务 metrics
+  - job_name: "rag-service"
+    metrics_path: "/api/metrics"
+    static_configs:
+      - targets: ["host.docker.internal:3001"]
+        labels:
+          service: "rag"
+
+  # 评估服务 metrics
+  - job_name: "evaluation-service"
+    metrics_path: "/api/metrics"
+    static_configs:
+      - targets: ["host.docker.internal:3003"]
+        labels:
+          service: "evaluation"
+
+  # 数据服务 metrics
+  - job_name: "data-service"
+    metrics_path: "/health"
+    static_configs:
+      - targets: ["host.docker.internal:8001"]
+        labels:
+          service: "data"
+
   # Prometheus 自身
   - job_name: "prometheus"
     static_configs:

@@ -7,6 +7,18 @@ from contextlib import asynccontextmanager
 
 os.environ.setdefault('FLAGS_enable_pir_api', '0')
 os.environ.setdefault('FLAGS_use_mkldnn', '0')
+
+# efinance 缓存目录重定向：conda 环境安装目录可能不可写（ProgramData），
+# 重定向到项目目录下的可写位置，避免 PermissionError
+_EFINANCE_CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".cache", "efinance")
+os.makedirs(_EFINANCE_CACHE_DIR, exist_ok=True)
+try:
+    import efinance.config as _ef_config
+    _ef_config.SEARCH_RESULT_CACHE_PATH = os.path.join(_EFINANCE_CACHE_DIR, "search-cache.json")
+    logging.getLogger(__name__).info(f"efinance 缓存重定向至: {_EFINANCE_CACHE_DIR}")
+except Exception:
+    pass
+
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
@@ -526,9 +538,25 @@ async def market_trade_cal(req: TradeCalRequest):
     try:
         _validate_source(req.source, _TRADE_CAL_SOURCES)
 
+        cache = get_cache()
+        cache_params = {
+            "source": req.source,
+            "exchange": req.exchange,
+            "start_date": req.start_date,
+            "end_date": req.end_date,
+        }
+        cached = cache.get("trade_cal", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"交易日历缓存命中: source={req.source}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
         data = await asyncio.to_thread(
             baostock_provider.get_trade_calendar, req.start_date, req.end_date
         )
+
+        if data:
+            cache.set("trade_cal", cache_params, data, ttl=INDEX_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"交易日历请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")
@@ -549,10 +577,21 @@ async def market_industry(req: IndustryRequest):
     try:
         _validate_source(req.source, _INDUSTRY_SOURCES)
 
+        cache = get_cache()
+        cache_params = {"source": req.source, "code": req.code}
+        cached = cache.get("industry", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"行业分类缓存命中: source={req.source}, code={req.code}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
         if req.source == "efinance":
             data = efinance_provider.get_industry(req.code)
         elif req.source == "mootdx":
             data = mootdx_provider.get_concept(req.code)
+
+        if data:
+            cache.set("industry", cache_params, data, ttl=BASIC_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"行业分类请求完成: source={req.source}, 耗时={elapsed:.2f}s")
@@ -573,10 +612,21 @@ async def market_concept(req: ConceptRequest):
     try:
         _validate_source(req.source, _CONCEPT_SOURCES)
 
+        cache = get_cache()
+        cache_params = {"source": req.source, "code": req.code}
+        cached = cache.get("concept", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"概念板块缓存命中: source={req.source}, code={req.code}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
         if req.source == "efinance":
             data = efinance_provider.get_concept(req.code)
         elif req.source == "mootdx":
             data = mootdx_provider.get_concept(req.code)
+
+        if data:
+            cache.set("concept", cache_params, data, ttl=BASIC_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"概念板块请求完成: source={req.source}, 耗时={elapsed:.2f}s")
@@ -618,10 +668,21 @@ async def market_minute(req: MinuteRequest):
     try:
         _validate_source(req.source, _MINUTE_SOURCES)
 
+        cache = get_cache()
+        cache_params = {"source": req.source, "code": req.code, "frequency": req.frequency}
+        cached = cache.get("minute", cache_params)
+        if cached is not None:
+            elapsed = time.time() - start_time
+            logger.info(f"分钟K线缓存命中: source={req.source}, code={req.code}, freq={req.frequency}, 耗时={elapsed:.2f}s")
+            return _make_response(True, data=cached, from_cache=True)
+
         if req.source == "efinance":
             data = efinance_provider.get_minute_data(req.code, req.frequency)
         elif req.source == "mootdx":
             data = mootdx_provider.get_minute_data(req.code, req.frequency)
+
+        if data:
+            cache.set("minute", cache_params, data, ttl=HISTORY_TTL, source=req.source)
 
         elapsed = time.time() - start_time
         logger.info(f"分钟K线请求完成: source={req.source}, 耗时={elapsed:.2f}s, 记录数={len(data) if data else 0}")

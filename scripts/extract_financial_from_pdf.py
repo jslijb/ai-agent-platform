@@ -640,6 +640,55 @@ def compute_yoy_and_update(cur, stock_code: str, document_id: str):
     return updated
 
 
+# ===== 财报同比值覆盖（R015）=====
+def update_yoy_from_key_accounting(
+    cur, stock_code: str, report_year: int, yoy_data: dict,
+) -> int:
+    """用财报"主要会计数据"表格提取的同比值覆盖计算值（R015）
+
+    优先级：财报提取值 > (本期-上期)/上期 计算值
+    覆盖逻辑：直接用财报值 UPDATE（不使用 COALESCE，因为财报值是权威值）
+
+    参数：
+        cur: 数据库游标
+        stock_code: 股票代码
+        report_year: 报告年度
+        yoy_data: {"revenue_yoy": -0.035, "net_profit_yoy": ..., "total_assets_yoy": ...}
+    """
+    if not yoy_data:
+        return 0
+
+    set_clauses = []
+    params = []
+    for field in ["revenue_yoy", "net_profit_yoy", "total_assets_yoy"]:
+        if field in yoy_data and yoy_data[field] is not None:
+            set_clauses.append(f"{field} = %s")
+            params.append(yoy_data[field])
+
+    if not set_clauses:
+        return 0
+
+    params.append(stock_code)
+    params.append(report_year)
+
+    sql = f"""
+        UPDATE financial_indicators
+        SET {", ".join(set_clauses)}
+        WHERE stock_code = %s AND report_year = %s AND report_quarter = 'annual'
+    """
+    try:
+        cur.execute(sql, params)
+        updated = cur.rowcount
+        logger.info(
+            f"  财报同比值覆盖(R015): stock={stock_code}, year={report_year}, "
+            f"更新{updated}行, 字段={[c.split('=')[0].strip() for c in set_clauses]}"
+        )
+        return updated
+    except Exception as e:
+        logger.warning(f"财报同比值覆盖失败 stock={stock_code} year={report_year}: {e}")
+        return 0
+
+
 # ===== 原始表格写入 =====
 def upsert_raw_tables(
     cur, stock_code: str, report_year: int, document_id: str,
@@ -723,12 +772,14 @@ def process_single_pdf(
     balance_stmt = result.get("balance_sheet", {})
     cashflow_stmt = result.get("cashflow_statement", {})
     raw_tables = result.get("raw_tables", [])
+    key_accounting_yoy = result.get("key_accounting_yoy", {})
 
     logger.info(
         f"  提取结果: income字段={len(income_stmt.get('fields', {}))}, "
         f"balance字段={len(balance_stmt.get('fields', {}))}, "
         f"cashflow字段={len(cashflow_stmt.get('fields', {}))}, "
-        f"raw_tables={len(raw_tables)}"
+        f"raw_tables={len(raw_tables)}, "
+        f"key_accounting_yoy={len(key_accounting_yoy)}个"
     )
 
     # Step 2: 转换为按 period 的记录
@@ -800,12 +851,14 @@ def process_single_pdf(
             n_indicators = upsert_indicators(cur, indicators)
             n_raw = upsert_raw_tables(cur, stock_code, base_year, document_id, raw_tables)
             n_yoy = compute_yoy_and_update(cur, stock_code, document_id)
+            # R015: 财报"主要会计数据"表格同比值覆盖计算值（优先级：财报值 > 计算值）
+            n_yoy_pdf = update_yoy_from_key_accounting(cur, stock_code, base_year, key_accounting_yoy)
 
             conn.commit()
             logger.info(
                 f"  ✅ 写库完成: income={n_income}, balance={n_balance}, "
                 f"cashflow={n_cashflow}, indicators={n_indicators}, "
-                f"raw_tables={n_raw}, yoy_updated={n_yoy}"
+                f"raw_tables={n_raw}, yoy_updated={n_yoy}, yoy_pdf={n_yoy_pdf}"
             )
 
             return {
@@ -817,6 +870,7 @@ def process_single_pdf(
                 "indicators": n_indicators,
                 "raw_tables": n_raw,
                 "yoy_updated": n_yoy,
+                "yoy_pdf_updated": n_yoy_pdf,
                 "elapsed": time.time() - start_time,
             }
         except Exception as e:

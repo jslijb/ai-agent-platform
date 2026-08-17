@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   }
 
   const clientId = request.headers.get("x-forwarded-for") || "unknown";
-  const rateLimitResult = checkRateLimit(clientId);
+  const rateLimitResult = await checkRateLimit(clientId);
   if (!rateLimitResult.allowed) {
     return new Response(JSON.stringify({ success: false, error: "请求过于频繁" }), {
       status: 429,
@@ -28,7 +28,13 @@ export async function POST(request: Request) {
   }
 
   const iterations = typeof maxIterations === "number" && maxIterations > 0 ? maxIterations : 5;
-  const userId = session?.user?.id || bodyUserId || "default-user";
+  if (!session?.user?.id) {
+    return new Response(JSON.stringify({ success: false, error: "未登录" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const userId = session.user.id;
   const userName = session?.user?.name || undefined;
   const userEmail = session?.user?.email || undefined;
 

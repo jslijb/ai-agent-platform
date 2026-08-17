@@ -1,8 +1,26 @@
 import logging
 import pandas as pd
 from typing import Optional
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
+
+
+def _ensure_efinance_cache_path():
+    """确保 efinance 的搜索缓存写入项目可写目录，而不是 conda 安装目录。"""
+    cache_dir = Path(__file__).resolve().parents[2] / ".cache" / "efinance"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        import efinance.config as ef_config
+        cache_path = str(cache_dir / "search-cache.json")
+        ef_config.SEARCH_RESULT_CACHE_PATH = cache_path
+        try:
+            import efinance.utils as ef_utils
+            ef_utils.SEARCH_RESULT_CACHE_PATH = cache_path
+        except Exception as e:
+            logger.debug(f"efinance.utils 缓存目录重定向跳过: {e}")
+    except Exception as e:
+        logger.debug(f"efinance 缓存目录重定向跳过: {e}")
 
 
 def _df_to_dict(df: pd.DataFrame) -> list[dict]:
@@ -458,6 +476,7 @@ def get_minute_data(code: str, frequency: str = "5") -> list[dict]:
     logger.info(f"efinance 获取分钟K线: code={code}, freq={frequency}")
 
     try:
+        _ensure_efinance_cache_path()
         import efinance as ef
 
         klt_map = {"1": 1, "5": 5, "15": 15, "30": 30, "60": 60}

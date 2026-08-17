@@ -127,3 +127,15 @@ scripts/_search_cache.json
 tmp_*.sql
 scripts/check_*.sql
 scripts/cleanup_*.sql
+
+# App/runtime state (Freebuff desktop DB, data caches)
+.freebuff/
+.cache/
+
+# Large generated eval/test artifacts (kept locally, not committed)
+tests/reports/evaluation/
+tests/reports/test/
+
+# Accidental shell redirect artifacts
+/1.0
+/=

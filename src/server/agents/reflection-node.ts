@@ -1,4 +1,5 @@
 import { callBailian, type BailianMessage } from "@/server/llm/providers/bailian";
+import { semanticCacheGet, semanticCacheSet } from "@/server/llm/semantic-cache";
 
 const MAX_REFLECTION_ROUNDS = 3;
 
@@ -25,23 +26,26 @@ export async function shouldRetrieveAgain(
 3. 答案是否存在"无法确定"、"信息不足"等表述
 4. 检索结果是否提供了足够的上下文
 5. 【关键 - 幻觉检测】如果用户询问的是具体数字（如营收、利润、股价等），但答案中的数字并非来自工具调用结果（Observation），而是LLM自行生成的，则必须标记为 needMore=true
+6. 【关键 - 空答案检测】如果当前答案为空或极短（少于20字），且用户的问题需要具体数据或计算，必须标记 needMore=true
 
 【幻觉检测规则 - 必须严格执行】：
 - 如果用户询问财务数据（营收、利润、ROE等），但答案中的数字没有"Observation"或"工具结果"支撑，必须标记 needMore=true
-- 如果用户询问股价/技术指标，但答案中没有来自 getStockHistory 的数据支撑，必须标记 needMore=true
+- 如果用户询问股价/技术指标，但答案中没有来自 marketData 或 technicalAnalysis 的数据支撑，必须标记 needMore=true
 - LLM 训练知识中的财务数据通常已过时，不能作为可靠来源
 - 任何具体的数字（如"460.67亿元"、"同比增长20%"）如果没有在工具调用结果中出现过，就是编造的
 - 如果答案中包含"根据公开信息"、"根据财报"、"数据显示"等措辞但没有工具调用支撑，也是编造的
 
 【重要 - 已调用工具的情况】：
-- 如果"已调用的工具"列表中包含了获取数据的工具（如 getStockHistory、getStockFinancial 等），且答案中使用了这些工具返回的数据，则应标记 needMore=false
-- 如果用户要求计算技术指标（MA、RSI等），且已调用了 getStockHistory 和对应的计算工具（calculateMA、calculateRSI等），答案中包含了计算结果，则应标记 needMore=false
+- 如果"已调用的工具"列表中包含了获取数据的工具（如 marketData、technicalAnalysis 等），且答案中使用了这些工具返回的数据，则应标记 needMore=false
+- 如果用户要求计算技术指标（MA、RSI等），且已调用了 technicalAnalysis 工具，答案中包含了计算结果，则应标记 needMore=false
 - 不要因为答案中没有 RAG 检索结果就标记 needMore=true——技术指标计算不需要 RAG 检索
 
-【工具推荐规则】：
-- 用户询问营收/利润/ROE等 → refinedQuery 应包含 "调用 getStockFinancial 工具，code=股票代码，source=efinance"
-- 用户询问股价/技术指标 → refinedQuery 应包含 "调用 getStockHistory 工具"
-- 用户询问详细财报 → refinedQuery 应包含 "调用 getFinancialReport 工具"
+【工具推荐规则 - 使用合并后的工具名】：
+- 用户询问营收/利润/ROE等 → refinedQuery 应包含 "调用 marketData 工具，dataType=financial, code=股票代码"
+- 用户询问股价/技术指标 → refinedQuery 应包含 "调用 marketData 工具，dataType=history, code=sh.600036" 或 "调用 technicalAnalysis 工具"
+- 用户询问详细财报 → refinedQuery 应包含 "调用 marketData 工具，dataType=financialReport, code=股票代码"
+- 用户询问风险指标 → refinedQuery 应包含 "调用 riskAnalysis 工具"
+- 用户询问合规检查 → refinedQuery 应包含 "调用 complianceCheck 工具"
 
 请严格按照以下 JSON 格式输出评估结果，不要输出其他内容：
 {
@@ -78,10 +82,37 @@ ${resultsSummary || "（无检索结果）"}
   ];
 
   try {
+    const cacheInput = `query:${query}|answer:${currentAnswer.substring(0, 200)}|tools:${toolObservations.length}`;
+    const cached = await semanticCacheGet("reflection-eval", cacheInput);
+    if (cached.content) {
+      console.log(`[reflection-node] 语义缓存命中 (${cached.hitType})`);
+      const jsonMatch = cached.content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]) as {
+          needMore?: boolean;
+          refinedQuery?: string;
+        };
+        return {
+          needMore: parsed.needMore === true,
+          refinedQuery: parsed.needMore && parsed.refinedQuery ? parsed.refinedQuery : undefined,
+        };
+      }
+    }
+
     const response = await callBailian(messages, undefined, 0);
     const content = (response.content ?? "").trim();
 
     console.log(`[reflection-node] LLM 反思评估响应: ${content.substring(0, 300)}`);
+
+    if (content.length > 0) {
+      await semanticCacheSet(
+        "reflection-eval",
+        cacheInput,
+        content,
+        undefined,
+        "bailian"
+      );
+    }
 
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
@@ -107,6 +138,11 @@ ${resultsSummary || "（无检索结果）"}
     };
   } catch (error) {
     console.error("[reflection-node] 反思评估失败:", error);
+    // 反思失败时的安全策略：如果答案为空/极短且无工具调用结果，返回needMore=true
+    if (currentAnswer.trim().length < 50 && toolObservations.length === 0) {
+      console.log("[reflection-node] 反思失败但答案不充分，强制needMore=true");
+      return { needMore: true, refinedQuery: "调用相关工具获取数据后回答用户问题" };
+    }
     return { needMore: false };
   }
 }

@@ -302,18 +302,35 @@ export async function executeSqlQuery(
     groupedByTable.set(ind.standardTable, list);
   }
 
+  // V13-r6 修复：ROE/ROA 查询需要联查 financial_income（净利润）和 financial_balancesheet（净资产）
+  // financial_indicators 表的 roe/roa 字段常为 null，LLM 需要原始数据自行计算
+  const standardNames = indicators.map((i) => i.standardName);
+  const needsRoeData = standardNames.some(
+    (name) => name === "roe" || name === "roa" || name === "net_margin" || name === "gross_margin",
+  );
+  if (needsRoeData) {
+    // 补充查询 financial_income（提供净利润、营业收入、营业成本用于计算）
+    if (!groupedByTable.has("financial_income")) {
+      groupedByTable.set("financial_income", []);
+    }
+    // 补充查询 financial_balancesheet（提供净资产用于 ROE 计算）
+    if (!groupedByTable.has("financial_balancesheet")) {
+      groupedByTable.set("financial_balancesheet", []);
+    }
+  }
+
   const results: Record<string, unknown>[] = [];
 
   // 对每张表执行查询
   for (const [tableName, tableIndicators] of Array.from(groupedByTable.entries())) {
-    const standardNames = tableIndicators.map((i: IndicatorMatch) => i.standardName);
+    const tableStandardNames = tableIndicators.map((i: IndicatorMatch) => i.standardName);
     const rows = await queryFinancialTable(tableName, stockCode, reportYear, reportQuarter);
     // 给每行标注来源表和命中的指标
     for (const row of rows) {
       results.push({
         ...row,
         _sourceTable: tableName,
-        _matchedIndicators: standardNames,
+        _matchedIndicators: tableStandardNames.length > 0 ? tableStandardNames : ["supplementary"],
       });
     }
   }
@@ -401,25 +418,30 @@ export async function queryRawTables(
   reportYear: number,
   keyword: string,
 ): Promise<Record<string, unknown>[]> {
-  return await db
-    .select({
-      id: financialRawTables.id,
-      stockCode: financialRawTables.stockCode,
-      reportYear: financialRawTables.reportYear,
-      reportQuarter: financialRawTables.reportQuarter,
-      tableName: financialRawTables.tableName,
-      tableData: financialRawTables.tableData,
-      pageNum: financialRawTables.pageNum,
-    })
-    .from(financialRawTables)
-    .where(
-      and(
-        eq(financialRawTables.stockCode, stockCode),
-        eq(financialRawTables.reportYear, reportYear),
-        ilike(financialRawTables.tableName, `%${keyword}%`),
-      ),
-    )
-    .limit(20);
+  try {
+    const { queryRawTablesEnhanced } = await import("../../routing/raw-table-search");
+    return await queryRawTablesEnhanced(stockCode, reportYear, keyword);
+  } catch {
+    return await db
+      .select({
+        id: financialRawTables.id,
+        stockCode: financialRawTables.stockCode,
+        reportYear: financialRawTables.reportYear,
+        reportQuarter: financialRawTables.reportQuarter,
+        tableName: financialRawTables.tableName,
+        tableData: financialRawTables.tableData,
+        pageNum: financialRawTables.pageNum,
+      })
+      .from(financialRawTables)
+      .where(
+        and(
+          eq(financialRawTables.stockCode, stockCode),
+          eq(financialRawTables.reportYear, reportYear),
+          ilike(financialRawTables.tableName, `%${keyword}%`),
+        ),
+      )
+      .limit(20);
+  }
 }
 
 // ===== 3.4 路由整合 =====

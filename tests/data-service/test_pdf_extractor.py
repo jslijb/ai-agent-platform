@@ -151,5 +151,65 @@ class TestPzzRegression(unittest.TestCase):
         )
 
 
+@unittest.skipUnless(HUAHAI_PDF.exists(), "华海药业 PDF 不存在")
+class TestCombineOcrLines(unittest.TestCase):
+    """R014: _combine_ocr_lines 单元测试
+
+    PaddleOCR 返回每个文本元素为独立行，需合并为表格行格式。
+    """
+
+    def test_combine_simple_label_value(self):
+        """文本行+数值行应合并为一行"""
+        with FinancialPDFExtractor(str(HUAHAI_PDF)) as ex:
+            lines = ["营业总收入", "669,044", "621,972"]
+            result = ex._combine_ocr_lines(lines)
+        self.assertEqual(len(result), 1)
+        self.assertIn("营业总收入", result[0])
+        self.assertIn("669,044", result[0])
+        self.assertIn("621,972", result[0])
+
+    def test_combine_multi_label_lines(self):
+        """多行文本标签应合并为一个 label"""
+        with FinancialPDFExtractor(str(HUAHAI_PDF)) as ex:
+            lines = ["二、", "营业总支出", "551,328", "594,107"]
+            result = ex._combine_ocr_lines(lines)
+        self.assertEqual(len(result), 1)
+        self.assertIn("营业总支出", result[0])
+        self.assertIn("551,328", result[0])
+
+    def test_combine_skip_headers(self):
+        """页眉/标题行应被跳过"""
+        with FinancialPDFExtractor(str(HUAHAI_PDF)) as ex:
+            lines = [
+                "合并利润表", "2025年度", "单位：百万元",
+                "营业收入", "100,000", "90,000",
+            ]
+            result = ex._combine_ocr_lines(lines)
+        self.assertEqual(len(result), 1)
+        self.assertIn("营业收入", result[0])
+
+    def test_combine_multiple_rows(self):
+        """多行数据应正确分割为多行"""
+        with FinancialPDFExtractor(str(HUAHAI_PDF)) as ex:
+            lines = [
+                "营业收入", "100,000", "90,000",
+                "营业成本", "60,000", "55,000",
+                "净利润", "10,000", "8,000",
+            ]
+            result = ex._combine_ocr_lines(lines)
+        self.assertEqual(len(result), 3)
+        self.assertIn("营业收入", result[0])
+        self.assertIn("营业成本", result[1])
+        self.assertIn("净利润", result[2])
+
+    def test_combine_negative_parentheses(self):
+        """括号负数应正确识别为数值"""
+        with FinancialPDFExtractor(str(HUAHAI_PDF)) as ex:
+            lines = ["汇兑损益", "(308)", "64"]
+            result = ex._combine_ocr_lines(lines)
+        self.assertEqual(len(result), 1)
+        self.assertIn("(308)", result[0])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

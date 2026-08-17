@@ -106,7 +106,7 @@ export async function callWithFallback(
     const provider = resolveProvider(modelConfig);
     const circuitName = `llm-${provider}-${model}`;
 
-    if (isCircuitOpen(circuitName)) {
+    if (await isCircuitOpen(circuitName)) {
       console.warn(`[llm-router] 模型 ${model}(${provider}) 熔断器已打开，跳过`);
       continue;
     }
@@ -131,7 +131,7 @@ export async function callWithFallback(
       const isQuotaError = errMsg.includes("AllocationQuota") || errMsg.includes("403") || errMsg.includes("401") || errMsg.includes("FreeTierOnly");
 
       if (isQuotaError) {
-        forceOpenCircuit(circuitName, `模型 ${model}(${provider}) 额度耗尽/认证失败`);
+        await forceOpenCircuit(circuitName, `模型 ${model}(${provider}) 额度耗尽/认证失败`);
         console.error(`[llm-router] 模型 ${model}(${provider}) 额度耗尽，强制打开熔断器: ${errMsg.slice(0, 100)}`);
       } else {
         console.error(`[llm-router] 模型 ${model}(${provider}) 调用失败:`, error);

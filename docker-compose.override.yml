@@ -1,0 +1,32 @@
+# 本地容器化覆盖配置
+# 使用方式：docker compose up -d
+#
+# postgres: 复用 ai_novel_postgres（已在 aiagent_net 网络中，别名 postgres）
+# redis: 复用 ai_novel_redis（已在 aiagent_net 网络中，别名 redis）
+# evaluation-service、llm-gateway: 暂不启动
+# prometheus、grafana: 暂不启动
+
+services:
+  postgres:
+    profiles:
+      - full
+
+  redis:
+    profiles:
+      - full
+
+  evaluation-service:
+    profiles:
+      - full
+
+  llm-gateway:
+    profiles:
+      - full
+
+  prometheus:
+    profiles:
+      - full
+
+  grafana:
+    profiles:
+      - full

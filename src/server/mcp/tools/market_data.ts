@@ -43,9 +43,13 @@ async function startDataService(): Promise<boolean> {
   console.log("[market_data] 数据服务未运行，自动启动中...");
 
   const scriptPath = path.resolve(process.cwd(), "data_service", "main.py");
+  // 优先使用环境变量 DATA_SERVICE_PYTHON 指定的 Python 路径（conda agent 环境）
+  // 其次回退到系统 PATH 中的 python
+  const pythonBin = process.env.DATA_SERVICE_PYTHON || "python";
+  console.log(`[market_data] 使用 Python: ${pythonBin}`);
 
   try {
-    dataServiceProcess = spawn("python", [scriptPath], {
+    dataServiceProcess = spawn(pythonBin, ["-m", "data_service.main"], {
       cwd: process.cwd(),
       env: { ...process.env, PORT: String(DATA_SERVICE_PORT) },
       stdio: ["pipe", "pipe", "pipe"],

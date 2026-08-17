@@ -31,6 +31,7 @@ export interface RegisteredTool {
   name: string;
   description: string;
   parameters: Record<string, unknown>;
+  requiredParameters?: string[];
   execute: (params: Record<string, unknown>) => Promise<unknown> | unknown;
   category?: string;
 }

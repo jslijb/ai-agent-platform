@@ -196,7 +196,7 @@ export async function callAgnes(
           }))
         : undefined;
 
-      if (content === null && (!toolCalls || toolCalls.length === 0)) {
+      if ((content === null || (content !== undefined && content.length === 0)) && (!toolCalls || toolCalls.length === 0)) {
         console.error(
           `[agnes] API 返回内容为空且无tool_calls (第${attempt}次)`
         );
