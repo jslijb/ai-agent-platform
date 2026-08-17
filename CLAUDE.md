@@ -153,9 +153,14 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 - [x] 鸿蒙App构建：~~需安装DevEco Studio~~ → 取消，不构建
 - [x] 服务器环境（负载均衡、压测、GPU部署）→ 取消
 
+### V3.0 真实环境验证（2026-08-17 续）
+- [x] R020-h 全量重建完成：3237 节点 / 4752 关系（基线 460 → 7 倍），4 个 PDF 年报文档（片仔癀/江苏银行/华海药业/东吴证券）补齐 rawContent 后由 `--resume` 重跑成功
+- [x] ai_novel_postgres 镜像升级：postgres:16-alpine → pgvector/pgvector:pg16（同卷数据保留），agentdb 启用 vector 扩展 → 修复 semantic_cache/Embedding 全部 pgvector 报错
+- [x] 容器网络修复：ai_novel_postgres（别名 postgres）与 ai_novel_redis（别名 redis）接入 aiagent_net → main_service/rag_service 由 unhealthy 恢复 healthy，nginx:80 全栈健康（DB/Redis/Neo4j/embedding 全 up）
+- [x] E2E 回归（R020+R021）通过：5/5 query 图谱检索命中；LLM 调用减少 40%（冷启动 5 次 → 缓存轮 3 次，验收 ≥15%）；精确命中 5/5、语义命中 2/5（0.95 阈值）
+- [x] 新增回归脚本：`scripts/e2e-r020-r021.ts`（可重复执行）
+
 ### 遗留项
-- [ ] R020-h: 全量重建（用户手动执行 `npx tsx scripts/rebuild-graph.ts --all --resume`，需 Docker 运行 Neo4j）
-- [ ] E2E回归测试（R020+R021）
 - [ ] 冒烟测试（V14 Agent）
 - [ ] 评估可靠性调研（需审批）
 - [ ] 飞书App Secret配置（用户填写 config/bot-config.yaml）
