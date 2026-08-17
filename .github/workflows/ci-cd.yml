@@ -31,6 +31,13 @@ jobs:
       - run: npm run lint
       - name: TypeCheck
         run: npx tsc --noEmit
+      - name: Prepare config for build
+        run: test -f config/api_keys.yaml || cp config/api_keys.yaml.example config/api_keys.yaml
+      - name: Production Build
+        env:
+          # 与 Dockerfile 构建阶段保持一致，防止大型 chunk 编译时 OOM
+          NODE_OPTIONS: "--max-old-space-size=4096"
+        run: npm run build
 
   test:
     name: Unit Tests
