@@ -106,6 +106,7 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 22. **shared-types包需tsconfig paths映射**：`"shared-types": ["./packages/shared-types/src"]`
 23. **RegisteredTool接口缺requiredParameters**：mcp-handler引用了但接口没定义，需添加`requiredParameters?: string[]`
 24. **Odoo uid === false类型不兼容**：TypeScript严格模式下`number === false`报错，改为`uid === 0`
+25. **Windows本地next build报EPERM symlink**：standalone文件追踪会重建pnpm符号链接，Windows无开发者模式时`EPERM: operation not permitted`（Linux/npm无此问题）。已修复：next.config.js在Windows上自动跳过standalone输出（该产物仅Docker用）；如确需本地产出standalone：`NEXT_FORCE_STANDALONE=1 npm run build` 或开启Windows开发者模式（ms-settings:developers）。Capacitor export模式由`OUTPUT_MODE`常量控制（switch-export.cjs/switch-standalone.cjs/cap-build.ts 切换），不受Windows开关影响
 
 ## 当前任务
 

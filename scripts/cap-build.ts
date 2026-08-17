@@ -8,12 +8,15 @@ const OUT_DIR = join(ROOT, "out");
 
 function modifyConfigForExport(): string {
   const original = readFileSync(NEXT_CONFIG_PATH, "utf-8");
-  let modified = original.replace("output: 'standalone'", "output: 'export'");
-  if (!modified.includes("output: 'export'")) {
-    modified = modified.replace("output: 'export'", "output: 'export'");
+  let modified = original.replace(
+    "const OUTPUT_MODE = 'standalone'",
+    "const OUTPUT_MODE = 'export'"
+  );
+  if (!modified.includes("OUTPUT_MODE = 'export'")) {
+    throw new Error("[cap-build] next.config.js 未找到 OUTPUT_MODE 常量，无法切换 export 模式");
   }
   writeFileSync(NEXT_CONFIG_PATH, modified, "utf-8");
-  console.log("[cap-build] next.config.js: standalone → export");
+  console.log("[cap-build] next.config.js: OUTPUT_MODE standalone → export");
   return original;
 }
 
