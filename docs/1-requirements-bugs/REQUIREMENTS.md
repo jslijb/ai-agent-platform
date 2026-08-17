@@ -11,7 +11,7 @@
 |----|------|------|---------|------|---------|------|
 | R001 | 财务指标入PostgreSQL表（五表双轨制），指标清单驱动路由 | 7/29对话 | 2026-07-29 | 已完成 | V13+ | spec.md + ADR-011 审批；7表结构+stock_mapping+indicator_aliases落地，10家样本回填，query-router接入SQL路由 |
 | R002 | 统一两种拒绝话语（合规/库外），语气委婉 | 7/29对话 | 2026-07-29 | 已完成 | V3.0 | refusal.ts两条规范话术+识别/归一化；simpleAgent/langgraph接入；评估器识别规范话术；12测试通过 |
-| R003 | 多实体并行检索可行性调研 | 7/29对话 | 2026-07-29 | 待办（L2依赖） | - | - |
+| R003 | 多实体并行检索可行性调研 | 7/29对话 | 2026-07-29 | 已完成 | - | multi-entity-parallel-retrieval-research.md：15/15 L2可识别2公司、10家财务数据全在库、Promise.all并行可行 |
 | R004 | query标准化改写（财务指标统一） | 7/29对话 | 2026-07-29 | 已并入R001 | R001 | indicator_aliases表 |
 | R005 | V13所有指标达标，建立第一个全达标基线 | 7/30对话 | 2026-07-30 | 已完成 | V13-r6 | 综合0.9153达标（评估基线），CP/CR/AR/F 全达标 |
 | R006 | 评估V14是否值得继续 | 7/30对话 | 2026-07-30 | 待办 | - | - |
@@ -62,8 +62,9 @@
 
 ### R003：多实体并行检索调研
 - **背景**：L2跨公司对比一次检索召回混合数据
-- **方案待定**：调研同进程多线程隔离检索可行性
+- **方案**：多实体识别（identifyCompanies返回全部命中）+ 同进程Promise.all并行SQL/向量检索，结果按公司标注合并
 - **验收**：输出可行性调研结论
+- **进度（2026-08-17）**：✅ 调研完成。`docs/1-requirements-bugs/multi-entity-parallel-retrieval-research.md`：实测确认 15/15 L2 query 可通过 stock_mapping 识别出 2 家公司（当前 identifyCompany 只返回第一个为根因）、10 家 L2 公司 2025 财务数据全部在库、DB/向量均为 I/O 型故无需多线程（Promise.all 即可）。方案 A：4 处代码改造（identifyCompanies / executeSqlQueryForCompanies / routeQuery 多公司分支 / simpleAgent 注入），单公司路径零回归，工作量 0.5 天
 
 ### R004：query标准化改写
 - **背景**：用户query中财务指标表述不统一
