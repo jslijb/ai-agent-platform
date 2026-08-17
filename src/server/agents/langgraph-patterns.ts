@@ -1,5 +1,6 @@
 import { Annotation, StateGraph, END, START, MemorySaver } from "@langchain/langgraph";
 import type { RunnableConfig } from "@langchain/core/runnables";
+import { COMPLIANCE_REFUSAL } from "./refusal";
 
 const AgentState = Annotation.Root({
   messages: Annotation<Record<string, unknown>[]>({
@@ -48,7 +49,7 @@ async function complianceNode(state: AgentStateType): Promise<Partial<AgentState
   const violated = forbidden.find((f) => answer.includes(f));
   if (violated) {
     return {
-      answer: "非常抱歉，您问的问题受国家政策、法规影响，我回答不了，换一个问题。",
+      answer: COMPLIANCE_REFUSAL,
       agentType: "compliance",
       iterations: state.iterations + 1,
     };

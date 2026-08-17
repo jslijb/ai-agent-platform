@@ -1,44 +1,18 @@
 import { callWithFallback } from "@/server/llm/router";
+import { REFUSAL_PATTERNS } from "@/server/agents/refusal";
 
 /**
  * 判断答案是否为拒绝回答模式
  * 当RAG系统无法从检索内容中找到答案时，应返回拒绝回答
  * @param answer - 实际生成的答案
  * @returns 是否为拒绝回答
+ *
+ * 模式列表统一来自 @/server/agents/refusal（R002），
+ * 包含历史表述 + R002 规范话术（回答不了/知识储备不足）
  */
 export function isRefusalAnswer(answer: string): boolean {
   if (!answer || answer.trim().length === 0) return false;
-  // 拒绝回答的关键模式列表
-  const refusalPatterns = [
-    /无法回答/,
-    /无法提供/,
-    /不能回答/,
-    /抱歉/,
-    /我不知道/,
-    /没有相关信息/,
-    /无法给出/,
-    /无法确定/,
-    /无法判断/,
-    /暂无.*信息/,
-    /未找到.*相关/,
-    /无法从.*中获取/,
-    // V11新增：覆盖 L9 "未包含/未涉及/不在覆盖范围" 类拒绝表述
-    // 之前 L9 答案"未包含XX数据"未匹配拒绝模式，被当作正常答案评估，导致 faithfulness=0.14、AR=0.0876
-    /未包含.*(信息|数据|内容|指标|数值|记录)/,
-    /文档.*未包含/,
-    /片段.*未包含/,
-    /不在.*覆盖范围/,
-    /不在.*范围内/,
-    /未涉及/,
-    /无法获取/,
-    /未披露/,
-    /无.*相关数据/,
-    /无.*相关信息/,
-    /基于.*文档.*无法/,
-    /如需.*请.*查阅/,
-    /请.*参考.*官方/,
-  ];
-  return refusalPatterns.some((pattern) => pattern.test(answer));
+  return REFUSAL_PATTERNS.some((pattern) => pattern.test(answer));
 }
 
 /**

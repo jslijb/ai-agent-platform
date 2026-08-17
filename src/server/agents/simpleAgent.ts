@@ -9,6 +9,7 @@ import { formatSqlResultAsText, formatRawTablesAsText } from "@/server/rag/query
 import { rerank } from "@/server/rag/reranking/reranker";
 import { logCompliance } from "@/server/compliance/log";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
+import { COMPLIANCE_REFUSAL, OUT_OF_KNOWLEDGE_REFUSAL, normalizeRefusal } from "@/server/agents/refusal";
 import { createConversation, addMessage, updateConversationTitle, assembleContext, extractAndApplyPreferences, trackStockQuery } from "@/server/agents/memory";
 import { ToolRegistry } from "@/server/tools/registry";
 import { SkillRegistry, executeSkill } from "@/server/agents/skills";
@@ -176,7 +177,7 @@ function buildAdversarialRejection(matchedKeywords: string[]): string {
     })
     .join("、");
 
-  return `【拒绝声明】我无法提供此类信息。
+  return `【拒绝声明】${COMPLIANCE_REFUSAL}
 【违法警示】${violationDesc}违反《证券法》相关规定，
 可能面临行政处罚甚至刑事处罚。
 【风险提示】投资有风险，入市需谨慎。
@@ -250,7 +251,7 @@ function buildInvestmentAdviceResponse(
     }
   }
 
-  return `【合规声明】根据合规要求，我无法提供具体的投资建议（买入/卖出/持有等）。
+  return `【合规声明】${COMPLIANCE_REFUSAL}
 投资决策需要根据您自身的风险承受能力、投资目标和财务状况综合判断。${financialDataSection}
 
 【风险提示】
@@ -995,7 +996,11 @@ ${SkillRegistry.listDescriptions()}
 \`\`\`json
 {"skill": "technical-analysis"}
 \`\`\`
-系统会自动执行该Skill包含的所有工具步骤。你也可以继续使用单独的工具调用方式。`;
+系统会自动执行该Skill包含的所有工具步骤。你也可以继续使用单独的工具调用方式。
+
+20. 【统一拒绝话术 - 必须一字不差使用】当出现以下两种情况时，必须使用对应的规范话术回复，不得改用"无法回答"、"无法提供"等其它表述：
+   - 问题涉及违法违规内容或需合规拒绝时（如操纵市场、内幕交易、洗钱、索要投资建议等）："${COMPLIANCE_REFUSAL}"
+   - 问题超出知识库覆盖范围或工具未获取到数据时："${OUT_OF_KNOWLEDGE_REFUSAL}"`;
 
   // R001 路由预查询结果注入 systemPrompt（数值类查询走 SQL 的核心入口）
   // sql_standard / sql_raw_tables 命中时把查询结果拼到 systemPrompt 末尾
@@ -1240,7 +1245,7 @@ ${SkillRegistry.listDescriptions()}
 
           if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
           clearCheckpoint(convId).catch(() => {});
-          return { answer: assistantContent, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
+          return { answer: normalizeRefusal(assistantContent), iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
         }
 
         console.log("[simpleAgent] 无工具调用且无工具结果，进入反思评估阶段");
@@ -1403,7 +1408,7 @@ ${SkillRegistry.listDescriptions()}
 
         if (needGenerateTitle) await generateConversationTitle(query, assistantContent, convId, model);
         clearCheckpoint(convId).catch(() => {});
-        return { answer: assistantContent, iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
+        return { answer: normalizeRefusal(assistantContent), iterations, conversationId: convId, steps, citations, coarseResults: lastCoarseResults };
       }
 
       const toolCallsList = toolCalls;
