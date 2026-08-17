@@ -135,7 +135,7 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 - [x] R024-f: 鸿蒙ArkTS原型（ChatPage.ets）
 - [x] 测试基线：827个测试通过（8个skip是已有it.skip）
 
-### V3.0 真实环境部署（2026-08-14 进行中）
+### V3.0 真实环境验证（2026-08-14）
 - [x] Odoo Docker部署：容器已启动healthy，JSON-RPC认证成功（uid=2）
 - [x] Odoo数据库初始化：`docker run --rm odoo:17 -- -i base -d odoo --stop-after-init`
 - [x] 飞书AppID配置：cli_aaf7176853b8dd2b（config/bot-config.yaml + .env.docker）
@@ -145,19 +145,17 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 - [x] Capacitor依赖安装：@capacitor/core@8.5.0 + @capacitor/cli@8.5.0 + @capacitor/preferences@8.0.1
 - [x] capacitor.config.ts修复：JSON格式→TypeScript import type格式
 - [x] 代码bug修复：registerAllMCPTools async、raw-table-search路径、mcp-handler id??null、langgraph-patterns callWithFallback类型
-- [ ] Twenty CRM Docker部署：阿里云镜像源403，需直接从Docker Hub拉取
-- [ ] Capacitor原生构建：Next.js export模式不兼容API路由，需独立SPA策略
-- [ ] 鸿蒙App构建：需安装DevEco Studio
-- [ ] 飞书App Secret：用户需在config/bot-config.yaml填写
+- [ ] 飞书App Secret：用户需在config/bot-config.yaml填写（用户操作）
+
+### 已取消需求（2026-08-17，用户决定：不部署服务）
+- [x] Twenty CRM Docker部署：~~阿里云镜像源403，需从Docker Hub直拉~~ → 取消，不部署
+- [x] Capacitor原生构建：~~Next.js export模式不兼容API路由，需独立SPA策略~~ → 取消，不构建
+- [x] 鸿蒙App构建：~~需安装DevEco Studio~~ → 取消，不构建
+- [x] 服务器环境（负载均衡、压测、GPU部署）→ 取消
 
 ### 遗留项
-- [ ] R020-h: 全量重建（用户手动执行 `npx tsx scripts/rebuild-graph.ts --all --resume`）
+- [ ] R020-h: 全量重建（用户手动执行 `npx tsx scripts/rebuild-graph.ts --all --resume`，需 Docker 运行 Neo4j）
 - [ ] E2E回归测试（R020+R021）
-- [ ] R002: 统一拒绝话语
 - [ ] 冒烟测试（V14 Agent）
 - [ ] 评估可靠性调研（需审批）
-- [ ] 服务器环境：负载均衡、压测、GPU部署
-- [ ] Twenty CRM Docker部署（镜像拉取403）
-- [ ] Capacitor独立SPA构建策略
-- [ ] 鸿蒙App构建（需DevEco Studio）
-- [ ] 飞书App Secret配置（用户填写）
+- [ ] 飞书App Secret配置（用户填写 config/bot-config.yaml）

@@ -25,11 +25,11 @@
 | R014 | PDF处理工具分工与OCR fallback链路 | 8/01对话 | 2026-08-01 | 已完成 | V13 | 中国人保OCR提取成功（income=8字段, balance=3字段, cashflow=3字段） |
 | R015 | 同比数据优先从财报"主要会计数据"表格提取 | 8/01对话 | 2026-08-01 | 已完成 | V13 | 片仔癀/中国铁建/格力电器等验证通过 |
 | R016 | 数据库全表缺失审计与市场缓存补齐 | 8/03对话 | 2026-08-03 | 部分完成 | V13 | evaluation_pool/Team/market_cache 已补；minute 真实数据源阻塞 |
-| R022 | CRM/OA接入——从问答到流程提交/审批 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | Odoo已部署+Agent工具+审计日志+真实E2E 7测试通过；Twenty部署被镜像403阻塞 |
+| R022 | CRM/OA接入——从问答到流程提交/审批 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | Odoo已部署+Agent工具+审计日志+真实E2E 7测试通过；Twenty部署已取消(2026-08-17不部署服务) |
 | R023 | Agent框架融合——MCP+LangSmith | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | MCP Server 6核心工具(共注册20)；LangSmith全链路；Guardrails 3类规则 |
-| R024 | 多端前端——小程序+App+鸿蒙 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | 小程序api-client+Capacitor MVP(R024-e)+鸿蒙ArkTS原型(R024-f)完成；原生构建待做 |
+| R024 | 多端前端——小程序+App+鸿蒙 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | 小程序api-client+Capacitor MVP(R024-e)+鸿蒙ArkTS原型(R024-f)完成；原生构建/鸿蒙构建已取消(2026-08-17不部署) |
 | R025 | 附注表查询路由优化(BM25+向量→SQL) | 8/08对话 | 2026-08-08 | 已完成 | V3.0 | raw-table-search(BM25匹配表名→SQL查整表)+sql-result-formatter实现 |
-| R026 | V3.0升级风险管控 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | 升级路线图+兼容性矩阵+回滚方案(v3-compatibility-matrix-rollback-migration.md) |
+| R026 | V3.0升级风险管控 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | 升级路线图+兼容性矩阵+回滚方案(v3-compatibility-matrix-rollback-migration.md)；服务器部署(负载均衡/压测/GPU)已取消 |
 | R027 | JD调研驱动的能力补齐 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | langgraph-patterns 3种编排模式(单Agent/多Agent路由/Supervisor)；MCP Server可用 |
 | R028 | 微信/钉钉/飞书机器人(个人账号优先+预留接口) | 8/13对话 | 2026-08-13 | 部分完成 | V3.0 | 四平台适配器+bot-config加载器；飞书真实E2E 7测试通过；App Secret待用户填写 |
 
@@ -142,9 +142,9 @@
 - **推荐CRM**：Twenty CRM（54.8k⭐，TypeScript，原生MCP Server，客户/销售/商机/合同/报表，2GB）
 - **最简方案**：Odoo单体（OA+CRM一体，仅3GB）
 - **约束**：Agent通过API操作OA/CRM，JWT+用户映射关联身份，敏感字段脱敏，审计日志只追加
-- **验收**：Odoo审批/通知可用，Twenty CRM客户/报表可用，Agent自然语言操作成功
+- **验收**：Odoo审批/通知可用，Agent自然语言操作成功（Twenty CRM 验收项已随部署取消，2026-08-17）
 - **调研报告**：`open-source-oa-crm-research.md`、`ai-agent-crm-oa-integration-research.md`
-- **进度（2026-08-17）**：Odoo 17 已 Docker 部署并初始化数据库，JSON-RPC 认证成功；`odoo-adapter/twenty-adapter/odoo-tools/twenty-tools/saas-tools/audit-logger` 已实现并注册 MCP 工具；真实 Odoo E2E 7 测试通过。**遗留**：Twenty CRM 镜像拉取被阿里云源 403 阻塞，需从 Docker Hub 直拉后部署
+- **进度（2026-08-17）**：Odoo 17 已 Docker 部署并初始化数据库，JSON-RPC 认证成功；`odoo-adapter/twenty-adapter/odoo-tools/twenty-tools/saas-tools/audit-logger` 已实现并注册 MCP 工具；真实 Odoo E2E 7 测试通过。**变更（2026-08-17）**：Twenty CRM 部署需求已取消（用户决定不部署服务），twenty-adapter/twenty-tools 代码保留备用
 
 ### R023：Agent框架融合——MCP+LangSmith+LLM约束控制
 
@@ -167,7 +167,7 @@
 - **优先级**：P0微信小程序→P1 Capacitor MVP→P2 RN正式版→P3鸿蒙
 - **验收**：微信小程序核心问答可用，API复用率≥80%
 - **调研报告**：`multi-platform-frontend-research.md`
-- **进度（2026-08-17）**：R024-e Capacitor MVP（native-bridge + capacitor.config.ts + 依赖安装）完成；R024-f 鸿蒙 ArkTS 原型（ChatPage.ets）完成；小程序 api-client 完成。**遗留**：Capacitor 原生构建（Next.js export 与 API 路由冲突，需独立 SPA 策略）；鸿蒙 App 构建（需 DevEco Studio）
+- **进度（2026-08-17）**：R024-e Capacitor MVP（native-bridge + capacitor.config.ts + 依赖安装）完成；R024-f 鸿蒙 ArkTS 原型（ChatPage.ets）完成；小程序 api-client 完成。**变更（2026-08-17）**：Capacitor 原生构建、鸿蒙 App 构建需求已取消（用户决定不部署服务），原型代码保留备用
 
 ### R025：附注表查询路由优化
 
@@ -183,7 +183,7 @@
 - **方案**：SemVer双轨版本号+4阶段路线+15项风险矩阵+灰度发布+自动回滚
 - **验收**：升级路线图完成，回滚5分钟内验证，灰度1%→100%
 - **调研报告**：`v3-upgrade-research-report.md`
-- **进度（2026-08-17）**：Phase 0 规划完成（升级路线图/兼容性矩阵/回滚方案 `v3-compatibility-matrix-rollback-migration.md`）；灰度发布方案（1%→100%）与监控方案已制定
+- **进度（2026-08-17）**：Phase 0 规划完成（升级路线图/兼容性矩阵/回滚方案 `v3-compatibility-matrix-rollback-migration.md`）；灰度发布方案（1%→100%）与监控方案已制定。**变更（2026-08-17）**：服务器部署（负载均衡/压测/GPU）需求已取消
 
 ### R027：JD调研驱动的能力补齐
 
