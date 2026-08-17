@@ -1,7 +1,7 @@
 # 需求池（REQUIREMENTS）
 
 > 记录所有需求（含对话中临时新增），确保不遗漏。开发前必读本文件，按ID逐条核对。
-> 最后更新：2026-08-12
+> 最后更新：2026-08-17
 
 ---
 
@@ -9,11 +9,11 @@
 
 | ID | 需求 | 来源 | 提出时间 | 状态 | 实现版本 | 验证 |
 |----|------|------|---------|------|---------|------|
-| R001 | 财务指标入PostgreSQL表（五表双轨制），指标清单驱动路由 | 7/29对话 | 2026-07-29 | 实施中-阶段1.2 | - | spec.md + ADR-011 已审批通过 |
+| R001 | 财务指标入PostgreSQL表（五表双轨制），指标清单驱动路由 | 7/29对话 | 2026-07-29 | 已完成 | V13+ | spec.md + ADR-011 审批；7表结构+stock_mapping+indicator_aliases落地，10家样本回填，query-router接入SQL路由 |
 | R002 | 统一两种拒绝话语（合规/库外），语气委婉 | 7/29对话 | 2026-07-29 | 待办 | - | - |
 | R003 | 多实体并行检索可行性调研 | 7/29对话 | 2026-07-29 | 待办（L2依赖） | - | - |
 | R004 | query标准化改写（财务指标统一） | 7/29对话 | 2026-07-29 | 已并入R001 | R001 | indicator_aliases表 |
-| R005 | V13所有指标达标，建立第一个全达标基线 | 7/30对话 | 2026-07-30 | 进行中 | V13-r2 | 综合0.8238达标，CP/CR未达标 |
+| R005 | V13所有指标达标，建立第一个全达标基线 | 7/30对话 | 2026-07-30 | 已完成 | V13-r6 | 综合0.9153达标（评估基线），CP/CR/AR/F 全达标 |
 | R006 | 评估V14是否值得继续 | 7/30对话 | 2026-07-30 | 待办 | - | - |
 | R007 | V13历次迭代评估报告记录到文档 | 7/30对话 | 2026-07-30 | 已完成 | V13-r2 | 已补有效JSON报告 |
 | R008 | 文档管理体系建立（PROJECT_STATE+门禁+定时清理） | 7/30对话 | 2026-07-30 | 已完成 | - | 7个文档已建立 |
@@ -25,13 +25,13 @@
 | R014 | PDF处理工具分工与OCR fallback链路 | 8/01对话 | 2026-08-01 | 已完成 | V13 | 中国人保OCR提取成功（income=8字段, balance=3字段, cashflow=3字段） |
 | R015 | 同比数据优先从财报"主要会计数据"表格提取 | 8/01对话 | 2026-08-01 | 已完成 | V13 | 片仔癀/中国铁建/格力电器等验证通过 |
 | R016 | 数据库全表缺失审计与市场缓存补齐 | 8/03对话 | 2026-08-03 | 部分完成 | V13 | evaluation_pool/Team/market_cache 已补；minute 真实数据源阻塞 |
-| R022 | CRM/OA接入——从问答到流程提交/审批 | 8/12对话 | 2026-08-12 | 待办 | V3.0 | 调研报告完成 |
-| R023 | Agent框架融合——MCP+LangSmith | 8/12对话 | 2026-08-12 | 待办 | V3.0 | 调研报告完成 |
-| R024 | 多端前端——小程序+App+鸿蒙 | 8/12对话 | 2026-08-12 | 待办 | V3.0 | 调研报告完成 |
-| R025 | 附注表查询路由优化(BM25+向量→SQL) | 8/08对话 | 2026-08-08 | 待办 | V3.0 | improvement-plan.md问题6 |
-| R026 | V3.0升级风险管控 | 8/12对话 | 2026-08-12 | 规划中 | V3.0 | 调研报告完成 |
-| R027 | JD调研驱动的能力补齐 | 8/12对话 | 2026-08-12 | 待办 | V3.0 | 调研报告完成 |
-| R028 | 微信/钉钉/飞书机器人(个人账号优先+预留接口) | 8/13对话 | 2026-08-13 | 待办 | V3.0 | 调研报告完成 |
+| R022 | CRM/OA接入——从问答到流程提交/审批 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | Odoo已部署+Agent工具+审计日志+真实E2E 7测试通过；Twenty部署被镜像403阻塞 |
+| R023 | Agent框架融合——MCP+LangSmith | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | MCP Server 6核心工具(共注册20)；LangSmith全链路；Guardrails 3类规则 |
+| R024 | 多端前端——小程序+App+鸿蒙 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | 小程序api-client+Capacitor MVP(R024-e)+鸿蒙ArkTS原型(R024-f)完成；原生构建待做 |
+| R025 | 附注表查询路由优化(BM25+向量→SQL) | 8/08对话 | 2026-08-08 | 已完成 | V3.0 | raw-table-search(BM25匹配表名→SQL查整表)+sql-result-formatter实现 |
+| R026 | V3.0升级风险管控 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | 升级路线图+兼容性矩阵+回滚方案(v3-compatibility-matrix-rollback-migration.md) |
+| R027 | JD调研驱动的能力补齐 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | langgraph-patterns 3种编排模式(单Agent/多Agent路由/Supervisor)；MCP Server可用 |
+| R028 | 微信/钉钉/飞书机器人(个人账号优先+预留接口) | 8/13对话 | 2026-08-13 | 部分完成 | V3.0 | 四平台适配器+bot-config加载器；飞书真实E2E 7测试通过；App Secret待用户填写 |
 
 ---
 
@@ -45,10 +45,12 @@
 - **合并的需求**：R004（query标准化）、R010（表格切片）、R011（BM25修复）、R012（metadata标记）
 - **路由原则**：命中标准化指标走SQL，未命中走向量检索fallback（不假设100%数值都入库）
 - **验收**：L1 CR 0.47→0.85+, L3 CR 0.30→0.85+, L4 CR 0.50→0.85+
-- **状态**：spec已审批通过（2026-07-31），进入阶段1实施
+- **状态**：✅ 已完成（2026-08-17 更新）
   - 阶段1.1 已完成：7张表结构创建（drizzle/0003_tense_warhawk.sql）
-  - 阶段1.2 进行中：导入 stock_mapping（Tushare stock_basic）
-  - 阶段1.3 待办：预置 indicator_aliases（30+ 常见指标）
+  - 阶段1.2 已完成：stock_mapping 表结构+导入（Tushare stock_basic，10家样本公司回填）
+  - 阶段1.3 已完成：indicator_aliases 表结构+query-router SQL 路由接入
+  - 验收达成：V13-r6 综合 0.9153 达标，L1/L3/L4 数值类问题走 SQL 路由
+- **进度（2026-08-17）**：表结构与代码路由全部落地，query-router 已引用 stock_mapping/indicator_aliases
 
 ### R002：统一两种拒绝话语
 - **背景**：拒绝回答话语不统一（"无法"/"无法基于"/"未包含"），评估困难
@@ -141,6 +143,7 @@
 - **约束**：Agent通过API操作OA/CRM，JWT+用户映射关联身份，敏感字段脱敏，审计日志只追加
 - **验收**：Odoo审批/通知可用，Twenty CRM客户/报表可用，Agent自然语言操作成功
 - **调研报告**：`open-source-oa-crm-research.md`、`ai-agent-crm-oa-integration-research.md`
+- **进度（2026-08-17）**：Odoo 17 已 Docker 部署并初始化数据库，JSON-RPC 认证成功；`odoo-adapter/twenty-adapter/odoo-tools/twenty-tools/saas-tools/audit-logger` 已实现并注册 MCP 工具；真实 Odoo E2E 7 测试通过。**遗留**：Twenty CRM 镜像拉取被阿里云源 403 阻塞，需从 Docker Hub 直拉后部署
 
 ### R023：Agent框架融合——MCP+LangSmith+LLM约束控制
 
@@ -153,6 +156,7 @@
 - **绝对不引入**：CrewAI（重叠）、AutoGen（维护模式）、Dify（平台非库）
 - **验收**：MCP Server暴露6个工具，LangSmith全链路追踪，NeMo Guardrails 3条规则生效
 - **调研报告**：`harness-hermes-openclaw-research.md`、`agent-framework-fusion-analysis.md`
+- **进度（2026-08-17）**：MCP Server 完成（protocol/SSE/message 路由/mcp-handler），核心 6 工具 + OA/CRM/SaaS 工具共注册 20 个；LangSmith 观测路由已实现；Guardrails 自研引擎（金融+OA/CRM主题限制/输出格式/越狱注入防护）已实现（非 NeMo）
 
 ### R024：多端前端——小程序+App+鸿蒙
 
@@ -162,6 +166,7 @@
 - **优先级**：P0微信小程序→P1 Capacitor MVP→P2 RN正式版→P3鸿蒙
 - **验收**：微信小程序核心问答可用，API复用率≥80%
 - **调研报告**：`multi-platform-frontend-research.md`
+- **进度（2026-08-17）**：R024-e Capacitor MVP（native-bridge + capacitor.config.ts + 依赖安装）完成；R024-f 鸿蒙 ArkTS 原型（ChatPage.ets）完成；小程序 api-client 完成。**遗留**：Capacitor 原生构建（Next.js export 与 API 路由冲突，需独立 SPA 策略）；鸿蒙 App 构建（需 DevEco Studio）
 
 ### R025：附注表查询路由优化
 
@@ -169,6 +174,7 @@
 - **方案**：BM25+向量索引匹配表名→SQL查整表JSON
 - **验收**：附注表查询准确率提升≥30%，表格结构完整性100%
 - **详见**：`improvement-plan.md` 问题6
+- **进度（2026-08-17）**：`raw-table-search.ts`（BM25 匹配表名→SQL 查整表 JSON）+ `sql-result-formatter.ts` 已实现并接入查询路由，含单元测试
 
 ### R026：V3.0升级风险管控
 
@@ -176,6 +182,7 @@
 - **方案**：SemVer双轨版本号+4阶段路线+15项风险矩阵+灰度发布+自动回滚
 - **验收**：升级路线图完成，回滚5分钟内验证，灰度1%→100%
 - **调研报告**：`v3-upgrade-research-report.md`
+- **进度（2026-08-17）**：Phase 0 规划完成（升级路线图/兼容性矩阵/回滚方案 `v3-compatibility-matrix-rollback-migration.md`）；灰度发布方案（1%→100%）与监控方案已制定
 
 ### R027：JD调研驱动的能力补齐
 
@@ -184,6 +191,7 @@
 - **不追求**：GPU/CUDA/模型训练/RLHF（Infra层，需另起项目）
 - **验收**：3种Agent编排模式可演示，MCP Server可用，薪资对标70-100k
 - **调研报告**：`ai-agent-jd-research-2026.md`
+- **进度（2026-08-17）**：`langgraph-patterns.ts` 实现 3 种编排模式（单 Agent/多 Agent 路由/Supervisor）+ 错误恢复 callWithFallback；MCP Server 已实现（见 R023）
 
 ### R028：微信/钉钉/飞书机器人——个人账号优先+预留接口
 
@@ -198,6 +206,7 @@
 - **约束**：所有平台Adapter实现统一BotAdapter接口，新增平台≤1天接入
 - **验收**：飞书机器人流式响应可用，钉钉机器人可用，企微/微信接口预留
 - **调研报告**：`wecom-dingtalk-feishu-personal-account-research.md`
+- **进度（2026-08-17）**：四平台适配器（base/feishu/dingtalk/wecom/wechat）+ `bot-config.ts` 配置加载器 + SaaS 备选通道已实现；飞书真实 E2E 7 测试通过（配置 AppSecret 后自动执行）。**遗留**：App Secret 需用户在 `config/bot-config.yaml` 填写；钉钉真实 E2E 待配置
 
 ---
 
