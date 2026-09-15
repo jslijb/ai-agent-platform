@@ -323,6 +323,7 @@ async function collectSingleItem(
   let r001SqlContext = "";
 
   try {
+    const r001Start = Date.now();
     const routeResult = await r001RouteQuery(testItem.query);
     retrievalDebug.r001Route = routeResult.route;
     retrievalDebug.r001Company = routeResult.company
@@ -353,7 +354,7 @@ async function collectSingleItem(
       }
       contexts = [r001SqlContext];
       retrievalDebug.finalCount = contexts.length;
-      retrievalLatencyMs = 0;
+      retrievalLatencyMs = Date.now() - r001Start;
       log.info(
         `R001 命中 ${routeResult.route}: company=${retrievalDebug.r001Company}, indicators=${indicators}, rows=${routeResult.sqlResult.length}, 跳过向量检索`
       );

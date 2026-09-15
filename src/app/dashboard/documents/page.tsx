@@ -209,6 +209,9 @@ export default function DocumentsPage() {
               <Link href="/chat" className="text-gray-600 hover:text-gray-900 text-sm">
                 对话
               </Link>
+              <Link href="/dashboard/knowledge-graph" className="text-gray-600 hover:text-gray-900 text-sm">
+                知识图谱
+              </Link>
               <Link href="/dashboard" className="text-gray-600 hover:text-gray-900 text-sm">
                 控制台
               </Link>

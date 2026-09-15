@@ -544,6 +544,30 @@ Phase 4: 发布（2周）
   └─ v1 deprecated 标记
 ```
 
+### 9.9 自研评测方法论架构（R030，内部 V16）
+
+```
+qa-golden.json（全量130条 L1~L9）
+  → collect-rag-data.ts（生产管线采集，补齐 SQL 路由 retrievalLatencyMs）
+  → ragas-eval-data-v16.json（answer+contexts+三维延迟字段）
+  → unified_evaluation.py（V16 统一评测器）
+       ├─ 质量层：CP/CR/F/AR（复用 ragas_evaluation.py 模块导入）
+       │          + NA 数值精度（新增，误差<0.1%→1 / <1%→0.5 / ≥1%→0）
+       ├─ 性能层：E2E/检索/生成 延迟 P50/P90/P95/均值（纯统计，0 LLM 调用）
+       ├─ 稳定层：SR 成功率（非空/非超时/非错误文本）
+       └─ 报告层：JSON + Markdown 双产出
+            ├─ 分类明细（L1~L9）
+            ├─ 与 V13-r6 基线对比（同 judge 时才可比）
+            └─ Goodhart 风险披露（评估器迎合规则清单）
+```
+
+**关键设计决策**：
+- **unified_evaluation.py 复用策略**：`from ragas_evaluation import Config, LLMCaller, eval_context_precision, ...`，仅新增 NA 指标与延迟统计，禁止复制既有函数（避免双实现漂移）
+- **NA 数值提取**：正则抽取 `[\d,]+\.?\d*` 千分位兼容 + 中文单位换算（亿=1e8/万=1e4/千=1e3）；GT 与 answer 数量不等时取最接近配对；GT 无数值 → NA 跳过不计入均值
+- **延迟统计来源**：优先读采集数据自带 latency 字段（0 LLM 成本）；缺失时按 0 处理并在报告中标注覆盖率
+- **judge 固定**：评测启动时选定链首可用模型后锁定，报告中输出 `judge_model`；降级发生时在报告中标记 `judge_degraded=true`
+- **综合分 V16 公式**：`0.20*CP + 0.20*CR + 0.25*F + 0.25*AR + 0.10*NA`（F/AR 权重各降 0.05 让渡给 NA，体现金融数值准确性业务优先）
+
 ## 十、注意事项（从踩坑提炼）
 
 - LLM Provider 额度耗尽会导致评估全0，评估前需检查可用性

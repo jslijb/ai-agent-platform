@@ -124,6 +124,9 @@ export default async function DashboardPage() {
               <Link href="/dashboard/documents" className="text-gray-600 hover:text-gray-900 text-sm">
                 文档管理
               </Link>
+              <Link href="/dashboard/knowledge-graph" className="text-gray-600 hover:text-gray-900 text-sm">
+                知识图谱
+              </Link>
               <Link href="/dashboard/evaluation" className="text-gray-600 hover:text-gray-900 text-sm">
                 RAG 评估
               </Link>

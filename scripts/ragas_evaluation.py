@@ -78,11 +78,17 @@ logger = _logger
 class LLMProvider:
     """单个 LLM provider 配置"""
 
-    def __init__(self, name: str, model: str, api_key: str, base_url: str):
+    def __init__(self, name: str, model: str, api_key: str, base_url: str,
+                 transient: bool = False, supports_json_mode: bool = True):
         self.name = name
         self.model = model
         self.api_key = api_key
         self.base_url = base_url
+        # transient=True：限流型供应商（如商汤），失败软跳过不拉黑，可循环重试
+        self.transient = transient
+        # supports_json_mode=False：该 provider 不支持 OpenAI response_format 参数，
+        # 靠 prompt 约束 JSON 输出（如商汤 SenseNova）
+        self.supports_json_mode = supports_json_mode
 
     def is_available(self) -> bool:
         return bool(self.api_key and self.model and self.base_url)
@@ -120,47 +126,78 @@ class Config:
         "overall": 0.82,
     }
 
-    # 百炼 qwen3.5 多版本降级链（一个 403 自动切换下一个，不得只配一个）
+    # 百炼模型降级链（2026-09-15 用户指定，每个模型 1M token 额度，一个 403 自动切换下一个）
     BAILIAN_MODELS = [
-        "qwen3.5-plus",
-        "qwen3.5-flash",
-        "qwen3.5-397b-a17b",
-        "qwen3.5-plus-2026-02-15",
-        "qwen3.5-122b-a10b",
+        "qwen3.8-27b",
+        "qwen3.7-flash-2026-07-15",
+        "qwen3.8-flash",
+        "kimi-k3",
+        "deepseek-v4-flash-0731",
+        "qwen3.8-max-0902",
+        "deepseek-v4.1-flash",
+        "glm-5.3",
+        "deepseek-v4-pro-0813",
+        "qwen3.8-2.4t-a95b",
     ]
+
+    # 商汤（transient 软跳过型）：限流频繁，失败不拉黑，循环重试
+    SENSENOVA_MODELS = [
+        "sensenova-6.8-flash-lite",
+    ]
+    # 全链软跳过后循环重试 transient 的最大圈数（防死循环）
+    MAX_SOFT_CYCLES = 2
 
     @staticmethod
     def get_llm_chain() -> List[LLMProvider]:
         """
-        构建 LLM 降级链（多模型版本 + 多 API Key fallback）。
-        百炼 5 个 qwen-plus 版本 × 3 个 API Key 全部加入，一个 403 额度耗尽自动切换下一个。
-        AGNES 作为最后降级。
+        构建 LLM 降级链（2026-09-15 用户指定更新）：
+          1. 商汤 sensenova（transient 软跳过，排链首）：限流频繁，失败即时跳过不拉黑，
+             全链耗尽后循环回来重试（≤MAX_SOFT_CYCLES 圈）
+          2. 阿里百炼（主力，10 个模型 × 1M token 额度）：403 配额耗尽永久拉黑
+          3. AGNES agnes-3.0-flash（兜底，排最后）：所有百炼模型额度耗尽后启用，
+             403 配额耗尽永久拉黑
         API Key 从环境变量读取，不硬编码。
         """
         chain: List[LLMProvider] = []
 
-        # 1. 百炼 qwen-plus 多版本 × 多 API Key（首选，全部加入降级链）
+        # 1. 商汤 sensenova（transient，链首）
+        sensenova_key = os.getenv("SHANTANG_TOKEN", "")
+        sensenova_url = os.getenv(
+            "SENSENOVA_BASE_URL", "https://token.sensenova.cn/v1"
+        )
+        sensenova_models = [
+            m.strip()
+            for m in os.getenv("SENSENOVA_MODELS", ",".join(Config.SENSENOVA_MODELS)).split(",")
+            if m.strip()
+        ]
+        for model in sensenova_models:
+            provider = LLMProvider(
+                "sensenova", model, sensenova_key, sensenova_url,
+                transient=True, supports_json_mode=False,
+            )
+            if provider.is_available():
+                chain.append(provider)
+
+        # 2. 阿里百炼（主力，10 模型 × 多 API Key，403 永久拉黑）
         bailian_url = os.getenv(
             "DASHSCOPE_BASE_URL",
             "https://dashscope.aliyuncs.com/compatible-mode/v1",
         )
-        # 收集所有可用的百炼 API Key（3 个独立 key，各自有独立配额）
         bailian_keys = []
         for env_var in ["DASHSCOPE_API_KEY2", "DASHSCOPE_API_KEY", "DASHSCOPE_API_KEY1"]:
             key = os.getenv(env_var, "")
             if key and key not in bailian_keys:
                 bailian_keys.append(key)
 
-        # 为每个 key × 每个模型创建 provider（key1 全部模型 → key2 全部模型 → ...）
         for key in bailian_keys:
             for model in Config.BAILIAN_MODELS:
                 provider = LLMProvider("dashscope", model, key, bailian_url)
                 chain.append(provider)
 
-        # 2. AGNES（降级备选）
+        # 3. AGNES agnes-3.0-flash（兜底，排最后，403 永久拉黑）
         agnes_key = os.getenv("AGNES_KEY", "")
         agnes_url = os.getenv("AGNES_BASE_URL", "https://api.agnes-ai.cn/v1")
-        agnes_model = os.getenv("RAGAS_AGNES_MODEL", "agnes-2.5-flash")
+        agnes_model = os.getenv("RAGAS_AGNES_MODEL", "agnes-3.0-flash")
         agnes = LLMProvider("agnes", agnes_model, agnes_key, agnes_url)
         if agnes.is_available():
             chain.append(agnes)
@@ -182,23 +219,32 @@ class LLMCaller:
     def __init__(self, chain: List[LLMProvider]):
         if not chain:
             raise ValueError(
-                "LLM 降级链为空，请设置环境变量：AGNES_KEY 或 DASHSCOPE_API_KEY"
+                "LLM 降级链为空，请设置环境变量：SHANTANG_TOKEN / AGNES_KEY / DASHSCOPE_API_KEY"
             )
         self.chain = chain
-        # 记录已被配额耗尽的 provider，避免重复尝试
+        # 永久拉黑：配额耗尽/重试耗尽（百炼/AGNES）
         self.exhausted: set = set()
+        # 软跳过：transient 供应商（商汤）本轮失败临时跳过，全链耗尽后循环重试
+        self.soft_skipped: set = set()
         # 当前正在使用的 provider（首次调用时确定）
         self.current: Optional[LLMProvider] = None
         self.client: Optional[OpenAI] = None
 
     def _select_provider(self) -> Optional[LLMProvider]:
-        """选择第一个未耗尽的 provider（按 model 唯一标识，而非 name）"""
+        """选择第一个可用 provider（排除永久拉黑与本轮软跳过，按 name/model 唯一标识）"""
         for p in self.chain:
-            # 用 name/model 组合作为唯一标识，避免同 name 不同 model 被误判耗尽
             key = f"{p.name}/{p.model}"
-            if key not in self.exhausted:
+            if key not in self.exhausted and key not in self.soft_skipped:
                 return p
         return None
+
+    def _soft_skip(self, provider: LLMProvider, reason: str) -> None:
+        """transient 供应商软跳过：本轮跳过，全链耗尽后循环重试（不拉黑）"""
+        key = f"{provider.name}/{provider.model}"
+        self.soft_skipped.add(key)
+        logger.warning(
+            f"provider {key} 软跳过（transient，不拉黑）: {reason[:120]}"
+        )
 
     def _init_client(self, provider: LLMProvider) -> None:
         """切换到指定 provider 的客户端"""
@@ -212,14 +258,24 @@ class LLMCaller:
         logger.info(f"LLM 客户端切换至: {provider.name}/{provider.model}")
 
     def call(self, system: str, user: str) -> str:
-        """调用 LLM，返回文本内容。自动处理降级。"""
+        """调用 LLM，返回文本内容。自动处理分级降级（R030-j）。"""
         last_err: Optional[Exception] = None
         attempt = 0
+        soft_cycles = 0  # 软跳过循环圈数
 
         while True:
-            # 选择 provider（可能因配额耗尽/超时而切换）
+            # 选择 provider（可能因拉黑/软跳过而切换）
             provider = self._select_provider()
             if provider is None:
+                # 全链不可用：transient 软跳过的循环回来重试（限流窗口可能已过）
+                if self.soft_skipped and soft_cycles < Config.MAX_SOFT_CYCLES:
+                    soft_cycles += 1
+                    logger.info(
+                        f"全链 provider 暂不可用，第 {soft_cycles}/{Config.MAX_SOFT_CYCLES} 圈"
+                        f"循环重试软跳过项: {sorted(self.soft_skipped)}"
+                    )
+                    self.soft_skipped.clear()
+                    continue
                 logger.error(f"LLM 调用彻底失败: {last_err}", exc_info=True)
                 raise RuntimeError(
                     f"所有 LLM provider 均不可用: {[p.name for p in self.chain]}"
@@ -233,16 +289,23 @@ class LLMCaller:
             attempt += 1
 
             try:
-                resp = self.client.chat.completions.create(
+                # per-provider：不支持 response_format 的靠 prompt 约束 JSON
+                kwargs = dict(
                     model=provider.model,
                     messages=[
                         {"role": "system", "content": system},
                         {"role": "user", "content": user},
                     ],
                     temperature=Config.TEMPERATURE,
-                    response_format={"type": "json_object"},
                     timeout=Config.LLM_TIMEOUT,
                 )
+                if provider.supports_json_mode:
+                    kwargs["response_format"] = {"type": "json_object"}
+                else:
+                    kwargs["messages"][-1]["content"] += (
+                        "\n\n请严格以合法 JSON 格式输出，不要包含任何额外文字或 markdown 代码块标记。"
+                    )
+                resp = self.client.chat.completions.create(**kwargs)
                 content = resp.choices[0].message.content or ""
                 time.sleep(Config.CALL_DELAY)
                 return content
@@ -250,7 +313,12 @@ class LLMCaller:
                 last_err = e
                 err_msg = str(e)
 
-                # 识别配额耗尽/认证失败，强制降级
+                # transient（商汤）：任何失败即时软跳过，不重试不拉黑（用户指定策略）
+                if provider.transient:
+                    self._soft_skip(provider, f"{type(e).__name__}: {err_msg}")
+                    continue
+
+                # 识别配额耗尽/认证失败，永久拉黑
                 is_quota = (
                     "AllocationQuota" in err_msg
                     or "403" in err_msg

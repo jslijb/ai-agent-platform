@@ -17,6 +17,7 @@
 | V13-r5 | 2026-08-01 | 自实现(qwen3.5) | **0.9009** | 1.0000 | 0.6697 | 0.9773 | 0.9127 | ✅综合达标 | tests/reports/evaluation/ragas-report-v13-selfimpl-r5.json |
 | V13-r6 | 2026-08-02 | 自实现(agnes-2.5-flash) | **0.9153** | 0.9455 | 0.7045 | 1.0000 | 0.9509 | ✅综合达标 | tests/reports/evaluation/ragas-report-v13-selfimpl-r6.json |
 | V14 | 2026-07-30 | 官方库 | 0.3205 | 0.0 | 0.3333 | 0.5 | 0.0 | ❌ | tests/reports/evaluation/ragas-report-v14-official.json |
+| V16 | 2026-09-02 | 自实现V16(商汤软跳过→AGNES judge) | **0.8386** | 0.8545 | 0.6727 | 0.9791 | 0.9318 | ✅综合达标 | tests/reports/evaluation/ragas-report-v16-selfimpl-r1.json（NA=0.5545新增；E2E P95=81.3s；SR=1.0；较V13-r6 -0.0767，V13被高估） |
 
 **达标线**：CP/CR/AR ≥ 0.8，F ≥ 0.85，综合 ≥ 0.82
 **当前状态**：V13-r6 综合 0.9153 达标（agnes-2.5-flash 模型 + SQL 结果自然语言格式化）。3/4 指标达标（CP=0.9455, F=1.0, AR=0.9509），CR 单指标未达标（0.7045，受 L3/L4 部分项 CR=0 拖累）。L3 CR 从 r5 的 0.4555 提升到 0.5833，L4 CR 从 0.25 提升到 0.60。
@@ -130,6 +131,7 @@
 
 ## D. 最近迭代摘要
 
+- **R030 V16 统一评测器上线（2026-09-02）**：自研评测方法论 V1.0 落地。新增 `scripts/unified_evaluation.py`（质量CP/CR/F/AR复用 + NA数值精度收紧至0.1%/1% + 三维延迟P50/P90/P95 + SR成功率 + Goodhart风险披露 + judge锁定/降级检测 + skip-llm模式），40个单测全绿。性能全量结论（55条）：E2E mean=40.0s/P95=81.3s（生成占93%，检索覆盖率仅9.1%因旧采集SQL路由0值，R030-a已修采集端）；NA=0.5545（L1=0.667/L3=0.30/L4=0.60，收紧口径+GT错误暴露）；SR=1.0。质量层因 AGNES 12/55 后配额403中断（DashScope 3key全403），checkpoint 已存，配额恢复后重跑同命令续传。发现：NA 可反向暴露 GT 数据错误（L1-002 中国铁建营收 GT=10.3亿元错误，答案1.03万亿正确）。
 - **数据库缺失审计与市场缓存补齐（2026-08-03）**：重新审计 public schema 全表状态。`evaluation_pool` 已导入 `qa-golden.json` 130/130 条，`Team/TeamMember` 已有默认团队（1队3人），`market_cache_entries` 复验 36 条且无 0 记录；新增 `industry/concept/trade_cal` 缓存写入。修复 `data_service/main.py` 中 `trade_cal/industry/concept/minute` 端点未写缓存的问题，新增 `tests/data-service/test_market_cache_endpoints.py` 回归测试 4/4 通过。`minute` 端点缓存逻辑已具备，但真实补齐受上游数据不可用阻塞：efinance 东方财富接口远端断连，mootdx 返回空数据，未写入伪数据。
 - **Docker 服务审计（2026-08-02）**：项目 Docker 配置与其他项目合并后全面审计。修复 evaluation-service 缺失问题（添加到 docker-compose.yml + override + .env）、添加 nginx evaluation_service upstream、更新 Prometheus 监控配置（新增 rag/evaluation/data 服务采集）、补充 .env.docker DASHSCOPE_API_KEY 变量、更新 design.md 服务端口和 FUNCTIONS.md 功能清单。13 个服务全部定义完整。
 - **V13-r6（2026-08-02）**：SQL 结果自然语言格式化器 + AGNES 模型评估。综合 0.9153 历史最高。L3 CR 0.4555→0.5833（+28%），L4 CR 0.25→0.60（+140%）。新增断点续传 + 多 API Key + 并发锁机制。
