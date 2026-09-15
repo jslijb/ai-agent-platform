@@ -31,5 +31,16 @@
     "answer": "B",
     "explanation": "利用未公开的重大信息进行交易属于内幕交易",
     "category": "financial_compliance"
+  },
+  {
+    "id": 4,
+    "question": "企业对外报送的财务报告中，核心报表不包括下列哪项？",
+    "A": "资产负债表",
+    "B": "利润表",
+    "C": "现金流量表",
+    "D": "产品销售话术",
+    "answer": "D",
+    "explanation": "财务报告核心报表为资产负债表、利润表、现金流量表等，产品销售话术不属于财务报表",
+    "category": "Accounting"
   }
 ]
