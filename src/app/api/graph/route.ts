@@ -110,9 +110,9 @@ export async function GET(request: Request) {
 
       // 清理孤立的悬空端点（边被 LIMIT 截断时可能出现）
       const edgeNodeIds = new Set(edges.flatMap((e) => [e.source, e.target]));
-      for (const id of nodeMap.keys()) {
+      Array.from(nodeMap.keys()).forEach((id) => {
         if (!edgeNodeIds.has(id)) nodeMap.delete(id);
-      }
+      });
 
       const nodes = Array.from(nodeMap.values());
 

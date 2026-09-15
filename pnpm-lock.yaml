@@ -74,6 +74,9 @@ importers:
       langchain:
         specifier: ^1.4.2
         version: 1.5.5(@langchain/core@1.2.5(openai@6.49.0(zod@3.25.76)))(openai@6.49.0(zod@3.25.76))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      langsmith:
+        specifier: ^0.8.10
+        version: 0.8.10(openai@6.49.0(zod@3.25.76))
       llamaindex:
         specifier: ^0.12.1
         version: 0.12.1(next@14.2.21(@playwright/test@1.62.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(rxjs@7.8.2)(tree-sitter@0.22.0)(web-tree-sitter@0.24.3)(zod@3.25.76)
@@ -92,6 +95,9 @@ importers:
       pdf-parse:
         specifier: ^2.4.5
         version: 2.4.5
+      pg:
+        specifier: ^7.17.1
+        version: 7.17.1
       pg-ears:
         specifier: ^1.2.3
         version: 1.2.3
@@ -144,6 +150,9 @@ importers:
       '@types/node':
         specifier: ^22.9.0
         version: 22.20.1
+      '@types/pg':
+        specifier: ^8.21.0
+        version: 8.21.0
       '@types/pg-ears':
         specifier: ^1.0.5
         version: 1.0.5
