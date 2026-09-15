@@ -33,6 +33,7 @@ interface GraphEdge {
   source: string;
   target: string;
   relation: string;
+  weight?: number;
 }
 
 interface GraphStats {
@@ -63,6 +64,21 @@ const TYPE_COLORS: Record<string, string> = {
 };
 
 const RELATION_COLORS: Record<string, string> = {
+  // 语义化关系（graph-builder-v2 类型化抽取）
+  HAS_INDICATOR: "#2563eb",
+  HAS_REVENUE: "#0891b2",
+  HAS_PROFIT: "#0e7490",
+  PRODUCES: "#7c3aed",
+  DEVELOPS: "#9333ea",
+  RELEASES: "#c026d3",
+  LOCATED_IN: "#059669",
+  OWNS_SHARE: "#e11d48",
+  INVESTS_IN: "#be123c",
+  COOPERATES_WITH: "#0d9488",
+  COMPETES_WITH: "#ea580c",
+  SUPPLIES: "#4f46e5",
+  RELATED_TO: "#94a3b8",
+  // RELATION 边上的原始中文关系
   增长: "#dc2626",
   下降: "#16a34a",
   持股: "#7c3aed",
@@ -274,10 +290,16 @@ export default function KnowledgeGraphPage() {
                       setHoveredNode(node as GraphNode | null)
                     }
                     linkColor={linkColor}
-                    linkLabel="relation"
+                    linkLabel={(link: object) => {
+                      const l = link as GraphEdge;
+                      return (l.weight ?? 1) > 1 ? `${l.relation} ×${l.weight}` : l.relation;
+                    }}
                     linkDirectionalArrowLength={4}
                     linkDirectionalArrowRelPos={1}
-                    linkWidth={1}
+                    linkWidth={(link: object) => {
+                      const l = link as GraphEdge;
+                      return Math.min(1 + (l.weight ?? 1), 4);
+                    }}
                     cooldownTicks={120}
                   />
                 </div>

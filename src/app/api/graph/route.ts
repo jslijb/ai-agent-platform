@@ -40,35 +40,42 @@ export async function GET(request: Request) {
       let labelStats: Record<string, number> = {};
 
       if (documentId) {
-        // 单文档视图：该文档的全部三元组
+        // 单文档视图：该文档的全部三元组（含 RELATION 与语义化关系 HAS_INDICATOR 等），
+        // 按 (头, 尾, 关系) 去重聚合——多文档重复抽取会产生同组合的多条平行边
         edgesResult = await session.run(
-          `MATCH (h:Entity)-[r:RELATION {sourceDocId: $docId}]->(t:Entity)
-           RETURN h.name AS head, labels(h) AS headLabels, t.name AS tail, labels(t) AS tailLabels,
-                  r.type AS relation, coalesce(r.originalRelation, r.type) AS originalRelation
+          `MATCH (h:Entity)-[r]->(t:Entity)
+           WHERE r.sourceDocId = $docId
+           WITH h, t,
+                CASE WHEN type(r) = 'RELATION' THEN coalesce(r.originalRelation, r.type) ELSE type(r) END AS relation,
+                count(r) AS weight
+           RETURN h.name AS head, labels(h) AS headLabels, t.name AS tail, labels(t) AS tailLabels, relation, weight
            LIMIT $edgeLimit`,
           { docId: documentId, edgeLimit }
         );
         degreeResult = await session.run(
-          `MATCH (e:Entity)-[r:RELATION {sourceDocId: $docId}]-()
-           RETURN e.name AS name, count(r) AS degree
+          `MATCH (e:Entity)-[r]-(t:Entity)
+           WHERE r.sourceDocId = $docId
+           RETURN e.name AS name, count(DISTINCT t) AS degree
            ORDER BY degree DESC LIMIT 20`,
           { docId: documentId }
         );
       } else {
-        // 全局视图：度数最高的 N 个节点 + 它们之间的边
+        // 全局视图：度数最高的 N 个节点 + 它们之间的边（全部关系类型，去重聚合）
+        // 注意: Neo4j 5 禁止 size() 包 pattern, 必须用 COUNT {}
         edgesResult = await session.run(
-          `MATCH (h:Entity)-[r:RELATION]->(t:Entity)
-           WITH h, r, t,
-                size((h)--()) + size((t)--()) AS degreeSum
+          `MATCH (h:Entity)-[r]->(t:Entity)
+           WITH h, t,
+                CASE WHEN type(r) = 'RELATION' THEN coalesce(r.originalRelation, r.type) ELSE type(r) END AS relation,
+                count(r) AS weight
+           WITH h, t, relation, weight, COUNT { (h)--() } + COUNT { (t)--() } AS degreeSum
            ORDER BY degreeSum DESC
            LIMIT $edgeLimit
-           RETURN h.name AS head, labels(h) AS headLabels, t.name AS tail, labels(t) AS tailLabels,
-                  r.type AS relation, coalesce(r.originalRelation, r.type) AS originalRelation`,
+           RETURN h.name AS head, labels(h) AS headLabels, t.name AS tail, labels(t) AS tailLabels, relation, weight`,
           { edgeLimit }
         );
         degreeResult = await session.run(
-          `MATCH (e:Entity)-[r:RELATION]-()
-           RETURN e.name AS name, count(r) AS degree
+          `MATCH (e:Entity)-[r]->(t:Entity)
+           RETURN e.name AS name, count(DISTINCT t) AS degree
            ORDER BY degree DESC LIMIT 20`
         );
         const labelResult = await session.run(
@@ -91,12 +98,15 @@ export async function GET(request: Request) {
         return arr[0] || "Entity";
       };
 
-      const edges: Array<{ source: string; target: string; relation: string }> = [];
+      const edges: Array<{ source: string; target: string; relation: string; weight: number }> = [];
 
       for (const record of edgesResult.records) {
         const head = String(record.get("head"));
         const tail = String(record.get("tail"));
         const relation = String(record.get("relation") || "关联");
+        const weightRaw = record.get("weight");
+        const weight =
+          typeof weightRaw?.toNumber === "function" ? weightRaw.toNumber() : Number(weightRaw) || 1;
         if (!head || !tail) continue;
 
         if (!nodeMap.has(head)) {
@@ -105,7 +115,7 @@ export async function GET(request: Request) {
         if (!nodeMap.has(tail)) {
           nodeMap.set(tail, { id: tail, label: tail, type: primaryLabel(record.get("tailLabels")) });
         }
-        edges.push({ source: head, target: tail, relation });
+        edges.push({ source: head, target: tail, relation, weight });
       }
 
       // 清理孤立的悬空端点（边被 LIMIT 截断时可能出现）
