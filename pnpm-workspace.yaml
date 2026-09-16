@@ -1,7 +1,6 @@
-allowBuilds:
-  esbuild: set this to true or false
-  msgpackr-extract: set this to true or false
-  nodejieba: set this to true or false
-  sharp: set this to true or false
-  tesseract.js: set this to true or false
-  tree-sitter: set this to true or false
+# pnpm workspace 定义
+# 注意：pnpm 只读取本文件；package.json 里的 "workspaces" 字段是 npm/yarn 的字段，
+# pnpm 不解析它。两处均声明同一套包结构，是为了 npm 与 pnpm 能识别相同的 workspace。
+packages:
+  - 'packages/*'
+  - 'services/*'
