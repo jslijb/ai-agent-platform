@@ -86,6 +86,30 @@
                             └── Twenty(3003)         — CRM（可选）
 ```
 
+**架构图**（微服务拓扑 / 多实例容错 / Docker Compose 部署三段）：
+
+![项目架构图](architecture-diagram.png)
+
+---
+
+## 系统截图
+
+**① 复杂查询 · ReAct 多轮工具调用** —— 问「五粮液和格力电器的相关系数是多少？如果同时持有这两只股票各 50 万，压力测试结果如何？」。Agent 自主编排 `getStockHistory` → `calculateCorrelation`，2 轮迭代 8 个步骤，给出相关系数 0.6373 与四档压力测试下的组合损失估算；每一步的工具入参、原始返回都能在「执行过程」里展开核对。
+
+![复杂查询的 ReAct 执行链路](docs/assets/screenshots/complex-query-trace.png)
+
+**② 数据缺失不编造** —— 问「格力电器 2025 年报利润表各项」。数据接口只返回了营业收入 / 归母净利润 / 毛利率 / 每股收益，Agent 直接指明**缺**营业总成本、营业利润、利润总额，并提示「归母净利润 ≠ 净利润」，不补造数字，只给能算的指标（净利率 16.95%）。
+
+![数据缺失时如实说明](docs/assets/screenshots/answer-no-hallucination.png)
+
+**③ Agent 运行评估** —— 成功率 / 平均迭代轮次 / 平均响应时间，按模型拆分调用量与 Token 消耗；失败请求保留原始错误（百炼 403 限流连试 2 次、timeout、fetch failed），便于区分是上游限流还是自身链路问题。
+
+![Agent 运行评估看板](docs/assets/screenshots/agent-evaluation.png)
+
+**④ Token 用量监控** —— 总调用次数、总 Token 消耗，以及各模型用量明细与性能指标。
+
+![Token 用量监控](docs/assets/screenshots/token-usage.png)
+
 ---
 
 ## 快速开始
