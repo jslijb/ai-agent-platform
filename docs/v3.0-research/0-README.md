@@ -104,9 +104,9 @@
 
 | 文档 | 路径 | 内容 | 阶段 |
 |------|------|------|------|
-| V3.0 Spec | `docs/3-standards/versions/v3.0/spec.md` | 版本规格 | alpha 前 |
-| V3.0 Design | `docs/3-standards/versions/v3.0/design.md` | 版本设计 | alpha 前 |
-| V3.0 Task | `docs/3-standards/versions/v3.0/task.md` | 版本任务 | alpha 前 |
+| V3.0 Spec | `docs/versions/v3.0/spec.md` | 版本规格 | alpha 前 |
+| V3.0 Design | `docs/versions/v3.0/design.md` | 版本设计 | alpha 前 |
+| V3.0 Task | `docs/versions/v3.0/task.md` | 版本任务 | alpha 前 |
 | ADR-012 | `docs/adr/012-action-agent.md` | Action Agent 决策 | alpha 前 |
 | ADR-013 | `docs/adr/013-llm-degradation-chain-expansion.md` | 降级链扩展 | alpha |
 | ADR-014 | `docs/adr/014-agent-eval-with-inspect-ai.md` | Agent 评估 | beta |

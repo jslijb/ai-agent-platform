@@ -66,7 +66,7 @@
 | 设计文档 | `3-standards/design.md` | SDD 设计（HOW） |
 | 任务文档 | `3-standards/task.md` | SDD 任务（WHEN） |
 | 检查清单 | `3-standards/checklists/` | 评估/代码变更/归档门禁 |
-| 版本快照 | `3-standards/versions/` | 各版本spec/design/task |
+| 版本快照 | `docs/versions/v{N}/` | 各版本spec/design/task |
 
 ## 容器架构（当前运行）
 

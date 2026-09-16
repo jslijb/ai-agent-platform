@@ -319,6 +319,7 @@ echo "=== 门禁检查完成 ==="
 | 去重：evaluation-reliability-research / knowledge-graph-improvement-plan / semantic-cache-plan | ✅ 已落地 | 三份与 1-requirements-bugs 版逐字节相同，删除 `docs/` 根副本 |
 | 去重：pitfalls | ✅ 已落地 | `docs/pitfalls/` 为唯一源，删除 `docs/1-requirements-bugs/` 下 8 份同名副本 |
 | 去重：PROJECT_STATE / FUNCTIONS / UPGRADE_ROADMAP | ✅ 已落地（唯一源位置调整） | 唯一源为 `docs/` 根（原方案的 `docs/2-tech-interview/` 目录已撤销），其余副本删除 |
+| 版本快照目录归一 | ✅ 已落地 | 版本快照唯一源为 `docs/versions/v{N}/`；删除 `docs/3-standards/versions/`（3 份，与 `docs/versions/v13/` 逐字节相同）。原方案目录树把 versions 列在 3-standards 下，实际以规范正文引用为准（spec/design/task/checklist 共 9 处均指向 `docs/versions/v{N}/`） |
 
 **与原方案的差异**：本方案原定"技术文档唯一源为 `docs/2-tech-interview/`"。实际执行时该目录被撤销，
 技术文档统一上提到 `docs/` 根，避免目录名与内容职责混淆。SSOT 原则（每个文档只有一个"真"位置）不变。

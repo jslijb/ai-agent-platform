@@ -16,7 +16,7 @@
 
 | 目录 | 内容 |
 |------|------|
-| [versions/](versions/) | 各版本的spec/design/task快照 |
+| [../versions/](../versions/) | 各版本的spec/design/task快照 |
 | [archive/](archive/) | 已归档的旧版本文档 |
 
 ## 检查清单

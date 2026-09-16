@@ -233,9 +233,9 @@ V3.0 升级必须产出以下文档（纳入文档管理执行机制）：
 
 | 文档 | 路径 | 内容 |
 |------|------|------|
-| V3.0 Spec | `docs/3-standards/versions/v3.0/spec.md` | 版本规格 |
-| V3.0 Design | `docs/3-standards/versions/v3.0/design.md` | 版本设计 |
-| V3.0 Task | `docs/3-standards/versions/v3.0/task.md` | 版本任务 |
+| V3.0 Spec | `docs/versions/v3.0/spec.md` | 版本规格 |
+| V3.0 Design | `docs/versions/v3.0/design.md` | 版本设计 |
+| V3.0 Task | `docs/versions/v3.0/task.md` | 版本任务 |
 | V3.0 ADR | `docs/adr/012-action-agent.md` 等 | 架构决策 |
 | V3.0 变更日志 | `docs/CHANGELOG.md` | 用户可见变更 |
 | V3.0 迁移指南 | `docs/MIGRATION-v3.0.md` | Breaking Change 迁移 |
