@@ -1,3 +1,4 @@
+import os
 import logging
 import requests
 import pandas as pd
@@ -11,10 +12,15 @@ TUSHARE_API_URL = "http://api.tushare.pro"
 
 
 def _get_token() -> str:
-    """从配置获取 Tushare API Token"""
-    token = get_value("tushare", "TUSHARE_TOKEN")
+    """获取 Tushare API Token
+
+    优先读环境变量 TUSHARE_TOKEN（推荐：.env.local / 容器环境注入），
+    未设置时回退到 config/api_keys.yaml 的 tushare.TUSHARE_TOKEN（值应为变量名）。
+    Token 只在此处读取，不落日志、不写入任何报告。
+    """
+    token = os.getenv("TUSHARE_TOKEN") or get_value("tushare", "TUSHARE_TOKEN")
     if not token:
-        logger.error("TUSHARE_TOKEN 未配置，请在环境变量中设置")
+        logger.error("TUSHARE_TOKEN 未配置，请在环境变量或 .env.local 中设置")
         raise ValueError("TUSHARE_TOKEN 未配置")
     return token
 

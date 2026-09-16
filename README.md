@@ -115,10 +115,14 @@ cp .env.example .env.local
 # LLM API Key（config/api_keys.yaml 中 key 字段填的是环境变量名，运行时从 .env.local 解析）
 DASHSCOPE_API_KEY2=sk-xxxx          # 阿里百炼主力 key
 AGNES_KEY=agnes-xxxx                # 兜底模型 key（可选）
+# 数据源 key（可选，仅使用 Tushare 数据源时需要；代码直接读该环境变量）
+TUSHARE_TOKEN=xxxx
 AUTH_SECRET=<openssl rand -hex 32 生成>
 AUTH_URL=http://localhost
 DATABASE_URL=postgresql://aiagent:aiagent_secret@postgres:5432/agentdb
 ```
+
+> 密钥一律只写在 `.env.local`（已在 `.gitignore` 排除）：源码与 `config/api_keys.yaml` 里只出现变量名，不写真实值。
 
 ### 3. 放置本地模型文件
 
