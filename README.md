@@ -90,23 +90,80 @@
 
 ## 快速开始
 
-### 1. 克隆项目
+### 1. 前置依赖
+
+| 依赖 | 版本要求 | 用途 |
+|------|---------|------|
+| Docker Desktop | ≥ 4.30（Compose v2） | 一键启动全部服务 |
+| Node.js | ≥ 20 | 本地开发 / 运行测试（容器内无需） |
+| Python | ≥ 3.11（含 reportlab/paddleocr 环境） | 数据服务 / 评测脚本（容器内无需） |
+| LLM API Key | 阿里百炼 DashScope（必填）、AGNES（可选兜底） | Agent 与 RAG 的模型调用 |
+
+### 2. 配置环境变量
 
 ```bash
-git clone <repository-url>
-cd ai-agent-platform
+# ① 容器基础配置（端口 / 数据库密码 / 模型路径），已带默认值，按需修改
+cp .env.docker .env
+
+# ② 应用密钥配置（挂载进 main service 容器）
+cp .env.example .env.local
 ```
 
-### 2. 启动 Docker 容器
+`.env.local` 必填项：
 
 ```bash
-# 确保 Docker Desktop 运行
-docker compose up -d
+# LLM API Key（config/api_keys.yaml 中 key 字段填的是环境变量名，运行时从 .env.local 解析）
+DASHSCOPE_API_KEY2=sk-xxxx          # 阿里百炼主力 key
+AGNES_KEY=agnes-xxxx                # 兜底模型 key（可选）
+AUTH_SECRET=<openssl rand -hex 32 生成>
+AUTH_URL=http://localhost
+DATABASE_URL=postgresql://aiagent:aiagent_secret@postgres:5432/agentdb
 ```
 
-### 3. 访问应用
+### 3. 放置本地模型文件
 
-打开浏览器访问 http://localhost，注册账号后即可使用。
+嵌入 / 重排序模型本地部署（无 API 成本），下载后放到 `MODEL_BASE_PATH` 指向的目录（默认 `D:\models\modelscope\models`，服务器部署在 `.env` 中改为 Linux 路径）：
+
+| 模型 | 文件 | 用途 |
+|------|------|------|
+| BGE-M3 | `bge-m3-q8_0.gguf` | 向量嵌入 |
+| BGE-Reranker-v2-m3 | `bge-reranker-v2-m3-Q8_0.gguf` | 精排 |
+
+### 4. 启动与验证
+
+```bash
+docker compose up -d        # nginx + main + rag + data + embedding + reranker + postgres + redis + neo4j
+docker compose ps           # 全部 Up 且 healthy 即启动成功
+```
+
+打开浏览器访问 http://localhost ，注册账号后即可使用。
+
+### 5. 使用示例
+
+登录后在对话页直接用自然语言提问，Agent 会自主选择工具（SQL 查询 / 行情接口 / 文档检索 / 技术指标 / 合规检查）：
+
+```text
+中国铁建 2025 年年报营业收入是多少？     → 命中指标词典 → 模板 SQL → 返回数值 + 引用
+对比贵州茅台和五粮液最近 5 个季度毛利率   → 跨公司并行检索 → 多实体对比回答
+帮我看看现在能不能买入 600519，风险点在哪 → 技术指标 + 合规护栏（不构成投资建议）
+```
+
+### 6. 运行测试
+
+```bash
+npm install                # 宿主机跑测试需先装依赖
+npm test                   # Vitest 全量 837 用例
+npm run test:ci            # CI 模式（排除 contract/integration）
+```
+
+### 7. 评估复现
+
+RAG 评测报告与数据集在 `tests/reports/evaluation/`（已入库，见顶部成绩表）。复现评测：
+
+```bash
+python scripts/unified_evaluation.py --input tests/reports/evaluation/ragas-eval-data-v13-r6.json --skip-llm   # 仅性能/数值准确率，0 LLM 调用
+python scripts/unified_evaluation.py --input tests/reports/evaluation/ragas-eval-data-v13-r6.json              # 全量（消耗 LLM token）
+```
 
 ---
 
@@ -154,3 +211,9 @@ ai-agent-platform/
 | ADR 决策记录 | `docs/2-tech-interview/adr/` | 11 份技术决策记录 |
 | SDD 规格/设计/任务 | `docs/3-standards/` | spec.md / design.md / task.md |
 | 多实体检索调研 | `docs/1-requirements-bugs/multi-entity-parallel-retrieval-research.md` | R003 跨公司对比方案 |
+
+---
+
+## License
+
+[MIT](LICENSE)

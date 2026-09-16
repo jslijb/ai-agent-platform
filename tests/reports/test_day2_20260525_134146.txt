@@ -38,4 +38,4 @@ Day2 测试报告
 失败项分析：
 1. mootdx: bestip=True 模式下服务器列表为空，需要重启数据服务使新代码（降级重试逻辑）生效
 2. Tushare: TUSHARE_TOKEN 环境变量在 PowerShell 会话中设置了，但 Python 子进程未继承
-   解决方案：在 .env.local 中添加 TUSHARE_TOKEN=adea57a0ed0c9a6d5229a917bfb5af4b20ee8c52c035c40dfb099791
+   解决方案：在 .env.local 中添加 TUSHARE_TOKEN=<TUSHARE_TOKEN_REDACTED>
