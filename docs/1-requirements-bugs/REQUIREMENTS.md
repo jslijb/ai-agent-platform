@@ -40,8 +40,8 @@
 ### R001：财务指标入PostgreSQL表（五表双轨制）
 - **背景**：L1/L3/L4数值类问题检索失败，根因是PDF表格切片丢失数值
 - **方案**：五表双轨制（4张标准化表 + 1张原始JSON表）+ 指标清单驱动路由
-  - 详见 [ADR-011](file:///d:/Python/ai-agent-platform/docs/adr/011-financial-data-to-postgresql.md)
-  - 详见 [spec.md](file:///d:/Python/ai-agent-platform/docs/spec.md)
+  - 详见 [ADR-011](../adr/011-financial-data-to-postgresql.md)
+  - 详见 [spec.md](../3-standards/spec.md)
 - **合并的需求**：R004（query标准化）、R010（表格切片）、R011（BM25修复）、R012（metadata标记）
 - **路由原则**：命中标准化指标走SQL，未命中走向量检索fallback（不假设100%数值都入库）
 - **验收**：L1 CR 0.47→0.85+, L3 CR 0.30→0.85+, L4 CR 0.50→0.85+
@@ -192,7 +192,6 @@
 - **核心发现**：LangGraph(78%JD要求)、MCP(稀缺差异化)、Multi-Agent(金融场景天然适合)
 - **不追求**：GPU/CUDA/模型训练/RLHF（Infra层，需另起项目）
 - **验收**：3种Agent编排模式可演示，MCP Server可用，薪资对标70-100k
-- **调研报告**：`ai-agent-jd-research-2026.md`
 - **进度（2026-08-17）**：`langgraph-patterns.ts` 实现 3 种编排模式（单 Agent/多 Agent 路由/Supervisor）+ 错误恢复 callWithFallback；MCP Server 已实现（见 R023）
 
 ### R028：微信/钉钉/飞书机器人——个人账号优先+预留接口

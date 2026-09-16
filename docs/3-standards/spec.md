@@ -372,7 +372,6 @@ docs/
 - Multi-Agent：金融场景多 Agent 协作可演示
 - 简历对标：补齐后薪资对标 70-100k
 
-**调研报告**：`docs/1-requirements-bugs/ai-agent-jd-research-2026.md`
 
 ### R028：微信/钉钉/飞书机器人——个人账号优先 + 预留接口
 
@@ -496,7 +495,6 @@ docs/
 | [CRM/OA接入调研](1-requirements-bugs/ai-agent-crm-oa-integration-research.md) | R022 调研报告 |
 | [框架融合分析](1-requirements-bugs/agent-framework-fusion-analysis.md) | R023 调研报告 |
 | [多端前端调研](1-requirements-bugs/multi-platform-frontend-research.md) | R024 调研报告 |
-| [JD特征分析](1-requirements-bugs/ai-agent-jd-research-2026.md) | R027 调研报告 |
 | [V3.0升级调研](1-requirements-bugs/v3-upgrade-research-report.md) | R026 调研报告 |
 | [个人账号限制调研](1-requirements-bugs/wecom-dingtalk-feishu-personal-account-research.md) | R022/R028 调研 |
 | [OA/CRM业务测试指南](1-requirements-bugs/oa-crm-business-test-guide.md) | R022 测试规范 |

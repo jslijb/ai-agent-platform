@@ -234,7 +234,7 @@ services:
       ODOO_PASSWORD: ${ODOO_ADMIN_PASSWD:-admin}
       TWENTY_URL: http://twenty:3000
       TWENTY_API_KEY: ${TWENTY_API_KEY:-twenty_dev_token}
-      AUTH_SECRET: ${AUTH_SECRET:-86a2f79587e77e111478fe872a01e89034e1bde9ca0c9da0f6ddf0069d9dadb1}
+      AUTH_SECRET: ${AUTH_SECRET:?AUTH_SECRET 未设置，请在 .env 中配置（openssl rand -base64 32）}
       AUTH_URL: ${AUTH_URL:-http://localhost}
     env_file:
       - path: .env.docker

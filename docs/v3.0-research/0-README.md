@@ -12,7 +12,6 @@
 |---|------|------|---------|
 | 1 | CRM/OA 接入 | `v3.0-research/1-crm-oa-integration.md` | 从 Q&A 升级为 Action Agent，钉钉/飞书/企微三平台，二次确认+审计必做 |
 | 2 | Agent 框架对比 | `v3.0-research/2-agent-frameworks.md` | LangGraph 不换；引入 inspect-ai 评估 + Hermes-3 模型；借鉴思路不堆框架 |
-| 3 | JD 特征分析 | `v3.0-research/3-jd-analysis.md` | 8 大特征，项目已具备 3 项，V3.0 补齐 4 项；模型微调另立项目 |
 | 4 | 未执行项汇总 | `v3.0-research/4-pending-optimizations.md` | 18 项需求（R022-R039），4 阶段 13 周交付 |
 | 5 | 升级理论 | `v3.0-research/5-upgrade-theory.md` | 10 条铁律 + 12 项必指定 + 风险登记册 + Feature Flag + 降级预案 |
 | 6 | 文档管理执行 | `v3.0-research/6-doc-governance-fix.md` | 去重 + 自动化门禁 + 健康度评分，解决"空架子" |
@@ -126,8 +125,8 @@
 | `docs/3-standards/task.md` | 新增 V3.0 任务 |
 | `docs/3-standards/spec.md` | 新增 V3.0 章节 |
 | `docs/3-standards/design.md` | 新增 Action Agent 架构 |
-| `docs/2-tech-interview/PROJECT_STATE.md` | 更新基线表 + 导航 |
-| `docs/2-tech-interview/UPGRADE_ROADMAP.md` | U1-U17 标注纳入 V3.0 |
+| `docs/PROJECT_STATE.md` | 更新基线表 + 导航 |
+| `docs/UPGRADE_ROADMAP.md` | U1-U17 标注纳入 V3.0 |
 
 ### 6.3 文档管理执行机制（解决空架子）
 

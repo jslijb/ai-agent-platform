@@ -3,7 +3,7 @@
 # 请勿将真实的 App Secret 提交到版本控制
 
 feishu:
-  app_id: "cli_aaf7176853b8dd2b"
+  app_id: ""  # 飞书应用 App ID
   app_secret: ""  # 请填写飞书 App Secret
   verification_token: ""  # 可选：事件订阅验证令牌
   encrypt_key: ""  # 可选：事件加密密钥

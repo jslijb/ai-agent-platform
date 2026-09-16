@@ -9,8 +9,16 @@
  */
 
 const BASE_URL = process.env.E2E_BASE_URL || "http://localhost:80";
-const AUTH_EMAIL = process.env.E2E_AUTH_EMAIL || "jslijb@163.com";
-const AUTH_PASSWORD = process.env.E2E_AUTH_PASSWORD || "jslij123";
+// 测试账号凭据从环境变量读取，不硬编码在仓库中
+const AUTH_EMAIL = process.env.E2E_AUTH_EMAIL || "";
+const AUTH_PASSWORD = process.env.E2E_AUTH_PASSWORD || "";
+
+if (!AUTH_EMAIL || !AUTH_PASSWORD) {
+  console.error(
+    "[E2E] 缺少测试凭据：请先设置环境变量 E2E_AUTH_EMAIL 与 E2E_AUTH_PASSWORD 再运行。"
+  );
+  process.exit(1);
+}
 
 interface Step {
   type: string;

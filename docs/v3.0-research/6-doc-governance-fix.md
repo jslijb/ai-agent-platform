@@ -304,3 +304,29 @@ echo "=== 门禁检查完成 ==="
 文档管理执行机制是 V3.0 的**前置条件**——大版本升级如果文档是空架子，13 周后必然失控。建议在 V3.0-alpha 前先完成本报告第五节的 10 步落地（2 小时）。
 
 对应需求 ID：**R040**（文档管理执行机制落地）
+
+---
+
+## 八、落地执行记录（2026-09-16）
+
+本节记录 R040 各机制的实际落地情况，供闭环核对。
+
+| 机制 | 状态 | 实际做法与差异说明 |
+|------|------|-------------------|
+| 去重：spec/design/task | ✅ 已落地 | 保留 `docs/3-standards/` 版，删除 `docs/` 根旧版（2026-08-01/02，内容为旧基线） |
+| 去重：REQUIREMENTS.md | ✅ 已落地 | 保留 `docs/1-requirements-bugs/` 版（含 R022-R028），删除 `docs/` 根旧版 |
+| 去重：improvement-plan.md | ✅ 已落地 | 保留 `docs/1-requirements-bugs/` 版（多"问题6：附注表查询路由优化"） |
+| 去重：evaluation-reliability-research / knowledge-graph-improvement-plan / semantic-cache-plan | ✅ 已落地 | 三份与 1-requirements-bugs 版逐字节相同，删除 `docs/` 根副本 |
+| 去重：pitfalls | ✅ 已落地 | `docs/pitfalls/` 为唯一源，删除 `docs/1-requirements-bugs/` 下 8 份同名副本 |
+| 去重：PROJECT_STATE / FUNCTIONS / UPGRADE_ROADMAP | ✅ 已落地（唯一源位置调整） | 唯一源为 `docs/` 根（原方案的 `docs/2-tech-interview/` 目录已撤销），其余副本删除 |
+
+**与原方案的差异**：本方案原定"技术文档唯一源为 `docs/2-tech-interview/`"。实际执行时该目录被撤销，
+技术文档统一上提到 `docs/` 根，避免目录名与内容职责混淆。SSOT 原则（每个文档只有一个"真"位置）不变。
+
+**本次同时修复的问题**：
+1. `docs/1-requirements-bugs/REQUIREMENTS.md` 中 2 处指向本机磁盘的绝对路径引用 → 改为仓库内相对路径（原写法在其他机器上必然断链）
+2. `.gitignore` 补充 `.codeartsdoer/`（CodeArts Doer 代码库索引目录，原仅靠该目录自带的 `.gitignore` 兜底）
+3. 仓库内 7 个文件 11 处硬编码的真实账号与凭据 → 全部改为环境变量 / 占位符
+
+**尚未落地（仍待推进）**：机制2（git pre-commit hook）、机制3（`scripts/doc-health-check.ts` 健康度脚本）、
+机制4（`npm run precommit` 聚合命令）。这三项在本次未实施，R040 视为部分完成。

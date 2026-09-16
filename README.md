@@ -210,11 +210,13 @@ ai-agent-platform/
 |------|------|------|
 | 需求清单 | `docs/1-requirements-bugs/REQUIREMENTS.md` | R001-R028 全局需求跟踪 |
 | 踩坑记录 | `docs/1-requirements-bugs/` | 按日期归档（含 V3.0 踩坑） |
-| 技术全景+面试 | `docs/2-tech-interview/agent-tech-and-interview.md` | 18 项技术 + 5 决策对比 + 14 问答 |
-| Vibe Coding 复盘 | `docs/2-tech-interview/vibe-coding-retrospective.md` | 8 优势 + 10 不足 + 效率模型 |
-| 功能代码索引 | `docs/2-tech-interview/CODE_INDEX.md` | 每个功能的 WHAT/WHY/WHERE/HOW |
-| 项目全景 | `docs/2-tech-interview/PROJECT_OVERVIEW.md` | 技术栈 + 架构图 + 设计决策 |
-| ADR 决策记录 | `docs/2-tech-interview/adr/` | 11 份技术决策记录 |
+| 功能代码索引 | `docs/CODE_INDEX.md` | 每个功能的 WHAT/WHY/WHERE/HOW |
+| 项目全景 | `docs/PROJECT_OVERVIEW.md` | 技术栈 + 架构图 + 设计决策 |
+| 项目状态卡 | `docs/PROJECT_STATE.md` | 评估基线 + 迭代历史 |
+| 架构演进 | `docs/ARCHITECTURE_EVOLUTION.md` | 架构变更历史 |
+| 测试与评估 | `docs/TESTING_AND_EVALUATION.md` | 测试策略 + 评估方法 |
+| 升级路线图 | `docs/UPGRADE_ROADMAP.md` | 后续升级项 |
+| ADR 决策记录 | `docs/adr/` | 11 份技术决策记录 |
 | SDD 规格/设计/任务 | `docs/3-standards/` | spec.md / design.md / task.md |
 | 多实体检索调研 | `docs/1-requirements-bugs/multi-entity-parallel-retrieval-research.md` | R003 跨公司对比方案 |
 

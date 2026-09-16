@@ -11,7 +11,7 @@
 - **80端口**：✅ 可用（nginx→main-service）
 - **硬件**：本地 i7/16GB/512SSD，服务器 GPU
 - **用户访问方式**：**浏览器访问 nginx 容器（http://localhost:80）**，不是本地 dev
-- **用户账号**：jslijb@163.com，userId=69ea0f70-00a0-426b-aa5f-0e198d0f69d3
+- **测试账号**：见本地 `.env.local`（不入库）
 
 ## 用户反复强调的需求（勿忘！）
 
@@ -37,7 +37,6 @@
 | 框架融合分析 | `1-requirements-bugs/agent-framework-fusion-analysis.md` | R023调研(初版) |
 | Harness/Hermes/OpenClaw | `1-requirements-bugs/harness-hermes-openclaw-research.md` | R023调研(纠正版) |
 | 多端前端调研 | `1-requirements-bugs/multi-platform-frontend-research.md` | R024调研 |
-| JD特征分析 | `1-requirements-bugs/ai-agent-jd-research-2026.md` | R027调研 |
 | V3.0升级调研 | `1-requirements-bugs/v3-upgrade-research-report.md` | R026调研 |
 | 个人账号限制调研 | `1-requirements-bugs/wecom-dingtalk-feishu-personal-account-research.md` | R022/R028调研 |
 | OA/CRM业务测试指南 | `1-requirements-bugs/oa-crm-business-test-guide.md` | R022测试规范 |
@@ -46,17 +45,18 @@
 | 开源OA/CRM调研 | `1-requirements-bugs/open-source-oa-crm-research.md` | R022自部署方案 |
 | Harness/Hermes/OpenClaw纠正版 | `1-requirements-bugs/harness-hermes-openclaw-research.md` | R023纠正调研 |
 
-### 第2类：技术讨论 + 面试准备 → `docs/2-tech-interview/` ⭐
+### 第2类：技术文档 → `docs/` ⭐
 
 | 文档 | 路径 | 用途 |
 |------|------|------|
-| **技术全景+面试** | **`2-tech-interview/agent-tech-and-interview.md`** | **18项技术+5个决策对比+14个问答+量化数据** |
-| **Vibe Coding复盘** | **`2-tech-interview/vibe-coding-retrospective.md`** | **8项优势+10项不足+效率模型+成熟度自评** |
-| 功能代码索引 | `2-tech-interview/CODE_INDEX.md` | 每个功能的WHAT/WHY/WHERE/HOW |
-| 项目全景 | `2-tech-interview/PROJECT_OVERVIEW.md` | 技术栈+选择理由+架构图 |
-| 项目状态卡 | `2-tech-interview/PROJECT_STATE.md` | 评估基线+迭代历史 |
-| 架构演进 | `2-tech-interview/ARCHITECTURE_EVOLUTION.md` | 架构变更历史 |
-| ADR决策记录 | `2-tech-interview/adr/` | 11份技术决策记录 |
+| 功能代码索引 | `docs/CODE_INDEX.md` | 每个功能的WHAT/WHY/WHERE/HOW |
+| 项目全景 | `docs/PROJECT_OVERVIEW.md` | 技术栈+选择理由+架构图 |
+| 项目状态卡 | `docs/PROJECT_STATE.md` | 评估基线+迭代历史 |
+| 架构演进 | `docs/ARCHITECTURE_EVOLUTION.md` | 架构变更历史 |
+| 测试与评估 | `docs/TESTING_AND_EVALUATION.md` | 测试策略 + 评估方法 |
+| 升级路线图 | `docs/UPGRADE_ROADMAP.md` | 后续升级项 |
+| 函数清单 | `docs/FUNCTIONS.md` | 模块函数速查 |
+| ADR决策记录 | `docs/adr/` | 11份技术决策记录 |
 
 ### 第3类：开发规范（SDD+TDD） → `docs/3-standards/`
 
@@ -87,7 +87,7 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 3. **compose override自动加载**：文件名必须是 `docker-compose.override.yml`（不是 .local.yml）
 4. **容器内config必须挂载**：main-service 需要 volumes 挂载 `config/api_keys.yaml` 和 `.env.local`
 5. **AUTH_URL必须与浏览器访问URL一致**：用户通过80端口访问，AUTH_URL 应为 `http://localhost`
-6. **AUTH_SECRET必须全环境一致**：.env.local / .env.docker / docker-compose.yml 三处必须相同
+6. **AUTH_SECRET必须全环境一致**：.env（docker compose 读取）/ .env.local / 容器内三处必须相同
 7. **历史对话bug根因**：AUTH_SECRET不一致→JWT验证失败→API返回401→前端静默吞掉→显示"暂无历史对话"
 8. **Docker配置变更后必须重建容器**：改了docker-compose.yml或.env.docker后，必须 `docker compose up -d --build`
 9. **vitest测试中async工厂函数必须await**：`createBotAdapter`改为async后，测试中调用必须await
@@ -120,7 +120,7 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 - [x] R021: 语义缓存方案A
 
 ### V3.0 大版本升级（对外V3.0.0，内部V15）
-- [x] 8项调研完成（CRM/OA/框架融合/JD/升级理论/多端前端/个人账号限制/Flutter迁移）
+- [x] 8项调研完成（CRM/OA/框架融合/能力对齐/升级理论/多端前端/个人账号限制/Flutter迁移）
 - [x] 调研报告：`docs/1-requirements-bugs/` 下9份报告
 - [x] spec.md/design.md/task.md/REQUIREMENTS.md 已更新（R022-R028）
 - [x] OA/CRM业务测试指南（32个场景，5级分级）
@@ -138,7 +138,7 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 ### V3.0 真实环境验证（2026-08-14）
 - [x] Odoo Docker部署：容器已启动healthy，JSON-RPC认证成功（uid=2）
 - [x] Odoo数据库初始化：`docker run --rm odoo:17 -- -i base -d odoo --stop-after-init`
-- [x] 飞书AppID配置：cli_aaf7176853b8dd2b（config/bot-config.yaml + .env.docker）
+- [x] 飞书AppID配置：见 `config/bot-config.yaml` + `.env.docker`（本地填实际值）
 - [x] Bot配置加载器：bot-config.ts（YAML解析+环境变量优先+isBotConfigured检查）
 - [x] 真实Odoo E2E测试：odoo-real-e2e.test.ts（7个测试，Docker容器运行时自动执行）
 - [x] 真实飞书E2E测试：feishu-real-e2e.test.ts（7个测试，配置AppSecret后自动执行）

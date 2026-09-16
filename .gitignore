@@ -146,3 +146,6 @@ tests/reports/test/
 
 # npm lockfile 不使用（项目由 pnpm 管理，pnpm-lock.yaml 为唯一 lockfile）
 package-lock.json
+
+# 工具痕迹（CodeArts Doer 代码库索引, 含本地文件索引）
+.codeartsdoer/
