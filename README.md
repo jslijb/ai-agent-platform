@@ -238,6 +238,7 @@ ai-agent-platform/
 | 项目全景 | `docs/PROJECT_OVERVIEW.md` | 技术栈 + 架构图 + 设计决策 |
 | 项目状态卡 | `docs/PROJECT_STATE.md` | 评估基线 + 迭代历史 |
 | 架构演进 | `docs/ARCHITECTURE_EVOLUTION.md` | 架构变更历史 |
+| 更新日志 | `CHANGELOG.md` | 版本变更记录（1.0.0 → 3.0.0） |
 | 测试与评估 | `docs/TESTING_AND_EVALUATION.md` | 测试策略 + 评估方法 |
 | 升级路线图 | `docs/UPGRADE_ROADMAP.md` | 后续升级项 |
 | ADR 决策记录 | `docs/adr/` | 11 份技术决策记录 |

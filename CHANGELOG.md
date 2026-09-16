@@ -5,6 +5,61 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- CI 从 npm 切换到 pnpm（`--frozen-lockfile`），修复 pnpm workspace 配置失效（补 `packages` 字段并重生成 lockfile）
+- 移除 npm lockfile，`pnpm-lock.yaml` 成为唯一 lockfile；`.env.example` 补齐 LLM Key 配置段
+- `TUSHARE_TOKEN` 改为环境变量优先读取
+- 文档治理：消除 6 组重复文档、修复 54 条失效链接，版本快照目录归一至 `docs/versions/v{N}/`
+
+### Fixed
+- 知识图谱可视化 API 3 处查询缺陷（漏边约 90%、Neo4j 5 语法不兼容、重复边）
+- TypeScript 编译错误（Map 迭代改 `Array.from`）；补声明 `pg`/`langsmith`/`@types/pg`/`js-yaml` 依赖
+
+### Security
+- 清除仓库内硬编码凭据与非项目材料，敏感令牌脱敏
+
+### Docs
+- README 补系统截图（裁剪至最小有效区域）与项目架构图
+
+## [3.0.0] - 2026-08-17
+
+### Added
+- MCP Server（`/api/mcp`）与 OA（Odoo）、CRM（Twenty）集成
+- 机器人（bots）支持
+- 语义缓存（Semantic Cache）
+- 知识图谱 v2：全量重建完成并通过 E2E 回归
+- 统一 Agent 合规/库外两种拒绝话语，评估器同步识别
+- R003 多实体并行检索可行性调研（L2 跨公司对比）
+
+### Fixed
+- `/api/mcp` 路由缺少 `force-dynamic` 导致生产构建失败
+- Windows 本地 `next build` 的 EPERM symlink 失败
+
+### Changed
+- 移除服务器部署类需求（决定不对外部署服务）
+- CI `lint-and-typecheck` 增加 `next build` 步骤
+
+### Docs
+- README 更新至 V3.0 状态（837 tests / MCP / Odoo / Twenty / LangGraph / bots）
+
+## [2.7.0] - 2026-08-07
+
+### Added
+- 评估框架切换至 RAGAS + 合规拦截层 + 检索优化（V11）
+- 财务数据落 PostgreSQL，10 家样本公司回填完成
+- 查询路由接入 simpleAgent；V13-r4 评估综合 0.8688 首次达标
+- Agent 架构升级（V14）：R016 工具合并（21→6，token 减少 60%）、R017 Context Compaction（对话 >20 条生成结构化摘要）、R018 Checkpoint+Resume 错误恢复（Redis 存储）、R019 Transcript 耗时追踪
+- 知识图谱 `graphSearch` 集成到 `hybridSearch` 工具
+- 合规护栏：`loadConversation` 越权检查，401 时重定向登录
+- 文档体系：`CODE_INDEX.md`（功能代码索引）、`PROJECT_OVERVIEW.md`（项目全景）
+
+### Fixed
+- pdf-extractor 文本解析 fallback 修复 4 家公司字段提取失败；修复 3 家问题公司财务数据提取错误
+- 历史对话 bug：移除 `.env.local` 挂载到容器（AUTH_URL 端口冲突覆盖）
+- CI 排除契约/集成测试
+
 ## [2.6.0] - 2026-06-20
 
 ### Added
