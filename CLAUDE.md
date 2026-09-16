@@ -6,10 +6,10 @@
 ## 快速恢复：项目当前状态
 
 - **架构**：Next.js + FastAPI 微服务，nginx(80) 统一入口
-- **容器化**：✅ 已完成（7→5容器，postgres/redis 复用 ai_novel）
+- **容器化**：✅ 已完成（7→5 容器，postgres/redis 复用宿主机已有实例）
 - **评估基线**：V13-r6 综合 0.9153（达标）
 - **80端口**：✅ 可用（nginx→main-service）
-- **硬件**：本地 i7/16GB/512SSD，服务器 GPU
+- **硬件**：见 `docs/1-requirements-bugs/hardware-profile.md`
 - **用户访问方式**：**浏览器访问 nginx 容器（http://localhost:80）**，不是本地 dev
 - **测试账号**：见本地 `.env.local`（不入库）
 
@@ -26,7 +26,7 @@
 
 | 文档 | 路径 | 用途 |
 |------|------|------|
-| 踩坑记录 | `1-requirements-bugs/` | 按日期归档（8份） |
+| 踩坑记录 | `docs/pitfalls/` | 按日期归档（9 份） |
 | 需求清单 | `1-requirements-bugs/REQUIREMENTS.md` | 全局需求 |
 | 改进方案 | `1-requirements-bugs/improvement-plan.md` | 5大改进问题 |
 | 评估调研 | `1-requirements-bugs/evaluation-reliability-research.md` | 评估可靠性 |
@@ -74,7 +74,7 @@
 nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8001)
            + embedding(8011) + reranker(8010) + neo4j(7474/7687)
            + odoo(8069) + twenty(3003)
-复用: ai_novel_postgres(5432) + ai_novel_redis(6379)
+复用: postgres(5432) + redis(6379)
 新增: odoo-db(5432内部) + twenty-db(5432内部)
 ```
 
@@ -83,7 +83,7 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 ## 关键踩坑速查
 
 1. **Docker构建需host.docker.internal**：Dockerfile build 阶段 DB/Redis 地址必须用 `host.docker.internal`
-2. **端口3000被占用**：ai_novel_frontend 占用3000，main-service 用3005
+2. **端口3000被占用**：宿主机已有前端服务占用 3000，main-service 用 3005
 3. **compose override自动加载**：文件名必须是 `docker-compose.override.yml`（不是 .local.yml）
 4. **容器内config必须挂载**：main-service 需要 volumes 挂载 `config/api_keys.yaml` 和 `.env.local`
 5. **AUTH_URL必须与浏览器访问URL一致**：用户通过80端口访问，AUTH_URL 应为 `http://localhost`
@@ -155,8 +155,8 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 
 ### V3.0 真实环境验证（2026-08-17 续）
 - [x] R020-h 全量重建完成：3237 节点 / 4752 关系（基线 460 → 7 倍），4 个 PDF 年报文档（片仔癀/江苏银行/华海药业/东吴证券）补齐 rawContent 后由 `--resume` 重跑成功
-- [x] ai_novel_postgres 镜像升级：postgres:16-alpine → pgvector/pgvector:pg16（同卷数据保留），agentdb 启用 vector 扩展 → 修复 semantic_cache/Embedding 全部 pgvector 报错
-- [x] 容器网络修复：ai_novel_postgres（别名 postgres）与 ai_novel_redis（别名 redis）接入 aiagent_net → main_service/rag_service 由 unhealthy 恢复 healthy，nginx:80 全栈健康（DB/Redis/Neo4j/embedding 全 up）
+- [x] postgres 镜像升级：postgres:16-alpine → pgvector/pgvector:pg16（同卷数据保留），agentdb 启用 vector 扩展 → 修复 semantic_cache/Embedding 全部 pgvector 报错
+- [x] 容器网络修复：postgres 与 redis 接入 aiagent_net → main_service/rag_service 由 unhealthy 恢复 healthy，nginx:80 全栈健康（DB/Redis/Neo4j/embedding 全 up）
 - [x] E2E 回归（R020+R021）通过：5/5 query 图谱检索命中；LLM 调用减少 40%（冷启动 5 次 → 缓存轮 3 次，验收 ≥15%）；精确命中 5/5、语义命中 2/5（0.95 阈值）
 - [x] 新增回归脚本：`scripts/e2e-r020-r021.ts`（可重复执行）
 

@@ -221,7 +221,7 @@ ai-agent-platform/
 │   └── components/             # 前端组件
 ├── data_service/               # Python 数据服务（FastAPI）
 ├── scripts/                    # 运维/工具脚本（含 E2E 回归 + 图谱重建）
-├── docs/                       # 项目文档（三类目录：需求/技术/规范）
+├── docs/                       # 项目文档（需求/技术/规范/踩坑/版本快照）
 ├── config/                     # 配置文件（api_keys.yaml + bot-config.yaml）
 └── docker-compose.yml          # Docker 编排（nginx + 7 服务 + 2 可选）
 ```
@@ -233,7 +233,7 @@ ai-agent-platform/
 | 文档 | 路径 | 说明 |
 |------|------|------|
 | 需求清单 | `docs/1-requirements-bugs/REQUIREMENTS.md` | R001-R028 全局需求跟踪 |
-| 踩坑记录 | `docs/1-requirements-bugs/` | 按日期归档（含 V3.0 踩坑） |
+| 踩坑记录 | `docs/pitfalls/` | 按日期归档（9 份，含 V3.0 踩坑） |
 | 功能代码索引 | `docs/CODE_INDEX.md` | 每个功能的 WHAT/WHY/WHERE/HOW |
 | 项目全景 | `docs/PROJECT_OVERVIEW.md` | 技术栈 + 架构图 + 设计决策 |
 | 项目状态卡 | `docs/PROJECT_STATE.md` | 评估基线 + 迭代历史 |
