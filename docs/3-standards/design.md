@@ -35,17 +35,17 @@
 
 | ADR | 决策 | 状态 |
 |-----|------|------|
-| [ADR-001](adr/001-orm-from-prisma-to-drizzle.md) | ORM: Prisma→Drizzle | 已采纳 |
-| [ADR-002](adr/002-api-from-trpc-to-route-handlers.md) | API: tRPC→Route Handlers+SSE | 已采纳 |
-| [ADR-003](adr/003-agent-from-monolith-to-multi-agent.md) | Agent: 单体→多Agent+Skill | 已采纳 |
-| [ADR-004](adr/004-rag-hybrid-retrieval-with-separated-reranking.md) | RAG混合检索+分离精排 | 已采纳 |
-| [ADR-005](adr/005-vector-database-pgvector-over-milvus.md) | 向量库: pgvector | 已采纳 |
-| [ADR-006](adr/006-llm-provider-alibaba-over-openai.md) | LLM: 阿里百炼 | 已采纳 |
-| [ADR-007](adr/007-microservice-with-service-adapter.md) | 微服务拆分 | 已采纳 |
-| [ADR-008](adr/008-agent-framework-langgraph-over-custom.md) | Agent框架: LangGraph | 已采纳 |
-| [ADR-009](adr/009-data-cache-from-sqlite-to-postgresql.md) | 缓存: PostgreSQL | 已采纳 |
-| [ADR-010](adr/010-mcp-dual-track-design.md) | MCP双轨设计 | 已采纳 |
-| [ADR-011](adr/011-financial-data-to-postgresql.md) | 财务数据落PostgreSQL双轨制 | 已采纳（2026-07-31） |
+| [ADR-001](../adr/001-orm-from-prisma-to-drizzle.md) | ORM: Prisma→Drizzle | 已采纳 |
+| [ADR-002](../adr/002-api-from-trpc-to-route-handlers.md) | API: tRPC→Route Handlers+SSE | 已采纳 |
+| [ADR-003](../adr/003-agent-from-monolith-to-multi-agent.md) | Agent: 单体→多Agent+Skill | 已采纳 |
+| [ADR-004](../adr/004-rag-hybrid-retrieval-with-separated-reranking.md) | RAG混合检索+分离精排 | 已采纳 |
+| [ADR-005](../adr/005-vector-database-pgvector-over-milvus.md) | 向量库: pgvector | 已采纳 |
+| [ADR-006](../adr/006-llm-provider-alibaba-over-openai.md) | LLM: 阿里百炼 | 已采纳 |
+| [ADR-007](../adr/007-microservice-with-service-adapter.md) | 微服务拆分 | 已采纳 |
+| [ADR-008](../adr/008-agent-framework-langgraph-over-custom.md) | Agent框架: LangGraph | 已采纳 |
+| [ADR-009](../adr/009-data-cache-from-sqlite-to-postgresql.md) | 缓存: PostgreSQL | 已采纳 |
+| [ADR-010](../adr/010-mcp-dual-track-design.md) | MCP双轨设计 | 已采纳 |
+| [ADR-011](../adr/011-financial-data-to-postgresql.md) | 财务数据落PostgreSQL双轨制 | 已采纳（2026-07-31） |
 
 ## 三、分层架构（C4 Container）
 
@@ -102,13 +102,13 @@ Neo4j（知识图谱，R020重构后）
 
 ## 四、功能清单（F001-F016）
 
-详见 [FUNCTIONS.md](FUNCTIONS.md)。
+详见 [FUNCTIONS.md](../FUNCTIONS.md)。
 
 ## 五、版本设计索引
 
 | 版本 | 设计文档 | 状态 |
 |------|---------|------|
-| V13 | [versions/v13/design.md](versions/v13/design.md) | 当前活跃 |
+| V13 | [versions/v13/design.md](../versions/v13/design.md) | 当前活跃 |
 | V12及更早 | docs/archive/ | 已归档 |
 
 ## 六、V14 Agent架构升级设计

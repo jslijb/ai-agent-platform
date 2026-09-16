@@ -21,7 +21,7 @@
 
 **问题**：V12 评估时未启用生产环境的 rerank、graph、parentDoc 等增强能力，导致评估结果失真。
 
-**解决**：V13 重写 [collect-rag-data.ts](../scripts/collect-rag-data.ts)，复刻生产 API 的完整检索流程：
+**解决**：V13 重写 [collect-rag-data.ts](../../scripts/collect-rag-data.ts)，复刻生产 API 的完整检索流程：
 - hybridSearch(topK=20) → graphSearch → 分离精排(doc top5, graph top3)
 - 截断传给 reranker 的文档文本至 300 字符（避免 token 超限）
 
@@ -33,7 +33,7 @@
 
 **问题**：RAGAS 0.4.3 与 langchain-community 1.x 不兼容，降级 langchain 会破坏主系统。
 
-**解决**：基于 RAGAS 论文思想自实现 [ragas_evaluation.py](../scripts/ragas_evaluation.py)，4 大核心指标（CP/CR/F/AR）全部用 LLM-as-Judge 实现，不依赖 ragas/langchain 库。
+**解决**：基于 RAGAS 论文思想自实现 [ragas_evaluation.py](../../scripts/ragas_evaluation.py)，4 大核心指标（CP/CR/F/AR）全部用 LLM-as-Judge 实现，不依赖 ragas/langchain 库。
 
 **收益**：
 - 不影响主系统框架版本
@@ -81,7 +81,7 @@
 
 **问题**：知识库只有公司年报，没有交易规则/技术指标类文档，qa-golden.json 有 25 条这类问题全部必然检索失败。
 
-**解决**：生成交易规则、技术指标等知识文档，通过 [upload-knowledge-docs-direct.ts](../scripts/upload-knowledge-docs-direct.ts) 上传到 RAG 系统。
+**解决**：生成交易规则、技术指标等知识文档，通过 [upload-knowledge-docs-direct.ts](../../scripts/upload-knowledge-docs-direct.ts) 上传到 RAG 系统。
 
 **收益**：L5 交易规则 CP=0.80, CR=0.69；L6 技术指标 CP=0.99, CR=0.99。
 
@@ -480,11 +480,11 @@ qa-golden.json 样本生成流程：
 
 | 文件 | 用途 |
 |------|------|
-| [scripts/ragas_evaluation.py](../scripts/ragas_evaluation.py) | RAGAS 评估脚本（Python） |
-| [scripts/collect-rag-data.ts](../scripts/collect-rag-data.ts) | 评估数据收集脚本（对齐生产管线） |
-| [scripts/qa-golden.json](../scripts/qa-golden.json) | 测试集（130 条，L1-L9 九大分类） |
-| [scripts/ragas_report_to_md.py](../scripts/ragas_report_to_md.py) | JSON 报告转 MD 工具 |
-| [tests/reports/evaluation/ragas-report-v13.json](../tests/reports/evaluation/ragas-report-v13.json) | V13 评估报告（JSON） |
-| [tests/reports/evaluation/ragas-eval-data-v13.json](../tests/reports/evaluation/ragas-eval-data-v13.json) | V13 评估数据（含检索结果） |
-| [config/api_keys.yaml](../config/api_keys.yaml) | LLM 模型配置 |
-| [docs/优化迭代规划.md](优化迭代规划.md) | 优化迭代规划 |
+| [scripts/ragas_evaluation.py](../../scripts/ragas_evaluation.py) | RAGAS 评估脚本（Python） |
+| [scripts/collect-rag-data.ts](../../scripts/collect-rag-data.ts) | 评估数据收集脚本（对齐生产管线） |
+| [scripts/qa-golden.json](../../scripts/qa-golden.json) | 测试集（130 条，L1-L9 九大分类） |
+| [scripts/ragas_report_to_md.py](../../scripts/ragas_report_to_md.py) | JSON 报告转 MD 工具 |
+| [tests/reports/evaluation/ragas-report-v13.json](../../tests/reports/evaluation/ragas-report-v13.json) | V13 评估报告（JSON） |
+| [tests/reports/evaluation/ragas-eval-data-v13.json](../../tests/reports/evaluation/ragas-eval-data-v13.json) | V13 评估数据（含检索结果） |
+| [config/api_keys.yaml](../../config/api_keys.yaml) | LLM 模型配置 |
+| [docs/优化迭代规划.md](../archive/优化迭代规划.md) | 优化迭代规划 |

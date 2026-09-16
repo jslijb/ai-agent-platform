@@ -88,7 +88,7 @@
 
 **架构图**（微服务拓扑 / 多实例容错 / Docker Compose 部署三段）：
 
-![项目架构图](architecture-diagram.png)
+![项目架构图](docs/assets/architecture-diagram.png)
 
 ---
 

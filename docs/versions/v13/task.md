@@ -1,6 +1,6 @@
 # V13 版本任务（TASK）
 
-> **基线**: [docs/task.md](../../task.md)（全局任务）+ [V13 spec.md](spec.md) + [V13 design.md](design.md)
+> **基线**: [3-standards/task.md](../../3-standards/task.md)（全局任务）+ [V13 spec.md](spec.md) + [V13 design.md](design.md)
 > **最后更新**: 2026-08-03
 > **验收门禁**: [change-archive-checklist.md](../../checklists/change-archive-checklist.md)
 

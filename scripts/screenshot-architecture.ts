@@ -7,7 +7,7 @@ import { resolve } from "path";
 
 async function main() {
   const htmlPath = resolve(import.meta.dirname, "../docs/architecture-diagram.html");
-  const outputPath = resolve(import.meta.dirname, "../architecture-diagram.png");
+  const outputPath = resolve(import.meta.dirname, "../docs/assets/architecture-diagram.png");
 
   console.log(`[screenshot] 打开 ${htmlPath}`);
   const browser = await chromium.launch();

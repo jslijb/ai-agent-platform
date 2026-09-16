@@ -18,13 +18,16 @@
 
 ## 踩坑记录
 
+> 踩坑记录唯一归档在 [../pitfalls/](../pitfalls/)，本目录不再保留副本（避免同一份文档两处分叉）。
+
 | 文档 | 日期 | 关键踩坑 |
 |------|------|---------|
-| [2026-08-07-r020-r021-pitfalls.md](2026-08-07-r020-r021-pitfalls.md) | 08-07 | drizzle HNSW索引运行时崩溃、agnes空响应、Redis懒连接、isAmount不匹配整数+单位 |
-| [2026-08-04-history-conversation-bug.md](2026-08-04-history-conversation-bug.md) | 08-04 | AUTH_SECRET不一致→JWT验证失败→401→历史对话不显示 |
-| [2026-08-04-docker-containerization.md](2026-08-04-docker-containerization.md) | 08-04 | Docker构建需host.docker.internal、端口3000被占用、compose override自动加载 |
-| [2026-08-03-market-cache-endpoint-gap.md](2026-08-03-market-cache-endpoint-gap.md) | 08-03 | 4个数据端点未写缓存 |
-| [2026-08-02-webpack-chunk-truncation.md](2026-08-02-webpack-chunk-truncation.md) | 08-02 | Node.js v24正则行为变化（\d→[0-9]） |
-| [2026-08-01-eval-ground-truth-error.md](2026-08-01-eval-ground-truth-error.md) | 08-01 | 评估ground_truth数据错误 |
-| [2026-07-30-pdf-table-slice-value-loss.md](2026-07-30-pdf-table-slice-value-loss.md) | 07-30 | PDF表格切片丢失数值 |
-| [2026-07-14-llm-quota-exhausted.md](2026-07-14-llm-quota-exhausted.md) | 07-14 | LLM配额耗尽处理 |
+| [2026-09-02-v16-unified-evaluation.md](../pitfalls/2026-09-02-v16-unified-evaluation.md) | 09-02 | 评估口径统一（v16） |
+| [2026-08-07-r020-r021-pitfalls.md](../pitfalls/2026-08-07-r020-r021-pitfalls.md) | 08-07 | drizzle HNSW索引运行时崩溃、agnes空响应、Redis懒连接、isAmount不匹配整数+单位 |
+| [2026-08-04-history-conversation-bug.md](../pitfalls/2026-08-04-history-conversation-bug.md) | 08-04 | AUTH_SECRET不一致→JWT验证失败→401→历史对话不显示 |
+| [2026-08-04-docker-containerization.md](../pitfalls/2026-08-04-docker-containerization.md) | 08-04 | Docker构建需host.docker.internal、端口3000被占用、compose override自动加载 |
+| [2026-08-03-market-cache-endpoint-gap.md](../pitfalls/2026-08-03-market-cache-endpoint-gap.md) | 08-03 | 4个数据端点未写缓存 |
+| [2026-08-02-webpack-chunk-truncation.md](../pitfalls/2026-08-02-webpack-chunk-truncation.md) | 08-02 | Node.js v24正则行为变化（\d→[0-9]） |
+| [2026-08-01-eval-ground-truth-error.md](../pitfalls/2026-08-01-eval-ground-truth-error.md) | 08-01 | 评估ground_truth数据错误 |
+| [2026-07-30-pdf-table-slice-value-loss.md](../pitfalls/2026-07-30-pdf-table-slice-value-loss.md) | 07-30 | PDF表格切片丢失数值 |
+| [2026-07-14-llm-quota-exhausted.md](../pitfalls/2026-07-14-llm-quota-exhausted.md) | 07-14 | LLM配额耗尽处理 |

@@ -17,19 +17,19 @@
 | 目录 | 内容 |
 |------|------|
 | [../versions/](../versions/) | 各版本的spec/design/task快照 |
-| [archive/](archive/) | 已归档的旧版本文档 |
+| [../archive/](../archive/) | 已归档的旧版本文档 |
 
 ## 检查清单
 
 | 文档 | 用途 |
 |------|------|
-| [checklists/evaluation-checklist.md](checklists/evaluation-checklist.md) | 评估执行检查清单 |
-| [checklists/code-change-gates.md](checklists/code-change-gates.md) | 代码变更门禁 |
-| [checklists/change-archive-checklist.md](checklists/change-archive-checklist.md) | 变更归档5步闭环 |
+| [../checklists/evaluation-checklist.md](../checklists/evaluation-checklist.md) | 评估执行检查清单 |
+| [../checklists/code-change-gates.md](../checklists/code-change-gates.md) | 代码变更门禁 |
+| [../checklists/change-archive-checklist.md](../checklists/change-archive-checklist.md) | 变更归档5步闭环 |
 
 ## 参考资料
 
 | 目录 | 内容 |
 |------|------|
-| [reference/](reference/) | 评估经验、技术参考 |
-| [session-memory/](session-memory/) | 会话记忆归档 |
+| [../reference/](../reference/) | 评估经验、技术参考 |
+| [session-memory-20260730.md](../archive/session-memory-20260730.md) | 会话记忆归档 |

@@ -3,7 +3,7 @@
 > **定位**：所有需求任务的状态追踪+验收标准。版本任务（docs/versions/vN/task.md）继承本文件并细化版本内任务。
 > **最后更新**：2026-08-01
 > **级联关系**：基线 docs/spec.md + docs/design.md，向下级联到 docs/versions/v{N}/task.md
-> **需求详情**：见 [REQUIREMENTS.md](REQUIREMENTS.md)
+> **需求详情**：见 [REQUIREMENTS.md](../1-requirements-bugs/REQUIREMENTS.md)
 
 ---
 

@@ -31,7 +31,7 @@
 
 #### 第 2 步：开发 Tools
 
-参考 [agent_tools.md](./interview/agent-tools.md) 中定义的金融行业 AI Agent 工具全景，开发对应的 MCP 工具。
+参考 [agent_tools.md](../reference/agent-tools.md) 中定义的金融行业 AI Agent 工具全景，开发对应的 MCP 工具。
 
 #### 第 3 步：创建 LangGraph ReAct Agent
 

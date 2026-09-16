@@ -1,6 +1,6 @@
 # V13 版本设计（DESIGN）
 
-> **基线**: [docs/design.md](../../design.md)（全局架构）+ [V13 spec.md](spec.md)
+> **基线**: [3-standards/design.md](../../3-standards/design.md)（全局架构）+ [V13 spec.md](spec.md)
 > **最后更新**: 2026-08-01
 
 ---

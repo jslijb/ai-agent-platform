@@ -140,6 +140,9 @@ scripts/cleanup_*.sql
 # 成绩的原始证据, 必须可追溯 (用户指定); 仅 tests/reports/test/ 仍本地保留
 tests/reports/test/
 
+# 本地跑测产生的报告（*.txt 已整体忽略，这里显式声明意图）
+/test-reports/
+
 # Accidental shell redirect artifacts
 /1.0
 /=

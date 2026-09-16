@@ -436,7 +436,7 @@ docs/
 
 ### R030：自研评测方法论 V1.0——质量+性能+延迟三维统一评测（内部 V16）
 
-**需求**：V13 评估仅覆盖回答质量（四指标），缺少性能/延迟维度，且存在系统性可靠性风险（详见 [evaluation-reliability-research.md](1-requirements-bugs/evaluation-reliability-research.md) 六大问题）。用户 2026-09-02 审批通过渐进式改造（方案A），建立自研评测方法论 V1.0：沿用 RAGAS 标准语义，微调不贴合项目处，形成自研方法论。
+**需求**：V13 评估仅覆盖回答质量（四指标），缺少性能/延迟维度，且存在系统性可靠性风险（详见 [evaluation-reliability-research.md](../1-requirements-bugs/evaluation-reliability-research.md) 六大问题）。用户 2026-09-02 审批通过渐进式改造（方案A），建立自研评测方法论 V1.0：沿用 RAGAS 标准语义，微调不贴合项目处，形成自研方法论。
 
 **指标体系（三维）**：
 
@@ -483,21 +483,21 @@ docs/
 
 | 文档 | 用途 |
 |------|------|
-| [PROJECT_STATE.md](PROJECT_STATE.md) | 项目状态入口（基线表+导航） |
+| [PROJECT_STATE.md](../PROJECT_STATE.md) | 项目状态入口（基线表+导航） |
 | [design.md](design.md) | 全局架构设计 |
 | [task.md](task.md) | 全局任务清单 |
-| [REQUIREMENTS.md](REQUIREMENTS.md) | 需求池（R001-R028+） |
-| [FUNCTIONS.md](FUNCTIONS.md) | 功能锁定清单（F001-F016） |
-| [adr/](adr/) | 架构决策记录（ADR-001~011） |
-| [checklists/](checklists/) | 可执行检查清单 |
-| [versions/v13/](versions/v13/) | V13 版本三层文档 |
-| [CRM/OA接入调研](1-requirements-bugs/ai-agent-crm-oa-integration-research.md) | R022 调研报告 |
-| [框架融合分析](1-requirements-bugs/agent-framework-fusion-analysis.md) | R023 调研报告 |
-| [多端前端调研](1-requirements-bugs/multi-platform-frontend-research.md) | R024 调研报告 |
-| [V3.0升级调研](1-requirements-bugs/v3-upgrade-research-report.md) | R026 调研报告 |
-| [个人账号限制调研](1-requirements-bugs/wecom-dingtalk-feishu-personal-account-research.md) | R022/R028 调研 |
-| [OA/CRM业务测试指南](1-requirements-bugs/oa-crm-business-test-guide.md) | R022 测试规范 |
-| [Flutter迁移分析](1-requirements-bugs/flutter-migration-feasibility-research.md) | R024 补充调研 |
-| [V3.0系统使用指南](1-requirements-bugs/v3-system-user-guide.md) | **端到端测试依据** |
-| [开源OA/CRM调研](1-requirements-bugs/open-source-oa-crm-research.md) | R022 自部署方案 |
-| [Harness/Hermes/OpenClaw纠正版](1-requirements-bugs/harness-hermes-openclaw-research.md) | R023 纠正调研 |
+| [REQUIREMENTS.md](../1-requirements-bugs/REQUIREMENTS.md) | 需求池（R001-R028+） |
+| [FUNCTIONS.md](../FUNCTIONS.md) | 功能锁定清单（F001-F016） |
+| [adr/](../adr/) | 架构决策记录（ADR-001~011） |
+| [checklists/](../checklists/) | 可执行检查清单 |
+| [versions/v13/](../versions/v13/) | V13 版本三层文档 |
+| [CRM/OA接入调研](../1-requirements-bugs/ai-agent-crm-oa-integration-research.md) | R022 调研报告 |
+| [框架融合分析](../1-requirements-bugs/agent-framework-fusion-analysis.md) | R023 调研报告 |
+| [多端前端调研](../1-requirements-bugs/multi-platform-frontend-research.md) | R024 调研报告 |
+| [V3.0升级调研](../1-requirements-bugs/v3-upgrade-research-report.md) | R026 调研报告 |
+| [个人账号限制调研](../1-requirements-bugs/wecom-dingtalk-feishu-personal-account-research.md) | R022/R028 调研 |
+| [OA/CRM业务测试指南](../1-requirements-bugs/oa-crm-business-test-guide.md) | R022 测试规范 |
+| [Flutter迁移分析](../1-requirements-bugs/flutter-migration-feasibility-research.md) | R024 补充调研 |
+| [V3.0系统使用指南](../1-requirements-bugs/v3-system-user-guide.md) | **端到端测试依据** |
+| [开源OA/CRM调研](../1-requirements-bugs/open-source-oa-crm-research.md) | R022 自部署方案 |
+| [Harness/Hermes/OpenClaw纠正版](../1-requirements-bugs/harness-hermes-openclaw-research.md) | R023 纠正调研 |

@@ -1,6 +1,6 @@
 # V13 版本规格（SPEC）
 
-> **基线**: [docs/spec.md](../../spec.md)（全局约束）
+> **基线**: [3-standards/spec.md](../../3-standards/spec.md)（全局约束）
 > **上一版本**: V12（已归档到 docs/archive/）
 > **最后更新**: 2026-08-01
 > **关联 ADR**: [ADR-011](../../adr/011-financial-data-to-postgresql.md)
@@ -68,7 +68,7 @@
 
 ## 四、V13 约束（继承全局 + 版本特有）
 
-继承 [全局 spec.md](../../spec.md) 全部约束，补充：
+继承 [全局 spec.md](../../3-standards/spec.md) 全部约束，补充：
 - 10家评估样本公司清单：片仔癀、华海药业、江苏银行、东吴证券、格力电器、五粮液、中国长城、中国能建、中国铁建、中国人保
 - PostgreSQL 财务表只保留10家，不做A股全量回填
 - embedding 库保持10家不变

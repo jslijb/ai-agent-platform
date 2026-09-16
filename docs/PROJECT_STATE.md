@@ -113,18 +113,18 @@
 
 ## C. 文档导航索引（按任务类型读对应文档）
 
-> 文档体系已升级为三层（spec/design/task）+ 版本化 + 归档机制。详见 [spec.md](spec.md) 第六章。
+> 文档体系已升级为三层（spec/design/task）+ 版本化 + 归档机制。详见 [3-standards/spec.md](3-standards/spec.md) 第六章。
 
 | 任务类型 | 必读文档 |
 |---------|---------|
-| 任务启动 | 本文件 → [spec.md](spec.md) → [REQUIREMENTS.md](REQUIREMENTS.md) → [versions/v13/spec.md](versions/v13/spec.md) |
+| 任务启动 | 本文件 → [3-standards/spec.md](3-standards/spec.md) → [1-requirements-bugs/REQUIREMENTS.md](1-requirements-bugs/REQUIREMENTS.md) → [versions/v13/spec.md](versions/v13/spec.md) |
 | 做评估 | [checklists/evaluation-checklist.md](checklists/evaluation-checklist.md) + 本文件基线表 + [reference/evaluation-experience.md](reference/evaluation-experience.md) |
 | 改代码 | [checklists/code-change-gates.md](checklists/code-change-gates.md) + [FUNCTIONS.md](FUNCTIONS.md) |
 | 新增功能 | [checklists/change-archive-checklist.md](checklists/change-archive-checklist.md)（5步闭环） |
-| 改架构 | [adr/](adr/) + [design.md](design.md) |
-| 查规则 | [spec.md](spec.md)（全局约束） |
+| 改架构 | [adr/](adr/) + [3-standards/design.md](3-standards/design.md) |
+| 查规则 | [3-standards/spec.md](3-standards/spec.md)（全局约束） |
 | 查踩坑 | [pitfalls/](pitfalls/) |
-| 查需求 | [REQUIREMENTS.md](REQUIREMENTS.md) |
+| 查需求 | [1-requirements-bugs/REQUIREMENTS.md](1-requirements-bugs/REQUIREMENTS.md) |
 | 查历史快照 | [archive/](archive/) |
 
 ---
