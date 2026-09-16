@@ -1,0 +1,50 @@
+{
+  "savedAt": "2026-09-02T13:02:43.650313",
+  "completedCount": 2,
+  "details": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 23577,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "4.5293e+11 vs 4.5293e+11 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接给出了中国能建2025年营业收入的具体数值（4529.30亿元），完整且精准地回答了用户问题，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 0,
+      "generationLatencyMs": 25995,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.2,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.02978e+12 vs 1.03e+09 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案虽然试图回答问题，但数值'10.30亿元'对于中国铁建这样的大型央企而言存在严重逻辑错误（其实际营收为万亿元级别），且明确指出来源是'文档片段1'但未提供上下文，疑似幻觉或误引。根据评分标准，答非所问得0.2分。"
+      }
+    }
+  ]
+}

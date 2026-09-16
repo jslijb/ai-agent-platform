@@ -2,7 +2,26 @@
 
 基于 Next.js 14 + FastAPI 微服务架构的金融行业 AI 智能体平台。用户通过自然语言提问，Agent 自主调用工具获取行情数据、计算技术指标、检索研报文档、检查合规性，最终给出有数据支撑的分析结论。
 
-> **评估基线**: V13-r6 综合 0.9153 | **测试覆盖**: 837 通过 | **容器化**: Docker Compose 一键部署
+## 📊 RAG 评估成绩（严格口径，可追溯）
+
+> **诚实声明**：当前分数由**自研 LLM-as-judge** 体系评出。官方 RAGAS 库对同一批数据打分 **0.3205**，与自研 0.9153 差 2.86 倍——差距主要来自自研体系容错偏宽松、缺少答案正确性一票否决。**正在按下面的 roadmap 打实成绩，以下所有报告与数据集已入库可复核。**
+
+| 轮次 | 评估器 | Judge 模型 | 样本 | 综合分 | 报告 |
+|------|--------|-----------|------|--------|------|
+| V13-r6 | 自研 | agnes-2.5-flash | 55 | 0.9153 | [ragas-report-v13-selfimpl-r6.json](tests/reports/evaluation/ragas-report-v13-selfimpl-r6.json) |
+| V16 | 自研 | qwen3.8-flash（中途降级 sensenova） | 55 | 0.8386 | [ragas-report-v16-selfimpl-r1.json](tests/reports/evaluation/ragas-report-v16-selfimpl-r1.json) |
+| 同数据基准 | **官方 RAGAS** | — | 55 | **0.3205** | 详见 [evaluation-improvement-plan.md](docs/1-requirements-bugs/evaluation-improvement-plan.md) |
+
+**成绩构成**（V13-r6）：忠实度 1.000 / 答案相关性 0.994 / 上下文精确率 0.969 / 数值准确率 0.879 / 上下文召回率 0.705（该项 FAIL，被加权平均掩盖——这就是要修的短板机制）
+
+**打实成绩 roadmap**（进行中）：
+- P0：新增 AC（答案正确性）指标，直接比对 answer vs ground_truth，金融数值题一票否决
+- P0：overall 短板机制——任一指标 FAIL 时综合分封顶，杜绝灾难样本被平均掉
+- P1：30 条人工标注 golden 校准集，judge 与人工一致率 <85% 即换 judge；judge 换非同源模型
+- P1：考卷扩到 100+（多跳 / 跨文档 / 干扰项 / 拒答），L1 抄书题降至 30% 以下
+- 已知问题：L1-002（中国铁建营收，答案错 1000 倍仍得 CP/F/AR 三满分）已定位为体系性漏洞的实证
+
+**测试覆盖**: 837 单测通过 | **容器化**: Docker Compose 一键部署
 
 ---
 

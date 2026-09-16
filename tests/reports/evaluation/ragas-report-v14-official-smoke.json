@@ -1,0 +1,110 @@
+{
+  "version": "V14-RAGAS-Official",
+  "framework": "RAGAS 官方库 (ragas==0.4.3, langchain-openai, 百炼多模型 fallback)",
+  "timestamp": "2026-07-30T11:14:59.800707",
+  "evaluation_meta": {
+    "duration_seconds": 229.94,
+    "llm_active_provider": "dashscope/百炼多模型 fallback",
+    "llm_models_chain": [
+      "qwen-plus-2025-07-14",
+      "qwen-plus-2025-04-28",
+      "qwen-plus-2025-01-25",
+      "qwen-plus-2025-09-11",
+      "qwen-plus-latest"
+    ],
+    "llm_base_url": "https://ws-tnq834yxgaaw4e8v.cn-beijing.maas.aliyuncs.com/compatible-mode/v1",
+    "embedding_model": "text-embedding-v3",
+    "total_items": 3,
+    "nan_items_count": 3,
+    "metrics_used": [
+      "context_precision",
+      "context_recall",
+      "faithfulness",
+      "answer_relevancy"
+    ],
+    "weights": {
+      "context_precision": 0.2,
+      "context_recall": 0.2,
+      "faithfulness": 0.3,
+      "answer_relevancy": 0.3
+    },
+    "thresholds": {
+      "context_precision": 0.8,
+      "context_recall": 0.8,
+      "faithfulness": 0.85,
+      "answer_relevancy": 0.8,
+      "overall": 0.82
+    },
+    "error": null
+  },
+  "overall_scores": {
+    "context_precision": 0.0,
+    "context_recall": 0.3333,
+    "faithfulness": 0.5,
+    "answer_relevancy": 0.0
+  },
+  "overall_score": 0.2167,
+  "weights": {
+    "context_precision": 0.2,
+    "context_recall": 0.2,
+    "faithfulness": 0.3,
+    "answer_relevancy": 0.3
+  },
+  "thresholds": {
+    "context_precision": 0.8,
+    "context_recall": 0.8,
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.8,
+    "overall": 0.82
+  },
+  "pass_status": {
+    "context_precision": "FAIL",
+    "context_recall": "FAIL",
+    "faithfulness": "FAIL",
+    "answer_relevancy": "FAIL",
+    "overall": "FAIL"
+  },
+  "category_stats": {
+    "L1-事实提取": {
+      "count": 3,
+      "metrics": {
+        "context_precision": 0.0,
+        "context_recall": 0.3333,
+        "faithfulness": 0.5,
+        "answer_relevancy": 0.0
+      }
+    }
+  },
+  "raw_items": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": null,
+      "context_recall": 0.0,
+      "faithfulness": 0.5,
+      "answer_relevancy": null
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": null,
+      "context_recall": 1.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": null
+    },
+    {
+      "id": "L1-003",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": null,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": null
+    }
+  ]
+}

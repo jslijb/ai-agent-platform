@@ -135,8 +135,9 @@ scripts/cleanup_*.sql
 .freebuff/
 .cache/
 
-# Large generated eval/test artifacts (kept locally, not committed)
-tests/reports/evaluation/
+# Large generated eval/test artifacts
+# 注: tests/reports/evaluation/ 自 2026-09-16 起入库——评估报告与数据集是
+# 成绩的原始证据, 必须可追溯 (用户指定); 仅 tests/reports/test/ 仍本地保留
 tests/reports/test/
 
 # Accidental shell redirect artifacts
