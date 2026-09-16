@@ -8,6 +8,7 @@ import json
 import logging
 import subprocess
 import sys
+from pathlib import Path
 
 # 配置日志
 logging.basicConfig(
@@ -71,9 +72,10 @@ SUBJECT_MAPPING = {
 TEMP_DIR = os.path.join(os.path.dirname(__file__), "temp_csv")
 
 # 输出目录
+ROOT = Path(__file__).resolve().parents[1]
 OUTPUT_DIRS = [
-    r"D:\data\modelscope\FinEval\converted",
-    r"d:\Python\ai-agent-platform\data\datasets\FinEval\converted",
+    r"D:\data\modelscope\FinEval\converted",  # 外部工具目录，按需改
+    str(ROOT / "data" / "datasets" / "FinEval" / "converted"),
 ]
 
 

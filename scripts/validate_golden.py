@@ -1,6 +1,8 @@
 import json
+from pathlib import Path
 
-with open(r'd:\Python\ai-agent-platform\scripts\qa-golden.json', 'r', encoding='utf-8') as f:
+ROOT = Path(__file__).resolve().parents[1]
+with open(ROOT / 'scripts' / 'qa-golden.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 print(f'Total test cases: {len(data)}')

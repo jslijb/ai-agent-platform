@@ -1,5 +1,7 @@
 import json
-d = json.load(open(r'D:\Python\ai-agent-platform\tests\reports\evaluation\eval-report-daily-2026-06-22T14-50-02-276Z.json', 'r', encoding='utf-8'))
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+d = json.load(open(ROOT / 'tests' / 'reports' / 'evaluation' / 'eval-report-daily-2026-06-22T14-50-02-276Z.json', 'r', encoding='utf-8'))
 print(f"TotalTests: {d['totalTests']}")
 print(f"Hits@K: {d['avgHitsAtK']}")
 print(f"ContextRelevance: {d['avgContextRelevance']}")

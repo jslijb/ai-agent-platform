@@ -506,7 +506,7 @@ npm install --save-dev @types/pg-ears
 
 ### 目标
 
-建立量化评测 pipeline，集成外部知识源（DeepWiki），准备面试演示。
+建立量化评测 pipeline，集成外部知识源（DeepWiki），准备方案演示。
 
 ### 验收标准
 
@@ -556,7 +556,7 @@ npm install @reaatech/rag-eval-metrics
 
 ---
 
-## Day 9（可选，增加竞争力）：ColPali 调研 + 架构图 + 面试问答准备
+## Day 9（可选，技术增强）：ColPali 调研 + 架构图 + 技术问答准备
 
 ### 目标
 
@@ -564,14 +564,14 @@ npm install @reaatech/rag-eval-metrics
 
 ### 验收标准
 
-- [ ] 能够在面试中清晰解释 ColPali 与传统 RAG 的差异
+- [ ] 能够清晰解释 ColPali 与传统 RAG 的差异
 - [ ] 能够说出本项目集成 ColPali 的假设步骤
 
 ### 任务清单
 
 1. 阅读 ColPali 论文和 LlamaIndex 的 ColPali 实现文档
 2. 修改项目架构图（`/docs/architecture.png`），标注 ColPali 作为可插拔的检索组件位置
-3. 准备面试话术："如果未来需要支持海报、扫描件等高密度视觉文档，我会引入 ColPali 风格的多向量检索器，它的核心优势是绕过 OCR 直接在视觉空间做匹配，但计算成本较高，适合离线索引 + 在线重排混合模式。"
+3. 准备方案说明："如果未来需要支持海报、扫描件等高密度视觉文档，我会引入 ColPali 风格的多向量检索器，它的核心优势是绕过 OCR 直接在视觉空间做匹配，但计算成本较高，适合离线索引 + 在线重排混合模式。"
 
 ---
 
@@ -720,5 +720,5 @@ npm install @reaatech/rag-eval-metrics
 | Day 6 | 多模态 + 答案溯源 | 图文混排解析 + 表格提取 + 引用 | 带引用的答案 |
 | Day 7 | 流式 RAG + Agentic RAG | 增量索引 + 自适应检索 | 实时更新 + 迭代检索 |
 | Day 8 | 评估 + DeepWiki | Ragas 指标 + MCP 工具 | 量化报告 + 外部知识 |
-| Day 9 (选) | ColPali 理论 | 架构图 + 面试准备 | 口头讲解清楚 |
+| Day 9 (选) | ColPali 理论 | 架构图 + 技术储备 | 口头讲解清楚 |
 | P0/P1 | 行业最佳实践改造 | 知识过期 + 确定性 + 限流 + 记忆 + 编排 | 生产级可用 |

@@ -7,6 +7,9 @@
 import fs from "fs";
 import path from "path";
 
+// 仓库根目录（脚本从仓库根执行）
+const ROOT = process.env.REPO_ROOT || process.cwd();
+
 // 主服务地址
 const BASE_URL = process.env.TEST_BASE_URL || "http://localhost:3000";
 
@@ -23,27 +26,27 @@ const REQUEST_TIMEOUT_MS = 300000;
 const files = [
   {
     name: "中国能建2025年报",
-    path: "D:\\Python\\ai-agent-platform\\data\\financial_reports\\2025_annual\\中国能建：中国能源建设股份有限公司2025年年度报告.pdf",
+    path: path.join(ROOT, "data", "financial_reports", "2025_annual", "中国能建：中国能源建设股份有限公司2025年年度报告.pdf"),
   },
   {
     name: "中国人保2025年报",
-    path: "D:\\Python\\ai-agent-platform\\data\\financial_reports\\2025_annual\\中国人保：中国人保2025年年度报告.pdf",
+    path: path.join(ROOT, "data", "financial_reports", "2025_annual", "中国人保：中国人保2025年年度报告.pdf"),
   },
   {
     name: "中国铁建2025年报",
-    path: "D:\\Python\\ai-agent-platform\\data\\financial_reports\\2025_annual\\中国铁建：中国铁建2025年年度报告.pdf",
+    path: path.join(ROOT, "data", "financial_reports", "2025_annual", "中国铁建：中国铁建2025年年度报告.pdf"),
   },
   {
     name: "中国能建2026Q1季报",
-    path: "D:\\Python\\ai-agent-platform\\data\\financial_reports\\2026_q1\\中国能建：中国能源建设股份有限公司2026年第一季度报告.pdf",
+    path: path.join(ROOT, "data", "financial_reports", "2026_q1", "中国能建：中国能源建设股份有限公司2026年第一季度报告.pdf"),
   },
   {
     name: "中国人保2026Q1季报",
-    path: "D:\\Python\\ai-agent-platform\\data\\financial_reports\\2026_q1\\中国人保：中国人保2026年第一季度报告.pdf",
+    path: path.join(ROOT, "data", "financial_reports", "2026_q1", "中国人保：中国人保2026年第一季度报告.pdf"),
   },
   {
     name: "中国铁建2026Q1季报",
-    path: "D:\\Python\\ai-agent-platform\\data\\financial_reports\\2026_q1\\中国铁建：中国铁建2026年第一季度报告.pdf",
+    path: path.join(ROOT, "data", "financial_reports", "2026_q1", "中国铁建：中国铁建2026年第一季度报告.pdf"),
   },
 ];
 

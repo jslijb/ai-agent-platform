@@ -44,8 +44,8 @@
 ## 阶段3：扩展评估数据源
 
 - [x] Task 7: 上传新增公司报表文档
-  - [x] 7.1: 确认 `D:\Python\ai-agent-platform\data\financial_reports\2025_annual` 中中国能建、中国人保、中国铁建的年报 PDF
-  - [x] 7.2: 确认 `D:\Python\ai-agent-platform\data\financial_reports\2026_q1` 中3家公司的季报 PDF
+  - [x] 7.1: 确认 `data/financial_reports/2025_annual` 中中国能建、中国人保、中国铁建的年报 PDF
+  - [x] 7.2: 确认 `data/financial_reports/2026_q1` 中3家公司的季报 PDF
   - [x] 7.3: 通过 API 批量上传3家公司的报表文档（`/api/document/upload`）
   - [x] 7.4: 验证文档上传成功并已建立索引
 

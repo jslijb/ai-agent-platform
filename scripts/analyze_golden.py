@@ -1,6 +1,8 @@
 import json
+from pathlib import Path
 
-data = json.load(open(r'D:\Python\ai-agent-platform\scripts\qa-golden.json', 'r', encoding='utf-8'))
+ROOT = Path(__file__).resolve().parents[1]
+data = json.load(open(ROOT / 'scripts' / 'qa-golden.json', 'r', encoding='utf-8'))
 
 print(f"Total: {len(data)}")
 can_true = sum(1 for d in data if d.get('canAnswer', True))

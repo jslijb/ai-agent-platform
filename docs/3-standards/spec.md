@@ -370,7 +370,6 @@ docs/
 - LangGraph：至少3种 Agent 编排模式可演示
 - MCP：MCP Server 可对外暴露工具
 - Multi-Agent：金融场景多 Agent 协作可演示
-- 简历对标：补齐后薪资对标 70-100k
 
 
 ### R028：微信/钉钉/飞书机器人——个人账号优先 + 预留接口

@@ -93,7 +93,6 @@ ai-agent-platform/
 │   ├── run-regression-test.ts        # 回归测试脚本
 │   └── qa-golden.json                # 黄金测试集（103条）
 ├── docs/                             # 文档
-│   └── interview-questions.md        # 面试题库
 ├── evaluation-reports/               # 评估报告输出
 ├── evaluation-config.yaml            # 评估配置
 ├── docker-compose.yml                # Docker 编排

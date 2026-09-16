@@ -7,15 +7,10 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
-REPORT_PATH = Path(
-    "D:/Python/ai-agent-platform/tests/reports/evaluation/ragas-report-2026-07-27T21-03-16.json"
-)
-EVAL_DATA_PATH = Path(
-    "D:/Python/ai-agent-platform/tests/reports/evaluation/ragas-eval-data.json"
-)
-OUTPUT_PATH = Path(
-    "D:/Python/ai-agent-platform/docs/v11-ragas-query-analysis.md"
-)
+ROOT = Path(__file__).resolve().parents[1]
+REPORT_PATH = ROOT / "tests" / "reports" / "evaluation" / "ragas-report-2026-07-27T21-03-16.json"
+EVAL_DATA_PATH = ROOT / "tests" / "reports" / "evaluation" / "ragas-eval-data.json"
+OUTPUT_PATH = ROOT / "docs" / "v11-ragas-query-analysis.md"
 
 
 def load_report():

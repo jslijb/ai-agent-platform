@@ -23,6 +23,7 @@ FinQA 原始数据转换脚本
 import json
 import os
 import logging
+from pathlib import Path
 
 # 配置日志
 logging.basicConfig(
@@ -32,9 +33,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # 路径配置
-SOURCE_FILE = r"d:\Python\ai-agent-platform\data\datasets\FinQA\test.json"
-OUTPUT_PATH_1 = r"D:\data\modelscope\FinQA\converted\test.json"
-OUTPUT_PATH_2 = r"d:\Python\ai-agent-platform\data\datasets\FinQA\converted\test.json"
+ROOT = Path(__file__).resolve().parents[1]
+SOURCE_FILE = ROOT / "data" / "datasets" / "FinQA" / "test.json"
+OUTPUT_PATH_1 = r"D:\data\modelscope\FinQA\converted\test.json"  # 外部工具目录，按需改
+OUTPUT_PATH_2 = ROOT / "data" / "datasets" / "FinQA" / "converted" / "test.json"
 
 
 def infer_difficulty(raw_steps_count: int) -> str:

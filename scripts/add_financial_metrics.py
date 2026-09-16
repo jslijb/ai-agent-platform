@@ -1,7 +1,9 @@
 import json
 import copy
+from pathlib import Path
 
-INPUT_FILE = r"d:\Python\ai-agent-platform\scripts\qa-golden.json"
+ROOT = Path(__file__).resolve().parents[1]
+INPUT_FILE = ROOT / "scripts" / "qa-golden.json"
 
 with open(INPUT_FILE, "r", encoding="utf-8") as f:
     data = json.load(f)

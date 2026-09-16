@@ -4,6 +4,7 @@
 基于项目真实状态生成，包含现有功能与规划升级
 """
 import os
+from pathlib import Path
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm, cm
 from reportlab.lib import colors
@@ -606,7 +607,8 @@ def build_story():
 
 
 def main():
-    output_path = r"d:\Python\ai-agent-platform\AI_Agent_Platform_项目介绍_v2.pdf"
+    ROOT = Path(__file__).resolve().parents[1]
+    output_path = str(ROOT / "AI_Agent_Platform_项目介绍_v2.pdf")
 
     doc = SimpleDocTemplate(
         output_path,
