@@ -150,10 +150,12 @@ docker compose ps           # 全部 Up 且 healthy 即启动成功
 
 ### 6. 运行测试
 
+项目使用 **pnpm** 管理依赖（`pnpm-lock.yaml` 为唯一 lockfile，CI 用 `pnpm install --frozen-lockfile`）：
+
 ```bash
-npm install                # 宿主机跑测试需先装依赖
-npm test                   # Vitest 全量 837 用例
-npm run test:ci            # CI 模式（排除 contract/integration）
+pnpm install               # 安装依赖（Node ≥ 20）
+pnpm test                  # Vitest 全量 837 用例
+pnpm run test:ci           # CI 模式（排除 contract/integration）
 ```
 
 ### 7. 评估复现

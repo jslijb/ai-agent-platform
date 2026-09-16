@@ -143,3 +143,6 @@ tests/reports/test/
 # Accidental shell redirect artifacts
 /1.0
 /=
+
+# npm lockfile 不使用（项目由 pnpm 管理，pnpm-lock.yaml 为唯一 lockfile）
+package-lock.json
