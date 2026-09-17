@@ -83,7 +83,7 @@
                             ├── Redis(6379)          — 缓存 + 限流 + 熔断 + 语义缓存 + Checkpoint
                             ├── Neo4j(7687)          — 知识图谱（3237 节点 / 4752 关系）
                             ├── Odoo(8069)           — OA 审批 + CRM（可选）
-                            └── Twenty(3003)         — CRM（可选）
+                            └── Twenty(3005)         — CRM（可选）
 ```
 
 **架构图**（微服务拓扑 / 多实例容错 / Docker Compose 部署三段）：
@@ -148,25 +148,65 @@ DATABASE_URL=postgresql://aiagent:aiagent_secret@postgres:5432/agentdb
 
 > 密钥一律只写在 `.env.local`（已在 `.gitignore` 排除）：源码与 `config/api_keys.yaml` 里只出现变量名，不写真实值。
 
-### 3. 放置本地模型文件
+### 3. 下载本地模型
 
-嵌入 / 重排序模型本地部署（无 API 成本），下载后放到 `MODEL_BASE_PATH` 指向的目录（默认 `D:\models\modelscope\models`，服务器部署在 `.env` 中改为 Linux 路径）：
+嵌入 / 重排序模型本地部署（无 API 成本）。两个模型均为 BAAI 官方模型的 GGUF 量化版，提供两条可核验的获取途径：
 
-| 模型 | 文件 | 用途 |
-|------|------|------|
-| BGE-M3 | `bge-m3-q8_0.gguf` | 向量嵌入 |
-| BGE-Reranker-v2-m3 | `bge-reranker-v2-m3-Q8_0.gguf` | 精排 |
+| 模型 | HuggingFace（国际） | ModelScope（国内） | 用途 |
+|------|---------------------|-------------------|------|
+| BGE-M3 | [gpustack/bge-m3-GGUF](https://huggingface.co/gpustack/bge-m3-GGUF) | `OllmOne/bge-m3-GGUF` | 向量嵌入 |
+| BGE-Reranker-v2-m3 | [gpustack/bge-reranker-v2-m3-GGUF](https://huggingface.co/gpustack/bge-reranker-v2-m3-GGUF) | `gpustack/bge-reranker-v2-m3-GGUF` | 精排 |
+
+下载到 `MODEL_BASE_PATH` 指向的目录（默认 `D:\models\modelscope\models`，服务器部署在 `.env` 中改为 Linux 路径），二选一：
+
+```bash
+# 方式 A：ModelScope（国内网络）
+pip install -U modelscope
+modelscope download --model OllmOne/bge-m3-GGUF --local_dir "$MODEL_BASE_PATH/gpustack/bge-m3-GGUF"
+modelscope download --model gpustack/bge-reranker-v2-m3-GGUF --local_dir "$MODEL_BASE_PATH/gpustack/bge-reranker-v2-m3-GGUF"
+
+# 方式 B：HuggingFace
+pip install -U "huggingface_hub[cli]"
+huggingface-cli download gpustack/bge-m3-GGUF --include "*Q8_0*.gguf" --local-dir "$MODEL_BASE_PATH/gpustack/bge-m3-GGUF"
+huggingface-cli download gpustack/bge-reranker-v2-m3-GGUF --include "*Q8_0*.gguf" --local-dir "$MODEL_BASE_PATH/gpustack/bge-reranker-v2-m3-GGUF"
+```
+
+> - Windows 下请在 Git Bash / WSL 中执行，或将 `$MODEL_BASE_PATH` 替换为实际目录。
+> - 仓库内含多种量化档位，应用使用 **Q8_0** 档（约 600-700MB/个），其余档位可删。
+> - ModelScope 源的嵌入模型文件名为小写 `bge-m3-q8_0.gguf`，与默认配置大小写不同，改 `.env` 的 `EMBEDDING_MODEL_FILE` 即可，无需改 compose。
+
+放置后的目录结构（与 `docker-compose.yml` 的挂载路径一一对应）：
+
+```text
+$MODEL_BASE_PATH/
+└── gpustack/
+    ├── bge-m3-GGUF/
+    │   └── bge-m3-Q8_0.gguf              # 对应 .env 的 EMBEDDING_MODEL_FILE（ModelScope 源为小写 bge-m3-q8_0.gguf）
+    └── bge-reranker-v2-m3-GGUF/
+        └── bge-reranker-v2-m3-Q8_0.gguf  # 对应 .env 的 RERANKER_MODEL_FILE
+```
+
+> 若实际下载的量化文件名与默认不符（不同镜像源命名有大小写差异），改 `.env` 里的 `EMBEDDING_MODEL_FILE` / `RERANKER_MODEL_FILE` 即可，无需改 compose。
 
 ### 4. 启动与验证
 
 ```bash
-docker compose up -d        # nginx + main + rag + data + embedding + reranker + postgres + redis + neo4j
+docker compose up -d        # postgres + redis + neo4j + embedding + reranker + rag + data + main + nginx + evaluation-service + twenty
 docker compose ps           # 全部 Up 且 healthy 即启动成功
 ```
 
-打开浏览器访问 http://localhost ，注册账号后即可使用。
+启动后的服务入口：
+
+| 入口 | 地址 | 说明 |
+|------|------|------|
+| 应用主入口 | http://localhost | nginx 反代，注册账号后即可使用 |
+| Twenty CRM | http://localhost:3005 | 集成的 CRM（OA/CRM 工具的数据来源） |
+
+> 首次启动 embedding/reranker 会加载本地 GGUF 模型，`docker compose logs embedding --tail 20` 看到 model loaded 即模型挂载成功。
 
 ### 5. 使用示例
+
+从启动到完成一次问答的完整路径：`docker compose up -d` → 打开 http://localhost → 注册登录 → 对话页提问 → 得到带引用的回答。
 
 登录后在对话页直接用自然语言提问，Agent 会自主选择工具（SQL 查询 / 行情接口 / 文档检索 / 技术指标 / 合规检查）：
 
