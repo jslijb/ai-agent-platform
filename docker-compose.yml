@@ -399,12 +399,12 @@ services:
     image: twentycrm/twenty:latest
     container_name: aiagent_twenty
     ports:
-      - "${TWENTY_PORT:-3005}:3000"
+      - "${TWENTY_PORT:-3006}:3000"
     environment:
       PG_DATABASE_URL: postgresql://${TWENTY_PG_USER:-twenty}:${TWENTY_PG_PASSWORD:-twenty_secret}@twenty-db:5432/${TWENTY_PG_DB:-twenty}
-      SERVER_URL: ${TWENTY_SERVER_URL:-http://localhost:3005}
+      SERVER_URL: ${TWENTY_SERVER_URL:-http://localhost:3006}
       ACCESS_TOKEN: ${TWENTY_API_KEY:-twenty_dev_token}
-      REACT_APP_SERVER_BASE_URL: ${TWENTY_SERVER_URL:-http://localhost:3005}
+      REACT_APP_SERVER_BASE_URL: ${TWENTY_SERVER_URL:-http://localhost:3006}
     networks:
       - aiagent_net
     restart: unless-stopped

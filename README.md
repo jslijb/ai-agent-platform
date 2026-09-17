@@ -83,7 +83,7 @@
                             ├── Redis(6379)          — 缓存 + 限流 + 熔断 + 语义缓存 + Checkpoint
                             ├── Neo4j(7687)          — 知识图谱（3237 节点 / 4752 关系）
                             ├── Odoo(8069)           — OA 审批 + CRM（可选）
-                            ├── Twenty(3005)         — CRM（可选）
+                            ├── Twenty(3006)         — CRM（可选）
                             └── Prometheus(9090) + Grafana(3004) — 指标采集与监控看板
 ```
 
@@ -213,7 +213,7 @@ docker compose ps           # 核心服务全部 Up 且 healthy 即启动成功
 | 入口 | 地址 | 说明 |
 |------|------|------|
 | 应用主入口 | http://localhost | nginx 反代，注册账号后即可使用 |
-| Twenty CRM | http://localhost:3005 | 集成的 CRM（OA/CRM 工具的数据来源） |
+| Twenty CRM | http://localhost:3006 | 集成的 CRM（OA/CRM 工具的数据来源） |
 | Odoo OA | http://localhost:8069 | 集成的 OA（admin/admin） |
 | Grafana 看板 | http://localhost:3004 | 监控看板（admin/admin） |
 
@@ -287,7 +287,7 @@ ai-agent-platform/
 
 | 文档 | 路径 | 说明 |
 |------|------|------|
-| 需求清单 | `docs/1-requirements-bugs/REQUIREMENTS.md` | R001-R028 全局需求跟踪 |
+| 需求清单 | `docs/1-requirements-bugs/REQUIREMENTS.md` | R001-R029 全局需求跟踪 |
 | 踩坑记录 | `docs/pitfalls/` | 按日期归档（9 份，含 V3.0 踩坑） |
 | 功能代码索引 | `docs/CODE_INDEX.md` | 每个功能的 WHAT/WHY/WHERE/HOW |
 | 项目全景 | `docs/PROJECT_OVERVIEW.md` | 技术栈 + 架构图 + 设计决策 |
