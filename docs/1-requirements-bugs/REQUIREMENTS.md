@@ -24,7 +24,12 @@
 | R013 | 评估数据集质量治理（qa-golden.json校验+生成规范） | 8/01对话 | 2026-08-01 | 已完成 | V13 | check_ground_truth.py输出0个问题 |
 | R014 | PDF处理工具分工与OCR fallback链路 | 8/01对话 | 2026-08-01 | 已完成 | V13 | 中国人保OCR提取成功（income=8字段, balance=3字段, cashflow=3字段） |
 | R015 | 同比数据优先从财报"主要会计数据"表格提取 | 8/01对话 | 2026-08-01 | 已完成 | V13 | 片仔癀/中国铁建/格力电器等验证通过 |
-| R016 | 数据库全表缺失审计与市场缓存补齐 | 8/03对话 | 2026-08-03 | 部分完成 | V13 | evaluation_pool/Team/market_cache 已补；minute 真实数据源阻塞 |
+| R016 | 工具合并+按需加载（ACI优化） | V14 spec（spec.md） | 2026-08-07 | 已完成 | V14 | 工具21→6、首次调用token减少60%；task.md R016-a~e全部完成、27个单测通过 |
+| R017 | Context Compaction（上下文压缩） | V14 spec（spec.md） | 2026-08-07 | 已完成 | V14 | 对话>20条触发压缩：最近5条完整保留+早期压缩为结构化摘要，金融数值不丢精度 |
+| R018 | Agent错误恢复（Checkpoint+Resume） | V14 spec（spec.md） | 2026-08-07 | 已完成 | V14 | 每轮保存checkpoint至Redis(TTL 1h)，失败自动回退重试≤2次并注入错误信息引导换策略 |
+| R019 | Transcript分析+耗时追踪 | V14 spec（spec.md） | 2026-08-07 | 已完成 | V14 | 每步LLM/工具/总耗时入AgentLog，前端毫秒级展示，分析输出最慢/最常失败工具Top5 |
+| R020 | 知识图谱数据质量深度重构 | V3.0 spec（spec.md） | 2026-08-07 | 已完成 | V3.0 | 全量重建3237节点/4752关系(2026-08-17)；e2e-r020-r021.ts 5/5通过 |
+| R021 | LLM语义缓存（Prompt级分层缓存） | V3.0 spec（spec.md） | 2026-08-07 | 已完成 | V3.0 | 精确+语义双层缓存(bge-m3本地embedding，阈值0.95)；E2E LLM调用减少40%(验收线≥15%) |
 | R022 | CRM/OA接入——从问答到流程提交/审批 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | Odoo已部署+Agent工具+审计日志+真实E2E 7测试通过；Twenty部署已取消(2026-08-17不部署服务) |
 | R023 | Agent框架融合——MCP+LangSmith | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | MCP Server 6核心工具(共注册20)；LangSmith全链路；Guardrails 3类规则 |
 | R024 | 多端前端——小程序+App+鸿蒙 | 8/12对话 | 2026-08-12 | 部分完成 | V3.0 | 小程序api-client+Capacitor MVP(R024-e)+鸿蒙ArkTS原型(R024-f)完成；原生构建/鸿蒙构建已取消(2026-08-17不部署) |
@@ -32,6 +37,9 @@
 | R026 | V3.0升级风险管控 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | 升级路线图+兼容性矩阵+回滚方案(v3-compatibility-matrix-rollback-migration.md)；服务器部署(负载均衡/压测/GPU)已取消 |
 | R027 | JD调研驱动的能力补齐 | 8/12对话 | 2026-08-12 | 已完成 | V3.0 | langgraph-patterns 3种编排模式(单Agent/多Agent路由/Supervisor)；MCP Server可用 |
 | R028 | 微信/钉钉/飞书机器人(个人账号优先+预留接口) | 8/13对话 | 2026-08-13 | 部分完成 | V3.0 | 四平台适配器+bot-config加载器；飞书真实E2E 7测试通过；App Secret待用户填写 |
+| R029 | 数据库全表缺失审计与市场缓存补齐 | 8/03对话 | 2026-08-03 | 部分完成 | V13 | evaluation_pool/Team/market_cache 已补；minute 真实数据源阻塞 |
+
+> 编号说明：R016-R021 沿用 `docs/3-standards/spec.md` 编号（V14/V3.0 批次）。数据库审计需求原编号 R016，为与 spec.md 编号对齐调整为 R029（2026-08-17）。
 
 ---
 
@@ -118,7 +126,35 @@
   3. 提取的同比值覆盖计算值（source_priority更高）
 - **验收**：同比数据与财报"主要会计数据"表格一致
 
-### R016：数据库全表缺失审计与市场缓存补齐
+### R016：工具合并+按需加载（ACI优化）
+- **需求**：细粒度金融工具合并为高层工具（技术分析封装 MA/RSI/MACD/KDJ/BB 等），Tool Search Tool 按需加载工具定义，减少 token 浪费
+- **验收**：工具数≤6、首次调用 token ≥30% 减少、V13-r6 基线（0.9153）不退化
+- **完成**：工具 21→6，首次调用 token 减少 60%；task.md R016-a~e（technicalAnalysis/riskAnalysis/Tool Search Tool/自动取数/marketData）全部 ✅，27 个单测通过
+- **详见**：`docs/3-standards/spec.md` §R016、`docs/3-standards/task.md`
+
+### R017：Context Compaction（上下文压缩）
+- **需求**：长对话自动压缩历史消息——对话 >20 条或 token 接近上限时触发，最近 5 条完整保留，早期消息压缩为结构化摘要（含关键决策/工具结果/用户偏好），金融数值不丢精度，压缩操作记录 AgentLog
+- **详见**：`docs/3-standards/spec.md` §R017
+
+### R018：Agent错误恢复（Checkpoint+Resume）
+- **需求**：每轮迭代结束保存 checkpoint（工具调用结果+Agent状态）至 Redis（TTL 1小时）；失败自动回退最近 checkpoint 重试≤2 次，重试注入错误信息引导 Agent 换策略；最终失败返回已有部分结果+原因
+- **详见**：`docs/3-standards/spec.md` §R018
+
+### R019：Transcript分析+耗时追踪
+- **需求**：每轮记录 LLM 调用耗时、各工具单独耗时、总耗时并存 AgentLog；前端毫秒级展示每步耗时；Transcript 分析工具输出 Top5 最慢工具+Top5 最常失败工具
+- **详见**：`docs/3-standards/spec.md` §R019
+
+### R020：知识图谱数据质量深度重构
+- **需求**：实体类型标签化（Company/Indicator/Amount 等）、数值内联化为关系属性、公司实体归一化、关系语义化、断点续传
+- **完成（2026-08-17）**：全量重建 3237 节点/4752 关系，4 个 PDF 年报补齐 rawContent 后断点续跑成功；`scripts/e2e-r020-r021.ts` 5/5 query 通过
+- **详见**：`docs/3-standards/spec.md` §八
+
+### R021：LLM语义缓存（Prompt级分层缓存）
+- **需求**：精确匹配+语义匹配双层缓存（本地 bge-m3 embedding，相似度阈值≥0.95），按 promptTemplate 分组防跨场景误命中，embedding 不可用时降级精确缓存
+- **完成**：E2E 5/5 通过，LLM 调用减少 40%（验收线 ≥15%），精确命中 5/5、语义命中 2/5
+- **详见**：`docs/3-standards/spec.md` §九
+
+### R029：数据库全表缺失审计与市场缓存补齐
 - **背景**：用户要求重新检查所有数据库表当前状态，确认是否仍有缺失；前置任务已完成 `market_cache_entries` 迁移和部分预热。
 - **修复内容**：
   1. 审计 public schema 全表行数与关键字段覆盖率。
