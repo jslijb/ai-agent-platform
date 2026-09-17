@@ -13,7 +13,7 @@ fix_testset_data_source.py
 6. 调用 /api/rag/search 检索（任务要求，带缓存，每次间隔 2 秒）
 7. 输出修正报告
 
-使用：D:\\ProgramData\\miniforge3\\envs\\bigmodel\\python.exe -u scripts\\fix_testset_data_source.py
+使用：python -u scripts/fix_testset_data_source.py
 """
 
 import json

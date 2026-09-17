@@ -2,11 +2,10 @@
 R014：PDF 页面渲染为图片（OCR fallback 链路 Step 1）
 
 用途：用 PyMuPDF 将 PDF 指定页渲染为 PNG 图片，供 PaddleOCR 识别。
-运行环境：bigmodel（D:\ProgramData\Miniforge3\envs\bigmodel\python.exe）
-  原因：agent 环境无 PyMuPDF（无法安装，权限拒绝），bigmodel 环境有 PyMuPDF 1.27.2.3。
+运行环境：Python 3.11+，需已安装 PyMuPDF（`pip install pymupdf`）。
 
 CLI 接口：
-    D:\ProgramData\Miniforge3\envs\bigmodel\python.exe scripts/render_pdf_page.py \
+    python scripts/render_pdf_page.py \
         --pdf-path "xxx.pdf" --page 9 --output "xxx.png" --dpi 200
 
 参数说明：
@@ -56,7 +55,7 @@ def render_page(pdf_path: str, page_idx: int, output_path: str, dpi: int = 200) 
     try:
         import fitz  # PyMuPDF
     except ImportError as e:
-        logger.error(f"PyMuPDF 导入失败: {e}（请确保在 bigmodel 环境运行）")
+        logger.error(f"PyMuPDF 导入失败: {e}（请先 pip install pymupdf）")
         sys.exit(3)
 
     if not os.path.exists(pdf_path):
