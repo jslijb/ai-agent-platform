@@ -12,7 +12,7 @@
 | V16 | 自研 | qwen3.8-flash（中途降级 sensenova） | 55 | 0.8386 | [ragas-report-v16-selfimpl-r1.json](tests/reports/evaluation/ragas-report-v16-selfimpl-r1.json) |
 | 同数据基准 | **官方 RAGAS** | — | 55 | **0.3205** | 详见 [evaluation-improvement-plan.md](docs/1-requirements-bugs/evaluation-improvement-plan.md) |
 
-**成绩构成**（V13-r6）：忠实度 1.000 / 答案相关性 0.994 / 上下文精确率 0.969 / 数值准确率 0.879 / 上下文召回率 0.705（该项 FAIL，被加权平均掩盖——这就是要修的短板机制）
+**成绩构成**（V13-r6，见上表报告原文）：忠实度 1.000 / 答案相关性 0.951 / 上下文精确率 0.946 / 上下文召回率 0.705（该项 FAIL，被加权平均掩盖——这就是要修的短板机制；数值准确率为 V16 起新增指标，r6 未测）
 
 **打实成绩 roadmap**（进行中）：
 - P0：新增 AC（答案正确性）指标，直接比对 answer vs ground_truth，金融数值题一票否决
