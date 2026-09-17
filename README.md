@@ -19,7 +19,7 @@
 - P0：overall 短板机制——任一指标 FAIL 时综合分封顶，杜绝灾难样本被平均掉
 - P1：30 条人工标注 golden 校准集，judge 与人工一致率 <85% 即换 judge；judge 换非同源模型
 - P1：考卷扩到 100+（多跳 / 跨文档 / 干扰项 / 拒答），L1 抄书题降至 30% 以下
-- 已知问题：L1-002（中国铁建营收，答案错 1000 倍仍得 CP/F/AR 三满分）已定位为体系性漏洞的实证
+- 已知问题：L1-002（中国铁建营收）——GT 与答案曾相差 1000 倍：v13-r4 判四项全满分（见 [ragas-report-v13-selfimpl-r4.json](tests/reports/evaluation/ragas-report-v13-selfimpl-r4.json)），v16 的 NA 指标判 0 分且无法区分"答错"还是"GT 错"（详见 [docs/pitfalls/2026-09-02-v16-unified-evaluation.md](docs/pitfalls/2026-09-02-v16-unified-evaluation.md)），已定位为体系性漏洞的实证
 
 **测试覆盖**: 837 单测通过 | **容器化**: Docker Compose 一键部署
 
