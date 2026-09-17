@@ -83,7 +83,8 @@
                             ├── Redis(6379)          — 缓存 + 限流 + 熔断 + 语义缓存 + Checkpoint
                             ├── Neo4j(7687)          — 知识图谱（3237 节点 / 4752 关系）
                             ├── Odoo(8069)           — OA 审批 + CRM（可选）
-                            └── Twenty(3005)         — CRM（可选）
+                            ├── Twenty(3005)         — CRM（可选）
+                            └── Prometheus(9090) + Grafana(3004) — 指标采集与监控看板
 ```
 
 **架构图**（微服务拓扑 / 多实例容错 / Docker Compose 部署三段）：
@@ -191,9 +192,21 @@ $MODEL_BASE_PATH/
 ### 4. 启动与验证
 
 ```bash
-docker compose up -d        # postgres + redis + neo4j + embedding + reranker + rag + data + main + nginx + evaluation-service + twenty
-docker compose ps           # 全部 Up 且 healthy 即启动成功
+docker compose up -d        # 默认启动 16 个服务，见下方清单
+docker compose ps           # 核心服务全部 Up 且 healthy 即启动成功
 ```
+
+启动的服务清单（与 `docker-compose.yml` 一一对应）：
+
+| 分组 | 服务 |
+|------|------|
+| 基础设施 | postgres、redis、neo4j |
+| 模型与检索 | embedding、reranker、rag-service、data-service |
+| 应用 | main-service、nginx、evaluation-service |
+| CRM/OA 集成 | twenty（+ twenty-db）、odoo（+ odoo-db） |
+| 监控 | prometheus、grafana |
+
+> grafana / prometheus 无内置健康检查，`docker compose ps` 显示 `Up` 即正常；其余服务等待 `healthy`。
 
 启动后的服务入口：
 
@@ -201,6 +214,8 @@ docker compose ps           # 全部 Up 且 healthy 即启动成功
 |------|------|------|
 | 应用主入口 | http://localhost | nginx 反代，注册账号后即可使用 |
 | Twenty CRM | http://localhost:3005 | 集成的 CRM（OA/CRM 工具的数据来源） |
+| Odoo OA | http://localhost:8069 | 集成的 OA（admin/admin） |
+| Grafana 看板 | http://localhost:3004 | 监控看板（admin/admin） |
 
 > 首次启动 embedding/reranker 会加载本地 GGUF 模型，`docker compose logs embedding --tail 20` 看到 model loaded 即模型挂载成功。
 
@@ -263,7 +278,7 @@ ai-agent-platform/
 ├── scripts/                    # 运维/工具脚本（含 E2E 回归 + 图谱重建）
 ├── docs/                       # 项目文档（需求/技术/规范/踩坑/版本快照）
 ├── config/                     # 配置文件（api_keys.yaml + bot-config.yaml）
-└── docker-compose.yml          # Docker 编排（nginx + 7 服务 + 2 可选）
+└── docker-compose.yml          # Docker 编排（16 服务：基础设施 + 模型检索 + 应用 + CRM/OA + 监控）
 ```
 
 ---
