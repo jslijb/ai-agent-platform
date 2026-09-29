@@ -1,12 +1,12 @@
 # AI Agent Platform - 项目记忆索引
 
 > 本文件是 agent 每次会话的"开机自检清单"。新会话开始时自动读取。
-> 最后更新：2026-08-14
+> 最后更新：2026-09-29
 
 ## 快速恢复：项目当前状态
 
 - **架构**：Next.js + FastAPI 微服务，nginx(80) 统一入口
-- **容器化**：✅ 已完成（7→5 容器，postgres/redis 复用宿主机已有实例）
+- **容器化**：✅ 已完成（7→5 容器；postgres 为项目自有容器 5433，redis 复用宿主机实例）
 - **评估基线**：V13-r6 综合 0.9153（达标）
 - **80端口**：✅ 可用（nginx→main-service）
 - **硬件**：见 `docs/1-requirements-bugs/hardware-profile.md`
@@ -19,6 +19,11 @@
 2. **历史对话必须显示**——已报多次，是核心体验
 3. **不要反复问用户已说过的事**——重要信息必须写入文档
 4. **踩坑必须记录**——会话压缩后不能丢失关键信息
+5. **其他项目的容器绝对不可触碰**（2026-09-29 用户明令）：
+   - 端口与其他项目容器冲突时，**只能改本项目的端口映射**（如 postgres 5432→5433），或改用本地方案；绝不抢占、绝不要求对方让路
+   - **禁止停止、启动、重启、删除、修改其他项目的容器/卷/配置**（含 docker exec 写入其内部）
+   - 数据不能寄宿在其他项目的容器里——本项目数据必须收敛到本项目自有容器（本项目 PostgreSQL = `aiagent_postgres`，宿主机 **5433**，pgvector 镜像）
+   - **唯一例外**：用户在对话中明确授权可以动某个容器时，才可操作，且仅限授权范围内
 
 ## 文档索引（3类目录）
 
@@ -74,11 +79,15 @@
 nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8001)
            + embedding(8011) + reranker(8010) + neo4j(7474/7687)
            + odoo(8069) + twenty(3003)
-复用: postgres(5432) + redis(6379)
+自有: postgres=aiagent_postgres(宿主机5433, pgvector镜像, agentdb唯一数据源)
+复用: redis(6379, ai_novel_redis——其他项目容器,不可改动)
 新增: odoo-db(5432内部) + twenty-db(5432内部)
 ```
 
-启动命令：`docker compose up -d`（确保 Docker Desktop 运行）
+启动命令：`docker compose up -d`（确保 Docker Desktop 运行；postgres 已移出 full profile，会随栈启动）
+
+> ⚠️ 宿主机 5432/3000/8001 由**其他项目**的容器占用（ai_novel_postgres_old / ai_novel_frontend / chatbi-gateway），
+> 属其他项目资产，本项目不得停止或修改它们；冲突时改本项目端口。详见「用户反复强调的需求」第 5 条。
 
 ## 关键踩坑速查
 
