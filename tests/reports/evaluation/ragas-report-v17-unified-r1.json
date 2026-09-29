@@ -1,0 +1,1509 @@
+{
+  "version": "V16-unified-selfimpl-r1",
+  "framework": "自研评测方法论 V1.0（RAGAS 沿用 + 项目微调，R030）",
+  "timestamp": "2026-09-19T00:17:18.205451",
+  "evaluation_meta": {
+    "duration_seconds": 2485.92,
+    "item_count": 55,
+    "input_path": "tests/reports/evaluation/ragas-eval-data-v17.json",
+    "judge_model": "sensenova/sensenova-6.8-flash-lite",
+    "judge_base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "judge_degraded": true,
+    "llm_chain": [
+      {
+        "provider": "sensenova",
+        "model": "sensenova-6.8-flash-lite",
+        "base_url": "https://token.sensenova.cn/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-27b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.7-flash-2026-07-15",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "kimi-k3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-flash-0731",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-max-0902",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4.1-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "glm-5.3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-pro-0813",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-2.4t-a95b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-27b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.7-flash-2026-07-15",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "kimi-k3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-flash-0731",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-max-0902",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4.1-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "glm-5.3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-pro-0813",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-2.4t-a95b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-27b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.7-flash-2026-07-15",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "kimi-k3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-flash-0731",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-max-0902",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4.1-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "glm-5.3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-pro-0813",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-2.4t-a95b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "agnes",
+        "model": "agnes-3.0-flash",
+        "base_url": "https://api.agnes-ai.cn/v1"
+      }
+    ],
+    "skip_llm": false
+  },
+  "weights": {
+    "context_precision": 0.2,
+    "context_recall": 0.2,
+    "faithfulness": 0.25,
+    "answer_relevancy": 0.25,
+    "numerical_accuracy": 0.1
+  },
+  "thresholds": {
+    "context_precision": 0.8,
+    "context_recall": 0.8,
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.8,
+    "numerical_accuracy": 0.85,
+    "overall": 0.82,
+    "e2e_p95_ms": 5000.0,
+    "success_rate": 0.95
+  },
+  "quality_metrics": {
+    "context_precision": 0.9455,
+    "context_recall": 0.6364,
+    "faithfulness": 0.9955,
+    "answer_relevancy": 0.97,
+    "numerical_accuracy": 0.5,
+    "overall_score": 0.8578,
+    "pass_status": {
+      "context_precision": "PASS",
+      "context_recall": "FAIL",
+      "faithfulness": "PASS",
+      "answer_relevancy": "PASS",
+      "numerical_accuracy": "FAIL",
+      "overall": "PASS",
+      "e2e_p95": "FAIL",
+      "success_rate": "PASS"
+    }
+  },
+  "performance_metrics": {
+    "e2e": {
+      "mean": 4986.9,
+      "p50": 4465.0,
+      "p90": 7930.2,
+      "p95": 9722.9,
+      "count": 55
+    },
+    "retrieval": {
+      "mean": 19.3,
+      "p50": 16.0,
+      "p90": 23.8,
+      "p95": 35.4,
+      "count": 55
+    },
+    "generation": {
+      "mean": 4967.5,
+      "p50": 4440.0,
+      "p90": 7912.6,
+      "p95": 9708.3,
+      "count": 55
+    },
+    "retrieval_coverage": 1.0,
+    "pass_status": "FAIL"
+  },
+  "stability_metrics": {
+    "success_rate": 1.0,
+    "success_count": 55,
+    "fail_list": [],
+    "pass_status": "PASS"
+  },
+  "category_stats": {
+    "L1-事实提取": {
+      "count": 30,
+      "context_precision": 0.9333,
+      "context_recall": 0.7333,
+      "faithfulness": 0.9917,
+      "answer_relevancy": 0.9583,
+      "numerical_accuracy": 0.65,
+      "e2e_p95_ms": 10617.3,
+      "success_rate": 1.0
+    },
+    "L3-计算推理": {
+      "count": 15,
+      "context_precision": 1.0,
+      "context_recall": 0.4,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0667,
+      "e2e_p95_ms": 8370.5,
+      "success_rate": 1.0
+    },
+    "L4-趋势分析": {
+      "count": 10,
+      "context_precision": 0.9,
+      "context_recall": 0.7,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.96,
+      "numerical_accuracy": 0.7,
+      "e2e_p95_ms": 7766.1,
+      "success_rate": 1.0
+    }
+  },
+  "baseline_comparison": {
+    "baseline_version": "V13-r6",
+    "baseline_overall": 0.9153,
+    "v16_overall": 0.8578,
+    "delta": -0.0575,
+    "judge_comparable": false,
+    "note": "judge 与 V13-r6(agnes-2.5-flash) 不同或未评估质量层，评分尺度不可比，delta 仅作参考"
+  },
+  "goodhart_risk_disclosure": {
+    "disclosure": [
+      "1. LLM-as-Judge 与生产同源模型系：存在自我肯定倾向（官方 RAGAS 0.3205 vs 自实现 0.9153 差距为证）",
+      "2. SQL 结果自然语言格式化器提升 CP/CR 可判定性：分数提升部分来自'让评估器看懂'，不全是系统真实能力",
+      "3. 正确拒绝(canAnswer=false)四指标直接满分（V13 口径沿用）：直接抬高 L9 类得分",
+      "4. NA 数值精度较 V13 口径收紧（5%→1%/0.1%）：NA 与 V13 分数不可直接比较",
+      "5. 样本量 55 条，95% 置信区间约 ±9.2%"
+    ],
+    "data_driven": {
+      "sql_formatted_ratio": 1.0,
+      "refusal_full_score_count": 0,
+      "judge_degraded": true,
+      "skip_llm": false
+    }
+  },
+  "details": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 117,
+      "generationLatencyMs": 3610,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.95,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "4.5293e+11 vs 4.5293e+11 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年营业收入的问题，给出了具体数值4529.30亿元，并标注了数据来源（2025年年度报告利润表数据），内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 6678,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.85,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.02978e+12 vs 1.03e+09 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年营业收入的问题，给出了具体数值（10.30亿元）并引用了来源（年度报告利润表数据），与问题高度相关。但答案较为简短，未提供更多上下文或补充信息，因此未给满分。"
+      }
+    },
+    {
+      "id": "L1-003",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 4650,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.85,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.623e+11 vs 6.69e+08 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国人保2025年营业收入的问题，给出了具体数值（6.69亿元）并标注了信息来源（2025年年度报告利润表数据），内容相关且简洁无冗余。"
+      }
+    },
+    {
+      "id": "L1-004",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 25,
+      "generationLatencyMs": 4440,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "4.0529e+10 vs 4.0529e+10 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于五粮液2025年营业收入的问题，给出了具体数值405.29亿元，并标注了数据来源，内容简洁无冗余，完全切题。"
+      }
+    },
+    {
+      "id": "L1-005",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 5342,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.95,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.71118e+11 vs 1.71118e+11 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于格力电器2025年营业收入的问题，给出了具体数值（约1711.18亿元），并引用了来源文档，内容简洁、相关性强，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-006",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 3621,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.95,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.5809e+10 vs 1.5809e+10 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年营业收入的问题，给出了具体数值158.09亿元，并标注了数据来源（文档片段1中2025年年度报告利润表数据），内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-007",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3556,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.95,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "8.7942e+10 vs 8.7942e+10 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年营业收入的问题，给出了具体数值879.42亿元，并标注了信息来源（2025年年度报告利润表数据）。回答简洁、相关性强，无冗余信息，完全切题。"
+      }
+    },
+    {
+      "id": "L1-008",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 4398,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.03e+09 vs 9.03e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于东吴证券2025年营业收入的问题，给出了具体数值90.30亿元，并引用了来源文档片段，内容精准、无冗余，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-009",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 3677,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "8.587e+09 vs 8.587e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年营业收入的问题，给出了具体数值85.87亿元，并标注了信息来源，内容简洁无冗余，完全切题。"
+      }
+    },
+    {
+      "id": "L1-010",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 3648,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.95,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.001e+09 vs 9.001e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年营业收入的问题，给出了具体数值90.01亿元，并标注了数据来源（2025年年度报告利润表），内容相关且无冗余，回答简洁明确。"
+      }
+    },
+    {
+      "id": "L1-011",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 11,
+      "generationLatencyMs": 4598,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.9,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.84e+09 vs 9.756e+09 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年净利润的问题，给出了具体数值97.56亿元，并引用了数据来源（2025年年度报告利润表），内容简洁、针对性强，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-012",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 10858,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.8363e+10 vs 2.16868e+07 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案直接且明确地回答了用户关于中国铁建2025年净利润的问题，提供了具体数值，并补充了归属于母公司股东的净利润数据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-013",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 5610,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "2.18e+10 vs 6.3033e+07 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且明确地回答了用户关于“中国人保2025年净利润”的问题，提供了具体的数值，并额外补充了归属于母公司股东的净利润，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-014",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 5350,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "8.954e+09 vs 8.954e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于五粮液2025年净利润的问题，提供了具体数值，并补充了归属于母公司股东的净利润信息，内容简洁且无冗余，完全符合问题的要求。"
+      }
+    },
+    {
+      "id": "L1-015",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 5320,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "2.9003e+10 vs 2.9003e+10 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于格力电器2025年净利润的问题，提供了具体数值及补充信息，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-016",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 5014,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "-5.6e+07 vs 1.37513e+07 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年净利润的问题，提供了具体的数值，并额外补充了归属于母公司股东的净利润信息，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-017",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 4622,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "3.4501e+10 vs 3.4501e+10 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了江苏银行2025年净利润的具体数值，并补充了归属于母公司股东的净利润，信息相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-018",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 3560,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.5,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "3.552e+09 vs 3.572e+09 → 0.5",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于东吴证券2025年净利润的问题，提供了具体数值和来源，无冗余信息，完全相关。"
+      }
+    },
+    {
+      "id": "L1-019",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 4301,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "2.66e+08 vs 2.66e+08 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年净利润的问题，提供了具体数值，并补充了归属于母公司股东的净利润信息，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-020",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年净利润是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 3754,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "2.159e+09 vs 2.159e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了片仔癀2025年净利润的具体数值，并提供了归属于母公司股东的净利润作为补充，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-021",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年研发费用是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 12,
+      "generationLatencyMs": 2900,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "6.463e+09 vs 6.463e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于格力电器2025年研发费用的问题，提供了具体数值（64.63亿元）并引用了信息来源，无冗余信息，完全符合问题需求。"
+      }
+    },
+    {
+      "id": "L1-022",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年研发费用是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3518,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.087e+09 vs 1.087e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于“中国长城2025年研发费用”的问题，提供了具体数值（10.87亿元）并说明了数据来源，内容相关且无冗余，符合完美回答的标准。"
+      }
+    },
+    {
+      "id": "L1-023",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年研发费用是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 2849,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.229e+09 vs 1.229e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年研发费用的问题，提供了具体数值和来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-024",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年总资产是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 48,
+      "generationLatencyMs": 3695,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.41597e+11 vs 9.41597e+11 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年总资产的问题，提供了具体的数值，并引用了来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-025",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年总资产是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 3621,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "4.93132e+12 vs 4.931e+09 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年总资产的问题，提供了具体数值及信息来源，与问题高度相关。但表述中‘亿元’可能存在单位疑点，不过根据约束不基于自身知识判断事实，因此给予高分。"
+      }
+    },
+    {
+      "id": "L1-026",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年总资产是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 3615,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.89984e+11 vs 1.89984e+11 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于五粮液2025年总资产的问题，提供了具体数值和来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-027",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年总资产是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3692,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.756e+10 vs 1.756e+10 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年总资产的问题，提供了具体数值，并给出了信息来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-028",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年保费收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 5180,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.386e+11 vs 5.71e+08 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国人保2025年保费收入的问题，并提供了具体数值和数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-029",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年经纪业务收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 10290,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.75,
+      "answer_relevancy": 0.6,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "2.393e+09 vs 9.03e+09 → 0.0",
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 3/4 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于东吴证券2025年经纪业务收入的问题，明确指出该数据在文档中未披露且相关指标缺失，并补充了营业收入数据以说明口径差异。虽然未提供具体经纪业务收入数值，但内容与问题高度相关，属于部分回答，存在一定冗余。"
+      }
+    },
+    {
+      "id": "L1-030",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年新签合同额是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 11714,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "3.0765e+12 vs 1 → 0.0",
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于中国铁建2025年新签合同额的问题，明确指出该数据在文档中缺失，并给出了来源依据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-001",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 6386,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "12.2 vs 3.49 → 0.0; 4.5293e+11 vs 601868 → 0.0; 3.97711e+11 vs 1 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/4 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于“中国能建2025年毛利率”的问题，给出了具体数值并提供了来源，无冗余信息，完全相关。"
+      }
+    },
+    {
+      "id": "L3-002",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 49,
+      "generationLatencyMs": 4443,
+      "context_precision": 1.0,
+      "context_recall": 0.6667,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "14.8 vs 14.21 → 0.0; 2.159e+09 vs 600436 → 0.0; 1.4539e+10 vs 1 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/3 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于片仔癀2025年净资产收益率的问题，提供了具体的数值（14.21%）并指明了数据来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L3-003",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 3434,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "83.8 vs 29.3 → 0.0; GT数值83.75无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、明确地回答了用户关于五粮液2025年毛利率的问题，提供了具体数值（29.30%）并引用了来源，内容高度相关且无冗余，符合完美回答的标准。"
+      }
+    },
+    {
+      "id": "L3-004",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 5052,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.16666666666666666,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "16.9 vs 16.87 → 0.5; 2.9003e+10 vs 1 → 0.0; GT数值1.71118e+11无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 4/4 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于格力电器2025年净利率的问题，并提供了具体数值和数据来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L3-005",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 5082,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.16666666666666666,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.7 vs 9.72 → 0.5; 1.02978e+12 vs 1.03e+09 → 0.0; 9.29667e+11 vs 9.3e+08 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年毛利率的问题，提供了具体数值9.72%，并简要说明了数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-006",
+      "category": "L3-计算推理",
+      "query": "江苏银行2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 3185,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "10.2 vs 10.38 → 0.0; 3.4501e+10 vs 1 → 0.0; GT数值3.37961e+11无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年净资产收益率的问题，提供了具体数值并引用来源，无冗余信息，完全符合评分标准中的满分要求。"
+      }
+    },
+    {
+      "id": "L3-007",
+      "category": "L3-计算推理",
+      "query": "华海药业2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 7408,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "60.1 vs 5.14 → 0.0; 8.587e+09 vs 1 → 0.0; GT数值3.422e+09无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年毛利率的问题，提供了具体数值，且无冗余信息，完全符合问题的要求。"
+      }
+    },
+    {
+      "id": "L3-008",
+      "category": "L3-计算推理",
+      "query": "东吴证券2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 8596,
+      "context_precision": 1.0,
+      "context_recall": 0.6667,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.6666666666666666,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "39.3 vs 39.56 → 0.5; 3.552e+09 vs 3.572e+09 → 0.5; 9.03e+09 vs 9.03e+09 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/3 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案直接回答了东吴证券2025年净利率，并给出了具体数值和计算依据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-009",
+      "category": "L3-计算推理",
+      "query": "中国人保2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 19,
+      "generationLatencyMs": 5505,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "3.9 vs 9.42 → 0.0; 2.18e+10 vs 1 → 0.0; GT数值5.623e+11无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国人保2025年净利率的问题，提供了具体数值9.42%，并给出了来源说明，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-010",
+      "category": "L3-计算推理",
+      "query": "中国长城2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 6413,
+      "context_precision": 1.0,
+      "context_recall": 0.6667,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "-0.4 vs -0.09 → 0.0; -5.6e+07 vs 1 → 0.0; GT数值1.5809e+10无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年净利率的问题，给出了具体数值，并提供了来源依据，无冗余内容，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L3-011",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 8249,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "7.5 vs 7.63 → 0.0; 8.954e+09 vs 1 → 0.0; GT数值1.19932e+11无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/2 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于五粮液2025年净资产收益率的问题，提供了具体数值和来源，内容简洁且无冗余，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L3-012",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 22,
+      "generationLatencyMs": 2985,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "30.1 vs 19.62 → 0.0; 1.71118e+11 vs 1 → 0.0; GT数值1.19641e+11无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/4 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于格力电器2025年毛利率的问题，提供了具体数值19.62%，并引用了来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-013",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年资产负债率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 3569,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "49.6 vs 77.74 → 0.0; 4.66811e+11 vs 601868 → 0.0; 9.41597e+11 vs 1 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国能建2025年资产负债率的问题，给出了具体数值并提供了信息来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L3-014",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 4995,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "36.4 vs 24.41 → 0.0; 9.001e+09 vs 600436 → 0.0; 5.723e+09 vs 1 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/4 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年毛利率的问题，给出了具体数值24.41%，并说明了数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-015",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 21,
+      "generationLatencyMs": 5608,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.4 vs 5.08 → 0.0; 1.8363e+10 vs 1 → 0.0; GT数值3.40286e+11无同类型配对",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年净资产收益率的问题，提供了具体的数值和数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-001",
+      "category": "L4-趋势分析",
+      "query": "中国能建2025年营收同比变化多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 4584,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "3.71 vs 3.71 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年营收同比变化的问题，提供了具体的同比增长率，并补充了相关营收数据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-002",
+      "category": "L4-趋势分析",
+      "query": "江苏银行2025年净利润同比增长率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 19,
+      "generationLatencyMs": 2903,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "8.35 vs 8.94 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年净利润同比增长率的问题，提供了具体数值8.94%，并引用了信息来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-003",
+      "category": "L4-趋势分析",
+      "query": "五粮液2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 4161,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "54.55 vs 54.55 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了五粮液2025年营收同比增长率的问题，提供了具体数值并说明信息来源，内容与问题高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-004",
+      "category": "L4-趋势分析",
+      "query": "格力电器2025年净利润同比变化多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 5667,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.89 vs 9.89 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了格力电器2025年净利润同比变化的具体数值，并提供了来源依据，无冗余信息，完全相关。"
+      }
+    },
+    {
+      "id": "L4-005",
+      "category": "L4-趋势分析",
+      "query": "中国铁建2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 19,
+      "generationLatencyMs": 4120,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "3.5 vs 3.5 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年营收同比增长率的问题，提供了具体数值并说明来源，无冗余信息，完全相关。"
+      }
+    },
+    {
+      "id": "L4-006",
+      "category": "L4-趋势分析",
+      "query": "片仔癀2025年净利润同比增长率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 20,
+      "generationLatencyMs": 3268,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "27.49 vs 27.49 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年净利润同比增长率的问题，给出了具体数值（同比下降27.49%），并提供了来源依据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-007",
+      "category": "L4-趋势分析",
+      "query": "中国人保2025年保费收入同比变化多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 9459,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.9 vs 7.57 → 0.0",
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案明确说明文档未直接披露中国人保2025年保费收入同比变化，部分回应了问题，但未能提供同比变化的具体数值，仅给出营业收入同比增长和保费收入绝对值，与问题核心诉求存在偏差，属于部分回答。"
+      }
+    },
+    {
+      "id": "L4-008",
+      "category": "L4-趋势分析",
+      "query": "华海药业2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3891,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "10.06 vs 10.06 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年营收同比增长率的问题，提供了具体数值并说明了数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-009",
+      "category": "L4-趋势分析",
+      "query": "东吴证券2025年净利润同比变化多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 2915,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "50.12 vs 49.52 → 0.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于东吴证券2025年净利润同比变化的问题，提供了具体的同比增长率数据，并引用了来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-010",
+      "category": "L4-趋势分析",
+      "query": "中国长城2025年营收同比变化多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 3656,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "11.31 vs 11.31 → 1.0",
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年营收同比变化的问题，提供了具体的同比增长率11.31%，并引用了来源，内容相关且无冗余。"
+      }
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "version": "V16-unified-selfimpl-r1",
+  "framework": "自研评测方法论 V1.0（RAGAS 沿用 + 项目微调，R030）",
+  "timestamp": "2026-09-18T23:35:24.934257",
+  "evaluation_meta": {
+    "duration_seconds": 0.06,
+    "item_count": 3,
+    "input_path": "tests/reports/evaluation/ragas-eval-data-v17.json",
+    "judge_model": "N/A(skip-llm)",
+    "judge_base_url": "N/A",
+    "judge_degraded": false,
+    "llm_chain": [],
+    "skip_llm": true
+  },
+  "weights": {
+    "context_precision": 0.2,
+    "context_recall": 0.2,
+    "faithfulness": 0.25,
+    "answer_relevancy": 0.25,
+    "numerical_accuracy": 0.1
+  },
+  "thresholds": {
+    "context_precision": 0.8,
+    "context_recall": 0.8,
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.8,
+    "numerical_accuracy": 0.85,
+    "overall": 0.82,
+    "e2e_p95_ms": 5000.0,
+    "success_rate": 0.95
+  },
+  "quality_metrics": {
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.0,
+    "numerical_accuracy": 0.3333,
+    "overall_score": null,
+    "pass_status": {
+      "context_precision": "SKIPPED",
+      "context_recall": "SKIPPED",
+      "faithfulness": "SKIPPED",
+      "answer_relevancy": "SKIPPED",
+      "numerical_accuracy": "FAIL",
+      "overall": "SKIPPED",
+      "e2e_p95": "FAIL",
+      "success_rate": "PASS"
+    }
+  },
+  "performance_metrics": {
+    "e2e": {
+      "mean": 5033.7,
+      "p50": 4666.0,
+      "p90": 6299.6,
+      "p95": 6503.8,
+      "count": 3
+    },
+    "retrieval": {
+      "mean": 54.3,
+      "p50": 30.0,
+      "p90": 99.6,
+      "p95": 108.3,
+      "count": 3
+    },
+    "generation": {
+      "mean": 4979.3,
+      "p50": 4650.0,
+      "p90": 6272.4,
+      "p95": 6475.2,
+      "count": 3
+    },
+    "retrieval_coverage": 1.0,
+    "pass_status": "FAIL"
+  },
+  "stability_metrics": {
+    "success_rate": 1.0,
+    "success_count": 3,
+    "fail_list": [],
+    "pass_status": "PASS"
+  },
+  "category_stats": {
+    "L1-事实提取": {
+      "count": 3,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.3333,
+      "e2e_p95_ms": 6503.8,
+      "success_rate": 1.0
+    }
+  },
+  "baseline_comparison": {
+    "baseline_version": "V13-r6",
+    "baseline_overall": 0.9153,
+    "v16_overall": null,
+    "delta": null,
+    "judge_comparable": false,
+    "note": "judge 与 V13-r6(agnes-2.5-flash) 不同或未评估质量层，评分尺度不可比，delta 仅作参考"
+  },
+  "goodhart_risk_disclosure": {
+    "disclosure": [
+      "1. LLM-as-Judge 与生产同源模型系：存在自我肯定倾向（官方 RAGAS 0.3205 vs 自实现 0.9153 差距为证）",
+      "2. SQL 结果自然语言格式化器提升 CP/CR 可判定性：分数提升部分来自'让评估器看懂'，不全是系统真实能力",
+      "3. 正确拒绝(canAnswer=false)四指标直接满分（V13 口径沿用）：直接抬高 L9 类得分",
+      "4. NA 数值精度较 V13 口径收紧（5%→1%/0.1%）：NA 与 V13 分数不可直接比较",
+      "5. 样本量 3 条，95% 置信区间约 ±56.6%"
+    ],
+    "data_driven": {
+      "sql_formatted_ratio": 1.0,
+      "refusal_full_score_count": 0,
+      "judge_degraded": false,
+      "skip_llm": true
+    }
+  },
+  "details": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 117,
+      "generationLatencyMs": 3610,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "4.5293e+11 vs 4.5293e+11 → 1.0",
+        "quality": "skip-llm 模式：质量指标未评估"
+      }
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 6678,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.02978e+12 vs 1.03e+09 → 0.0",
+        "quality": "skip-llm 模式：质量指标未评估"
+      }
+    },
+    {
+      "id": "L1-003",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 4650,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.623e+11 vs 6.69e+08 → 0.0",
+        "quality": "skip-llm 模式：质量指标未评估"
+      }
+    }
+  ]
+}

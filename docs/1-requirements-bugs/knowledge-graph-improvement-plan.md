@@ -1,7 +1,7 @@
 # 知识图谱数据质量提升方案
 
 > 日期：2026-08-07
-> 状态：⏳ 待审批
+> 状态：✅ 已实施（2026-09-18 完成 v2 全量重建：52 篇文档，Neo4j 2906 节点 / 4552 条类型化关系，数值实体已归一化；实施说明见文末）
 
 ---
 
@@ -143,3 +143,22 @@ SET r.value = $value   // 数值存在关系属性上
 | 实体类型标签数 | 1 (Entity) | ≥4 (Entity+Company+Indicator+Amount) |
 | 公司实体归一化 | 无 | 覆盖10家主要公司 |
 | 图谱检索命中率 | 低（精确匹配） | 提升30%+ |
+
+---
+
+## 5. 实施记录（2026-09-18）
+
+**代码修复**（4 项，单测 82/82 通过）：
+
+| 修复 | 文件 |
+|------|------|
+| 四入口切 v2（上传/重建/增量/删除） | `upload/route.ts`、`rebuild-graph/[documentId]/route.ts`、`incremental-embedder.ts`、`document/list/route.ts` |
+| deleteGraph 兼容类型化边（按 sourceDocId 属性删） | `graph-builder-v2.ts` |
+| 数值尾实体归一化（营收→"营业收入"等，数值只进关系 value） | `entity-extractor-v2.ts` |
+| 检索过滤 Amount 节点 + 清死导入 | `graph-retriever.ts` |
+
+**全量重建**：清空旧 v1/v2 混合数据（3237 节点 / 4752 关系）后，52 篇文档全部按 v2 重新提取写入。结果：**2906 节点（Company 266 / Indicator 25 / Location 12 / Product 1）/ 4552 条类型化关系**（HAS_INDICATOR 1623、PRODUCES 547、DEVELOPS 538 等）。数值实体不再入库。
+
+**过程优化**：模型链支持 `LLM_MODEL_CHAIN` 环境变量进程级覆盖；提取段长 1500→3000；6 并行 worker 各绑不同 LLM（kimi-k3/glm-5.3/deepseek-v4.1-flash/qwen3.8-max/agnes/deepseek-v4-pro）+ 补位器，绕开单模型限流。
+
+**遗留**：23 篇 no_triples 中 22 篇为指标科普短文（公司中心提示词下合理为空）；《证券期货投资者适当性管理办法》（41k 字）提出 0 三元组，法规类实体支持是下一步改进方向。

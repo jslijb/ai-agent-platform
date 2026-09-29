@@ -1,0 +1,63 @@
+{
+  "savedAt": "2026-09-18T23:35:24.913705",
+  "completedCount": 3,
+  "details": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 117,
+      "generationLatencyMs": 3610,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "4.5293e+11 vs 4.5293e+11 → 1.0",
+        "quality": "skip-llm 模式：质量指标未评估"
+      }
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 6678,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "1.02978e+12 vs 1.03e+09 → 0.0",
+        "quality": "skip-llm 模式：质量指标未评估"
+      }
+    },
+    {
+      "id": "L1-003",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年营业收入是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 4650,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.623e+11 vs 6.69e+08 → 0.0",
+        "quality": "skip-llm 模式：质量指标未评估"
+      }
+    }
+  ]
+}

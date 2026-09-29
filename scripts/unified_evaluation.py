@@ -535,18 +535,43 @@ def generate_v16_report(
         summary["success_rate"] = round(st["success"] / st["count"], 4)
         category_stats[cat] = summary
 
-    # judge 信息（优先报告"首次锁定的 judge"，降级时记录最终值）
+    # judge 信息
+    # 修正（2026-09-19）：原实现 judge_model 取「首次锁定」而 judge_base_url 取「当前（可能已降级）」，
+    # 导致报告出现 model=商汤 / base_url=百炼 的互相矛盾记录。现在：
+    #   - judge_model / judge_base_url 一律取自同一个 provider 快照（按实际成功调用数最多的那个）
+    #   - 同时记录 judge_initial / judge_final / judge_calls（每个判分模型各判了多少条）
     llm_chain_info = []
     judge_model = "N/A(skip-llm)" if skip_llm else "N/A"
     judge_base_url = "N/A"
+    judge_initial = "N/A"
+    judge_final = "N/A"
+    judge_calls: Dict[str, int] = {}
     if caller is not None:
         llm_chain_info = [
             {"provider": p.name, "model": p.model, "base_url": p.base_url}
             for p in caller.chain
         ]
-        if caller.current:
-            judge_model = initial_judge or f"{caller.current.name}/{caller.current.model}"
-            judge_base_url = caller.current.base_url
+        judge_calls = dict(getattr(caller, "calls", {}) or {})
+        judge_initial = initial_judge or "N/A"
+        judge_final = (
+            f"{caller.current.name}/{caller.current.model}" if caller.current else "N/A"
+        )
+        # 主导 judge = 实际成功调用最多的 provider；无调用统计时退回首次锁定项
+        dominant = None
+        if judge_calls:
+            top_key = max(judge_calls, key=lambda k: judge_calls[k])
+            dominant = next(
+                (p for p in caller.chain if f"{p.name}/{p.model}" == top_key), None
+            )
+        if dominant is None and initial_judge:
+            dominant = next(
+                (p for p in caller.chain if f"{p.name}/{p.model}" == initial_judge), None
+            )
+        if dominant is None:
+            dominant = caller.current
+        if dominant is not None:
+            judge_model = f"{dominant.name}/{dominant.model}"
+            judge_base_url = dominant.base_url
 
     # Goodhart 风险披露（固定清单 + 数据驱动）
     sql_formatted_count = sum(1 for it in items if _is_sql_formatted(it))
@@ -596,6 +621,10 @@ def generate_v16_report(
             "input_path": input_path,
             "judge_model": judge_model,
             "judge_base_url": judge_base_url,
+            "judge_initial": judge_initial,
+            "judge_final": judge_final,
+            "judge_calls": judge_calls,
+            "judge_unique": len(judge_calls) <= 1,
             "judge_degraded": judge_degraded,
             "llm_chain": llm_chain_info,
             "skip_llm": skip_llm,
@@ -636,6 +665,14 @@ def render_markdown(report: Dict[str, Any]) -> str:
     lines.append(f"- 方法论：{report['framework']}")
     lines.append(f"- 样本：{meta['item_count']} 条（{meta['input_path']}）")
     lines.append(f"- Judge：{meta['judge_model']}（degraded={meta['judge_degraded']}）")
+    _jc = meta.get("judge_calls") or {}
+    if _jc:
+        _jtxt = "、".join(f"{k} × {v}" for k, v in sorted(_jc.items(), key=lambda x: -x[1]))
+        lines.append(
+            f"- Judge 实际判分分布：{_jtxt}（唯一判分模型={meta.get('judge_unique')}）"
+        )
+    elif not meta.get("skip_llm"):
+        lines.append("- Judge 实际判分分布：无调用统计")
     lines.append(f"- 耗时：{meta['duration_seconds']}s")
     lines.append("")
 

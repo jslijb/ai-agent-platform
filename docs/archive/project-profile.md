@@ -91,7 +91,7 @@ ai-agent-platform/
 ├── scripts/                          # 脚本
 │   ├── run-evaluation.ts             # 评估运行脚本
 │   ├── run-regression-test.ts        # 回归测试脚本
-│   └── qa-golden.json                # 黄金测试集（103条）
+│   └── qa-golden.json                # 黄金测试集（130条，L1-L9 九类）
 ├── docs/                             # 文档
 ├── evaluation-reports/               # 评估报告输出
 ├── evaluation-config.yaml            # 评估配置
@@ -629,7 +629,7 @@ evaluation:
 |------|------|------|
 | `scripts/run-evaluation.ts` | 运行评估 | `npx tsx scripts/run-evaluation.ts [--level daily/standard/full] [--type rag/agent] [--preset xxx] [--milestone xxx]` |
 | `scripts/run-regression-test.ts` | 回归测试 | `npx tsx scripts/run-regression-test.ts` |
-| `scripts/qa-golden.json` | 黄金测试集 | 103 条，8 个分类 |
+| `scripts/qa-golden.json` | 黄金测试集 | 130 条，9 个分类（L1-L9）；103 条为 commit a7dfbca 重写前的旧版 |
 
 ### package.json scripts
 

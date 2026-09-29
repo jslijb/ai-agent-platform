@@ -63,8 +63,8 @@ const CONFIG = {
   llmCallDelayMs: 1000,
   // 单个检索片段最大长度（避免 token 过多）
   maxContextLength: 1000,
-  // 是否启用图谱检索（V13-r6 数据收集临时关闭，避免 LLM 超时拖慢收集）
-  useGraph: false,
+  // 是否启用图谱检索（V17 起恢复开启：图谱 v2 重建完成，生产 API 默认 useGraph=true）
+  useGraph: true,
   // 是否启用 rerank（与生产 API 默认值一致）
   useRerank: true,
 };

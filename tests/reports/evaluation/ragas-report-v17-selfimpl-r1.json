@@ -1,0 +1,1850 @@
+{
+  "version": "V12-RAGAS-SelfImpl",
+  "framework": "LLM-as-Judge (RAGAS 思想自实现, 不依赖 ragas/langchain)",
+  "timestamp": "2026-09-18T15:12:35.967642",
+  "evaluation_meta": {
+    "duration_seconds": 3437.82,
+    "llm_active_provider": "dashscope/qwen3.8-flash",
+    "llm_chain": [
+      {
+        "provider": "sensenova",
+        "model": "sensenova-6.8-flash-lite",
+        "base_url": "https://token.sensenova.cn/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-27b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.7-flash-2026-07-15",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "kimi-k3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-flash-0731",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-max-0902",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4.1-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "glm-5.3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-pro-0813",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-2.4t-a95b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-27b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.7-flash-2026-07-15",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "kimi-k3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-flash-0731",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-max-0902",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4.1-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "glm-5.3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-pro-0813",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-2.4t-a95b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-27b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.7-flash-2026-07-15",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "kimi-k3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-flash-0731",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-max-0902",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4.1-flash",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "glm-5.3",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "deepseek-v4-pro-0813",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "dashscope",
+        "model": "qwen3.8-2.4t-a95b",
+        "base_url": "https://dashscope.aliyuncs.com/compatible-mode/v1"
+      },
+      {
+        "provider": "agnes",
+        "model": "agnes-3.0-flash",
+        "base_url": "https://api.agnes-ai.cn/v1"
+      }
+    ],
+    "exhausted_providers": [
+      "dashscope/qwen3.7-flash-2026-07-15",
+      "dashscope/qwen3.8-27b"
+    ],
+    "total_items": 55,
+    "metrics_used": [
+      "context_precision",
+      "context_recall",
+      "faithfulness",
+      "answer_relevancy"
+    ],
+    "weights": {
+      "context_precision": 0.2,
+      "context_recall": 0.2,
+      "faithfulness": 0.3,
+      "answer_relevancy": 0.3
+    },
+    "thresholds": {
+      "context_precision": 0.8,
+      "context_recall": 0.8,
+      "faithfulness": 0.85,
+      "answer_relevancy": 0.8,
+      "overall": 0.82
+    }
+  },
+  "overall_scores": {
+    "context_precision": 0.9455,
+    "context_recall": 0.6788,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.9782
+  },
+  "overall_score": 0.9183,
+  "pass_status": {
+    "context_precision": "PASS",
+    "context_recall": "FAIL",
+    "faithfulness": "PASS",
+    "answer_relevancy": "PASS",
+    "overall": "PASS"
+  },
+  "weights": {
+    "context_precision": 0.2,
+    "context_recall": 0.2,
+    "faithfulness": 0.3,
+    "answer_relevancy": 0.3
+  },
+  "thresholds": {
+    "context_precision": 0.8,
+    "context_recall": 0.8,
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.8,
+    "overall": 0.82
+  },
+  "category_stats": {
+    "L1-事实提取": {
+      "count": 30,
+      "metrics": {
+        "context_precision": 0.9333,
+        "context_recall": 0.7667,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9867
+      }
+    },
+    "L3-计算推理": {
+      "count": 15,
+      "metrics": {
+        "context_precision": 1.0,
+        "context_recall": 0.4222,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9733
+      }
+    },
+    "L4-趋势分析": {
+      "count": 10,
+      "metrics": {
+        "context_precision": 0.9,
+        "context_recall": 0.8,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.96
+      }
+    }
+  },
+  "detailed_results": [
+    {
+      "id": "L1-001",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年营业收入的问题，提供了具体数值和来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-002",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年营业收入的问题，提供了具体数值并给出了来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-003",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国人保2025年营业收入的问题，并给出了具体数值和信息来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-004",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于五粮液2025年营业收入的问题，提供了具体的数值，并说明了数据来源，无冗余信息，完全相关。"
+      }
+    },
+    {
+      "id": "L1-005",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且明确地回答了用户关于格力电器2025年营业收入的问题，提供了具体的数值和数据来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-006",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年营业收入的问题，提供了具体数值并说明了数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-007",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年营业收入的问题，提供了具体数值和来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-008",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于东吴证券2025年营业收入的问题，提供了具体数值90.30亿元，并引用了来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-009",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且明确地回答了用户关于华海药业2025年营业收入的问题，提供了具体的数值，并指出了信息来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-010",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年营业收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年营业收入的问题，提供了具体数值并说明数据来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-011",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年净利润的问题，提供了具体数值97.56亿元，并说明了数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-012",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年净利润的问题，并提供了具体数值及补充说明，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-013",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国人保2025年净利润的问题，提供了具体数值，并补充了归属于母公司股东的净利润信息，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-014",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了五粮液2025年净利润的具体数值，并提供了归属于母公司股东的净利润作为补充信息，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-015",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于格力电器2025年净利润的问题，提供了具体数值，并补充了归属于母公司股东的净利润，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-016",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年净利润的问题，提供了具体的数值，并额外补充了归属于母公司股东的净利润数据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-017",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年净利润的问题，提供了具体数值并区分了不同口径，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-018",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于东吴证券2025年净利润的问题，提供了具体数值和来源，内容完全相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-019",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年净利润的问题，提供了具体数值，并补充了归属于母公司股东的净利润，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-020",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年净利润是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年净利润的问题，提供了净利润及归属于母公司股东的净利润数据，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-021",
+      "category": "L1-事实提取",
+      "query": "格力电器2025年研发费用是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、明确地回答了用户关于格力电器2025年研发费用的问题，数值清晰且无冗余信息，完全符合问题需求。"
+      }
+    },
+    {
+      "id": "L1-022",
+      "category": "L1-事实提取",
+      "query": "中国长城2025年研发费用是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年研发费用的问题，提供了具体数值并说明了数据来源，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-023",
+      "category": "L1-事实提取",
+      "query": "华海药业2025年研发费用是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于华海药业2025年研发费用的问题，提供了具体数值和来源，无冗余信息，完全相关。"
+      }
+    },
+    {
+      "id": "L1-024",
+      "category": "L1-事实提取",
+      "query": "中国能建2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接、准确地回答了用户关于中国能建2025年总资产的问题，提供了具体数值和来源，无冗余信息，完全符合问题要求。"
+      }
+    },
+    {
+      "id": "L1-025",
+      "category": "L1-事实提取",
+      "query": "江苏银行2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于江苏银行2025年总资产的问题，提供了具体数值，且信息来源明确，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-026",
+      "category": "L1-事实提取",
+      "query": "五粮液2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于五粮液2025年总资产的问题，提供了具体数值和来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-027",
+      "category": "L1-事实提取",
+      "query": "片仔癀2025年总资产是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于片仔癀2025年总资产的问题，提供了具体的数值和数据来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L1-028",
+      "category": "L1-事实提取",
+      "query": "中国人保2025年保费收入是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国人保2025年保费收入的问题，提供了具体数值，并说明了数据来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L1-029",
+      "category": "L1-事实提取",
+      "query": "东吴证券2025年经纪业务收入是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案明确回应了问题，指出2025年经纪业务收入未披露，并给出最相关但不可直接替代的口径（手续费及佣金收入缺失、营业收入约90.30亿元），与问题高度相关但未能直接给出所问数值，属于部分回答且有一定补充信息。"
+      }
+    },
+    {
+      "id": "L1-030",
+      "category": "L1-事实提取",
+      "query": "中国铁建2025年新签合同额是多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于‘中国铁建2025年新签合同额’的询问，明确说明该数据在文档中缺失（未披露），并给出了来源依据，属于对问题的直接且相关回答，无冗余信息，符合高分标准。"
+      }
+    },
+    {
+      "id": "L3-001",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/4 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国能建2025年毛利率的问题，提供了具体数值并引用了来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L3-002",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于片仔癀2025年净资产收益率的问题，提供了具体数值并说明了数据来源，内容简洁且无冗余。"
+      }
+    },
+    {
+      "id": "L3-003",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/2 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了五粮液2025年毛利率的问题，提供了具体数值和来源，内容相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-004",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 4/4 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于格力电器2025年净利率的问题，提供了具体数值，无冗余信息，符合评分标准中‘完美回答问题’的要求。"
+      }
+    },
+    {
+      "id": "L3-005",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接给出了用户询问的2025年毛利率数值，表面上回答了问题。但是，答案中引用的财务数据存在严重的逻辑错误和量级异常（营业收入仅10.30亿元，这对于中国铁建这种万亿营收级别的企业来说完全不合理，且10.30亿与9.30亿的差额计算出的毛利率虽为9.7%，但基数极小，暗示检索到的文档片段可能并非公司整体财报，而是某个极小子公司或错误切片）。根据评分标准，虽然数值直接对应问题，但支撑数据的上下文存在明显缺陷（冗余较多且数据可信度存疑，尽管约束要求不否定事实，但答案解释部分包含了明显不合理的推导过程），属于'部分回答问题'或'冗余较多'的范畴。若严格仅看最终数值是否回应问题，可得高分，但考虑到答案中包含了明显错误的解释性文本（10亿营收对应铁建整体），这降低了答案的有效性和相关性质量。综合评估，因直接回答了问题核心数值，但未提供正确背景且解释部分荒谬，给0.6分。"
+      }
+    },
+    {
+      "id": "L3-006",
+      "category": "L3-计算推理",
+      "query": "江苏银行2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于江苏银行2025年净资产收益率的问题，提供了具体的数值，并说明了数据来源，无冗余信息，符合完美回答的标准。"
+      }
+    },
+    {
+      "id": "L3-007",
+      "category": "L3-计算推理",
+      "query": "华海药业2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.5,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/4 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于华海药业2025年毛利率的具体数值问题，并提供了数据来源，完全符合相关性要求。"
+      }
+    },
+    {
+      "id": "L3-008",
+      "category": "L3-计算推理",
+      "query": "东吴证券2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 4/4 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于东吴证券2025年净利率的问题，提供了具体数值及计算依据，无冗余信息，完全符合评分标准中的完美回答定义。"
+      }
+    },
+    {
+      "id": "L3-009",
+      "category": "L3-计算推理",
+      "query": "中国人保2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于中国人保2025年净利率的问题，提供了具体的数值（9.42%）并说明了来源，无冗余信息。"
+      }
+    },
+    {
+      "id": "L3-010",
+      "category": "L3-计算推理",
+      "query": "中国长城2025年净利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.6667,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国长城2025年净利率的问题，提供了具体的数值，并说明了数据来源，完全相关且无冗余。"
+      }
+    },
+    {
+      "id": "L3-011",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 3/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于五粮液2025年净资产收益率的具体数值问题，提供了明确的百分比数据（7.63%）并说明了信息来源，完全符合评分标准中'完美回答问题，无冗余'的要求。"
+      }
+    },
+    {
+      "id": "L3-012",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于格力电器2025年毛利率的问题，提供了具体数值19.62%，没有冗余信息，符合完美回答的标准。"
+      }
+    },
+    {
+      "id": "L3-013",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年资产负债率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于中国能建2025年资产负债率的问题，提供了具体数值并说明了信息来源，完全符合问题需求，无冗余。"
+      }
+    },
+    {
+      "id": "L3-014",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年毛利率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.3333,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/3 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于片仔癀2025年毛利率的具体数值问题，提供了明确的百分比数据，并简要说明了数据来源，无冗余信息，符合满分标准。"
+      }
+    },
+    {
+      "id": "L3-015",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/3 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于中国铁建2025年净资产收益率的具体数值问题，内容完全相关，无冗余信息。"
+      }
+    },
+    {
+      "id": "L4-001",
+      "category": "L4-趋势分析",
+      "query": "中国能建2025年营收同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于'中国能建2025年营收同比变化'的问题，提供了具体的百分比数据（3.71%），并补充了营收总额作为背景信息，内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-002",
+      "category": "L4-趋势分析",
+      "query": "江苏银行2025年净利润同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 2/2 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于江苏银行2025年净利润同比增长率的问题，提供了具体数值，无冗余信息，完全符合评分标准中'完美回答问题'的定义。"
+      }
+    },
+    {
+      "id": "L4-003",
+      "category": "L4-趋势分析",
+      "query": "五粮液2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于五粮液2025年营收同比增长率的问题，提供了具体的数值（-54.55%）并解释了其含义（同比下降），内容高度相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-004",
+      "category": "L4-趋势分析",
+      "query": "格力电器2025年净利润同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于格力电器2025年净利润同比变化幅度的问题，提供了具体的百分比数值（同比下降约9.89%），内容完全相关且无冗余。"
+      }
+    },
+    {
+      "id": "L4-005",
+      "category": "L4-趋势分析",
+      "query": "中国铁建2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回答了用户关于中国铁建2025年营收同比增长率的问题，提供了具体数值（-3.50%），且无冗余信息，完全符合评分标准中1.0的定义。"
+      }
+    },
+    {
+      "id": "L4-006",
+      "category": "L4-趋势分析",
+      "query": "片仔癀2025年净利润同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接回应了用户关于2025年净利润同比增长率的提问，提供了具体的数值（同比下降27.49%），且无冗余信息，完全符合评分标准中‘完美回答问题，无冗余’的定义。"
+      }
+    },
+    {
+      "id": "L4-007",
+      "category": "L4-趋势分析",
+      "query": "中国人保2025年保费收入同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.6,
+      "reasons": {
+        "context_precision": "所有片段均不相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 3/3 条陈述",
+        "answer_relevancy": "答案承认文档未直接披露所问的具体指标（保费收入同比变化），因此未能直接回答问题。但答案提供了相关的替代性数据（营业收入同比增速）以及保费收入的具体数值，试图通过间接信息辅助用户判断，属于部分回答或提供了相关上下文，但未满足核心查询需求。"
+      }
+    },
+    {
+      "id": "L4-008",
+      "category": "L4-趋势分析",
+      "query": "华海药业2025年营收同比增长率是多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于华海药业2025年营收同比增长率的问题，提供了具体的数值（-10.06%）并解释了含义，无冗余信息。"
+      }
+    },
+    {
+      "id": "L4-009",
+      "category": "L4-趋势分析",
+      "query": "东吴证券2025年净利润同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 0.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 0/1 条事实",
+        "faithfulness": "支持 1/1 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于东吴证券2025年净利润同比变化的问题，提供了具体数值，无冗余信息，符合评分标准中的完美回答。"
+      }
+    },
+    {
+      "id": "L4-010",
+      "category": "L4-趋势分析",
+      "query": "中国长城2025年营收同比变化多少？",
+      "canAnswer": true,
+      "context_precision": 1.0,
+      "context_recall": 1.0,
+      "faithfulness": 1.0,
+      "answer_relevancy": 1.0,
+      "reasons": {
+        "context_precision": "片段1: 相关",
+        "context_recall": "覆盖 1/1 条事实",
+        "faithfulness": "支持 2/2 条陈述",
+        "answer_relevancy": "答案直接且准确地回答了用户关于中国长城2025年营收同比变化的问题，提供了具体的百分比数据，并引用了相关来源，无冗余信息，完全符合评分标准中的最高分定义。"
+      }
+    }
+  ],
+  "raw_items": [
+    {
+      "id": "L1-001",
+      "question": "中国能建2025年营业收入是多少？",
+      "answer": "中国能建2025年营业收入约为 **4529.30亿元**。\n\n来源：文档片段1中“中国能建 (601868) 2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国能建 (601868)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约4529.30亿元\n营业成本: 约4371.18亿元\n营业利润: 约131.82亿元\n净利润: 约97.56亿元\n归属于母公司股东的净利润: 约58.40亿元\n每股收益: 约0.1401元/股\n每股净资产: 数据缺失\n毛利率: 约3.49%\n净利率: 约2.15%\n研发费用: 约147.49亿元\n销售费用: 约23.87亿元\n管理费用: 约137.23亿元\n财务费用: 约66.70亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "中国能建2025年营业收入约为4529.30亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 117,
+      "generationLatencyMs": 3610
+    },
+    {
+      "id": "L1-002",
+      "question": "中国铁建2025年营业收入是多少？",
+      "answer": "中国铁建2025年营业收入约为 **10.30亿元**。\n\n来源：文档片段1中“中国铁建 (601186) 2025年 年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国铁建 (601186)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约10.30亿元\n营业成本: 约9.30亿元\n营业利润: 约2677.86万元\n净利润: 约2168.68万元\n归属于母公司股东的净利润: 约1836.26万元\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n毛利率: 约9.72%\n净利率: 约2.11%\n研发费用: 约2359.60万元\n销售费用: 约641.20万元\n管理费用: 约2013.83万元\n财务费用: 约1097.16万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "中国铁建2025年营业收入约为10297.84亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 6678
+    },
+    {
+      "id": "L1-003",
+      "question": "中国人保2025年营业收入是多少？",
+      "answer": "中国人保2025年营业收入约为 **6.69亿元**。\n\n信息来源：文档片段1中“中国人保（601319）2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国人保 (601319)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约6.69亿元\n营业成本: 约198.90万元\n营业利润: 约901.20万元\n净利润: 约6303.30万元\n归属于母公司股东的净利润: 约4664.60万元\n每股收益: 约1.0500元/股\n每股净资产: 数据缺失\n毛利率: 约99.70%\n净利率: 约9.42%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约678.70万元\n财务费用: 数据缺失\n保费收入: 约5.71亿元\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "中国人保2025年营业收入约为5623.00亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 4650
+    },
+    {
+      "id": "L1-004",
+      "question": "五粮液2025年营业收入是多少？",
+      "answer": "五粮液2025年营业收入约为 **405.29亿元**。\n\n来源：文档片段1中五粮液（000858）2025年年度报告利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 五粮液 (000858)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约405.29亿元\n营业成本: 约286.53亿元\n营业利润: 约122.51亿元\n净利润: 约93.17亿元\n归属于母公司股东的净利润: 约89.54亿元\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n毛利率: 约29.30%\n净利率: 约22.99%\n研发费用: 约4.49亿元\n销售费用: 约76.29亿元\n管理费用: 约30.97亿元\n财务费用: -约26.62亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "五粮液2025年营业收入约为405.29亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 25,
+      "generationLatencyMs": 4440
+    },
+    {
+      "id": "L1-005",
+      "question": "格力电器2025年营业收入是多少？",
+      "answer": "格力电器2025年营业收入为**约1711.18亿元**。\n\n来源：文档片段1中“格力电器（000651）2025年年度报告—利润表数据”显示，营业收入约1711.18亿元。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 格力电器 (000651)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约1711.18亿元\n营业成本: 约1375.49亿元\n营业利润: 约346.81亿元\n净利润: 约288.63亿元\n归属于母公司股东的净利润: 约290.03亿元\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n毛利率: 约19.62%\n净利率: 约16.87%\n研发费用: 约64.63亿元\n销售费用: 约84.11亿元\n管理费用: 约51.80亿元\n财务费用: -约40.86亿元\n保费收入: 数据缺失\n手续费及佣金收入: 约0.01万元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "格力电器2025年营业收入约为1711.18亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 5342
+    },
+    {
+      "id": "L1-006",
+      "question": "中国长城2025年营业收入是多少？",
+      "answer": "中国长城2025年营业收入约为 **158.09亿元**。\n\n该数据来源于文档片段1中中国长城（000066）2025年年度报告的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国长城 (000066)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约158.09亿元\n营业成本: 约131.91亿元\n营业利润: 约1.35亿元\n净利润: -约1375.13万元\n归属于母公司股东的净利润: -约5572.48万元\n每股收益: 约-0.0173元/股\n每股净资产: 数据缺失\n毛利率: 约16.56%\n净利率: 约-0.09%\n研发费用: 约10.87亿元\n销售费用: 约5.09亿元\n管理费用: 约9.00亿元\n财务费用: 约2.11亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "中国长城2025年营业收入约为158.09亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 3621
+    },
+    {
+      "id": "L1-007",
+      "question": "江苏银行2025年营业收入是多少？",
+      "answer": "江苏银行2025年营业收入约为 **879.42亿元**。\n\n信息来源：文档片段1中“江苏银行（600919）2025年年度报告”利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 江苏银行 (600919)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约879.42亿元\n营业成本: -约467.60亿元\n营业利润: 约411.82亿元\n净利润: 约362.84亿元\n归属于母公司股东的净利润: 约345.01亿元\n每股收益: 约1.7600元/股\n每股净资产: 数据缺失\n毛利率: 约1.53%\n净利率: 约41.26%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: -约234.51亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 约67.31亿元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "江苏银行2025年营业收入约为879.42亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3556
+    },
+    {
+      "id": "L1-008",
+      "question": "东吴证券2025年营业收入是多少？",
+      "answer": "东吴证券2025年营业收入约为 **90.30亿元**。\n\n来源：文档片段1中“东吴证券（601555）2025年年度报告——利润表数据”显示“营业收入: 约90.30亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 东吴证券 (601555)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.30亿元\n营业成本: 数据缺失\n营业利润: 约45.36亿元\n净利润: 约35.72亿元\n归属于母公司股东的净利润: 数据缺失\n每股收益: 约0.7100元/股\n每股净资产: 数据缺失\n毛利率: 数据缺失\n净利率: 数据缺失\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约42.58亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n净利率 = 净利润 / 营业收入 × 100%\n命中指标: revenue"
+      ],
+      "ground_truth": "东吴证券2025年营业收入约为90.30亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 4398
+    },
+    {
+      "id": "L1-009",
+      "question": "华海药业2025年营业收入是多少？",
+      "answer": "华海药业2025年营业收入约为 **85.87亿元**。\n\n信息来源：文档片段1中华海药业（600521）2025年年度报告利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 华海药业 (600521)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约85.87亿元\n营业成本: 约81.46亿元\n营业利润: 约4.56亿元\n净利润: 约2.27亿元\n归属于母公司股东的净利润: 约2.66亿元\n每股收益: 约0.1779元/股\n每股净资产: 数据缺失\n毛利率: 约5.14%\n净利率: 约2.65%\n研发费用: 约12.29亿元\n销售费用: 约15.77亿元\n管理费用: 约15.59亿元\n财务费用: 约2.48亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "华海药业2025年营业收入约为85.87亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 3677
+    },
+    {
+      "id": "L1-010",
+      "question": "片仔癀2025年营业收入是多少？",
+      "answer": "片仔癀2025年营业收入约为 **90.01亿元**。\n\n该数据来自文档片段1中“片仔癀（600436）2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 片仔癀 (600436)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.01亿元\n营业成本: 约68.05亿元\n营业利润: 约25.46亿元\n净利润: 约21.43亿元\n归属于母公司股东的净利润: 约21.59亿元\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n毛利率: 约24.41%\n净利率: 约23.81%\n研发费用: 约2.52亿元\n销售费用: 约4.01亿元\n管理费用: 约3.59亿元\n财务费用: 约2022.68万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue"
+      ],
+      "ground_truth": "片仔癀2025年营业收入约为90.01亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 3648
+    },
+    {
+      "id": "L1-011",
+      "question": "中国能建2025年净利润是多少？",
+      "answer": "中国能建2025年净利润约为 **97.56亿元**。\n\n该数据来自文档片段1中“2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国能建 (601868)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约4529.30亿元\n营业成本: 约4371.18亿元\n营业利润: 约131.82亿元\n净利润: 约97.56亿元\n归属于母公司股东的净利润: 约58.40亿元\n每股收益: 约0.1401元/股\n每股净资产: 数据缺失\n毛利率: 约3.49%\n净利率: 约2.15%\n研发费用: 约147.49亿元\n销售费用: 约23.87亿元\n管理费用: 约137.23亿元\n财务费用: 约66.70亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "中国能建2025年净利润约为58.40亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 11,
+      "generationLatencyMs": 4598
+    },
+    {
+      "id": "L1-012",
+      "question": "中国铁建2025年净利润是多少？",
+      "answer": "中国铁建2025年净利润为 **约2168.68万元**。\n\n补充：若指“归属于母公司股东的净利润”，则为 **约1836.26万元**。来源为文档片段1中2025年年度报告利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国铁建 (601186)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约10.30亿元\n营业成本: 约9.30亿元\n营业利润: 约2677.86万元\n净利润: 约2168.68万元\n归属于母公司股东的净利润: 约1836.26万元\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n毛利率: 约9.72%\n净利率: 约2.11%\n研发费用: 约2359.60万元\n销售费用: 约641.20万元\n管理费用: 约2013.83万元\n财务费用: 约1097.16万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "中国铁建2025年净利润约为183.63亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 10858
+    },
+    {
+      "id": "L1-013",
+      "question": "中国人保2025年净利润是多少？",
+      "answer": "中国人保2025年净利润为**约6303.30万元**。\n\n（补充：归属于母公司股东的净利润约4664.60万元。）",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国人保 (601319)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约6.69亿元\n营业成本: 约198.90万元\n营业利润: 约901.20万元\n净利润: 约6303.30万元\n归属于母公司股东的净利润: 约4664.60万元\n每股收益: 约1.0500元/股\n每股净资产: 数据缺失\n毛利率: 约99.70%\n净利率: 约9.42%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约678.70万元\n财务费用: 数据缺失\n保费收入: 约5.71亿元\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "中国人保2025年净利润约为218.00亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 5610
+    },
+    {
+      "id": "L1-014",
+      "question": "五粮液2025年净利润是多少？",
+      "answer": "五粮液2025年净利润为**约93.17亿元**。\n\n补充：其中归属于母公司股东的净利润为**约89.54亿元**。  \n来源：文档片段1（SQL精确查询结果，五粮液2025年年度报告利润表数据）。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 五粮液 (000858)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约405.29亿元\n营业成本: 约286.53亿元\n营业利润: 约122.51亿元\n净利润: 约93.17亿元\n归属于母公司股东的净利润: 约89.54亿元\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n毛利率: 约29.30%\n净利率: 约22.99%\n研发费用: 约4.49亿元\n销售费用: 约76.29亿元\n管理费用: 约30.97亿元\n财务费用: -约26.62亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "五粮液2025年净利润约为89.54亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 5350
+    },
+    {
+      "id": "L1-015",
+      "question": "格力电器2025年净利润是多少？",
+      "answer": "格力电器2025年净利润为**约288.63亿元**。\n\n补充：归属于母公司股东的净利润为**约290.03亿元**。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 格力电器 (000651)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约1711.18亿元\n营业成本: 约1375.49亿元\n营业利润: 约346.81亿元\n净利润: 约288.63亿元\n归属于母公司股东的净利润: 约290.03亿元\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n毛利率: 约19.62%\n净利率: 约16.87%\n研发费用: 约64.63亿元\n销售费用: 约84.11亿元\n管理费用: 约51.80亿元\n财务费用: -约40.86亿元\n保费收入: 数据缺失\n手续费及佣金收入: 约0.01万元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "格力电器2025年净利润约为290.03亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 5320
+    },
+    {
+      "id": "L1-016",
+      "question": "中国长城2025年净利润是多少？",
+      "answer": "中国长城2025年净利润为 **-约1,375.13万元**。\n\n补充：若指“归属于母公司股东的净利润”，文档显示为 **-约5,572.48万元**。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国长城 (000066)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约158.09亿元\n营业成本: 约131.91亿元\n营业利润: 约1.35亿元\n净利润: -约1375.13万元\n归属于母公司股东的净利润: -约5572.48万元\n每股收益: 约-0.0173元/股\n每股净资产: 数据缺失\n毛利率: 约16.56%\n净利率: 约-0.09%\n研发费用: 约10.87亿元\n销售费用: 约5.09亿元\n管理费用: 约9.00亿元\n财务费用: 约2.11亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "中国长城2025年净利润约为-0.56亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 5014
+    },
+    {
+      "id": "L1-017",
+      "question": "江苏银行2025年净利润是多少？",
+      "answer": "江苏银行2025年净利润为**约362.84亿元**。\n\n若指“归属于母公司股东的净利润”，则约为**345.01亿元**。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 江苏银行 (600919)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约879.42亿元\n营业成本: -约467.60亿元\n营业利润: 约411.82亿元\n净利润: 约362.84亿元\n归属于母公司股东的净利润: 约345.01亿元\n每股收益: 约1.7600元/股\n每股净资产: 数据缺失\n毛利率: 约1.53%\n净利率: 约41.26%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: -约234.51亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 约67.31亿元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "江苏银行2025年净利润约为345.01亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 4622
+    },
+    {
+      "id": "L1-018",
+      "question": "东吴证券2025年净利润是多少？",
+      "answer": "东吴证券2025年净利润约为 **35.72亿元**。\n\n来源：文档片段1中“东吴证券（601555）2025年年度报告”利润表数据显示，净利润为约35.72亿元。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 东吴证券 (601555)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.30亿元\n营业成本: 数据缺失\n营业利润: 约45.36亿元\n净利润: 约35.72亿元\n归属于母公司股东的净利润: 数据缺失\n每股收益: 约0.7100元/股\n每股净资产: 数据缺失\n毛利率: 数据缺失\n净利率: 数据缺失\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约42.58亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n净利率 = 净利润 / 营业收入 × 100%\n命中指标: net_profit"
+      ],
+      "ground_truth": "东吴证券2025年净利润约为35.52亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 3560
+    },
+    {
+      "id": "L1-019",
+      "question": "华海药业2025年净利润是多少？",
+      "answer": "华海药业2025年净利润约为 **2.27亿元**。\n\n补充：文档中同时显示，归属于母公司股东的净利润约为 **2.66亿元**。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 华海药业 (600521)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约85.87亿元\n营业成本: 约81.46亿元\n营业利润: 约4.56亿元\n净利润: 约2.27亿元\n归属于母公司股东的净利润: 约2.66亿元\n每股收益: 约0.1779元/股\n每股净资产: 数据缺失\n毛利率: 约5.14%\n净利率: 约2.65%\n研发费用: 约12.29亿元\n销售费用: 约15.77亿元\n管理费用: 约15.59亿元\n财务费用: 约2.48亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "华海药业2025年净利润约为2.66亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 4301
+    },
+    {
+      "id": "L1-020",
+      "question": "片仔癀2025年净利润是多少？",
+      "answer": "片仔癀2025年净利润约为 **21.43亿元**。\n\n补充：归属于母公司股东的净利润约为 **21.59亿元**。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 片仔癀 (600436)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.01亿元\n营业成本: 约68.05亿元\n营业利润: 约25.46亿元\n净利润: 约21.43亿元\n归属于母公司股东的净利润: 约21.59亿元\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n毛利率: 约24.41%\n净利率: 约23.81%\n研发费用: 约2.52亿元\n销售费用: 约4.01亿元\n管理费用: 约3.59亿元\n财务费用: 约2022.68万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit"
+      ],
+      "ground_truth": "片仔癀2025年净利润约为21.59亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 3754
+    },
+    {
+      "id": "L1-021",
+      "question": "格力电器2025年研发费用是多少？",
+      "answer": "格力电器2025年研发费用约为 **64.63亿元**。\n\n信息来源：文档片段1中“利润表数据”显示“研发费用: 约64.63亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 格力电器 (000651)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约1711.18亿元\n营业成本: 约1375.49亿元\n营业利润: 约346.81亿元\n净利润: 约288.63亿元\n归属于母公司股东的净利润: 约290.03亿元\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n毛利率: 约19.62%\n净利率: 约16.87%\n研发费用: 约64.63亿元\n销售费用: 约84.11亿元\n管理费用: 约51.80亿元\n财务费用: -约40.86亿元\n保费收入: 数据缺失\n手续费及佣金收入: 约0.01万元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: rd_expense"
+      ],
+      "ground_truth": "格力电器2025年研发费用约为64.63亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 12,
+      "generationLatencyMs": 2900
+    },
+    {
+      "id": "L1-022",
+      "question": "中国长城2025年研发费用是多少？",
+      "answer": "中国长城2025年研发费用约为 **10.87亿元**。\n\n该数据来源于文档片段1中“中国长城（000066）2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国长城 (000066)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约158.09亿元\n营业成本: 约131.91亿元\n营业利润: 约1.35亿元\n净利润: -约1375.13万元\n归属于母公司股东的净利润: -约5572.48万元\n每股收益: 约-0.0173元/股\n每股净资产: 数据缺失\n毛利率: 约16.56%\n净利率: 约-0.09%\n研发费用: 约10.87亿元\n销售费用: 约5.09亿元\n管理费用: 约9.00亿元\n财务费用: 约2.11亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: rd_expense"
+      ],
+      "ground_truth": "中国长城2025年研发费用约为10.87亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3518
+    },
+    {
+      "id": "L1-023",
+      "question": "华海药业2025年研发费用是多少？",
+      "answer": "华海药业2025年研发费用约为 **12.29亿元**。\n\n信息来源：文档片段1中“利润表数据”列示的“研发费用: 约12.29亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 华海药业 (600521)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约85.87亿元\n营业成本: 约81.46亿元\n营业利润: 约4.56亿元\n净利润: 约2.27亿元\n归属于母公司股东的净利润: 约2.66亿元\n每股收益: 约0.1779元/股\n每股净资产: 数据缺失\n毛利率: 约5.14%\n净利率: 约2.65%\n研发费用: 约12.29亿元\n销售费用: 约15.77亿元\n管理费用: 约15.59亿元\n财务费用: 约2.48亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: rd_expense"
+      ],
+      "ground_truth": "华海药业2025年研发费用约为12.29亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 2849
+    },
+    {
+      "id": "L1-024",
+      "question": "中国能建2025年总资产是多少？",
+      "answer": "中国能建2025年总资产约为 **9415.97亿元**。\n\n来源：文档片段1中“中国能建（601868）2025年年度报告”资产负债表数据显示“总资产: 约9415.97亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国能建 (601868)\n报告年度: 2025年 年度报告\n\n--- 资产负债表数据 ---\n总资产: 约9415.97亿元\n总负债: 约7319.79亿元\n所有者权益（净资产）: 约2096.18亿元\n归属于母公司股东的权益: 约1199.84亿元\n流动资产: 约4621.75亿元\n非流动资产: 约4794.23亿元\n流动负债: 约4668.11亿元\n非流动负债: 约2651.68亿元\n货币资金: 约940.76亿元\n应收账款: 约854.35亿元\n存货: 约791.02亿元\n固定资产: 约988.13亿元\n商誉: 约28.29亿元\n资产负债率: 约77.74%\n命中指标: total_assets"
+      ],
+      "ground_truth": "中国能建2025年总资产约为9415.97亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 48,
+      "generationLatencyMs": 3695
+    },
+    {
+      "id": "L1-025",
+      "question": "江苏银行2025年总资产是多少？",
+      "answer": "江苏银行2025年总资产约为 **49.31亿元**。\n\n信息来源：文档片段1中“资产负债表数据”显示“总资产: 约49.31亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 江苏银行 (600919)\n报告年度: 2025年 年度报告\n\n--- 资产负债表数据 ---\n总资产: 约49.31亿元\n总负债: 约45.82亿元\n所有者权益（净资产）: 约3.50亿元\n归属于母公司股东的权益: 约3.38亿元\n流动资产: 数据缺失\n非流动资产: 数据缺失\n流动负债: 数据缺失\n非流动负债: 数据缺失\n货币资金: 数据缺失\n应收账款: 数据缺失\n存货: 数据缺失\n固定资产: 约749.93万元\n商誉: 约7.21万元\n资产负债率: 约92.91%\n命中指标: total_assets"
+      ],
+      "ground_truth": "江苏银行2025年总资产约为49313.16亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 3621
+    },
+    {
+      "id": "L1-026",
+      "question": "五粮液2025年总资产是多少？",
+      "answer": "五粮液2025年总资产约为 **1899.84亿元**。\n\n来源：文档片段1中“五粮液（000858）2025年年度报告”的资产负债表数据显示“总资产: 约1899.84亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 五粮液 (000858)\n报告年度: 2025年 年度报告\n\n--- 资产负债表数据 ---\n总资产: 约1899.84亿元\n总负债: 约678.04亿元\n所有者权益（净资产）: 约1221.81亿元\n归属于母公司股东的权益: 约1199.32亿元\n流动资产: 约1647.52亿元\n非流动资产: 约252.33亿元\n流动负债: 约673.52亿元\n非流动负债: 约4.52亿元\n货币资金: 约1270.14亿元\n应收账款: 约3774.54万元\n存货: 约200.65亿元\n固定资产: 约76.41亿元\n商誉: 约162.16万元\n资产负债率: 约35.69%\n命中指标: total_assets"
+      ],
+      "ground_truth": "五粮液2025年总资产约为1899.84亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 3615
+    },
+    {
+      "id": "L1-027",
+      "question": "片仔癀2025年总资产是多少？",
+      "answer": "片仔癀2025年总资产约为 **175.60亿元**。\n\n信息来源：文档片段1中“片仔癀 (600436) 2025年 年度报告”的资产负债表数据显示“总资产: 约175.60亿元”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 片仔癀 (600436)\n报告年度: 2025年 年度报告\n\n--- 资产负债表数据 ---\n总资产: 约175.60亿元\n总负债: 约24.72亿元\n所有者权益（净资产）: 约150.88亿元\n归属于母公司股东的权益: 约145.39亿元\n流动资产: 约106.69亿元\n非流动资产: 约68.91亿元\n流动负债: 约21.25亿元\n非流动负债: 约3.47亿元\n货币资金: 约12.56亿元\n应收账款: 约7.53亿元\n存货: 约66.79亿元\n固定资产: 约5.29亿元\n商誉: 数据缺失\n资产负债率: 约14.08%\n命中指标: total_assets"
+      ],
+      "ground_truth": "片仔癀2025年总资产约为175.60亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3692
+    },
+    {
+      "id": "L1-028",
+      "question": "中国人保2025年保费收入是多少？",
+      "answer": "中国人保2025年保费收入为**约5.71亿元**。\n\n该数据来源于文档片段1中“中国人保（601319）2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国人保 (601319)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约6.69亿元\n营业成本: 约198.90万元\n营业利润: 约901.20万元\n净利润: 约6303.30万元\n归属于母公司股东的净利润: 约4664.60万元\n每股收益: 约1.0500元/股\n每股净资产: 数据缺失\n毛利率: 约99.70%\n净利率: 约9.42%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约678.70万元\n财务费用: 数据缺失\n保费收入: 约5.71亿元\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: premium_income"
+      ],
+      "ground_truth": "中国人保2025年保费收入约为5386.00亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 5180
+    },
+    {
+      "id": "L1-029",
+      "question": "东吴证券2025年经纪业务收入是多少？",
+      "answer": "东吴证券2025年经纪业务收入在文档片段中未披露；与经纪业务最相关的“手续费及佣金收入”显示为**数据缺失**。\n\n补充：文档仅披露东吴证券2025年**营业收入约90.30亿元**，但该口径不是经纪业务收入，不能直接替代。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 东吴证券 (601555)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.30亿元\n营业成本: 数据缺失\n营业利润: 约45.36亿元\n净利润: 约35.72亿元\n归属于母公司股东的净利润: 数据缺失\n每股收益: 约0.7100元/股\n每股净资产: 数据缺失\n毛利率: 数据缺失\n净利率: 数据缺失\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约42.58亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n净利率 = 净利润 / 营业收入 × 100%\n命中指标: commission_income"
+      ],
+      "ground_truth": "东吴证券2025年经纪业务收入约为23.93亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 10290
+    },
+    {
+      "id": "L1-030",
+      "question": "中国铁建2025年新签合同额是多少？",
+      "answer": "中国铁建2025年新签合同额在文档中显示为**数据缺失（未披露）**。\n\n来源：文档片段1中“新签合同: 数据缺失”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国铁建 (601186)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约10.30亿元\n营业成本: 约9.30亿元\n营业利润: 约2677.86万元\n净利润: 约2168.68万元\n归属于母公司股东的净利润: 约1836.26万元\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n毛利率: 约9.72%\n净利率: 约2.11%\n研发费用: 约2359.60万元\n销售费用: 约641.20万元\n管理费用: 约2013.83万元\n财务费用: 约1097.16万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: new_signed_contract"
+      ],
+      "ground_truth": "中国铁建2025年新签合同额约为30764.97亿元",
+      "category": "L1-事实提取",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 11714
+    },
+    {
+      "id": "L3-001",
+      "question": "中国能建2025年毛利率是多少？",
+      "answer": "中国能建2025年毛利率约为 **3.49%**。\n\n来源：文档片段1中“中国能建（601868）2025年年度报告”利润表数据显示，毛利率约3.49%。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国能建 (601868)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约4529.30亿元\n营业成本: 约4371.18亿元\n营业利润: 约131.82亿元\n净利润: 约97.56亿元\n归属于母公司股东的净利润: 约58.40亿元\n每股收益: 约0.1401元/股\n每股净资产: 数据缺失\n毛利率: 约3.49%\n净利率: 约2.15%\n研发费用: 约147.49亿元\n销售费用: 约23.87亿元\n管理费用: 约137.23亿元\n财务费用: 约66.70亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约9415.97亿元\n总负债: 约7319.79亿元\n所有者权益（净资产）: 约2096.18亿元\n归属于母公司股东的权益: 约1199.84亿元\n流动资产: 约4621.75亿元\n非流动资产: 约4794.23亿元\n流动负债: 约4668.11亿元\n非流动负债: 约2651.68亿元\n货币资金: 约940.76亿元\n应收账款: 约854.35亿元\n存货: 约791.02亿元\n固定资产: 约988.13亿元\n商誉: 约28.29亿元\n资产负债率: 约77.74%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: gross_margin"
+      ],
+      "ground_truth": "中国能建2025年毛利率约为12.2%，根据营业收入约4529.30亿元和营业成本约3977.11亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 6386
+    },
+    {
+      "id": "L3-002",
+      "question": "片仔癀2025年净资产收益率是多少？",
+      "answer": "片仔癀2025年净资产收益率（ROE）约为 **14.21%**。\n\n该数据来自文档片段1中“片仔癀（600436）2025年年度报告”的衍生指标数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 片仔癀 (600436)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约14.21%\n总资产收益率(ROA): 约12.21%\n毛利率: 约24.41%\n净利率: 约23.81%\n资产负债率: 约14.08%\n流动比率: 约5.02%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约16.56%\n净利润同比增长率: 同比下降约27.49%\n总资产同比增长率: 同比增长约0.12%\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约175.60亿元\n总负债: 约24.72亿元\n所有者权益（净资产）: 约150.88亿元\n归属于母公司股东的权益: 约145.39亿元\n流动资产: 约106.69亿元\n非流动资产: 约68.91亿元\n流动负债: 约21.25亿元\n非流动负债: 约3.47亿元\n货币资金: 约12.56亿元\n应收账款: 约7.53亿元\n存货: 约66.79亿元\n固定资产: 约5.29亿元\n商誉: 数据缺失\n资产负债率: 约14.08%\n\n--- 利润表数据 ---\n营业收入: 约90.01亿元\n营业成本: 约68.05亿元\n营业利润: 约25.46亿元\n净利润: 约21.43亿元\n归属于母公司股东的净利润: 约21.59亿元\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n毛利率: 约24.41%\n净利率: 约23.81%\n研发费用: 约2.52亿元\n销售费用: 约4.01亿元\n管理费用: 约3.59亿元\n财务费用: 约2022.68万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: roe, roa, total_equity"
+      ],
+      "ground_truth": "片仔癀2025年净资产收益率约为14.8%，根据净利润约21.59亿元和净资产约145.39亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 49,
+      "generationLatencyMs": 4443
+    },
+    {
+      "id": "L3-003",
+      "question": "五粮液2025年毛利率是多少？",
+      "answer": "五粮液2025年毛利率约为 **29.30%**。\n\n来源：文档片段1中五粮液2025年年度报告利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 五粮液 (000858)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约405.29亿元\n营业成本: 约286.53亿元\n营业利润: 约122.51亿元\n净利润: 约93.17亿元\n归属于母公司股东的净利润: 约89.54亿元\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n毛利率: 约29.30%\n净利率: 约22.99%\n研发费用: 约4.49亿元\n销售费用: 约76.29亿元\n管理费用: 约30.97亿元\n财务费用: -约26.62亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约1899.84亿元\n总负债: 约678.04亿元\n所有者权益（净资产）: 约1221.81亿元\n归属于母公司股东的权益: 约1199.32亿元\n流动资产: 约1647.52亿元\n非流动资产: 约252.33亿元\n流动负债: 约673.52亿元\n非流动负债: 约4.52亿元\n货币资金: 约1270.14亿元\n应收账款: 约3774.54万元\n存货: 约200.65亿元\n固定资产: 约76.41亿元\n商誉: 约162.16万元\n资产负债率: 约35.69%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: gross_margin"
+      ],
+      "ground_truth": "五粮液2025年毛利率约为83.8%，根据文档直接陈述的酒类业务毛利率83.75%得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 3434
+    },
+    {
+      "id": "L3-004",
+      "question": "格力电器2025年净利率是多少？",
+      "answer": "格力电器2025年净利率约为 **16.87%**。\n\n该数据来自文档片段1中“2025年年度报告—利润表数据”的“净利率”字段。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 格力电器 (000651)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约1711.18亿元\n营业成本: 约1375.49亿元\n营业利润: 约346.81亿元\n净利润: 约288.63亿元\n归属于母公司股东的净利润: 约290.03亿元\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n毛利率: 约19.62%\n净利率: 约16.87%\n研发费用: 约64.63亿元\n销售费用: 约84.11亿元\n管理费用: 约51.80亿元\n财务费用: -约40.86亿元\n保费收入: 数据缺失\n手续费及佣金收入: 约0.01万元\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约3913.72亿元\n总负债: 约2415.81亿元\n所有者权益（净资产）: 约1497.91亿元\n归属于母公司股东的权益: 约1459.29亿元\n流动资产: 约2509.44亿元\n非流动资产: 约1404.28亿元\n流动负债: 约2315.70亿元\n非流动负债: 约100.11亿元\n货币资金: 约1105.53亿元\n应收账款: 约159.87亿元\n存货: 约281.83亿元\n固定资产: 约343.96亿元\n商誉: 约13.24亿元\n资产负债率: 约61.73%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: net_margin, net_profit"
+      ],
+      "ground_truth": "格力电器2025年净利率约为16.9%，根据净利润约290.03亿元和营业收入约1711.18亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 5052
+    },
+    {
+      "id": "L3-005",
+      "question": "中国铁建2025年毛利率是多少？",
+      "answer": "中国铁建2025年毛利率约为 **9.72%**。\n\n该数据来自文档片段1中的利润表数据：营业收入约10.30亿元，营业成本约9.30亿元，毛利率约9.72%。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国铁建 (601186)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约10.30亿元\n营业成本: 约9.30亿元\n营业利润: 约2677.86万元\n净利润: 约2168.68万元\n归属于母公司股东的净利润: 约1836.26万元\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n毛利率: 约9.72%\n净利率: 约2.11%\n研发费用: 约2359.60万元\n销售费用: 约641.20万元\n管理费用: 约2013.83万元\n财务费用: 约1097.16万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约20.84亿元\n总负债: 约16.57亿元\n所有者权益（净资产）: 约4.27亿元\n归属于母公司股东的权益: 约3.40亿元\n流动资产: 约12.45亿元\n非流动资产: 约8.39亿元\n流动负债: 约12.11亿元\n非流动负债: 约4.46亿元\n货币资金: 约1.92亿元\n应收账款: 约2.41亿元\n存货: 约2.66亿元\n固定资产: 约7291.93万元\n商誉: 约4.98万元\n资产负债率: 约79.51%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: gross_margin"
+      ],
+      "ground_truth": "中国铁建2025年毛利率约为9.7%，根据营业收入约10297.84亿元和营业成本约9296.67亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 5082
+    },
+    {
+      "id": "L3-006",
+      "question": "江苏银行2025年净资产收益率是多少？",
+      "answer": "江苏银行2025年净资产收益率（ROE）约为 **10.38%**。\n\n来源：文档片段1中“衍生指标数据”显示“净资产收益率(ROE): 约10.38%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 江苏银行 (600919)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约10.38%\n总资产收益率(ROA): 约0.74%\n毛利率: 约1.53%\n净利率: 约41.26%\n资产负债率: 约92.91%\n流动比率: 数据缺失\n速动比率: 数据缺失\n营业收入同比增长率: 同比增长约8.82%\n净利润同比增长率: 同比增长约8.94%\n总资产同比增长率: 同比增长约24.78%\n每股收益: 约1.7600元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约49.31亿元\n总负债: 约45.82亿元\n所有者权益（净资产）: 约3.50亿元\n归属于母公司股东的权益: 约3.38亿元\n流动资产: 数据缺失\n非流动资产: 数据缺失\n流动负债: 数据缺失\n非流动负债: 数据缺失\n货币资金: 数据缺失\n应收账款: 数据缺失\n存货: 数据缺失\n固定资产: 约749.93万元\n商誉: 约7.21万元\n资产负债率: 约92.91%\n\n--- 利润表数据 ---\n营业收入: 约8794.24万元\n营业成本: -约4676.00万元\n营业利润: 约4118.24万元\n净利润: 约3628.38万元\n归属于母公司股东的净利润: 约3450.10万元\n每股收益: 约1.7600元/股\n每股净资产: 数据缺失\n毛利率: 约1.53%\n净利率: 约41.26%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: -约2345.07万元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 约673.13万元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: roe, roa, total_equity"
+      ],
+      "ground_truth": "江苏银行2025年净资产收益率约为10.2%，根据净利润约345.01亿元和净资产约3379.61亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 3185
+    },
+    {
+      "id": "L3-007",
+      "question": "华海药业2025年毛利率是多少？",
+      "answer": "华海药业2025年毛利率约为 **5.14%**。\n\n来源：文档片段1中“利润表数据”显示毛利率约5.14%。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 华海药业 (600521)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约85.87亿元\n营业成本: 约81.46亿元\n营业利润: 约4.56亿元\n净利润: 约2.27亿元\n归属于母公司股东的净利润: 约2.66亿元\n每股收益: 约0.1779元/股\n每股净资产: 数据缺失\n毛利率: 约5.14%\n净利率: 约2.65%\n研发费用: 约12.29亿元\n销售费用: 约15.77亿元\n管理费用: 约15.59亿元\n财务费用: 约2.48亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约215.03亿元\n总负债: 约120.47亿元\n所有者权益（净资产）: 约94.56亿元\n归属于母公司股东的权益: 约94.43亿元\n流动资产: 约87.42亿元\n非流动资产: 约127.61亿元\n流动负债: 约91.12亿元\n非流动负债: 约29.35亿元\n货币资金: 约15.04亿元\n应收账款: 约28.68亿元\n存货: 约37.12亿元\n固定资产: 约73.80亿元\n商誉: 约6444.59万元\n资产负债率: 约56.02%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: gross_margin"
+      ],
+      "ground_truth": "华海药业2025年毛利率约为60.1%，根据营业收入约85.87亿元和营业成本约34.22亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 7408
+    },
+    {
+      "id": "L3-008",
+      "question": "东吴证券2025年净利率是多少？",
+      "answer": "东吴证券2025年净利率约为 **39.56%**。\n\n根据文档片段1，2025年营业收入约 **90.30亿元**，净利润约 **35.72亿元**，按净利率 = 净利润 / 营业收入 × 100% 计算。\n\n<details><summary>计算过程</summary>\n35.72亿元 ÷ 90.30亿元 × 100% ≈ 39.56%\n</details>",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 东吴证券 (601555)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.30亿元\n营业成本: 数据缺失\n营业利润: 约45.36亿元\n净利润: 约35.72亿元\n归属于母公司股东的净利润: 数据缺失\n每股收益: 约0.7100元/股\n每股净资产: 数据缺失\n毛利率: 数据缺失\n净利率: 数据缺失\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约42.58亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约2162.19亿元\n总负债: 约1724.61亿元\n所有者权益（净资产）: 约425.79亿元\n归属于母公司股东的权益: 数据缺失\n流动资产: 数据缺失\n非流动资产: 数据缺失\n流动负债: 数据缺失\n非流动负债: 数据缺失\n货币资金: 约507.13亿元\n应收账款: 数据缺失\n存货: 数据缺失\n固定资产: 约20.83亿元\n商誉: 约3.25亿元\n资产负债率: 约79.76%\n\n--- 计算提示 ---\n净利率 = 净利润 / 营业收入 × 100%\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n命中指标: net_margin, net_profit"
+      ],
+      "ground_truth": "东吴证券2025年净利率约为39.3%，根据净利润约35.52亿元和营业收入约90.30亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 8596
+    },
+    {
+      "id": "L3-009",
+      "question": "中国人保2025年净利率是多少？",
+      "answer": "中国人保2025年净利率约为 **9.42%**。\n\n来源：文档片段1中“利润表数据”显示，2025年年度报告净利率约9.42%。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国人保 (601319)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约6.69亿元\n营业成本: 约198.90万元\n营业利润: 约901.20万元\n净利润: 约6303.30万元\n归属于母公司股东的净利润: 约4664.60万元\n每股收益: 约1.0500元/股\n每股净资产: 数据缺失\n毛利率: 约99.70%\n净利率: 约9.42%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约678.70万元\n财务费用: 数据缺失\n保费收入: 约5.71亿元\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约20.28亿元\n总负债: 数据缺失\n所有者权益（净资产）: 数据缺失\n归属于母公司股东的权益: 数据缺失\n流动资产: 约0.01万元\n非流动资产: 数据缺失\n流动负债: 约0.48万元\n非流动负债: 数据缺失\n货币资金: 约2598.40万元\n应收账款: 数据缺失\n存货: 数据缺失\n固定资产: 约3243.40万元\n商誉: 数据缺失\n资产负债率: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_margin, net_profit"
+      ],
+      "ground_truth": "中国人保2025年净利率约为3.9%，根据净利润约218.00亿元和营业收入约5623.00亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 19,
+      "generationLatencyMs": 5505
+    },
+    {
+      "id": "L3-010",
+      "question": "中国长城2025年净利率是多少？",
+      "answer": "中国长城2025年净利率约为 **-0.09%**。\n\n来源：文档片段1中“利润表数据”明确列示“净利率: 约-0.09%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国长城 (000066)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约158.09亿元\n营业成本: 约131.91亿元\n营业利润: 约1.35亿元\n净利润: -约1375.13万元\n归属于母公司股东的净利润: -约5572.48万元\n每股收益: 约-0.0173元/股\n每股净资产: 数据缺失\n毛利率: 约16.56%\n净利率: 约-0.09%\n研发费用: 约10.87亿元\n销售费用: 约5.09亿元\n管理费用: 约9.00亿元\n财务费用: 约2.11亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约319.91亿元\n总负债: 约197.91亿元\n所有者权益（净资产）: 约122.00亿元\n归属于母公司股东的权益: 约110.27亿元\n流动资产: 约192.30亿元\n非流动资产: 约127.61亿元\n流动负债: 约129.60亿元\n非流动负债: 约68.31亿元\n货币资金: 约34.57亿元\n应收账款: 约56.49亿元\n存货: 约53.96亿元\n固定资产: 约40.24亿元\n商誉: 约2488.94万元\n资产负债率: 约61.86%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: net_margin, net_profit"
+      ],
+      "ground_truth": "中国长城2025年净利率约为-0.4%，根据净利润约-0.56亿元和营业收入约158.09亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 6413
+    },
+    {
+      "id": "L3-011",
+      "question": "五粮液2025年净资产收益率是多少？",
+      "answer": "五粮液2025年净资产收益率（ROE）约为 **7.63%**。\n\n信息来源：文档片段1中“五粮液 2025年年度报告”的衍生指标数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 五粮液 (000858)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约7.63%\n总资产收益率(ROA): 约4.90%\n毛利率: 约29.30%\n净利率: 约22.99%\n资产负债率: 约35.69%\n流动比率: 约2.45%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约54.55%\n净利润同比增长率: 同比下降约71.93%\n总资产同比增长率: 同比增长约0.92%\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约1899.84亿元\n总负债: 约678.04亿元\n所有者权益（净资产）: 约1221.81亿元\n归属于母公司股东的权益: 约1199.32亿元\n流动资产: 约1647.52亿元\n非流动资产: 约252.33亿元\n流动负债: 约673.52亿元\n非流动负债: 约4.52亿元\n货币资金: 约1270.14亿元\n应收账款: 约3774.54万元\n存货: 约200.65亿元\n固定资产: 约76.41亿元\n商誉: 约162.16万元\n资产负债率: 约35.69%\n\n--- 利润表数据 ---\n营业收入: 约405.29亿元\n营业成本: 约286.53亿元\n营业利润: 约122.51亿元\n净利润: 约93.17亿元\n归属于母公司股东的净利润: 约89.54亿元\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n毛利率: 约29.30%\n净利率: 约22.99%\n研发费用: 约4.49亿元\n销售费用: 约76.29亿元\n管理费用: 约30.97亿元\n财务费用: -约26.62亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: roe, roa, total_equity"
+      ],
+      "ground_truth": "五粮液2025年净资产收益率约为7.5%，根据净利润约89.54亿元和净资产约1199.32亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 8249
+    },
+    {
+      "id": "L3-012",
+      "question": "格力电器2025年毛利率是多少？",
+      "answer": "格力电器2025年毛利率约为 **19.62%**。\n\n来源：文档片段1中“利润表数据”显示“毛利率: 约19.62%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 格力电器 (000651)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约1711.18亿元\n营业成本: 约1375.49亿元\n营业利润: 约346.81亿元\n净利润: 约288.63亿元\n归属于母公司股东的净利润: 约290.03亿元\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n毛利率: 约19.62%\n净利率: 约16.87%\n研发费用: 约64.63亿元\n销售费用: 约84.11亿元\n管理费用: 约51.80亿元\n财务费用: -约40.86亿元\n保费收入: 数据缺失\n手续费及佣金收入: 约0.01万元\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约3913.72亿元\n总负债: 约2415.81亿元\n所有者权益（净资产）: 约1497.91亿元\n归属于母公司股东的权益: 约1459.29亿元\n流动资产: 约2509.44亿元\n非流动资产: 约1404.28亿元\n流动负债: 约2315.70亿元\n非流动负债: 约100.11亿元\n货币资金: 约1105.53亿元\n应收账款: 约159.87亿元\n存货: 约281.83亿元\n固定资产: 约343.96亿元\n商誉: 约13.24亿元\n资产负债率: 约61.73%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: gross_margin"
+      ],
+      "ground_truth": "格力电器2025年毛利率约为30.1%，根据营业收入约1711.18亿元和营业成本约1196.41亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 22,
+      "generationLatencyMs": 2985
+    },
+    {
+      "id": "L3-013",
+      "question": "中国能建2025年资产负债率是多少？",
+      "answer": "中国能建2025年资产负债率约为 **77.74%**。\n\n信息来源：文档片段1中“中国能建（601868）2025年年度报告”的资产负债表数据显示“资产负债率: 约77.74%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国能建 (601868)\n报告年度: 2025年 年度报告\n\n--- 资产负债表数据 ---\n总资产: 约9415.97亿元\n总负债: 约7319.79亿元\n所有者权益（净资产）: 约2096.18亿元\n归属于母公司股东的权益: 约1199.84亿元\n流动资产: 约4621.75亿元\n非流动资产: 约4794.23亿元\n流动负债: 约4668.11亿元\n非流动负债: 约2651.68亿元\n货币资金: 约940.76亿元\n应收账款: 约854.35亿元\n存货: 约791.02亿元\n固定资产: 约988.13亿元\n商誉: 约28.29亿元\n资产负债率: 约77.74%\n命中指标: debt_ratio"
+      ],
+      "ground_truth": "中国能建2025年资产负债率约为49.6%，根据总负债约4668.11亿元和总资产约9415.97亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 3569
+    },
+    {
+      "id": "L3-014",
+      "question": "片仔癀2025年毛利率是多少？",
+      "answer": "片仔癀2025年毛利率约为 **24.41%**。\n\n该数据来自文档片段1中“片仔癀（600436）2025年年度报告”的利润表数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 片仔癀 (600436)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约90.01亿元\n营业成本: 约68.05亿元\n营业利润: 约25.46亿元\n净利润: 约21.43亿元\n归属于母公司股东的净利润: 约21.59亿元\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n毛利率: 约24.41%\n净利率: 约23.81%\n研发费用: 约2.52亿元\n销售费用: 约4.01亿元\n管理费用: 约3.59亿元\n财务费用: 约2022.68万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约175.60亿元\n总负债: 约24.72亿元\n所有者权益（净资产）: 约150.88亿元\n归属于母公司股东的权益: 约145.39亿元\n流动资产: 约106.69亿元\n非流动资产: 约68.91亿元\n流动负债: 约21.25亿元\n非流动负债: 约3.47亿元\n货币资金: 约12.56亿元\n应收账款: 约7.53亿元\n存货: 约66.79亿元\n固定资产: 约5.29亿元\n商誉: 数据缺失\n资产负债率: 约14.08%\n\n--- 计算提示 ---\n净资产收益率(ROE) = 净利润 / 所有者权益 × 100%\n毛利 = 营业收入 - 营业成本\n命中指标: gross_margin"
+      ],
+      "ground_truth": "片仔癀2025年毛利率约为36.4%，根据营业收入约90.01亿元和营业成本约57.23亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 17,
+      "generationLatencyMs": 4995
+    },
+    {
+      "id": "L3-015",
+      "question": "中国铁建2025年净资产收益率是多少？",
+      "answer": "中国铁建2025年净资产收益率（ROE）约为 **5.08%**。\n\n信息来源：文档片段1中“2025年年度报告”的衍生指标数据。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国铁建 (601186)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约5.08%\n总资产收益率(ROA): 约1.04%\n毛利率: 约9.72%\n净利率: 约2.11%\n资产负债率: 约79.51%\n流动比率: 约1.03%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约3.50%\n净利润同比增长率: 同比下降约17.34%\n总资产同比增长率: 同比增长约11.86%\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 资产负债表数据 ---\n总资产: 约20.84亿元\n总负债: 约16.57亿元\n所有者权益（净资产）: 约4.27亿元\n归属于母公司股东的权益: 约3.40亿元\n流动资产: 约12.45亿元\n非流动资产: 约8.39亿元\n流动负债: 约12.11亿元\n非流动负债: 约4.46亿元\n货币资金: 约1.92亿元\n应收账款: 约2.41亿元\n存货: 约2.66亿元\n固定资产: 约7291.93万元\n商誉: 约4.98万元\n资产负债率: 约79.51%\n\n--- 利润表数据 ---\n营业收入: 约10.30亿元\n营业成本: 约9.30亿元\n营业利润: 约2677.86万元\n净利润: 约2168.68万元\n归属于母公司股东的净利润: 约1836.26万元\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n毛利率: 约9.72%\n净利率: 约2.11%\n研发费用: 约2359.60万元\n销售费用: 约641.20万元\n管理费用: 约2013.83万元\n财务费用: 约1097.16万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: roe, roa, total_equity"
+      ],
+      "ground_truth": "中国铁建2025年净资产收益率约为5.4%，根据净利润约183.63亿元和净资产约3402.86亿元计算得出",
+      "category": "L3-计算推理",
+      "canAnswer": true,
+      "retrievalLatencyMs": 21,
+      "generationLatencyMs": 5608
+    },
+    {
+      "id": "L4-001",
+      "question": "中国能建2025年营收同比变化多少？",
+      "answer": "中国能建2025年营业收入同比增长约 **3.71%**。\n\n补充：2025年营业收入约 **4529.30亿元**。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国能建 (601868)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约4.65%\n总资产收益率(ROA): 约1.04%\n毛利率: 约3.49%\n净利率: 约2.15%\n资产负债率: 约77.74%\n流动比率: 约99.01%\n速动比率: 数据缺失\n营业收入同比增长率: 同比增长约3.71%\n净利润同比增长率: 同比下降约30.44%\n总资产同比增长率: 同比增长约8.35%\n每股收益: 约0.1401元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约4529.30亿元\n营业成本: 约4371.18亿元\n营业利润: 约131.82亿元\n净利润: 约97.56亿元\n归属于母公司股东的净利润: 约58.40亿元\n每股收益: 约0.1401元/股\n每股净资产: 数据缺失\n毛利率: 约3.49%\n净利率: 约2.15%\n研发费用: 约147.49亿元\n销售费用: 约23.87亿元\n管理费用: 约137.23亿元\n财务费用: 约66.70亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue_yoy, revenue"
+      ],
+      "ground_truth": "中国能建2025年营收同比增长约3.71%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 4584
+    },
+    {
+      "id": "L4-002",
+      "question": "江苏银行2025年净利润同比增长率是多少？",
+      "answer": "江苏银行2025年净利润同比增长率约为 **8.94%**。\n\n信息来源：文档片段1中“净利润同比增长率: 同比增长约8.94%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 江苏银行 (600919)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约10.38%\n总资产收益率(ROA): 约0.74%\n毛利率: 约1.53%\n净利率: 约41.26%\n资产负债率: 约92.91%\n流动比率: 数据缺失\n速动比率: 数据缺失\n营业收入同比增长率: 同比增长约8.82%\n净利润同比增长率: 同比增长约8.94%\n总资产同比增长率: 同比增长约24.78%\n每股收益: 约1.7600元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约879.42亿元\n营业成本: -约467.60亿元\n营业利润: 约411.82亿元\n净利润: 约362.84亿元\n归属于母公司股东的净利润: 约345.01亿元\n每股收益: 约1.7600元/股\n每股净资产: 数据缺失\n毛利率: 约1.53%\n净利率: 约41.26%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: -约234.51亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 约67.31亿元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit_yoy, net_profit"
+      ],
+      "ground_truth": "江苏银行2025年净利润同比增长约8.35%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 19,
+      "generationLatencyMs": 2903
+    },
+    {
+      "id": "L4-003",
+      "question": "五粮液2025年营收同比增长率是多少？",
+      "answer": "五粮液2025年营收同比增长率约为 **-54.55%**，即同比下降约54.55%。  \n\n信息来源：文档片段1中“营业收入同比增长率: 同比下降约54.55%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 五粮液 (000858)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约7.63%\n总资产收益率(ROA): 约4.90%\n毛利率: 约29.30%\n净利率: 约22.99%\n资产负债率: 约35.69%\n流动比率: 约2.45%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约54.55%\n净利润同比增长率: 同比下降约71.93%\n总资产同比增长率: 同比增长约0.92%\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约405.29亿元\n营业成本: 约286.53亿元\n营业利润: 约122.51亿元\n净利润: 约93.17亿元\n归属于母公司股东的净利润: 约89.54亿元\n每股收益: 约2.3068元/股\n每股净资产: 数据缺失\n毛利率: 约29.30%\n净利率: 约22.99%\n研发费用: 约4.49亿元\n销售费用: 约76.29亿元\n管理费用: 约30.97亿元\n财务费用: -约26.62亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue_yoy, revenue"
+      ],
+      "ground_truth": "五粮液2025年营收同比下降约54.55%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 4161
+    },
+    {
+      "id": "L4-004",
+      "question": "格力电器2025年净利润同比变化多少？",
+      "answer": "格力电器2025年净利润同比下降约 **9.89%**。\n\n来源：文档片段1中“净利润同比增长率：同比下降约9.89%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 格力电器 (000651)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约19.27%\n总资产收益率(ROA): 约7.37%\n毛利率: 约19.62%\n净利率: 约16.87%\n资产负债率: 约61.73%\n流动比率: 约1.08%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约9.89%\n净利润同比增长率: 同比下降约9.89%\n总资产同比增长率: 同比增长约6.34%\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约1711.18亿元\n营业成本: 约1375.49亿元\n营业利润: 约346.81亿元\n净利润: 约288.63亿元\n归属于母公司股东的净利润: 约290.03亿元\n每股收益: 约5.2000元/股\n每股净资产: 数据缺失\n毛利率: 约19.62%\n净利率: 约16.87%\n研发费用: 约64.63亿元\n销售费用: 约84.11亿元\n管理费用: 约51.80亿元\n财务费用: -约40.86亿元\n保费收入: 数据缺失\n手续费及佣金收入: 约0.01万元\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit_yoy, net_profit"
+      ],
+      "ground_truth": "格力电器2025年净利润同比下降约9.89%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 13,
+      "generationLatencyMs": 5667
+    },
+    {
+      "id": "L4-005",
+      "question": "中国铁建2025年营收同比增长率是多少？",
+      "answer": "中国铁建2025年营业收入同比增长率约为 **-3.50%**（即同比下降约3.50%）。\n\n信息来源：文档片段1中“营业收入同比增长率：同比下降约3.50%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国铁建 (601186)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约5.08%\n总资产收益率(ROA): 约1.04%\n毛利率: 约9.72%\n净利率: 约2.11%\n资产负债率: 约79.51%\n流动比率: 约1.03%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约3.50%\n净利润同比增长率: 同比下降约17.34%\n总资产同比增长率: 同比增长约11.86%\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约10.30亿元\n营业成本: 约9.30亿元\n营业利润: 约2677.86万元\n净利润: 约2168.68万元\n归属于母公司股东的净利润: 约1836.26万元\n每股收益: 约1.3522元/股\n每股净资产: 数据缺失\n毛利率: 约9.72%\n净利率: 约2.11%\n研发费用: 约2359.60万元\n销售费用: 约641.20万元\n管理费用: 约2013.83万元\n财务费用: 约1097.16万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue_yoy, revenue"
+      ],
+      "ground_truth": "中国铁建2025年营收同比下降约3.50%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 19,
+      "generationLatencyMs": 4120
+    },
+    {
+      "id": "L4-006",
+      "question": "片仔癀2025年净利润同比增长率是多少？",
+      "answer": "片仔癀2025年净利润同比增长率约为 **同比下降27.49%**。\n\n来源：文档片段1中“净利润同比增长率: 同比下降约27.49%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 片仔癀 (600436)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约14.21%\n总资产收益率(ROA): 约12.21%\n毛利率: 约24.41%\n净利率: 约23.81%\n资产负债率: 约14.08%\n流动比率: 约5.02%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约16.56%\n净利润同比增长率: 同比下降约27.49%\n总资产同比增长率: 同比增长约0.12%\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约90.01亿元\n营业成本: 约68.05亿元\n营业利润: 约25.46亿元\n净利润: 约21.43亿元\n归属于母公司股东的净利润: 约21.59亿元\n每股收益: 约3.5779元/股\n每股净资产: 数据缺失\n毛利率: 约24.41%\n净利率: 约23.81%\n研发费用: 约2.52亿元\n销售费用: 约4.01亿元\n管理费用: 约3.59亿元\n财务费用: 约2022.68万元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: net_profit_yoy, net_profit"
+      ],
+      "ground_truth": "片仔癀2025年净利润同比下降约27.49%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 20,
+      "generationLatencyMs": 3268
+    },
+    {
+      "id": "L4-007",
+      "question": "中国人保2025年保费收入同比变化多少？",
+      "answer": "文档未直接披露中国人保2025年保费收入同比变化；可参考其2025年营业收入同比增长约7.57%，同期保费收入约为5.71亿元。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 千元，已转换为亿元显示）\n公司: 中国人保 (601319)\n报告年度: 2025年 年度报告\n\n--- 利润表数据 ---\n营业收入: 约6.69亿元\n营业成本: 约198.90万元\n营业利润: 约901.20万元\n净利润: 约6303.30万元\n归属于母公司股东的净利润: 约4664.60万元\n每股收益: 约1.0500元/股\n每股净资产: 数据缺失\n毛利率: 约99.70%\n净利率: 约9.42%\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约678.70万元\n财务费用: 数据缺失\n保费收入: 约5.71亿元\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 数据缺失\n总资产收益率(ROA): 约3.11%\n毛利率: 约99.70%\n净利率: 约9.42%\n资产负债率: 数据缺失\n流动比率: 数据缺失\n速动比率: 数据缺失\n营业收入同比增长率: 同比增长约7.57%\n净利润同比增长率: 同比增长约9.02%\n总资产同比增长率: 同比增长约14.79%\n每股收益: 约1.0500元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: premium_income, revenue_yoy"
+      ],
+      "ground_truth": "中国人保2025年保费收入同比增长约5.9%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 14,
+      "generationLatencyMs": 9459
+    },
+    {
+      "id": "L4-008",
+      "question": "华海药业2025年营收同比增长率是多少？",
+      "answer": "华海药业2025年营收同比增长率约为 **-10.06%**（即同比下降约10.06%）。\n\n信息来源：文档片段1中“营业收入同比增长率: 同比下降约10.06%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 华海药业 (600521)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约2.40%\n总资产收益率(ROA): 约1.06%\n毛利率: 约5.14%\n净利率: 约2.65%\n资产负债率: 约56.02%\n流动比率: 约95.94%\n速动比率: 数据缺失\n营业收入同比增长率: 同比下降约10.06%\n净利润同比增长率: 同比下降约75.81%\n总资产同比增长率: 同比增长约6.13%\n每股收益: 约0.1779元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约85.87亿元\n营业成本: 约81.46亿元\n营业利润: 约4.56亿元\n净利润: 约2.27亿元\n归属于母公司股东的净利润: 约2.66亿元\n每股收益: 约0.1779元/股\n每股净资产: 数据缺失\n毛利率: 约5.14%\n净利率: 约2.65%\n研发费用: 约12.29亿元\n销售费用: 约15.77亿元\n管理费用: 约15.59亿元\n财务费用: 约2.48亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue_yoy, revenue"
+      ],
+      "ground_truth": "华海药业2025年营收同比下降约10.06%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 16,
+      "generationLatencyMs": 3891
+    },
+    {
+      "id": "L4-009",
+      "question": "东吴证券2025年净利润同比变化多少？",
+      "answer": "东吴证券2025年净利润同比增长约 **49.52%**。\n\n来源：文档片段1中“净利润同比增长率：同比增长约49.52%”。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 东吴证券 (601555)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约8.39%\n总资产收益率(ROA): 约1.65%\n毛利率: 数据缺失\n净利率: 约39.55%\n资产负债率: 约79.76%\n流动比率: 数据缺失\n速动比率: 数据缺失\n营业收入同比增长率: 同比增长约27.70%\n净利润同比增长率: 同比增长约49.52%\n总资产同比增长率: 同比增长约21.61%\n每股收益: 约0.7100元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约90.30亿元\n营业成本: 数据缺失\n营业利润: 约45.36亿元\n净利润: 约35.72亿元\n归属于母公司股东的净利润: 数据缺失\n每股收益: 约0.7100元/股\n每股净资产: 数据缺失\n毛利率: 数据缺失\n净利率: 数据缺失\n研发费用: 数据缺失\n销售费用: 数据缺失\n管理费用: 约42.58亿元\n财务费用: 数据缺失\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n命中指标: net_profit_yoy, net_profit"
+      ],
+      "ground_truth": "东吴证券2025年净利润同比增长约50.12%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 2915
+    },
+    {
+      "id": "L4-010",
+      "question": "中国长城2025年营收同比变化多少？",
+      "answer": "中国长城2025年营业收入同比增长约 **11.31%**。\n\n来源：文档片段1显示，中国长城2025年年度报告中“营业收入同比增长率：同比增长约11.31%”，营业收入约158.09亿元。",
+      "contexts": [
+        "【SQL精确查询结果】（数据单位: 元，已转换为亿元显示）\n公司: 中国长城 (000066)\n报告年度: 2025年 年度报告\n\n--- 衍生指标数据 ---\n净资产收益率(ROE): 约-0.11%\n总资产收益率(ROA): 约-0.04%\n毛利率: 约16.56%\n净利率: 约-0.09%\n资产负债率: 约61.86%\n流动比率: 约1.48%\n速动比率: 数据缺失\n营业收入同比增长率: 同比增长约11.31%\n净利润同比增长率: 同比下降约99.04%\n总资产同比增长率: 同比下降约1.93%\n每股收益: 约-0.0173元/股\n每股净资产: 数据缺失\n每股经营现金流: 数据缺失\n\n--- 利润表数据 ---\n营业收入: 约158.09亿元\n营业成本: 约131.91亿元\n营业利润: 约1.35亿元\n净利润: -约1375.13万元\n归属于母公司股东的净利润: -约5572.48万元\n每股收益: 约-0.0173元/股\n每股净资产: 数据缺失\n毛利率: 约16.56%\n净利率: 约-0.09%\n研发费用: 约10.87亿元\n销售费用: 约5.09亿元\n管理费用: 约9.00亿元\n财务费用: 约2.11亿元\n保费收入: 数据缺失\n手续费及佣金收入: 数据缺失\n新签合同: 数据缺失\n\n--- 计算提示 ---\n毛利 = 营业收入 - 营业成本\n命中指标: revenue_yoy, revenue"
+      ],
+      "ground_truth": "中国长城2025年营收同比增长约11.31%",
+      "category": "L4-趋势分析",
+      "canAnswer": true,
+      "retrievalLatencyMs": 18,
+      "generationLatencyMs": 3656
+    }
+  ]
+}

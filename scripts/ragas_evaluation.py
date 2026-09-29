@@ -147,6 +147,13 @@ class Config:
     # 全链软跳过后循环重试 transient 的最大圈数（防死循环）
     MAX_SOFT_CYCLES = 2
 
+    # 判分链选择（RAGAS_JUDGE_CHAIN）——2026-09-19 李工要求：评估统一用 AGNES
+    #   auto（默认）：商汤 → 百炼 → AGNES 降级链（历史行为）
+    #   agnes      ：只用 AGNES agnes-3.0-flash（额度充足，判分口径唯一）
+    #   sensenova  ：只用商汤  sensenova-6.8-flash-lite
+    #   dashscope  ：只用百炼  10 个模型降级链
+    JUDGE_CHAIN = (os.getenv("RAGAS_JUDGE_CHAIN", "auto") or "auto").strip().lower()
+
     @staticmethod
     def get_llm_chain() -> List[LLMProvider]:
         """
@@ -159,6 +166,9 @@ class Config:
         API Key 从环境变量读取，不硬编码。
         """
         chain: List[LLMProvider] = []
+        sensenova_chain: List[LLMProvider] = []
+        bailian_chain: List[LLMProvider] = []
+        agnes_chain: List[LLMProvider] = []
 
         # 1. 商汤 sensenova（transient，链首）
         sensenova_key = os.getenv("SHANTANG_TOKEN", "")
@@ -176,7 +186,7 @@ class Config:
                 transient=True, supports_json_mode=False,
             )
             if provider.is_available():
-                chain.append(provider)
+                sensenova_chain.append(provider)
 
         # 2. 阿里百炼（主力，10 模型 × 多 API Key，403 永久拉黑）
         bailian_url = os.getenv(
@@ -192,7 +202,7 @@ class Config:
         for key in bailian_keys:
             for model in Config.BAILIAN_MODELS:
                 provider = LLMProvider("dashscope", model, key, bailian_url)
-                chain.append(provider)
+                bailian_chain.append(provider)
 
         # 3. AGNES agnes-3.0-flash（兜底，排最后，403 永久拉黑）
         agnes_key = os.getenv("AGNES_KEY", "")
@@ -200,9 +210,34 @@ class Config:
         agnes_model = os.getenv("RAGAS_AGNES_MODEL", "agnes-3.0-flash")
         agnes = LLMProvider("agnes", agnes_model, agnes_key, agnes_url)
         if agnes.is_available():
-            chain.append(agnes)
+            agnes_chain.append(agnes)
 
+        mode = Config.JUDGE_CHAIN
+        if mode == "agnes":
+            chain = agnes_chain
+        elif mode == "sensenova":
+            chain = sensenova_chain
+        elif mode == "dashscope":
+            chain = bailian_chain
+        else:
+            chain = sensenova_chain + bailian_chain + agnes_chain
+
+        if mode != "auto":
+            logger.info(
+                "RAGAS_JUDGE_CHAIN=%s → 锁定单一判分链: %s",
+                mode,
+                " → ".join(f"{p.name}/{p.model}" for p in chain) or "(空！请检查对应 API Key)",
+            )
         return chain
+
+
+# 调用间隔自适应（RAGAS_CALL_DELAY 优先；AGNES-only 模式默认 3s = 20 rpm，
+# 对齐 config/evaluation-config.yaml 的 agnes_ai.rpm_limit=20）
+_env_call_delay = os.getenv("RAGAS_CALL_DELAY", "").strip()
+if _env_call_delay:
+    Config.CALL_DELAY = float(_env_call_delay)
+elif Config.JUDGE_CHAIN == "agnes":
+    Config.CALL_DELAY = 3.0
 
 
 # ============================================================================
@@ -229,6 +264,8 @@ class LLMCaller:
         # 当前正在使用的 provider（首次调用时确定）
         self.current: Optional[LLMProvider] = None
         self.client: Optional[OpenAI] = None
+        # 每个 provider 实际成功完成的调用次数（用于报告自证「谁判的」）
+        self.calls: Dict[str, int] = {}
 
     def _select_provider(self) -> Optional[LLMProvider]:
         """选择第一个可用 provider（排除永久拉黑与本轮软跳过，按 name/model 唯一标识）"""
@@ -307,6 +344,8 @@ class LLMCaller:
                     )
                 resp = self.client.chat.completions.create(**kwargs)
                 content = resp.choices[0].message.content or ""
+                pkey = f"{provider.name}/{provider.model}"
+                self.calls[pkey] = self.calls.get(pkey, 0) + 1
                 time.sleep(Config.CALL_DELAY)
                 return content
             except Exception as e:
