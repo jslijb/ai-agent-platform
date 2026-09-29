@@ -279,9 +279,11 @@
   - 遗留：人保 OCR 数值与 GT 残差（19%/189%）仍需核源；NA 收益需 V18 重采后体现
 - [P1-新增 2026-09-19] 评估集 GT 未标注「数值应落在哪张表/哪个口径」→ 评估器分不清「库里没有」与「抽取漏了」
 - [已完成 2026-09-19] 判分模型统一 AGNES（`RAGAS_JUDGE_CHAIN=agnes`，`RAGAS_CALL_DELAY` 自适应；修 judge 字段自相矛盾 bug）
-- [进行中 2026-09-29] AGNES 全量判分续传（`ragas-report-v17-agnes-r1`，checkpoint 21/55）
-  - 首次续传 3s 间隔撞 AGNES 免费档 429 速率限制（非 403 配额），改 `RAGAS_CALL_DELAY=10`（≈6rpm）慢速续传中
-  - 完成后产物：`tests/reports/evaluation/ragas-report-v17-agnes-r1.json/.md`（judge 敏感性对照数据）
+- [已完成 2026-09-29] AGNES 全量判分续传完成（`ragas-report-v17-agnes-r1`，55/55，judge 锁定 agnes × 136 唯一判分）
+  - 结果：CP=0.9818 / CR=0.6318 / F=1.0 / AR=0.9527 / NA=0.5000 / **综合=0.8609 (PASS)**；耗时 2048s
+  - judge 敏感性结论：同输入同口径下 AGNES(0.8609) vs sensenova-degraded(0.8578) Δ=+0.0031，判分模型更换影响可忽略，跨轮对比口径可信
+  - 过程：3s 间隔撞 AGNES 免费档 429 速率限制（非 403 配额），`RAGAS_CALL_DELAY=10`（≈6rpm）跑通
+  - 注：本轮判的是 V17 旧采集数据（隔离 judge 变量的对照实验）；P0 单位修复的 NA 收益需 V18 重采后体现
 - [P0] 评估 V14 是否值得继续（R006）
 - [P1] 优化 L3 CP：SQL JSON context → 自然语言描述（预期 CP 从 0.13→0.80+）
 - [P1] 优化 L4 CR：同比数据格式问题
