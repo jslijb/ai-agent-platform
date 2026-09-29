@@ -1,5 +1,5 @@
 import { callWithFallback } from "@/server/llm/router";
-import { classifyEntity, normalizeEntity, isAmount, type EntityType } from "./entity-classifier";
+import { classifyEntity, normalizeEntity, isAmount, isIndicator, type EntityType } from "./entity-classifier";
 import { semanticCacheGet, semanticCacheSet } from "@/server/llm/semantic-cache";
 
 export interface EnhancedTriple {
@@ -34,7 +34,7 @@ function isNonRetryableError(error: unknown): boolean {
   return false;
 }
 
-const MAX_SEGMENT_LENGTH = 1500;
+const MAX_SEGMENT_LENGTH = 3000;
 
 const EXTRACT_PROMPT_V2 = `你是一个专业的金融领域知识图谱构建助手。请从以下文本中提取实体关系三元组。
 
@@ -64,6 +64,18 @@ const EXTRACT_PROMPT_V2 = `你是一个专业的金融领域知识图谱构建�
 
 文本：
 {text}`;
+
+/**
+ * 数值尾实体归一化：数值不应作为独立实体（方案A2）。
+ * 若关系语义指向营收/利润/已知指标，则把尾实体替换为规范指标名，数值转为关系 value；
+ * 无法归一化时返回 null，调用方跳过该三元组。
+ */
+function canonicalIndicatorForAmountTail(relationType: string, relation: string): string | null {
+  if (relationType === "HAS_REVENUE") return "营业收入";
+  if (relationType === "HAS_PROFIT") return "净利润";
+  if (relationType === "HAS_INDICATOR" && isIndicator(relation)) return relation.trim();
+  return null;
+}
 
 function parseEnhancedTriplesFromResponse(content: string): EnhancedTriple[] {
   let jsonStr = content.trim();
@@ -98,12 +110,11 @@ function parseEnhancedTriplesFromResponse(content: string): EnhancedTriple[] {
         typeof item.tail === "string"
       ) {
         const head = item.head.trim();
-        const tail = item.tail.trim();
+        const rawTail = item.tail.trim();
         const relation = item.relation.trim();
-        const value = typeof item.value === "string" ? item.value.trim() : undefined;
+        let value = typeof item.value === "string" ? item.value.trim() : undefined;
 
         const headType = classifyEntity(head);
-        const tailType = classifyEntity(tail);
 
         if (isAmount(head)) {
           console.log(`[entity-extractor-v2] 跳过数值头实体: ${head}`);
@@ -112,14 +123,28 @@ function parseEnhancedTriplesFromResponse(content: string): EnhancedTriple[] {
 
         const relationType = mapRelationType(relation);
 
+        // 数值尾实体内联化：数值只作为关系 value，不作为实体节点（P1修复）
+        let tail = rawTail;
+        if (isAmount(rawTail)) {
+          const canonical = canonicalIndicatorForAmountTail(relationType, relation);
+          if (!canonical) {
+            console.log(
+              `[entity-extractor-v2] 跳过无法归一化的数值尾实体: (${head}, ${relation}, ${rawTail})`
+            );
+            continue;
+          }
+          tail = canonical;
+          value = value || rawTail;
+        }
+
         triples.push({
           head: normalizeEntity(head),
           headType,
           relation,
           relationType,
-          tail: isAmount(tail) ? tail : normalizeEntity(tail),
-          tailType,
-          value: value || (isAmount(tail) ? tail : undefined),
+          tail: normalizeEntity(tail),
+          tailType: classifyEntity(tail),
+          value,
         });
       }
     }

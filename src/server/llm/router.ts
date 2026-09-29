@@ -33,6 +33,20 @@ function readModelChain(requireFunctionCalling: boolean = false): ModelConfig[] 
  * 获取模型降级链
  */
 function getModelChain(requireFunctionCalling: boolean = false): ModelConfig[] {
+  // 环境变量覆盖（批量任务用）：LLM_MODEL_CHAIN="modelA,modelB,..."，只影响当前进程
+  const envChain = process.env.LLM_MODEL_CHAIN?.trim();
+  if (envChain) {
+    const envModels: ModelConfig[] = envChain
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean)
+      .map((id) => ({ id, provider: id.startsWith("agnes") ? "agnes" : "dashscope", functionCalling: true }));
+    if (envModels.length > 0) {
+      console.log(`[llm-router] 使用环境变量模型链: ${envModels.map((m) => m.id).join(" → ")}`);
+      return envModels;
+    }
+  }
+
   const models = readModelChain(requireFunctionCalling);
 
   if (models.length === 0) {

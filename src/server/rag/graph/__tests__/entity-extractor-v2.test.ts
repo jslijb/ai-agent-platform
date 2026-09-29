@@ -38,15 +38,27 @@ describe("entity-extractor-v2", () => {
       expect(triples[0].head).toBe("五粮液");
     });
 
-    it("should inline amount tail as value", () => {
+    it("should normalize amount tail to canonical indicator and inline value", () => {
       const content = JSON.stringify([
         { head: "五粮液", relation: "HAS_REVENUE", tail: "832亿元" },
       ]);
 
       const triples = parseEnhancedTriplesFromResponse(content);
       expect(triples.length).toBe(1);
-      expect(triples[0].tailType).toBe("Amount");
+      expect(triples[0].tail).toBe("营业收入");
+      expect(triples[0].tailType).toBe("Indicator");
       expect(triples[0].value).toBe("832亿元");
+    });
+
+    it("should drop amount tail triples that cannot be normalized", () => {
+      const content = JSON.stringify([
+        { head: "五粮液", relation: "持股", tail: "12.67%" },
+        { head: "五粮液", relation: "生产", tail: "白酒" },
+      ]);
+
+      const triples = parseEnhancedTriplesFromResponse(content);
+      expect(triples.length).toBe(1);
+      expect(triples[0].relationType).toBe("PRODUCES");
     });
 
     it("should return empty array for invalid JSON", () => {

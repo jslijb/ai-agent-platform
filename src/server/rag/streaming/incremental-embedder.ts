@@ -194,8 +194,8 @@ export async function processDocumentChange(
         console.log(`[incremental-embedder] update 操作: 重新切片并生成 embedding, docId=${docId}`);
         await embedDocument(docId);
         try {
-          const { deleteGraph, createGraph } = await import("@/server/rag/graph/graph-builder");
-          const { extractTriples } = await import("@/server/rag/graph/entity-extractor");
+          const { deleteEnhancedGraph: deleteGraph, createEnhancedGraph: createGraph } = await import("@/server/rag/graph/graph-builder-v2");
+          const { extractEnhancedTriples: extractTriples } = await import("@/server/rag/graph/entity-extractor-v2");
           await deleteGraph(docId);
           const document = await db.query.documents.findFirst({ where: eq(documents.id, docId) });
           if (document) {

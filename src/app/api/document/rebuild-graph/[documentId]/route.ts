@@ -3,8 +3,8 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db/client";
 import { documents, embeddings } from "@/server/db/schema";
 import { eq, and } from "drizzle-orm";
-import { extractTriples } from "@/server/rag/graph/entity-extractor";
-import { createGraph, isNeo4jAvailable } from "@/server/rag/graph/graph-builder";
+import { extractEnhancedTriples } from "@/server/rag/graph/entity-extractor-v2";
+import { createEnhancedGraph, isNeo4jAvailable } from "@/server/rag/graph/graph-builder-v2";
 
 const GRAPH_MAX_CHUNKS = 50;
 const GRAPH_MAX_TEXT_LENGTH = 50000;
@@ -76,11 +76,11 @@ export async function POST(
     }
 
     console.log("[重建图谱] 开始提取三元组...");
-    const triples = await extractTriples(textToExtract);
+    const triples = await extractEnhancedTriples(textToExtract);
     console.log(`[重建图谱] 提取到 ${triples.length} 个三元组`);
 
     if (triples.length > 0) {
-      await createGraph(documentId, triples);
+      await createEnhancedGraph(documentId, triples);
       console.log("[重建图谱] 知识图谱构建完成");
     } else {
       console.log("[重建图谱] 未提取到三元组");

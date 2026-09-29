@@ -134,6 +134,14 @@ export async function createEnhancedGraph(
 
     for (const triple of triples) {
       try {
+        // 防御性跳过：数值不应作为实体节点写入图谱（P1修复）
+        if (triple.tailType === "Amount") {
+          console.warn(
+            `[graph-builder-v2] 跳过数值尾实体三元组: (${triple.head}, ${triple.relationType}, ${triple.tail})`
+          );
+          continue;
+        }
+
         const headLabels = ["Entity", triple.headType].filter(Boolean).join(":");
         const tailLabels = ["Entity", triple.tailType].filter(Boolean).join(":");
 
@@ -161,7 +169,7 @@ export async function createEnhancedGraph(
           entitySet.add(triple.head);
           nodeCount++;
         }
-        if (!entitySet.has(triple.tail) && triple.tailType !== "Amount") {
+        if (!entitySet.has(triple.tail)) {
           entitySet.add(triple.tail);
           nodeCount++;
         }
@@ -201,37 +209,12 @@ export async function deleteEnhancedGraph(docId: string): Promise<void> {
   const session = driver.session();
 
   try {
-    const allRelTypes = [
-      "HAS_REVENUE", "HAS_PROFIT", "HAS_INDICATOR", "OWNS_SHARE",
-      "LOCATED_IN", "PRODUCES", "COOPERATES_WITH", "COMPETES_WITH",
-      "INVESTS_IN", "SUPPLIES", "DEVELOPS", "RELEASES", "RELATED_TO",
-    ];
-
-    let totalDeletedRels = 0;
-    for (const relType of allRelTypes) {
-      try {
-        const result = await session.run(
-          `MATCH ()-[r:${relType} {sourceDocId: $docId}]->() DELETE r RETURN count(r) AS deleted`,
-          { docId }
-        );
-        const deleted = result.records[0]?.get("deleted")?.toNumber() ?? 0;
-        totalDeletedRels += deleted;
-      } catch {
-        // relation type may not exist
-      }
-    }
-
-    // Also delete old RELATION type
-    try {
-      const deleteRelResult = await session.run(
-        `MATCH ()-[r:RELATION {sourceDocId: $docId}]->() DELETE r RETURN count(r) AS deleted`,
-        { docId }
-      );
-      const deletedRels = deleteRelResult.records[0]?.get("deleted")?.toNumber() ?? 0;
-      totalDeletedRels += deletedRels;
-    } catch {
-      // RELATION type may not exist
-    }
+    // 按属性删除所有类型的关系（兼容 v1 RELATION 与 v2 类型化边，无需枚举关系类型）
+    const deleteRelResult = await session.run(
+      `MATCH ()-[r]->() WHERE r.sourceDocId = $docId DELETE r RETURN count(r) AS deleted`,
+      { docId }
+    );
+    const totalDeletedRels = deleteRelResult.records[0]?.get("deleted")?.toNumber() ?? 0;
 
     console.log(`[graph-builder-v2] 删除关系: ${totalDeletedRels} 条, docId: ${docId}`);
 

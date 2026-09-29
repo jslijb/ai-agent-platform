@@ -1,6 +1,6 @@
 import { callWithFallback } from "@/server/llm/router";
 import { getNeo4jDriver, isNeo4jAvailable } from "./graph-builder-v2";
-import { classifyEntity, normalizeEntity, loadCompanyAliases } from "./entity-classifier";
+import { normalizeEntity, loadCompanyAliases } from "./entity-classifier";
 import { db } from "@/server/db/client";
 import { stockMapping } from "@/server/db/schema";
 import { semanticCacheGet, semanticCacheSet } from "@/server/llm/semantic-cache";

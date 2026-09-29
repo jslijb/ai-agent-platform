@@ -9,8 +9,8 @@ import {
   storeEmbeddings,
 } from "@/server/rag/retrieval/dense-retriever";
 import { batchAddToIndex } from "@/server/rag/retrieval/sparse-retriever";
-import { extractTriples } from "@/server/rag/graph/entity-extractor";
-import { createGraph } from "@/server/rag/graph/graph-builder";
+import { extractEnhancedTriples } from "@/server/rag/graph/entity-extractor-v2";
+import { createEnhancedGraph } from "@/server/rag/graph/graph-builder-v2";
 
 const GRAPH_MAX_CHUNKS = 50;
 const GRAPH_MAX_TEXT_LENGTH = 50000;
@@ -85,11 +85,11 @@ async function processDocument(documentId: string, buffer: Buffer, fileName: str
     }
 
     try {
-      const triples = await extractTriples(limitedText);
+      const triples = await extractEnhancedTriples(limitedText);
       console.log(`[文档处理] ${documentId} 提取到 ${triples.length} 个三元组`);
 
       if (triples.length > 0) {
-        await createGraph(documentId, triples);
+        await createEnhancedGraph(documentId, triples);
         graphStatus = "completed";
       } else {
         graphStatus = "no_triples";

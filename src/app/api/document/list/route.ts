@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db/client";
 import { documents, embeddings } from "@/server/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
-import { deleteGraph } from "@/server/rag/graph/graph-builder";
+import { deleteEnhancedGraph as deleteGraph } from "@/server/rag/graph/graph-builder-v2";
 
 export async function GET(request: Request) {
   try {
