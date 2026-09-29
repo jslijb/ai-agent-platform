@@ -1,16 +1,14 @@
 # 本地容器化覆盖配置
 # 使用方式：docker compose up -d
 #
-# postgres: 复用 ai_novel_postgres（已在 aiagent_net 网络中，别名 postgres）
+# postgres: 使用本项目自带 pgvector 容器（aiagent_postgres，宿主机端口 5433）
+#   2026-09-29 起 agentdb 数据已合并至本项目 postgres，不再复用其他项目的容器；
+#   宿主机 5432 让给 ai_novel_postgres_old（其他项目），避免端口冲突。
 # redis: 复用 ai_novel_redis（已在 aiagent_net 网络中，别名 redis）
 # evaluation-service、llm-gateway: 暂不启动
 # prometheus、grafana: 暂不启动
 
 services:
-  postgres:
-    profiles:
-      - full
-
   redis:
     profiles:
       - full

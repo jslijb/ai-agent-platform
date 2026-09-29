@@ -24,8 +24,10 @@ P0 单位错配（`sql-result-formatter.ts` 量级猜单位）的修复过程暴
 - 直连 DB 的脚本一律用 postgres.js（参考 `scripts/migrate-financial-unit-to-yuan.mjs`）。
 - 运行全量测试前停掉占用 3000/8001 的外来容器（`docker stop ai_novel_frontend chatbi-gateway`），
   让门禁回到"服务不可达→优雅跳过"的基线行为。
-- agentdb 要恢复向量检索，需把该库迁回 pgvector 镜像（仓库 compose 的 `pgvector/pgvector:pg16`）
-  或给现容器安装 pgvector——当前状态下 F3b/F6a 永远过不了，稠密检索不可用。
+- ~~agentdb 要恢复向量检索，需把该库迁回 pgvector 镜像~~ **已解决（2026-09-29）**：
+  数据卷只读复制 → pgvector 镜像挂副本起救援实例 → 完整 pg_dump（46MB）→ 恢复进本项目
+  `aiagent_postgres`（宿主机 5433）。原容器/原卷零改动；Embedding 5190 条向量完整救回。
+  此后本项目 postgres 端口为 5433，与占用 5432 的其他项目容器互不干扰。
 
 ## 防回归
 - 换 DB 镜像/迁移宿主机前，先跑 `SELECT '1'::vector` 验证 pgvector .so 可加载。

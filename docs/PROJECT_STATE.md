@@ -292,6 +292,7 @@
 - [已完成-P0] Docker 容器化部署（2026-08-04）
   - 5个应用容器：main-service/rag-service/data-service/embedding/reranker + nginx
   - 复用 ai_novel_postgres 和 ai_novel_redis（通过 aiagent_net 网络别名）
+  - 更新（2026-09-29）：**PostgreSQL 不再复用其他项目容器**——agentdb 全量数据（含 5190 条向量）已合并至本项目 `aiagent_postgres`（pgvector/pgvector:pg16），宿主机端口改 **5433**（5432 让给其他项目，避免冲突）；`.env`/`.env.local`/`.env.docker` 的 `DATABASE_URL`/`PG_PORT` 已同步。完整备份：`backups/agentdb-full-20260929.dump`（46MB）。redis 仍复用 ai_novel_redis（未在本次范围）。旧容器内的 agentdb 副本待其他项目侧自行清理
   - docker-compose.override.yml 排除 postgres/redis/evaluation-service/llm-gateway/prometheus/grafana
   - 80端口验证通过，API健康检查全部UP
   - 踩坑记录：docs/pitfalls/2026-08-04-docker-containerization.md
