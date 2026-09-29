@@ -185,6 +185,54 @@ STATEMENT_TITLE_EXCLUDE_KWS = [
 ]
 
 
+# ===== 单位归一化（P0 单位错配修复，方案A）=====
+# 中国财报 PDF 的「单位：」声明不统一（元/千元/百万元），历史上落库保留原始口径，
+# 展示层（sql-result-formatter.ts）按数值量级猜单位，导致千元口径公司
+# （中国铁建/江苏银行/中国人保）整体错 1000 倍。
+# 现约定：抽取落库前统一换算为「元」，与存量迁移脚本
+# scripts/migrate-financial-unit-to-yuan.mjs 口径一致，展示层固定 ÷1e8 转亿元。
+_UNIT_TO_YUAN = {"元": 1.0, "千元": 1e3, "万元": 1e4, "百万元": 1e6, "亿元": 1e8}
+
+# 比率/每股字段：量纲不随报表单位变化，换算时必须排除
+_NON_MONETARY_FIELDS = {
+    "eps", "bvps", "operating_cash_flow_per_share",
+    "gross_margin", "net_margin", "roe", "roa", "debt_ratio",
+    "current_ratio", "quick_ratio",
+    "revenue_yoy", "net_profit_yoy", "total_assets_yoy",
+}
+
+_UNIT_LINE_RE = re.compile(r"单\s*位\s*[:：]\s*([亿万千万百]{0,2}\s*元)")
+
+
+def detect_unit_factor(texts: list) -> float:
+    """从报表页文本的「单位：xxx」声明检测货币单位，返回换算为「元」的系数。
+
+    同一报表内单位必然一致，取首个声明；未声明时视为「元」（系数 1.0）。
+    """
+    found: list = []
+    for text in texts or []:
+        if not text:
+            continue
+        for m in _UNIT_LINE_RE.findall(text):
+            found.append(m.replace(" ", "").replace("\u3000", ""))
+    if not found:
+        return 1.0
+    if len(set(found)) > 1:
+        logger.warning(f"同一报表检测到多种单位声明: {found}，取首个: {found[0]}")
+    return _UNIT_TO_YUAN.get(found[0], 1.0)
+
+
+def apply_unit_to_fields(fields: dict, factor: float) -> dict:
+    """把字段值（{standard_name: [各期值]}）按系数换算为「元」，比率/每股字段除外。"""
+    if factor == 1.0:
+        return fields
+    for name, values in fields.items():
+        if name in _NON_MONETARY_FIELDS:
+            continue
+        fields[name] = [v * factor if v is not None else None for v in values]
+    return fields
+
+
 class FinancialPDFExtractor:
     """财报 PDF 表格提取器"""
 
@@ -192,6 +240,7 @@ class FinancialPDFExtractor:
         self.pdf_path = pdf_path
         self.pdf = pdfplumber.open(pdf_path)
         self._page_texts = []  # 缓存每页文本
+        self._last_ocr_unit_factor = 1.0  # OCR fallback 识别到的最近单位系数（文本层无「单位：」声明时兜底）
         logger.info(f"打开 PDF: {pdf_path}, 共 {len(self.pdf.pages)} 页")
 
     def close(self):
@@ -491,6 +540,15 @@ class FinancialPDFExtractor:
                     f"{table_name}: OCR fallback 完成，提取到 {len(fields)} 个字段"
                 )
 
+        # P0 修复（方案A）：按报表「单位：」声明把货币值统一换算为「元」
+        factor = detect_unit_factor([self._get_page_text(p) for p in pages])
+        if factor == 1.0 and self._last_ocr_unit_factor != 1.0:
+            # 文本层无声明（图片型 PDF 走 OCR fallback），用 OCR 行中识别到的单位
+            factor = self._last_ocr_unit_factor
+        if factor != 1.0:
+            fields = apply_unit_to_fields(fields, factor)
+            logger.info(f"{table_name}: 货币值按 ×{factor:g} 换算为元")
+
         return {
             "fields": fields,
             "periods": periods,
@@ -763,6 +821,8 @@ class FinancialPDFExtractor:
                     # 提取识别文本行（兼容 PaddleOCR v3.x 多种返回格式）
                     lines = self._extract_ocr_text_lines(result)
                     logger.info(f"OCR fallback: Page {page_idx + 1} 识别到 {len(lines)} 行文本")
+                    # 记录 OCR 行中的「单位：」声明（图片型 PDF 文本层读不到，供 _extract_statement 兜底）
+                    self._last_ocr_unit_factor = detect_unit_factor(lines)
 
                     # 释放 OCR 结果对象内存
                     del result
@@ -854,7 +914,7 @@ class FinancialPDFExtractor:
         - 单引号前缀：'3.58 → 3.58（pdfplumber 提取的文本前缀）
         - 千分位逗号：1,234,567.89 → 1234567.89
         - 括号负数：(1,234.56) → -1234.56
-        - 单位：暂不转换（保留原始数值，单位由调用方处理）
+       - 单位：本函数不做转换；「单位：」声明由 _extract_statement 统一换算为元（方案A）
         - 空值：- / -- / N/A → None
         """
         if not text:

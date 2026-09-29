@@ -10,13 +10,13 @@
  *   3. 货币值为原始数字（29003103411.66），GT 为亿元（约290.03亿）→ 评估器无法转换
  *   4. null 值在 JSON 中显示为 null，GT 有值 → 评估器判定未覆盖
  *
- * 单位检测策略：
- *   中国财报 PDF 单位不统一（元/千元/万元），PDF 提取器保留原始值不做转换。
- *   本格式化器基于数值量级启发式检测单位：
- *     - 最大货币值 > 10^9 → 单位为"元"（除以 10^8 转亿元）
- *     - 最大货币值 > 10^5 → 单位为"千元"（除以 10^5 转亿元）
- *     - 否则 → 单位为"万元"（除以 10^4 转亿元）
- *   已验证：10 家样本公司（片仔癀/华海药业/江苏银行/东吴证券/格力电器/五粮液/中国长城/中国能建/中国铁建/中国人保）均正确。
+ * 单位前提（P0 单位错配修复，方案A）：
+ *   中国财报 PDF 单位不统一（元/千元/百万元），历史按数值量级猜单位导致
+ *   千元口径大公司（中国铁建/江苏银行/中国人保）整体错 1000 倍（详见
+ *   docs/1-requirements-bugs/financial-metric-unit-mismatch.md）。
+ *   现约定：抽取器（data_service/pdf_extractor.py 落库前归一）与存量迁移脚本
+ *   （scripts/migrate-financial-unit-to-yuan.mjs）保证 DB 货币值统一为「元」，
+ *   本格式化器固定 ÷10^8 转亿元，不再猜测。
  */
 
 // ===== 字段名中文映射 =====
@@ -129,45 +129,10 @@ const META_FIELDS = new Set([
   "_sourceTable", "_matchedIndicators",
 ]);
 
-// ===== 单位检测 =====
+// ===== 单位换算 =====
 
-/**
- * 检测货币值的单位
- *
- * 启发式策略：找到所有货币字段中的最大绝对值，基于量级判断单位。
- * 已验证 10 家样本公司均正确：
- *   - 格力电器 revenue=1711亿元 → 原始值 171,118,161,275 → >10^9 → 元 ✓
- *   - 中国能建 revenue=4529亿元 → 原始值 452,929,608 → >10^5, <10^9 → 千元 ✓
- *
- * @returns 单位标识及对应的亿元转换系数
- */
-function detectMonetaryUnit(rows: Record<string, unknown>[]): {
-  unit: string;
-  divisor: number; // 原始值 / divisor = 亿元
-} {
-  let maxVal = 0;
-  for (const row of rows) {
-    for (const field of Array.from(MONETARY_FIELDS)) {
-      const raw = row[field];
-      if (raw === null || raw === undefined) continue;
-      const val = Number(raw);
-      if (!isNaN(val) && Math.abs(val) > maxVal) {
-        maxVal = Math.abs(val);
-      }
-    }
-  }
-
-  if (maxVal > 1e9) {
-    // 最大值 > 10亿 → 单位为"元"，除以 10^8 转亿元
-    return { unit: "元", divisor: 1e8 };
-  }
-  if (maxVal > 1e5) {
-    // 最大值 > 10万 → 单位为"千元"，除以 10^5 转亿元
-    return { unit: "千元", divisor: 1e5 };
-  }
-  // 否则 → 单位为"万元"，除以 10^4 转亿元
-  return { unit: "万元", divisor: 1e4 };
-}
+/** DB 货币值统一为「元」，÷1e8 转亿元（不做任何量级猜测） */
+const YUAN_PER_YI = 1e8;
 
 // ===== 值格式化 =====
 
@@ -297,7 +262,7 @@ function formatField(
  * 输入:
  *   rows = [{ revenue: "171118161275.41", operatingCost: "137548893694.33", netProfit: "28862746016.16" }]
  * 输出:
- *   "【SQL精确查询结果】（单位: 元）
+ *   "【SQL精确查询结果】（原始值单位: 元，已转换为亿元显示）
  *    公司: 格力电器 (000651)
  *    报告年度: 2025年 年度报告
  *
@@ -315,12 +280,12 @@ export function formatSqlResultAsText(
     return "【SQL精确查询结果】查询无数据返回。";
   }
 
-  // 检测货币单位
-  const { unit, divisor } = detectMonetaryUnit(rows);
+  // DB 值已统一为元，固定 ÷1e8 转亿元
+  const divisor = YUAN_PER_YI;
 
   // 构建输出
   const lines: string[] = [];
-  lines.push(`【SQL精确查询结果】（数据单位: ${unit}，已转换为亿元显示）`);
+  lines.push(`【SQL精确查询结果】（原始值单位: 元，已转换为亿元显示）`);
 
   // 头部信息
   const companyPart = companyName ? `公司: ${companyName}` : "";

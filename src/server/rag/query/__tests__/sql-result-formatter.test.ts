@@ -2,13 +2,19 @@
  * TDD 单测：SQL 结果自然语言格式化器
  *
  * 覆盖场景（基于 V13-r5 评估诊断的 L3/L4 CR 低分根因）：
- *   1. 货币字段：英文→中文标签 + 单位检测 + 亿元转换
+ *   1. 货币字段：英文→中文标签 + 亿元转换
  *   2. 百分比字段：小数→百分比转换（YoY 生成"同比增长/下降"描述）
  *   3. 每股字段：直接显示 + 元/股单位
  *   4. null 值：显示"数据缺失"
- *   5. 单位检测：元/千元/万元 量级判断
- *   6. 计算提示：ROE/毛利率/净利率 公式注入
- *   7. 多表合并：financial_income + financial_indicators 联合输出
+ *   5. 计算提示：ROE/毛利率/净利率 公式注入
+ *   6. 多表合并：financial_income + financial_indicators 联合输出
+ *
+ * 单位前提（P0 单位错配修复，方案A）：
+ *   DB 货币值已由抽取器（data_service/pdf_extractor.py）和存量迁移脚本
+ *   （scripts/migrate-financial-unit-to-yuan.mjs）统一为「元」，
+ *   格式化器固定 ÷1e8 转亿元，不做量级猜测。
+ *   回归锚点：中国铁建营收 1,029,784,460,000 元 → 约10297.84亿元
+ *   （旧启发式按量级猜成"元"只除 1e8 → 10.30亿，错 1000 倍）
  *
  * 运行：npx vitest run src/server/rag/query/__tests__/sql-result-formatter.test.ts
  */
@@ -32,9 +38,9 @@ describe("formatSqlResultAsText - 基本格式化", () => {
   });
 });
 
-describe("formatSqlResultAsText - 货币字段单位检测", () => {
-  it("单位为元：revenue > 10^9 → 除以 10^8 转亿元", () => {
-    // 格力电器 revenue = 171,118,161,275 元 ≈ 1711.18 亿元
+describe("formatSqlResultAsText - 货币字段亿元转换（输入已统一为元）", () => {
+  it("元口径大数：÷1e8 转亿元", () => {
+    // 格力电器 revenue = 171,118,161,275 元 ≈ 1711.18 亿元（原口径即元，迁移不变）
     const rows = [
       {
         revenue: "171118161275.41",
@@ -46,27 +52,53 @@ describe("formatSqlResultAsText - 货币字段单位检测", () => {
       },
     ];
     const result = formatSqlResultAsText(rows, "格力电器", "000651");
-    expect(result).toContain("数据单位: 元");
+    expect(result).toContain("原始值单位: 元");
     expect(result).toContain("营业收入: 约1711.18亿元");
     expect(result).toContain("营业成本: 约1375.49亿元");
     expect(result).toContain("净利润: 约288.63亿元");
   });
 
-  it("单位为千元：revenue 在 10^5~10^9 之间 → 除以 10^5 转亿元", () => {
-    // 中国能建 revenue = 452,929,608 千元 ≈ 4529.30 亿元
+  it("千元口径归一化后（中国能建）：452,929,608,000 元 → 约4529.30亿元", () => {
+    // 存量迁移后：原 452,929,608 千元 × 1000 = 452,929,608,000 元
     const rows = [
       {
-        revenue: "452929608.0",
-        operatingCost: "437118437.0",
+        revenue: "452929608000.0",
+        operatingCost: "437118437000.0",
         _sourceTable: "financial_income",
         reportYear: 2025,
         reportQuarter: "annual",
       },
     ];
     const result = formatSqlResultAsText(rows, "中国能建", "601868");
-    expect(result).toContain("数据单位: 千元");
     expect(result).toContain("营业收入: 约4529.30亿元");
     expect(result).toContain("营业成本: 约4371.18亿元");
+  });
+
+  it("P0 回归锚点（中国铁建）：1,029,784,460,000 元 → 约10297.84亿元", () => {
+    // 旧启发式把 1,029,784,460 千元按量级猜成"元" → 输出 10.30亿（错 1000 倍）
+    const rows = [
+      {
+        revenue: "1029784460000.0",
+        _sourceTable: "financial_income",
+        reportYear: 2025,
+        reportQuarter: "annual",
+      },
+    ];
+    const result = formatSqlResultAsText(rows, "中国铁建", "601186");
+    expect(result).toContain("营业收入: 约10297.84亿元");
+  });
+
+  it("P0 回归锚点（江苏银行）：总资产 4,931,316,000,000 元 → 约49313.16亿元", () => {
+    const rows = [
+      {
+        totalAssets: "4931316000000.0",
+        _sourceTable: "financial_balancesheet",
+        reportYear: 2025,
+        reportQuarter: "annual",
+      },
+    ];
+    const result = formatSqlResultAsText(rows, "江苏银行", "600919");
+    expect(result).toContain("总资产: 约49313.16亿元");
   });
 
   it("负值正确显示负号", () => {
@@ -238,9 +270,10 @@ describe("formatSqlResultAsText - 资产负债表字段", () => {
   it("总资产/总负债/净资产 正确格式化", () => {
     const rows = [
       {
-        totalAssets: "941597382.0",
-        totalLiabilities: "731979102.0",
-        totalEquity: "426954855.0",
+        // 迁移后：原 941,597,382 千元 × 1000 = 941,597,382,000 元
+        totalAssets: "941597382000.0",
+        totalLiabilities: "731979102000.0",
+        totalEquity: "426954855000.0",
         debtRatio: "0.4964",
         _sourceTable: "financial_balancesheet",
         reportYear: 2025,
@@ -248,7 +281,6 @@ describe("formatSqlResultAsText - 资产负债表字段", () => {
       },
     ];
     const result = formatSqlResultAsText(rows, "中国能建", "601868");
-    // 中国能建是千元单位
     expect(result).toContain("总资产: 约9415.97亿元");
     expect(result).toContain("总负债: 约7319.79亿元");
     expect(result).toContain("所有者权益（净资产）: 约4269.55亿元");

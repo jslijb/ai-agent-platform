@@ -3,7 +3,7 @@
 - 核查时间：2026-09-19
 - 触发：李工质询「L1-001 与 L1-002 的单位不一致，是答案错了还是 PostgreSQL 存错了？」
 - 结论：**PostgreSQL 存的值是对的，展示层（`sql-result-formatter.ts`）错了。** 根因是财务五表 schema 没有单位列，格式化器只能按数值量级"猜"单位。
-- 状态：**待修（P0）**。未改动任何代码。
+- 状态：**✅ 已修（2026-09-29，方案A 实施，见文末第八节）**
 
 ---
 
@@ -220,3 +220,25 @@ py_compile 通过；tests/unit/test-llm-fallback-r030j.py 11/11 通过
 同输入对照实验（隔离 judge 一个变量）：
 `ragas-eval-data-v17.json` 分别用 sensenova-degraded 判分（0.8578，已有）与 AGNES 判分，
 产物 `tests/reports/evaluation/ragas-report-v17-agnes-r1.json`。
+
+---
+
+## 八、实施记录（2026-09-29，方案A 全链落地）
+
+> 用户指示「未完成的全部解决，改动最小化、要测试、遵循 spec.md」。方案B（加 `currency_unit` 列）
+> 违反 spec.md §二「数据库 schema 🔒 禁止擅改」，故按推荐的方案A 实施。
+
+| 层 | 改动 | 文件 |
+|---|---|---|
+| 展示层 | 删 `detectMonetaryUnit()` 量级启发式，固定 ÷1e8 转亿元；表头改为「原始值单位: 元」 | `src/server/rag/query/sql-result-formatter.ts` |
+| 抽取层 | 新增 `detect_unit_factor()`/`apply_unit_to_fields()`：按报表「单位：」声明（文本层优先，OCR 行兜底）在 `_extract_statement` 收口处统一换算为元；比率/每股字段（eps/bvps/毛利率等）排除 | `data_service/pdf_extractor.py` |
+| 存量数据 | `scripts/migrate-financial-unit-to-yuan.mjs`：dry-run 锚点校验（±2% 存在性）→ JSONL 备份（`tmp/unit-migration-backup-*`）→ 单事务 UPDATE → 迁移后锚点复验。**25 行已换算**（千元×1000：能建/铁建/江苏银行；百万元×1e6：人保） | agentdb（localhost:5432） |
+| 单测 | TS 18/18（新增中国铁建/江苏银行回归锚点）、Python 16/16（`tests/unit/test-pdf-extractor-unit-normalization.py`） | 两个测试文件 |
+
+**回归锚点验证**：中国铁建 2025 营收迁移后 = 1,029,784,460,000 元 → ÷1e8 = **10,297.84 亿元**，与 GT 一致 ✅；
+格力电器 171,118,161,275.41 元（原口径即元）不变 ✅。
+
+**边界与遗留**：
+- 中国人保「单位错 + OCR 数值与 GT 差 19%/189%」叠加问题中的**单位部分已修**（×1e6），数值与 GT 的残差仍需单独核源（§三）。
+- `financial_raw_tables`（原始 JSONB 留档）未动；`financial_indicators` 全为比率/每股，无货币列，不涉及。
+- 方案A 的完整收益（NA 上限 0.50→0.68）需重采评测数据（V18 周期）后才能在报告中体现。

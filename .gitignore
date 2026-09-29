@@ -152,3 +152,6 @@ package-lock.json
 
 # 工具痕迹（CodeArts Doer 代码库索引, 含本地文件索引）
 .codeartsdoer/
+
+# 运行期临时产物（迁移备份/日志等），不入库
+tmp/

@@ -271,15 +271,17 @@
   - 禁止写入空列表/伪数据；待上游恢复或接入 TickFlow/可用分钟线数据源后补齐
 - [阻塞-P1] 中国人保 PDF 数据提取（数值不在文本层，需 PyMuPDF 或 OCR）
   - 更新（2026-09-19）：R014 OCR 已提取入库，但存的是「百万元」而格式化器猜成「千元」→ 再错 1000 倍；且还原后与 GT 仍差 19%（营收）/189%（净利）。需单独核源。详见 `docs/1-requirements-bugs/financial-metric-unit-mismatch.md`
-- [P0-新增 2026-09-19] **财务指标单位错配（`sql-result-formatter.ts` 按量级猜单位，硬门槛 1e9）**
-  - `financial_income/_balancesheet/_cashflow/_indicators` 四表无单位列 → 抽取已归一到「千元」但展示层靠猜
-  - 55 条样本实测：**10 条单位错 1000 倍**（中国铁建/江苏银行/中国人保），2 条字段漏抽，32 条正确
-  - 决定性证据：同一家公司（江苏银行）在不同 query 里被标成「元」和「千元」两种单位
-  - 影响：同时打掉 NA 与 CR（数值错 → NA=0；上下文无该数 → CR 判未覆盖）
-  - 方案：A 抽取侧彻底归一到「元」（推荐，删掉 detectMonetaryUnit 整段）；B 加 `currency_unit` 列。**待李工批准后再动手**
-  - 附：`sql-result-formatter.test.ts:55-70` 单测把错误行为当正确预期，一并要改
+- [P0-已完成 2026-09-29] **财务指标单位错配（方案A 全链落地）**（2026-09-19 立项，原「按量级猜单位，硬门槛 1e9」）
+  - `financial_income/_balancesheet/_cashflow` 存量 25 行已迁移为「元」口径（千元×1000：能建/铁建/江苏银行；百万元×1e6：人保），迁移脚本带 dry-run 锚点校验 + JSONL 备份 + 单事务
+  - 展示层 `sql-result-formatter.ts` 删启发式、固定 ÷1e8；抽取层 `pdf_extractor.py` 按「单位：」声明落库前归一（比率/每股字段排除）
+  - 回归锚点：铁建 2025 营收 1,029,784,460,000 元 → 10,297.84 亿 ✅ 与 GT 一致；TS 18/18 + Python 16/16
+  - 实施记录：`docs/1-requirements-bugs/financial-metric-unit-mismatch.md` §八
+  - 遗留：人保 OCR 数值与 GT 残差（19%/189%）仍需核源；NA 收益需 V18 重采后体现
 - [P1-新增 2026-09-19] 评估集 GT 未标注「数值应落在哪张表/哪个口径」→ 评估器分不清「库里没有」与「抽取漏了」
 - [已完成 2026-09-19] 判分模型统一 AGNES（`RAGAS_JUDGE_CHAIN=agnes`，`RAGAS_CALL_DELAY` 自适应；修 judge 字段自相矛盾 bug）
+- [进行中 2026-09-29] AGNES 全量判分续传（`ragas-report-v17-agnes-r1`，checkpoint 21/55）
+  - 首次续传 3s 间隔撞 AGNES 免费档 429 速率限制（非 403 配额），改 `RAGAS_CALL_DELAY=10`（≈6rpm）慢速续传中
+  - 完成后产物：`tests/reports/evaluation/ragas-report-v17-agnes-r1.json/.md`（judge 敏感性对照数据）
 - [P0] 评估 V14 是否值得继续（R006）
 - [P1] 优化 L3 CP：SQL JSON context → 自然语言描述（预期 CP 从 0.13→0.80+）
 - [P1] 优化 L4 CR：同比数据格式问题
