@@ -20,9 +20,11 @@
 | V16 | 2026-09-02 | 自实现V16(商汤软跳过→AGNES judge) | **0.8386** | 0.8545 | 0.6727 | 0.9791 | 0.9318 | ✅综合达标 | tests/reports/evaluation/ragas-report-v16-selfimpl-r1.json（NA=0.5545新增；E2E P95=81.3s；SR=1.0；较V13-r6 -0.0767，V13被高估） |
 | V17（未完成） | 2026-09-18 | ~~自实现V17~~ **误用V12老评测器** | ~~0.9183~~ **作废** | 0.9455 | 0.6788 | 1.0000 | 0.9782 | ⚠️口径不可比 | tests/reports/evaluation/ragas-report-v17-selfimpl-r1.json（**误用 ragas_evaluation.py（V12脚本、无NA、权重0.2/0.2/0.3/0.3），与V16的unified_evaluation.py口径不同→综合分虚高，结论作废**；图谱重建对本轮55条贡献≈0，因R001 SQL路由100%命中短路整条检索管线） |
 | V17（正确口径） | 2026-09-18 | 自实现V17-unified（复用V16评测器） | **0.8578** | 0.9455 | 0.6364 | 0.9955 | 0.9700 | ✅综合达标（CR/NA/E2E-P95 未过） | tests/reports/evaluation/ragas-report-v17-unified-r1.json（NA=0.5000；E2E P95=9.72s；SR=1.0；较 V16 同口径 **+0.0192**） |
+| V17-agnes（判分对照） | 2026-09-29 | 同上，judge 锁定 AGNES | **0.8609** | 0.9818 | 0.6318 | 1.0000 | 0.9527 | ✅综合达标 | tests/reports/evaluation/ragas-report-v17-agnes-r1.json（同输入 judge 敏感性对照：Δ vs sensenova 仅 +0.0031；judge × 136 唯一） |
+| V18 | 2026-09-30 | 重采55条（P0单位修复后）+ unified + AGNES judge | **0.8716** | 0.9636 | **0.7303** | 1.0000 | 0.8973 | ✅综合达标（NA 0.5848 未过 0.65 线、E2E-P95 未过） | tests/reports/evaluation/ragas-report-v18-unified-r1.json（NA=0.5848 较 V17-agnes +0.0848，缺口=L3 GT口径14条/人保OCR残差4条/字段漏抽3条；CR +0.098 兑现；P95=8.30s 仍 R033 范围；逐条对账见 financial-metric-unit-mismatch.md §九） |
 
 **达标线**：CP/CR/AR ≥ 0.8，F ≥ 0.85，综合 ≥ 0.82
-**当前状态**：**V17 正确口径 = 0.8578（同口径较 V16 的 0.8386 仅 +0.0192）**，仍卡在 CR（0.6364）、NA（0.5000）、E2E-P95（9.72s）三项。V17 首轮因用错评测器（V12 老脚本 ragas_evaluation.py，缺 NA 维度、权重 0.2/0.2/0.3/0.3）导致综合分虚高至 0.9183，与 V16（unified_evaluation.py，权重含 NA=0.10）口径不同，**不可比、结论作废**。V17-selfimpl 报告已在文首加更正声明。
+**当前状态**：**V18 = 0.8716（PASS，历史正确口径新高）**。R031 收益验证完成：P0 单位修复兑现 CR +0.098、NA +0.085，10 条单位错样本 5 条完全恢复、4 条受人保 OCR 残差限制（R035）、2 条受 L3 GT 口径限制；NA 0.5848 未过 R031 验收线 0.65，缺口全部归属已立案事项（R035 + L3 GT 治理 + 字段补抽）。仍卡：NA（0.5848）、E2E-P95（8.30s→R033）。逐条对账见 `financial-metric-unit-mismatch.md` §九。
 
 **同口径逐项对账（V16-unified vs V17-unified，脚本/权重/阈值/judge 全同）**：
 
