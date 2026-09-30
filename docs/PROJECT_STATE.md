@@ -295,6 +295,7 @@
   - 5个应用容器：main-service/rag-service/data-service/embedding/reranker + nginx
   - 复用 ai_novel_postgres 和 ai_novel_redis（通过 aiagent_net 网络别名）
   - 更新（2026-09-29）：**PostgreSQL 不再复用其他项目容器**——agentdb 全量数据（含 5190 条向量）已合并至本项目 `aiagent_postgres`（pgvector/pgvector:pg16），宿主机端口改 **5433**（5432 让给其他项目，避免冲突）；`.env`/`.env.local`/`.env.docker` 的 `DATABASE_URL`/`PG_PORT` 已同步。完整备份：`backups/agentdb-full-20260929.dump`（46MB）。redis 仍复用 ai_novel_redis（未在本次范围）。旧容器内的 agentdb 副本待其他项目侧自行清理
+  - 更新（2026-09-30，用户明确授权）：**`ai_novel_postgres_old` 已停止并删除**（容器+`postgres:16-alpine` 镜像）。删除前验证：agentdb 23/23 张非向量表逐行一致（向量表 3 张在 old 上因缺 pgvector .so 不可读，由救援副本→dump→恢复证据链保证，行数 5190/1171/182 与救援实例实测一致）；其数据卷 `ai_novel_pg_data` **保留**——该卷同时被他们的现役容器 `ai_novel_postgres` 挂载使用。old 上其他项目数据库已全部备份：`backups/ai_novel-old.dump`、`backups/rag_pdf-old-full.dump`（经救援实例完整导出）、`backups/mutilrag-old.dump`
   - docker-compose.override.yml 排除 postgres/redis/evaluation-service/llm-gateway/prometheus/grafana
   - 80端口验证通过，API健康检查全部UP
   - 踩坑记录：docs/pitfalls/2026-08-04-docker-containerization.md

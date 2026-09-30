@@ -86,8 +86,10 @@ nginx(80) → main-service(3000/映射3005) + rag-service(3001) + data-service(8
 
 启动命令：`docker compose up -d`（确保 Docker Desktop 运行；postgres 已移出 full profile，会随栈启动）
 
-> ⚠️ 宿主机 5432/3000/8001 由**其他项目**的容器占用（ai_novel_postgres_old / ai_novel_frontend / chatbi-gateway），
+> ⚠️ 宿主机 3000/8001 由**其他项目**的容器占用（ai_novel_frontend / chatbi-gateway），
 > 属其他项目资产，本项目不得停止或修改它们；冲突时改本项目端口。详见「用户反复强调的需求」第 5 条。
+> PostgreSQL 收敛完成（2026-09-30）：本项目唯一库 = `aiagent_postgres`(5433)；`ai_novel_postgres_old` 已删（用户授权），
+> 5432 宿主机端口当前空闲但本项目**保持 5433 不变**（避免配置反复）。
 
 ## 关键踩坑速查
 
