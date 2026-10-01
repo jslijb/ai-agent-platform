@@ -103,7 +103,9 @@ export async function callWithFallback(
   messages: BailianMessage[],
   temperature?: number,
   requireFunctionCalling: boolean = false,
-  tools?: BailianTool[]
+  tools?: BailianTool[],
+  // R033：传入回调时启用流式（仅 bailian 实现TTFT），用于采集端记录首字时间
+  onFirstToken?: (ttftMs: number) => void
 ): Promise<RouterResult> {
   const modelChain = getModelChain(requireFunctionCalling);
   if (modelChain.length === 0) {
@@ -129,7 +131,7 @@ export async function callWithFallback(
       console.log(`[llm-router] 尝试调用模型: ${model} (provider: ${provider})`);
       const callFn = getCallFunction(provider);
       const response = await withCircuitBreaker(circuitName, () =>
-        callFn(messages, model, temperature, tools)
+        callFn(messages, model, temperature, tools, onFirstToken)
       );
 
       console.log(`[llm-router] 模型 ${model}(${provider}) 调用成功`);

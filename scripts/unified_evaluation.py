@@ -208,7 +208,13 @@ def numerical_accuracy(answer: str, ground_truth: str) -> Tuple[Optional[float],
     scores: List[float] = []
     reasons: List[str] = []
 
-    for gt in gt_nums:
+    # NA 口径修订（R013，2026-09-30 用户批准）：GT 的第一个数值视为「结论值」（题目所问），
+    # 其余数字视为「计算依据」。依据值不强制要求答案复述（bug 报告 §六：
+    # L3 的 GT 把计算依据也当必答值，导致 14 条结构性不可能满分）。单数值 GT 行为不变。
+    for idx, gt in enumerate(gt_nums):
+        if idx > 0:
+            reasons.append(f"依据值{gt['value']:.6g}不参与判分（结论值口径）")
+            continue
         best_idx, best_err = -1, float("inf")
         for i, an in enumerate(ans_nums):
             if used[i] or an["unit"] != gt["unit"]:

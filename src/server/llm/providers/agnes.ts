@@ -89,7 +89,9 @@ export async function callAgnes(
   messages: AgnesMessage[],
   model?: string,
   temperature?: number,
-  tools?: AgnesTool[]
+  tools?: AgnesTool[],
+  // R033：TTFT 流式目前仅在 bailian provider 实现；agnes 接受参数保持 router 调用签名一致（忽略）
+  _onFirstToken?: (ttftMs: number) => void
 ): Promise<AgnesResponse> {
   const apiKey = getAgnesApiKey();
   const useModel = getModel(model);

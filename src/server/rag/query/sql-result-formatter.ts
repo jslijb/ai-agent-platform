@@ -371,6 +371,47 @@ export function formatSqlResultAsText(
 }
 
 /**
+ * 多公司 SQL 结果对比格式化（R003）
+ *
+ * 将 executeSqlQueryForCompanies 的合并结果（行带 _stockCode/_stockName）按公司分组，
+ * 输出「[公司A/B: 名称（代码）]+ 分公司格式化文本 + 对比指令」的上下文。
+ *
+ * @param rows 合并结果（需含 _stockCode/_stockName 标注）
+ * @param companies 路由识别出的公司列表（决定公司顺序与 A/B 标签）
+ */
+export function formatMultiCompanySqlResults(
+  rows: Record<string, unknown>[],
+  companies: Array<{ stockCode: string; stockNameShort: string }>,
+): string {
+  const grouped = new Map<string, Record<string, unknown>[]>();
+  for (const row of rows) {
+    const code = String(row._stockCode ?? "");
+    const list = grouped.get(code) ?? [];
+    list.push(row);
+    grouped.set(code, list);
+  }
+
+  const labels = ["A", "B", "C", "D"];
+  const lines: string[] = [];
+  companies.forEach((c, i) => {
+    const groupRows = grouped.get(c.stockCode) ?? [];
+    const label = labels[i] ?? String(i + 1);
+    lines.push(`[公司${label}: ${c.stockNameShort}（${c.stockCode}）]`);
+    if (groupRows.length === 0) {
+      lines.push(`该公司的指标数据未在库中查到，请如实告知用户此公司无数据。`);
+    } else {
+      lines.push(formatSqlResultAsText(groupRows, c.stockNameShort, c.stockCode));
+    }
+    lines.push("");
+  });
+
+  lines.push(
+    "请对比上述各公司的数据回答用户问题（如问「谁更高/差额」，须给出结论和依据数字），不要调用 marketData(financial)/marketData(financialReport)/hybridSearch 重复获取相同数据。",
+  );
+  return lines.join("\n").trim();
+}
+
+/**
  * 格式化原始表格查询结果（sql_raw_tables 路由）
  *
  * @param rows financial_raw_tables 查询结果

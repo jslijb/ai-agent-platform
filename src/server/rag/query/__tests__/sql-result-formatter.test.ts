@@ -19,7 +19,40 @@
  * 运行：npx vitest run src/server/rag/query/__tests__/sql-result-formatter.test.ts
  */
 import { describe, it, expect } from "vitest";
-import { formatSqlResultAsText, formatRawTablesAsText } from "../sql-result-formatter";
+import {
+  formatSqlResultAsText,
+  formatRawTablesAsText,
+  formatMultiCompanySqlResults,
+} from "../sql-result-formatter";
+
+describe("formatMultiCompanySqlResults - R003 多公司对比", () => {
+  const companies = [
+    { stockCode: "601186", stockNameShort: "中国铁建" },
+    { stockCode: "601868", stockNameShort: "中国能建" },
+  ];
+
+  it("按公司分组并列输出（A/B 标签）+ 对比指令", () => {
+    const rows = [
+      { revenue: "1029784460000.0", _sourceTable: "financial_income", _stockCode: "601186", _stockName: "中国铁建" },
+      { revenue: "452929608000.0", _sourceTable: "financial_income", _stockCode: "601868", _stockName: "中国能建" },
+    ];
+    const result = formatMultiCompanySqlResults(rows, companies);
+    expect(result).toContain("[公司A: 中国铁建（601186）]");
+    expect(result).toContain("[公司B: 中国能建（601868）]");
+    expect(result).toContain("营业收入: 约10297.84亿元");
+    expect(result).toContain("营业收入: 约4529.30亿元");
+    expect(result).toContain("请对比上述各公司的数据");
+  });
+
+  it("某公司 SQL 无数据时提示无数据（降级注入）", () => {
+    const rows = [
+      { revenue: "1029784460000.0", _sourceTable: "financial_income", _stockCode: "601186", _stockName: "中国铁建" },
+    ];
+    const result = formatMultiCompanySqlResults(rows, companies);
+    expect(result).toContain("[公司B: 中国能建（601868）]");
+    expect(result).toContain("未在库中查到");
+  });
+});
 
 describe("formatSqlResultAsText - 基本格式化", () => {
   it("空数组返回无数据提示", () => {

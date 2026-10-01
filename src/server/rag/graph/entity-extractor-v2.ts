@@ -36,6 +36,38 @@ function isNonRetryableError(error: unknown): boolean {
 
 const MAX_SEGMENT_LENGTH = 3000;
 
+/**
+ * R034 法规类文档判定（提示词路由）：文本以法规标题开头或高密度出现条款引用时，
+ * 使用「条款中心」提示词（法规类在「公司中心」提示词下提取 0 三元组）
+ */
+export function isRegulationText(text: string): boolean {
+  const head = text.slice(0, 400);
+  if (/(办法|条例|规定|指引|细则|规则)\s*[(（]?(试行|修订)?[)）]?\s*$/.test(head.trim())) return true;
+  const articleMentions = (text.match(/第[一二三四五六七八九十百零\d]+条/g) ?? []).length;
+  if (articleMentions >= 5) return true;
+  // 规则/约束类文本（如交易规则大全）：无"第X条"句式但监管约束词汇高密度
+  const regulatoryTerms = (text.match(/(应当|不得|禁止|限制|监管|交易所|证监会|投资者|适当性|实行|执行)/g) ?? []).length;
+  return regulatoryTerms >= 5;
+}
+
+const REGULATION_EXTRACT_PROMPT = `你是一个专业的金融监管法规知识图谱构建助手。请从以下法规文本中提取实体关系三元组。
+
+要求：
+1. 每个三元组格式为 (头实体, 关系, 尾实体)，输出 JSON 数组，元素含 head/relation/tail/type 属性
+2. 关系类型限定为：
+   - REGULATES: 法规→监管对象（法规对某类机构/活动/行为实施监管）
+   - HAS_ARTICLE: 法规→条款（法规包含某条，头实体为法规名，尾实体为"第X条"）
+   - REQUIRES: 条款→主体（条款要求某主体做某事，如"经营机构→适当性匹配义务"）
+   - SUPERVISES: 监管机构→法规或对象（证监会等机构负责实施/监管）
+   - RELATED_TO: 其他有语义关联的实体对
+3. 头实体优先用法规全名（如"证券期货投资者适当性管理办法"），不得使用"本办法"字面
+4. 尾实体为具体条款义务或对象，保留关键限定词
+5. 只提取文本明确表述的关系，不要推测；无数值类三元组
+6. 输出 JSON 数组，若无关系可提取输出 []
+
+文本：
+{text}`;
+
 const EXTRACT_PROMPT_V2 = `你是一个专业的金融领域知识图谱构建助手。请从以下文本中提取实体关系三元组。
 
 要求：
@@ -188,6 +220,14 @@ function mapRelationType(relation: string): string {
     "研发": "DEVELOPS",
     "开发": "DEVELOPS",
     "发布": "RELEASES",
+    "监管": "SUPERVISES",
+    "负责实施": "SUPERVISES",
+    "监督管理": "SUPERVISES",
+    "规定": "REQUIRES",
+    "要求": "REQUIRES",
+    "应当": "REQUIRES",
+    "依据": "REGULATES",
+    "适用": "REGULATES",
     "增长": "HAS_INDICATOR",
     "下降": "HAS_INDICATOR",
     "负债": "HAS_INDICATOR",
@@ -201,6 +241,10 @@ function mapRelationType(relation: string): string {
     "HAS_PROFIT": "HAS_PROFIT",
     "HAS_INDICATOR": "HAS_INDICATOR",
     "OWNS_SHARE": "OWNS_SHARE",
+    "REGULATES": "REGULATES",
+    "HAS_ARTICLE": "HAS_ARTICLE",
+    "REQUIRES": "REQUIRES",
+    "SUPERVISES": "SUPERVISES",
     "LOCATED_IN": "LOCATED_IN",
     "PRODUCES": "PRODUCES",
     "COOPERATES_WITH": "COOPERATES_WITH",
@@ -287,7 +331,14 @@ export async function extractEnhancedTriples(text: string): Promise<EnhancedTrip
     );
 
     try {
-      const prompt = EXTRACT_PROMPT_V2.replace("{text}", segment);
+      const useRegulationPrompt = isRegulationText(segment);
+      const prompt = (useRegulationPrompt ? REGULATION_EXTRACT_PROMPT : EXTRACT_PROMPT_V2).replace(
+        "{text}",
+        segment,
+      );
+      if (useRegulationPrompt) {
+        console.log(`[entity-extractor-v2] 第 ${i + 1} 段判定为法规类，使用条款中心提示词`);
+      }
 
       const cached = await semanticCacheGet("entity-extract", segment);
       let responseContent: string | null;

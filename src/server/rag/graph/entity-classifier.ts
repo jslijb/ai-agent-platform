@@ -1,4 +1,13 @@
-export type EntityType = "Company" | "Indicator" | "Amount" | "Product" | "Location" | "Entity";
+export type EntityType =
+  | "Company"
+  | "Indicator"
+  | "Amount"
+  | "Product"
+  | "Location"
+  | "Regulation"
+  | "Article"
+  | "Authority"
+  | "Entity";
 
 const AMOUNT_PATTERN = /^[\-−]?[0-9,]*[.][0-9]+%?(元|万元|亿元|万亿)?$/;
 const AMOUNT_INT_PATTERN = /^[\-−]?[0-9,]+(元|万元|亿元|万亿)$/;
@@ -98,12 +107,45 @@ export function classifyEntity(text: string): EntityType {
   const trimmed = text.trim();
 
   if (isAmount(trimmed)) return "Amount";
+  if (isRegulation(trimmed)) return "Regulation";
+  if (isArticle(trimmed)) return "Article";
+  if (isAuthority(trimmed)) return "Authority";
   if (isCompany(trimmed)) return "Company";
   if (isIndicator(trimmed)) return "Indicator";
   if (isProduct(trimmed)) return "Product";
   if (isLocation(trimmed)) return "Location";
 
   return "Entity";
+}
+
+// ===== R034 法规类实体识别 =====
+
+/** 法规标题特征：以法规性后缀结尾（办法/规定/条例/指引/细则/规则/意见/法/大全/汇编） */
+const REGULATION_SUFFIX_RE =
+  /(办法|条例|规定|指引|细则|规则|指导意见|实施意见|管理办法|暂行办法|实施细则|证券法|基金法|期货法|大全|汇编)$/;
+
+/** 条款引用特征：「第X条」「第X章」 */
+const ARTICLE_RE = /^第[一二三四五六七八九十百零\d]+条$/;
+
+/** 监管机构特征 */
+const AUTHORITY_KEYWORDS = [
+  "中国证监会", "证监会", "证券监督管理机构", "中国证券业协会", "证券业协会",
+  "中国人民银行", "国务院", "期货交易所", "证券交易所", "中国期货业协会",
+];
+
+export function isRegulation(text: string): boolean {
+  const t = text.trim();
+  if (t.length < 4 || t.length > 60) return false;
+  return REGULATION_SUFFIX_RE.test(t);
+}
+
+export function isArticle(text: string): boolean {
+  return ARTICLE_RE.test(text.trim());
+}
+
+export function isAuthority(text: string): boolean {
+  const t = text.trim();
+  return AUTHORITY_KEYWORDS.some((k) => t === k || t.includes(k)) && t.length <= 30;
 }
 
 export function normalizeEntity(text: string): string {

@@ -5,7 +5,7 @@ import { hybridSearch } from "@/server/rag/retrieval/hybrid-retriever";
 import { graphSearch } from "@/server/rag/graph/graph-retriever";
 import { isNeo4jAvailable } from "@/server/rag/graph/graph-builder";
 import { routeQuery as r001RouteQuery } from "@/server/rag/query/query-router";
-import { formatSqlResultAsText, formatRawTablesAsText } from "@/server/rag/query/sql-result-formatter";
+import { formatSqlResultAsText, formatRawTablesAsText, formatMultiCompanySqlResults } from "@/server/rag/query/sql-result-formatter";
 import { rerank } from "@/server/rag/reranking/reranker";
 import { logCompliance } from "@/server/compliance/log";
 import { shouldRetrieveAgain } from "@/server/agents/reflection-node";
@@ -828,11 +828,27 @@ export async function runAgent(query: string, maxIterations: number = 5, convers
   // 事实查询（factual）：走正常 Agent 流程
   // ========== R001 路由预查询：数值类查询优先走 SQL，结果注入 LLM context ==========
   let r001SqlContext = "";
-  let r001Route: "sql_standard" | "sql_raw_tables" | "vector" | null = null;
+  let r001Route: "sql_standard" | "sql_standard_multi" | "sql_raw_tables" | "vector" | null = null;
   try {
     const routeResult = await r001RouteQuery(query);
     r001Route = routeResult.route;
-    if (routeResult.route === "sql_standard" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
+    if (routeResult.route === "sql_standard_multi" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
+      // R003 多实体对比：并行 SQL 命中多家公司，按公司分组并列注入上下文
+      const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");
+      r001SqlContext = `\n\n${formatMultiCompanySqlResults(
+        routeResult.sqlResult,
+        routeResult.companies ?? [],
+      )}\n命中指标: ${indicators}`;
+      console.log("[R001] SQL 多公司对比命中，注入上下文: " + routeResult.sqlResult.length + " 行 / " + (routeResult.companies?.length ?? 0) + " 家公司");
+      pushStep({
+        type: "retrieval",
+        round: 0,
+        title: "R001 SQL 多公司对比命中",
+        content: `公司: ${(routeResult.companies ?? []).map((c) => c.stockNameShort).join(" vs ")} | 指标: ${indicators} | 结果: ${routeResult.sqlResult.length} 行`,
+        detail: { route: routeResult.route, companies: routeResult.companies, indicators: routeResult.indicators },
+        timestamp: Date.now(),
+      });
+    } else if (routeResult.route === "sql_standard" && routeResult.sqlResult && routeResult.sqlResult.length > 0) {
       // 命中标准化指标 SQL 查询：格式化为自然语言上下文（V13-r6 优化：替代 JSON.stringify）
       const company = routeResult.company;
       const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");

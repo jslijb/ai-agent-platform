@@ -50,11 +50,13 @@ export interface IndicatorMatch {
   matchedAlias: string;
 }
 
-export type QueryRoute = "sql_standard" | "sql_raw_tables" | "vector";
+export type QueryRoute = "sql_standard" | "sql_standard_multi" | "sql_raw_tables" | "vector";
 
 export interface RouteResult {
   intent: QueryIntent;
   company?: CompanyMatch;
+  /** R003：多实体对比查询命中的全部公司（route=sql_standard_multi 时非空） */
+  companies?: CompanyMatch[];
   indicators: IndicatorMatch[];
   route: QueryRoute;
   sqlResult?: Record<string, unknown>[];
@@ -172,6 +174,21 @@ export function classifyIntent(query: string): IntentResult {
 export async function identifyCompany(
   query: string,
 ): Promise<CompanyMatch | null> {
+  // R003：识别逻辑收敛到 identifyCompanies，单公司场景取第一个（保持原行为）
+  const all = await identifyCompanies(query);
+  return all[0] ?? null;
+}
+
+/**
+ * 公司名识别（R003 多实体）：从 query 中识别全部公司名，按命中顺序返回
+ *
+ * 排序规则（与原 identifyCompany 行为一致）：
+ *   1. 精确匹配 stock_name_short 的公司在前（按 stock_mapping 顺序）
+ *   2. 其次是 alias 命中的公司
+ */
+export async function identifyCompanies(
+  query: string,
+): Promise<CompanyMatch[]> {
   // 1. 查全部 stock_mapping（10家样本量小，全表扫描即可；5000+公司时可改为 ILIKE 预过滤）
   const allCompanies = await db
     .select({
@@ -182,33 +199,40 @@ export async function identifyCompany(
     })
     .from(stockMapping);
 
+  const matches: CompanyMatch[] = [];
+  const seen = new Set<string>();
+
   // 2. 精确匹配 stock_name_short（query 包含简称）
   for (const c of allCompanies) {
+    if (seen.has(c.stockCode)) continue;
     if (query.includes(c.stockNameShort)) {
-      return {
+      matches.push({
         stockCode: c.stockCode,
         stockNameShort: c.stockNameShort,
         matchedBy: "exact",
-      };
+      });
+      seen.add(c.stockCode);
     }
   }
 
   // 3. 模糊匹配 stock_name_alias（jsonb 数组，逐个检查）
   for (const c of allCompanies) {
+    if (seen.has(c.stockCode)) continue;
     const aliasList = Array.isArray(c.stockNameAlias) ? c.stockNameAlias : [];
     for (const alias of aliasList) {
       if (typeof alias === "string" && query.includes(alias) && alias.length >= 2) {
-        return {
+        matches.push({
           stockCode: c.stockCode,
           stockNameShort: c.stockNameShort,
           matchedBy: "alias",
-        };
+        });
+        seen.add(c.stockCode);
+        break;
       }
     }
   }
 
-  // 4. 未命中（首期不接 LLM 兜底）
-  return null;
+  return matches;
 }
 
 /**
@@ -410,6 +434,31 @@ async function queryFinancialTable(
 }
 
 /**
+ * 多公司 SQL 查询（R003）：并行查询每家公司，结果行标注 _stockCode/_stockName
+ *
+ * 单公司无数据时返回其余公司的结果（调用方据此提示"另一家无数据"）；
+ * 全部为空时返回空数组，由 routeQuery 降级到单公司/raw_tables 路径。
+ */
+export async function executeSqlQueryForCompanies(
+  companies: CompanyMatch[],
+  indicators: IndicatorMatch[],
+  reportYear: number = 2025,
+  reportQuarter: string = "annual",
+): Promise<Record<string, unknown>[]> {
+  const perCompany = await Promise.all(
+    companies.map(async (c) => {
+      const rows = await executeSqlQuery(c.stockCode, indicators, reportYear, reportQuarter);
+      return rows.map((row) => ({
+        ...row,
+        _stockCode: c.stockCode,
+        _stockName: c.stockNameShort,
+      }));
+    }),
+  );
+  return perCompany.flat();
+}
+
+/**
  * 查询原始表格（financial_raw_tables）- 模板3：整表查询
  * 用于标准化指标未命中时的 fallback
  */
@@ -480,11 +529,35 @@ export async function routeQuery(
     } as RouteResult;
   }
 
-  // 2. 数值类 → 公司名识别
-  const company = await identifyCompany(query);
+  // 2. 数值类 → 公司名识别（R003：返回全部命中，支持多实体对比）
+  const companies = await identifyCompanies(query);
+  const company = companies[0];
 
   // 3. 指标识别
   const indicators = await identifyIndicators(query);
+
+  // 3a. R003 多实体：识别出 ≥2 家公司 + 命中标准化指标 → 并行 SQL 查询后合并
+  if (companies.length >= 2 && indicators.length > 0) {
+    const multiResult = await executeSqlQueryForCompanies(
+      companies,
+      indicators,
+      options.reportYear,
+      options.reportQuarter,
+    );
+    if (multiResult.length > 0) {
+      return {
+        intent: intent.intent,
+        company,
+        companies,
+        indicators,
+        route: "sql_standard_multi",
+        sqlResult: multiResult,
+        matchedNumericKeywords: intent.matchedNumericKeywords,
+        matchedNonNumericKeywords: intent.matchedNonNumericKeywords,
+      } as RouteResult;
+    }
+    // 两家都查不到数据 → 继续走原有单公司路径（raw_tables / vector fallback）
+  }
 
   // 4. 路由决策
   // 4a. 命中公司 + 命中标准化指标 → SQL 精确查询

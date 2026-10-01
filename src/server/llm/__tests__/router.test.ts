@@ -68,6 +68,7 @@ describe("LLM Router - 多 Provider 支持", () => {
         defaultMessages,
         "agnes-2.0-flash",
         undefined,
+        undefined,
         undefined
       );
       expect(callBailian).not.toHaveBeenCalled();
@@ -87,6 +88,7 @@ describe("LLM Router - 多 Provider 支持", () => {
       expect(callBailian).toHaveBeenCalledWith(
         defaultMessages,
         "qwen-plus",
+        undefined,
         undefined,
         undefined
       );
@@ -108,6 +110,7 @@ describe("LLM Router - 多 Provider 支持", () => {
       expect(callAgnes).toHaveBeenCalledWith(
         defaultMessages,
         "some-model",
+        undefined,
         undefined,
         undefined
       );
@@ -134,6 +137,7 @@ describe("LLM Router - 多 Provider 支持", () => {
       expect(callBailian).toHaveBeenCalledWith(
         defaultMessages,
         "some-model",
+        undefined,
         undefined,
         undefined
       );
@@ -165,6 +169,7 @@ describe("LLM Router - 多 Provider 支持", () => {
         defaultMessages,
         "qwen-plus",
         undefined,
+        undefined,
         undefined
       );
       expect(result.content).toBe("你好！");
@@ -192,6 +197,7 @@ describe("LLM Router - 多 Provider 支持", () => {
       expect(callAgnes).toHaveBeenCalledWith(
         defaultMessages,
         "agnes-2.0-flash",
+        undefined,
         undefined,
         undefined
       );
@@ -286,7 +292,8 @@ describe("LLM Router - 多 Provider 支持", () => {
         defaultMessages,
         "agnes-2.0-flash",
         0.7,
-        tools
+        tools,
+        undefined
       );
     });
 
@@ -305,6 +312,7 @@ describe("LLM Router - 多 Provider 支持", () => {
       expect(callAgnes).toHaveBeenCalledWith(
         defaultMessages,
         "agnes-2.0-flash",
+        undefined,
         undefined,
         undefined
       );

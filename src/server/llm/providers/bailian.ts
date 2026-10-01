@@ -74,7 +74,8 @@ export async function callBailian(
   messages: BailianMessage[],
   model?: string,
   temperature?: number,
-  tools?: BailianTool[]
+  tools?: BailianTool[],
+  onFirstToken?: (ttftMs: number) => void
 ): Promise<BailianResponse> {
   const apiKey = getApiKey();
   const useModel = getModel(model);
@@ -98,6 +99,10 @@ export async function callBailian(
         body.tools = tools;
         body.tool_choice = "auto";
       }
+      // R033：无工具调用且需要 TTFT 时启用流式（SSE），首字时间经 onFirstToken 回调上报
+      const useStream = typeof onFirstToken === "function" && (!tools || tools.length === 0);
+      if (useStream) body.stream = true;
+      const requestStart = Date.now();
 
       const response = await fetch(
         `${DASHSCOPE_BASE_URL}/chat/completions`,
@@ -140,6 +145,70 @@ export async function callBailian(
         throw new Error(
           `百炼 API 请求失败: ${response.status} ${errorText}`
         );
+      }
+
+      // ===== R033 流式路径：SSE 解析，首字回调 TTFT，拼装完整内容 =====
+      if (useStream) {
+        const fired = { done: false };
+        const fireFirst = () => {
+          if (!fired.done) {
+            fired.done = true;
+            onFirstToken?.(Date.now() - requestStart);
+          }
+        };
+        let streamContent = "";
+        let streamUsage: BailianResponse["usage"] | undefined;
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("百炼流式响应缺少 body");
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let sawDone = false;
+        while (!sawDone) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+          for (const raw of lines) {
+            const line = raw.trim();
+            if (!line.startsWith("data:")) continue;
+            const payload = line.slice(5).trim();
+            if (payload === "[DONE]") {
+              sawDone = true;
+              break;
+            }
+            try {
+              const j = JSON.parse(payload) as {
+                choices?: Array<{ delta?: { content?: string | null } }>;
+                usage?: {
+                  prompt_tokens: number;
+                  completion_tokens: number;
+                  total_tokens: number;
+                };
+              };
+              const delta = j.choices?.[0]?.delta?.content;
+              if (delta) {
+                streamContent += delta;
+                fireFirst();
+              }
+              if (j.usage) streamUsage = j.usage;
+            } catch {
+              // 忽略无法解析的行（如注释/空行）
+            }
+          }
+        }
+        if (!streamContent) {
+          console.error(`[bailian] 流式响应内容为空 (第${attempt}次)`);
+          if (attempt < MAX_RETRIES) {
+            await sleep(BASE_RETRY_INTERVAL * Math.pow(2, attempt - 1));
+            continue;
+          }
+          throw new Error("百炼 API 流式响应内容为空");
+        }
+        console.log(
+          `[bailian] 流式调用成功, 内容长度: ${streamContent.length}, TTFT: ${Date.now() - requestStart}ms`
+        );
+        return { content: streamContent, usage: streamUsage };
       }
 
       const result = (await response.json()) as {

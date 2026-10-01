@@ -34,7 +34,7 @@ import { rerank } from "../src/server/rag/reranking/reranker";
 import { callWithFallback } from "../src/server/llm/router";
 import { closeDb } from "../src/server/db/client";
 import { routeQuery as r001RouteQuery } from "../src/server/rag/query/query-router";
-import { formatSqlResultAsText, formatRawTablesAsText } from "../src/server/rag/query/sql-result-formatter";
+import { formatSqlResultAsText, formatRawTablesAsText, formatMultiCompanySqlResults } from "../src/server/rag/query/sql-result-formatter";
 
 // 日志工具
 const log = {
@@ -90,6 +90,8 @@ interface RagasEvalItem {
   canAnswer: boolean;
   retrievalLatencyMs: number;
   generationLatencyMs: number;
+  /** R033：流式首字时间（毫秒），门禁口径修订的核心指标 */
+  ttftMs?: number;
 }
 
 // 解析命令行参数
@@ -245,7 +247,7 @@ async function retrieveContexts(
 async function generateAnswer(
   query: string,
   contexts: string[]
-): Promise<{ answer: string; latencyMs: number }> {
+): Promise<{ answer: string; latencyMs: number; ttftMs?: number }> {
   const startTime = Date.now();
 
   if (contexts.length === 0) {
@@ -264,24 +266,34 @@ async function generateAnswer(
     // LLM 调用前等待，避免 RPM 限流
     await sleep(CONFIG.llmCallDelayMs);
 
-    const response = await callWithFallback([
-      {
-        role: "system",
-        content:
-          "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。\n\n重要规则：\n1. 优先从文档中提取关键数据（如营业收入、净利润、增长率等）直接回答\n2. 数值优先采用文档原文汇总数字，不要自行加总各细分项计算\n3. 如果文档包含部分相关信息，请基于已有信息给出答案，并说明信息来源\n4. 如果文档中有相关数值，直接引用该数值作为答案\n5. 回答要简洁直接：先给出核心数据（1-2句话），再补充简要说明\n6. 如需展示计算过程，使用 <details><summary>计算过程</summary>计算步骤</details> 折叠展示，主体答案只保留结论\n7. 不要过度谨慎：只要文档中有任何相关数据就应该回答，不要轻易说无法回答\n8. 如果文档中包含公司名称和对应财务数据，直接给出该数据\n9. 对于交易规则、技术指标、合规等问题，基于文档内容直接回答",
-      },
-      {
-        role: "user",
-        content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题。优先提取关键数据，直接给出答案。如果文档中有相关内容，不要说无法回答。`,
-      },
-    ]);
+    // R033：流式调用并记录 TTFT（首字时间），门禁口径修订的核心指标
+    let ttftMs: number | undefined;
+    const response = await callWithFallback(
+      [
+        {
+          role: "system",
+          content:
+            "你是一个专业的金融领域问答助手。请根据提供的文档片段回答用户的问题。\n\n重要规则：\n1. 优先从文档中提取关键数据（如营业收入、净利润、增长率等）直接回答\n2. 数值优先采用文档原文汇总数字，不要自行加总各细分项计算\n3. 如果文档包含部分相关信息，请基于已有信息给出答案，并说明信息来源\n4. 如果文档中有相关数值，直接引用该数值作为答案\n5. 回答要简洁直接：先给出核心数据（1-2句话），再补充简要说明\n6. 如需展示计算过程，使用 <details><summary>计算过程</summary>计算步骤</details> 折叠展示，主体答案只保留结论\n7. 不要过度谨慎：只要文档中有任何相关数据就应该回答，不要轻易说无法回答\n8. 如果文档中包含公司名称和对应财务数据，直接给出该数据\n9. 对于交易规则、技术指标、合规等问题，基于文档内容直接回答",
+        },
+        {
+          role: "user",
+          content: `以下是相关文档片段：\n\n${contextBlock}\n\n用户问题：${query}\n\n请基于以上文档片段回答问题。优先提取关键数据，直接给出答案。如果文档中有相关内容，不要说无法回答。`,
+        },
+      ],
+      undefined,
+      false,
+      undefined,
+      (t) => {
+        ttftMs = t;
+      }
+    );
 
     const answer = response.content ?? "";
     const latencyMs = Date.now() - startTime;
     log.info(
-      `答案生成完成: query="${query.slice(0, 30)}...", 长度=${answer.length}, 耗时=${latencyMs}ms`
+      `答案生成完成: query="${query.slice(0, 30)}...", 长度=${answer.length}, 耗时=${latencyMs}ms${ttftMs !== undefined ? `, TTFT=${ttftMs}ms` : ""}`
     );
-    return { answer, latencyMs };
+    return { answer, latencyMs, ttftMs };
   } catch (error) {
     const latencyMs = Date.now() - startTime;
     log.error(`答案生成失败: query="${query.slice(0, 30)}...", error=${error}`);
@@ -332,14 +344,21 @@ async function collectSingleItem(
     retrievalDebug.r001Indicators = routeResult.indicators.map((i) => i.standardName);
 
     if (
-      (routeResult.route === "sql_standard" || routeResult.route === "sql_raw_tables") &&
+      (routeResult.route === "sql_standard" ||
+        routeResult.route === "sql_standard_multi" ||
+        routeResult.route === "sql_raw_tables") &&
       routeResult.sqlResult &&
       routeResult.sqlResult.length > 0
     ) {
       // R001 命中 SQL：用自然语言格式化的 SQL 结果作为唯一 context，跳过向量检索（V13-r6 优化）
       const company = routeResult.company;
       const indicators = routeResult.indicators.map((i) => i.standardName).join(", ");
-      if (routeResult.route === "sql_standard") {
+      if (routeResult.route === "sql_standard_multi") {
+        // R003 多实体对比：按公司分组并列注入（对齐 simpleAgent 的注入格式）
+        r001SqlContext =
+          formatMultiCompanySqlResults(routeResult.sqlResult, routeResult.companies ?? []) +
+          `\n命中指标: ${indicators}`;
+      } else if (routeResult.route === "sql_standard") {
         r001SqlContext = formatSqlResultAsText(
           routeResult.sqlResult,
           company?.stockNameShort,
@@ -378,7 +397,7 @@ async function collectSingleItem(
   }
 
   // 生成答案
-  const { answer, latencyMs: generationLatencyMs } = await generateAnswer(
+  const { answer, latencyMs: generationLatencyMs, ttftMs } = await generateAnswer(
     testItem.query,
     contexts
   );
@@ -394,6 +413,7 @@ async function collectSingleItem(
     canAnswer: testItem.canAnswer ?? true,
     retrievalLatencyMs,
     generationLatencyMs,
+    ttftMs,
   };
 
   log.info(
