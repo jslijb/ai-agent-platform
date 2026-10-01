@@ -22,6 +22,7 @@
 | V17（正确口径） | 2026-09-18 | 自实现V17-unified（复用V16评测器） | **0.8578** | 0.9455 | 0.6364 | 0.9955 | 0.9700 | ✅综合达标（CR/NA/E2E-P95 未过） | tests/reports/evaluation/ragas-report-v17-unified-r1.json（NA=0.5000；E2E P95=9.72s；SR=1.0；较 V16 同口径 **+0.0192**） |
 | V17-agnes（判分对照） | 2026-09-29 | 同上，judge 锁定 AGNES | **0.8609** | 0.9818 | 0.6318 | 1.0000 | 0.9527 | ✅综合达标 | tests/reports/evaluation/ragas-report-v17-agnes-r1.json（同输入 judge 敏感性对照：Δ vs sensenova 仅 +0.0031；judge × 136 唯一） |
 | V18 | 2026-09-30 | 重采55条（P0单位修复后）+ unified + AGNES judge | **0.8716** | 0.9636 | **0.7303** | 1.0000 | 0.8973 | ✅综合达标（NA 0.5848 未过 0.65 线、E2E-P95 未过） | tests/reports/evaluation/ragas-report-v18-unified-r1.json（NA=0.5848 较 V17-agnes +0.0848，缺口=L3 GT口径14条/人保OCR残差4条/字段漏抽3条；CR +0.098 兑现；P95=8.30s 仍 R033 范围；逐条对账见 financial-metric-unit-mismatch.md §九） |
+| V18-full | 2026-09-30 | **全量130条首测**（R032，9类全覆盖） | **0.7844** | 0.8448 | 0.6279 | 0.9861 | 0.7546 | ⚠️首测基线（L5~L9 不设门禁；综合未过 0.82 属预期） | tests/reports/evaluation/ragas-report-v18-unified-full-r1.json（**L2 崩：CR=0.033/AR=0.08，R001 单实体短路跨文档对比无解 → R003 实现的直接证据**；L5 CR=0.784/NA=0.643、L6 CR=0.927/NA=0.712 超预期；L7 弱 CR=0.225（投研/合规语料缺））；E2E mean 19.6s（向量路径 26~33s 检索，P95 51s）；SR=1.0 |
 
 **达标线**：CP/CR/AR ≥ 0.8，F ≥ 0.85，综合 ≥ 0.82
 **当前状态**：**V18 = 0.8716（PASS，历史正确口径新高）**。R031 收益验证完成：P0 单位修复兑现 CR +0.098、NA +0.085，10 条单位错样本 5 条完全恢复、4 条受人保 OCR 残差限制（R035）、2 条受 L3 GT 口径限制；NA 0.5848 未过 R031 验收线 0.65，缺口全部归属已立案事项（R035 + L3 GT 治理 + 字段补抽）。仍卡：NA（0.5848）、E2E-P95（8.30s→R033）。逐条对账见 `financial-metric-unit-mismatch.md` §九。
