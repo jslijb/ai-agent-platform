@@ -157,7 +157,16 @@ class TestChainOrder:
         assert chain[-1].name == "agnes"
         assert chain[-1].model == "agnes-3.0-flash"
         assert all(p.transient is False for p in chain[1:])
-        assert all(p.name == "dashscope" for p in chain[1:-1])
+        # R031：书生（shusheng）插在百炼与 AGNES 之间
+        middle_names = {p.name for p in chain[1:-1]}
+        assert middle_names == {"dashscope", "shusheng"}
+        # 书生段位置：最后一个 dashscope 之后、agnes 之前
+        shusheng_idx = [i for i, p in enumerate(chain) if p.name == "shusheng"]
+        assert shusheng_idx, "链中应有书生段"
+        assert all(p.model in {
+            "deepseek-v4-flash-0731", "qwen3.8-27b", "kimi-k2.6",
+            "minimax-m3", "glm-5.3", "deepseek-v4-pro-0813",
+        } for p in chain if p.name == "shusheng")
 
     def test_sensenova_absent_without_key(self, monkeypatch):
         monkeypatch.delenv("SHANTANG_TOKEN", raising=False)
@@ -177,7 +186,9 @@ class TestChainOrder:
         monkeypatch.delenv("DASHSCOPE_API_KEY1", raising=False)
         monkeypatch.delenv("DASHSCOPE_API_KEY2", raising=False)
         chain = re_mod.Config.get_llm_chain()
-        assert [p.model for p in chain] == ["sensenova-a", "sensenova-b"]
+        # 书生 key 在环境变量中时会追加在 sensenova 之后（R031）
+        assert [p.model for p in chain[:2]] == ["sensenova-a", "sensenova-b"]
+        assert all(p.name == "sensenova" for p in chain[:2])
 
     def test_bailian_model_pool_updated(self, monkeypatch):
         """2026-09-15 用户指定：10 个模型 × 1M token 额度"""

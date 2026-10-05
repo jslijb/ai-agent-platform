@@ -204,7 +204,26 @@ class Config:
                 provider = LLMProvider("dashscope", model, key, bailian_url)
                 bailian_chain.append(provider)
 
-        # 3. AGNES agnes-3.0-flash（兜底，排最后，403 永久拉黑）
+        # 3. 书生开放平台（R031 新增，排 AGNES 之前）：OpenAI 兼容，rpm=30，
+        #    额度充裕（每 5h 10 墨点 + 每 7 天 50 墨点，1 墨点≈5000w token）
+        shusheng_key = os.getenv("SHUSHENG_KEY", "") or os.getenv("SHUSHENG_TOKEN", "")
+        shusheng_url = os.getenv(
+            "SHUSHENG_BASE_URL", "https://discovery-api.intern-ai.org.cn/v1"
+        )
+        SHUSHENG_MODELS = [
+            "deepseek-v4-flash-0731",   # reasoning 模型，最省额度
+            "qwen3.8-27b",
+            "kimi-k2.6",
+            "minimax-m3",
+            "glm-5.3",
+            "deepseek-v4-pro-0813",     # pro 系最重，排最后
+        ]
+        shusheng_chain: List[LLMProvider] = []
+        if shusheng_key:
+            for model in SHUSHENG_MODELS:
+                shusheng_chain.append(LLMProvider("shusheng", model, shusheng_key, shusheng_url))
+
+        # 4. AGNES agnes-3.0-flash（兜底，排最后，403 永久拉黑）
         agnes_key = os.getenv("AGNES_KEY", "")
         agnes_url = os.getenv("AGNES_BASE_URL", "https://api.agnes-ai.cn/v1")
         agnes_model = os.getenv("RAGAS_AGNES_MODEL", "agnes-3.0-flash")
@@ -219,8 +238,10 @@ class Config:
             chain = sensenova_chain
         elif mode == "dashscope":
             chain = bailian_chain
+        elif mode == "shusheng":
+            chain = shusheng_chain
         else:
-            chain = sensenova_chain + bailian_chain + agnes_chain
+            chain = sensenova_chain + bailian_chain + shusheng_chain + agnes_chain
 
         if mode != "auto":
             logger.info(

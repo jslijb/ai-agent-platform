@@ -1,5 +1,6 @@
 import { callBailian, type BailianMessage, type BailianTool, type BailianToolCall } from "@/server/llm/providers/bailian";
 import { callAgnes } from "@/server/llm/providers/agnes";
+import { callShusheng } from "@/server/llm/providers/shusheng";
 import { withCircuitBreaker, isCircuitOpen, forceOpenCircuit } from "@/server/lib/circuit-breaker";
 import { getConfigValue, getRawSection } from "@/server/lib/config";
 
@@ -90,6 +91,8 @@ function getCallFunction(provider: string) {
   switch (provider) {
     case "agnes":
       return callAgnes;
+    case "shusheng":
+      return callShusheng;
     case "dashscope":
     case "bailian":
       return callBailian;
