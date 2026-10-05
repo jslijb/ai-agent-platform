@@ -282,6 +282,16 @@
   - 实施记录：`docs/1-requirements-bugs/financial-metric-unit-mismatch.md` §八
   - 遗留：人保 OCR 数值与 GT 残差（19%/189%）仍需核源；NA 收益需 V18 重采后体现
 - [P1-新增 2026-09-19] 评估集 GT 未标注「数值应落在哪张表/哪个口径」→ 评估器分不清「库里没有」与「抽取漏了」
+- [P1-新增 2026-10-02] **L3 计算题低分三层根因（V18-full-r2 后逐题归因，13 条失败样本）**
+  - ① **operating_cost 列口径不一致（5 条毛利率题全错，最大头）**：抽取时部分公司取了「营业总成本」而非「营业成本」——铁建存 9296.67 亿（营业成本，对）→ 毛利率 9.72% 与 GT 一致；能建存 4371.18 亿（营业总成本）→ 毛利率 3.49% ≠ GT 12.2%。`financial_indicators.gross_margin` 由该列算出，连带全错。**修复方向：按 `financial_raw_tables` 原始行逐家核对营业成本口径后修正 operating_cost 列并重算 gross_margin（待执行）**
+  - ② ROE/净利率口径差（4 条）：库算「期末净资产」口径 vs GT 用「年报披露加权平均/归母」，差 1.2%~6%，全部踩 NA 1% 断崖归 0（L3-002/006/011/015）
+  - ③ GT 依据值错（1 条）：L3-013 能建资产负债率 GT 依据值「总负债 4668.11 亿」与库/PDF 的 7319.79 亿不符 → 系统答 77.74% 实为正确，GT 需改（转 R013 清单）
+  - 另：`financial_indicators` 存储的是小数（0.1962=19.62%），格式化器已正确转换，非 bug
+- [已完成 2026-10-02] **法规语料清理重制 + R034 全量入库**
+  - 发现：`证券期货投资者适当性管理办法`/`证券投资咨询管理暂行办法` 两文档的 rawContent+chunks 均为网页爬取残留 + UTF-8 双重编码损坏，正文从未入库（前判「LLM 在乱码上幻觉」有误——实为 rebuild-graph 参数笔误（--docId 应为 --doc-id）导致误处理了五粮液摘要，无幻觉、无数据污染）
+  - 清理：旧 chunks 67 条、Neo4j 乱码关系 19 条已删
+  - 重制：从证监会官网/百度百科提取完整条文（43 条/38 条），源文件 `data/regulations/*.txt` 已重写
+  - 入库：适当性办法 12 chunks + 12 embeddings + **242 三元组/209 节点**；咨询办法 9 chunks + 9 embeddings + **70 三元组/70 节点**（Regulation/Article/Authority 类型 + HAS_ARTICLE/REQUIRES/REGULATES/SUPERVISES 关系，R034 条款中心提示词生效）
 - [已完成 2026-09-19] 判分模型统一 AGNES（`RAGAS_JUDGE_CHAIN=agnes`，`RAGAS_CALL_DELAY` 自适应；修 judge 字段自相矛盾 bug）
 - [已完成 2026-09-29] AGNES 全量判分续传完成（`ragas-report-v17-agnes-r1`，55/55，judge 锁定 agnes × 136 唯一判分）
   - 结果：CP=0.9818 / CR=0.6318 / F=1.0 / AR=0.9527 / NA=0.5000 / **综合=0.8609 (PASS)**；耗时 2048s
