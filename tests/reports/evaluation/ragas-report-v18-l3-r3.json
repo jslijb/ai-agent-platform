@@ -1,0 +1,458 @@
+{
+  "version": "V16-unified-selfimpl-r1",
+  "framework": "自研评测方法论 V1.0（RAGAS 沿用 + 项目微调，R030）",
+  "timestamp": "2026-10-05T17:05:36.841698",
+  "evaluation_meta": {
+    "duration_seconds": 7.79,
+    "item_count": 15,
+    "input_path": "tests/reports/evaluation/ragas-eval-data-v18-l3-r3.json",
+    "judge_model": "agnes/agnes-3.0-flash",
+    "judge_base_url": "https://api.agnes-ai.cn/v1",
+    "judge_initial": "agnes/agnes-3.0-flash",
+    "judge_final": "agnes/agnes-3.0-flash",
+    "judge_calls": {},
+    "judge_unique": true,
+    "judge_degraded": false,
+    "llm_chain": [
+      {
+        "provider": "agnes",
+        "model": "agnes-3.0-flash",
+        "base_url": "https://api.agnes-ai.cn/v1"
+      }
+    ],
+    "skip_llm": false
+  },
+  "weights": {
+    "context_precision": 0.2,
+    "context_recall": 0.2,
+    "faithfulness": 0.25,
+    "answer_relevancy": 0.25,
+    "numerical_accuracy": 0.1
+  },
+  "thresholds": {
+    "context_precision": 0.8,
+    "context_recall": 0.8,
+    "faithfulness": 0.85,
+    "answer_relevancy": 0.8,
+    "numerical_accuracy": 0.85,
+    "overall": 0.82,
+    "e2e_p95_ms": 5000.0,
+    "success_rate": 0.95
+  },
+  "quality_metrics": {
+    "context_precision": 0.0,
+    "context_recall": 0.0,
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.0,
+    "numerical_accuracy": 0.5,
+    "overall_score": 0.05,
+    "pass_status": {
+      "context_precision": "FAIL",
+      "context_recall": "FAIL",
+      "faithfulness": "FAIL",
+      "answer_relevancy": "FAIL",
+      "numerical_accuracy": "FAIL",
+      "overall": "FAIL",
+      "e2e_p95": "FAIL",
+      "success_rate": "PASS"
+    }
+  },
+  "performance_metrics": {
+    "e2e": {
+      "mean": 3956.5,
+      "p50": 3601.0,
+      "p90": 5707.8,
+      "p95": 5765.5,
+      "count": 15
+    },
+    "retrieval": {
+      "mean": 35.6,
+      "p50": 30.0,
+      "p90": 54.8,
+      "p95": 70.7,
+      "count": 15
+    },
+    "generation": {
+      "mean": 3920.9,
+      "p50": 3545.0,
+      "p90": 5655.0,
+      "p95": 5732.8,
+      "count": 15
+    },
+    "retrieval_coverage": 1.0,
+    "pass_status": "FAIL"
+  },
+  "stability_metrics": {
+    "success_rate": 1.0,
+    "success_count": 15,
+    "fail_list": [],
+    "pass_status": "PASS"
+  },
+  "category_stats": {
+    "L3-计算推理": {
+      "count": 15,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.5,
+      "e2e_p95_ms": 5765.5,
+      "success_rate": 1.0
+    }
+  },
+  "baseline_comparison": {
+    "baseline_version": "V13-r6",
+    "baseline_overall": 0.9153,
+    "v16_overall": 0.05,
+    "delta": -0.8653,
+    "judge_comparable": true,
+    "note": "同口径质量层可对比；NA 为新增指标不影响 overall 可比性（权重已重分配）"
+  },
+  "goodhart_risk_disclosure": {
+    "disclosure": [
+      "1. LLM-as-Judge 与生产同源模型系：存在自我肯定倾向（官方 RAGAS 0.3205 vs 自实现 0.9153 差距为证）",
+      "2. SQL 结果自然语言格式化器提升 CP/CR 可判定性：分数提升部分来自'让评估器看懂'，不全是系统真实能力",
+      "3. 正确拒绝(canAnswer=false)四指标直接满分（V13 口径沿用）：直接抬高 L9 类得分",
+      "4. NA 数值精度较 V13 口径收紧（5%→1%/0.1%）：NA 与 V13 分数不可直接比较",
+      "5. 样本量 15 条，95% 置信区间约 ±11.0%"
+    ],
+    "data_driven": {
+      "sql_formatted_ratio": 1.0,
+      "refusal_full_score_count": 0,
+      "judge_degraded": false,
+      "skip_llm": false
+    }
+  },
+  "details": [
+    {
+      "id": "L3-001",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 91,
+      "generationLatencyMs": 5622,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "12.2 vs 12.19 → 1.0; 依据值4.5293e+11不参与判分（结论值口径）; 依据值3.97711e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-002",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 62,
+      "generationLatencyMs": 3539,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "14.8 vs 14.21 → 0.0; 依据值2.159e+09不参与判分（结论值口径）; 依据值1.4539e+10不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-003",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 44,
+      "generationLatencyMs": 3240,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "83.8 vs 29.3 → 0.0; 依据值83.75不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-004",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 30,
+      "generationLatencyMs": 3706,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.5,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "16.9 vs 16.87 → 0.5; 依据值2.9003e+10不参与判分（结论值口径）; 依据值1.71118e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-005",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 25,
+      "generationLatencyMs": 5863,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.5,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.7 vs 9.72 → 0.5; 依据值1.02978e+12不参与判分（结论值口径）; 依据值9.29667e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-006",
+      "category": "L3-计算推理",
+      "query": "江苏银行2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 27,
+      "generationLatencyMs": 3000,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "10.2 vs 10.38 → 0.0; 依据值3.4501e+10不参与判分（结论值口径）; 依据值3.37961e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-007",
+      "category": "L3-计算推理",
+      "query": "华海药业2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 23,
+      "generationLatencyMs": 5677,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "60.1 vs 60.16 → 1.0; 依据值8.587e+09不参与判分（结论值口径）; 依据值3.422e+09不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-008",
+      "category": "L3-计算推理",
+      "query": "东吴证券2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 23,
+      "generationLatencyMs": 3119,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.5,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "39.3 vs 39.55 → 0.5; 依据值3.552e+09不参与判分（结论值口径）; 依据值9.03e+09不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-009",
+      "category": "L3-计算推理",
+      "query": "中国人保2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 38,
+      "generationLatencyMs": 3337,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "9.42 vs 9.42 → 1.0; 依据值6.3033e+10不参与判分（结论值口径）; 依据值6.69044e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-010",
+      "category": "L3-计算推理",
+      "query": "中国长城2025年净利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 24,
+      "generationLatencyMs": 3942,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "-0.4 vs -0.09 → 0.0; 依据值-5.6e+07不参与判分（结论值口径）; 依据值1.5809e+10不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-011",
+      "category": "L3-计算推理",
+      "query": "五粮液2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 32,
+      "generationLatencyMs": 3775,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "7.5 vs 7.63 → 0.0; 依据值8.954e+09不参与判分（结论值口径）; 依据值1.19932e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-012",
+      "category": "L3-计算推理",
+      "query": "格力电器2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 26,
+      "generationLatencyMs": 3271,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "30.1 vs 30.08 → 1.0; 依据值1.71118e+11不参与判分（结论值口径）; 依据值1.19641e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-013",
+      "category": "L3-计算推理",
+      "query": "中国能建2025年资产负债率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 15,
+      "generationLatencyMs": 3386,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "77.74 vs 77.74 → 1.0; 依据值7.31979e+11不参与判分（结论值口径）; 依据值9.41597e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-014",
+      "category": "L3-计算推理",
+      "query": "片仔癀2025年毛利率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 37,
+      "generationLatencyMs": 3545,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 1.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "36.4 vs 36.43 → 1.0; 依据值9.001e+09不参与判分（结论值口径）; 依据值5.723e+09不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    },
+    {
+      "id": "L3-015",
+      "category": "L3-计算推理",
+      "query": "中国铁建2025年净资产收益率是多少？",
+      "canAnswer": true,
+      "retrievalLatencyMs": 37,
+      "generationLatencyMs": 3792,
+      "context_precision": 0.0,
+      "context_recall": 0.0,
+      "faithfulness": 0.0,
+      "answer_relevancy": 0.0,
+      "numerical_accuracy": 0.0,
+      "success": true,
+      "reasons": {
+        "success": "有效回答",
+        "numerical_accuracy": "5.4 vs 5.08 → 0.0; 依据值1.8363e+10不参与判分（结论值口径）; 依据值3.40286e+11不参与判分（结论值口径）",
+        "context_precision": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "context_recall": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "faithfulness": "评估失败: 所有 LLM provider 均不可用: ['agnes']",
+        "answer_relevancy": "评估失败: 所有 LLM provider 均不可用: ['agnes']"
+      }
+    }
+  ]
+}
